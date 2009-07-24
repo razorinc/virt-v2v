@@ -1,0 +1,56 @@
+What (hopefully) works
+----------------------
+
+Read a guest description from a libvirt xml file.
+
+Automatic snapshot creation and corresponding guest metadata rewrite.
+
+Detection of virtio capable kernel.
+  Installation of new kernel if appropriate
+  Rebuild of mkinitrd
+
+Configuration of virtio drivers.
+
+Example command-line:
+
+./v2v/run-v2v-locally --with rhel.5.i386.kernel=/home/mbooth/kernel-2.6.18-128.1.14.el5.i686.rpm /media/passport/RHEL52PV32-20090213.xml foo
+
+Required features not yet implemented
+-------------------------------------
+
+Completion of metadata rewrite
+  Xen specific metadata is identified, but not changed
+  Rewrite of storage metadata to use virtio
+
+Remap drive names in a guest
+  This is mostly done, just needs to be stuck into HVTarget::Linux somewhere
+
+Automatic configuration of a new guest via libvirt
+
+Get guest metadata direct from libvirt (libvirt MetadataReader)
+
+Network/Bridge mapping for libvirtxml reader
+
+POD everywhere
+
+Windows support
+
+Important features not yet implemented
+--------------------------------------
+
+Commit snapshot storage to original image
+
+Online help for module specific options
+
+Roadmap features
+----------------
+
+Snapshot storage module should use libvirt APIs
+
+In-place storage module
+
+Data copy storage module
+
+OVF metadata reader
+
+VMWare HVSource

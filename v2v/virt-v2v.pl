@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # virt-v2v
 # Copyright (C) 2009 Red Hat Inc.
 #
@@ -28,7 +28,13 @@ use Getopt::Long;
 use Data::Dumper;
 use File::Temp qw/tempdir/;
 use XML::Writer;
+use File::Spec;
 use Locale::TextDomain 'libguestfs';
+
+use Sys::Guestfs::MetadataReader;
+use Sys::Guestfs::Storage;
+use Sys::Guestfs::GuestOS;
+use Sys::Guestfs::HVTarget;
 
 =encoding utf8
 
@@ -159,10 +165,47 @@ Set the output guest name.
 
 =cut
 
+# A hash of module_name => { module_options }
+my %module_options;
+
+# A list of additional arguments to Getopt
+my @getopt_options;
+
+# Get module specific options
+# TODO: Use the option descriptions in the online help somehow
+foreach my $module qw(Sys::Guestfs::MetadataReader Sys::Guestfs::Storage) {
+    my $options = $module->get_options();
+
+    foreach my $name (keys(%$options)) {
+        my $options = $options->{$name};
+        $module_options{$name} = {};
+
+        foreach my $option (@$options) {
+            my $getopt = $option->[0];
+            my $switch = $option->[1];
+            my $description = $option->[2];
+
+            push(@getopt_options,
+                 $getopt => \$module_options{$name}->{$switch});
+        }
+    }
+}
+
+# Option defaults
+my $format_opt = "libvirtxml"; # Metadata format
+my $storage_opt = "qcow2"; # storage modifier
+
+# Files which may to be installed in a guest during migration
+my %files = ();
+
 GetOptions ("help|?" => \$help,
             "version" => \$version,
             "connect|c=s" => \$uri,
             "output|o=s" => \$output,
+            "format|f=s" => \$format_opt,
+            "storage|s=s" => \$storage_opt,
+            "with-file=s" => \%files,
+            @getopt_options
     ) or pod2usage (2);
 pod2usage (1) if $help;
 if ($version) {
@@ -173,70 +216,167 @@ if ($version) {
 }
 pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
 
-# XXX This should be an option.  Disable for now until we get
-# downloads working reliably.
-my $use_windows_registry = 0;
-
-my @params = (\@ARGV);
-if ($uri) {
-    push @params, address => $uri;
+# Get an appropriate MetadataReader
+my $mdr = Sys::Guestfs::MetadataReader->instantiate($format_opt,
+                                                  $module_options{$format_opt});
+if(!defined($mdr)) {
+    print STDERR __x("virt-v2v: {format} is not a valid metadata format",
+                     format => $format_opt)."\n";
+    exit 1;
 }
-my ($g, $conn, $dom) = open_guest (@params);
 
-$g->launch ();
-$g->wait_ready ();
+my $storage = Sys::Guestfs::Storage->instantiate($storage_opt,
+                                                 $module_options{$storage_opt});
+if(!defined($storage)) {
+    print STDERR __x("{virt-v2v: storage} is not a valid storage option\n",
+                     storage => $storage)."\n";
+    exit 1;
+}
 
-# List of possible filesystems.
-my @partitions = get_partitions ($g);
+# The name of the target guest is the last command line argument
+my $target_name = pop;
 
-# Now query each one to build up a picture of what's in it.
-my %fses =
-    inspect_all_partitions ($g, \@partitions,
-                            use_windows_registry => $use_windows_registry);
+$mdr->handle_arguments(@ARGV);
 
-#print "fses -----------\n";
-#print Dumper(\%fses);
+# Check all modules are properly initialised
+my $ready = 1;
+foreach my $module ($mdr, $storage) {
+    $ready = 0 if(!$module->is_configured());
+}
+exit 1 if(!$ready);
 
-my $oses = inspect_operating_systems ($g, \%fses);
+# Create a squashfs filesystem containing all files given on the command line
+my $transferfs;
+if(values(%files) > 0) {
+    $transferfs = File::Temp->new(UNLINK => 1, SUFFIX => '.sqsh');
 
-#print "oses -----------\n";
-#print Dumper($oses);
+    # mksquashfs complains if the file already exists. We unlink it here. UNLINK
+    # specified above will ensure that the file mksquashfs creates will be
+    # automatically unlinked when the program exits.
+    unlink("$transferfs");
 
-# Only work on single-root operating systems.
-my $root_dev;
-my @roots = keys %$oses;
-die __"no root device found in this operating system image" if @roots == 0;
-die __"multiboot operating systems are not supported by v2v" if @roots > 1;
-$root_dev = $roots[0];
+    system("mksquashfs ".join(' ', values(%files))." $transferfs");
+    if($? != 0) {
+        print STDERR "Failed to create squashfs for file transfer\n";
+        exit(1);
+    }
 
-# Mount up the disks and check for applications.
+    # As transfer directory hierarchy is flat, remove all directory components
+    # from paths
+    foreach my $key (keys(%files)) {
+        my (undef, undef, $filename) = File::Spec->splitpath($files{$key});
+        $files{$key} = $filename;
+    }
+}
 
-my $os = $oses->{$root_dev};
-mount_operating_system ($g, $os);
-inspect_in_detail ($g, $os);
-$g->umount_all ();
+###############################################################################
+## Start of processing
 
+# Get a libvirt configuration for the guest
+my $dom = $mdr->get_dom();
 
+# Modify the storage in the guest according to configured options
+$storage->update_guest($dom);
 
+# Get a list of the guest's storage devices
+my @devices = get_guest_devices($dom);
 
+# Open a libguestfs handle on the guest's devices
+my $g = get_guestfs_handle(@devices);
 
+# Inspect the guest
+my $os = inspect_guest($g);
 
+# Instantiate a GuestOS instance to manipulate the guest
+my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files);
 
+# Modify the guest and its metadata for the target hypervisor
+Sys::Guestfs::HVTarget->configure($guestos, $dom, $os);
 
+print $dom->toString();
 
+$g->umount_all();
+$g->sync();
 
+sub get_guestfs_handle
+{
+    my @params = \@_; # Initialise parameters with list of devices
 
+    if ($uri) {
+        push @params, address => $uri;
+    }
 
+    my $g = open_guest(@params, rw => 1);
 
+    # If we defined a transfer filesystem, present it as the final device
+    $g->add_drive_ro($transferfs) if(defined($transferfs));
 
+    $g->launch ();
+    $g->wait_ready ();
 
+    return $g;
+}
 
+# Inspect the guest's storage. Returns an OS hashref as returned by
+# inspect_in_detail.
+sub inspect_guest
+{
+    my $g = shift;
 
+    my $use_windows_registry;
 
+    # List of possible filesystems.
+    my @partitions = get_partitions ($g);
 
+    # Now query each one to build up a picture of what's in it.
+    my %fses =
+        inspect_all_partitions ($g, \@partitions,
+                                use_windows_registry => $use_windows_registry);
 
+    #print "fses -----------\n";
+    #print Dumper(\%fses);
 
+    my $oses = inspect_operating_systems ($g, \%fses);
 
+    #print "oses -----------\n";
+    #print Dumper($oses);
+
+    # Only work on single-root operating systems.
+    my $root_dev;
+    my @roots = keys %$oses;
+    die __"no root device found in this operating system image" if @roots == 0;
+    die __"multiboot operating systems are not supported by v2v" if @roots > 1;
+    $root_dev = $roots[0];
+
+    # Mount up the disks and check for applications.
+
+    my $os = $oses->{$root_dev};
+    mount_operating_system ($g, $os, 0);
+    inspect_in_detail ($g, $os);
+
+    return $os;
+}
+
+sub get_guest_devices
+{
+    my $dom = shift;
+
+    my @devices;
+    foreach my $source ($dom->findnodes('/domain/devices/disk/source')) {
+        my $attrs = $source->getAttributes();
+
+        # Get either dev or file, whichever is defined
+        my $attr = $attrs->getNamedItem("dev");
+        $attr = $attrs->getNamedItem("file") if(!defined($attr));
+
+        defined($attr) or die("source element has neither dev nor file: ".
+                              $source.toString());
+
+        push(@devices, $attr->getValue());
+    }
+
+    return @devices;
+}
 
 =head1 SEE ALSO
 
