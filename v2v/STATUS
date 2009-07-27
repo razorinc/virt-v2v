@@ -22,6 +22,8 @@ Completion of metadata rewrite
   Xen specific metadata is identified, but not changed
   Rewrite of storage metadata to use virtio
 
+Detection of kernel and userspace architectures
+
 Remap drive names in a guest
   This is mostly done, just needs to be stuck into HVTarget::Linux somewhere
 
