@@ -95,26 +95,43 @@ sub find_metadata
     defined($dom) or carp("find_metadata called without dom argument");
 
     # List of nodes requiring changes if they exist and match a particular
-    # pattern
+    # pattern, and whether they need to be replaced for a guest to function
+    # Most of this is taken from inspection of domain.rng
     my @check_nodes = (
-        [ '/domain/@type', 'xen' ],
-        [ '/domain/os/loader', 'xen' ],
-        [ '/domain/devices/input/@bus', 'xen' ]
+        [ '/domain/@type', 'xen', 1 ],
+        [ '/domain/devices/input/@bus', 'xen', 1 ],
+        [ '/domain/devices/interface/script/@path', 'vif-bridge', 0],
+        [ '/domain/os/loader', 'xen', 0 ],
+        [ '/domain/os/type/@machine', '(xenpv|xenfv|xenner)', 0 ],
+        [ '/domain/devices/disk/target/@bus', 'xen', 0 ],
+        [ '/domain/bootloader', undef, 0],
+        [ '/domain/bootloader_args', undef, 0]
     );
 
-    my @nodes = ();
+    my @nodeinfo = ();
     foreach my $check_node (@check_nodes) {
         my $xpath = $check_node->[0];
         my $pattern = $check_node->[1];
+        my $required = $check_node->[2];
 
         foreach my $node ($dom->findnodes($xpath)) {
-            if($node->getValue() =~ m{$pattern}) {
-                push(@nodes, $xpath);
+            if(defined($pattern)) {
+                my $value;
+                if($node->isa('XML::DOM::Attr')) {
+                    $value = $node->getNodeValue();
+                } else {
+                    my ($text) = $node->findnodes('text()');
+                    $value = $text->getNodeValue();
+                }
+
+                next unless($value =~ m{$pattern});
             }
+
+            push(@nodeinfo, $node => [ $xpath, $required ]);
         }
     }
 
-    return @nodes;
+    return @nodeinfo;
 }
 
 1;

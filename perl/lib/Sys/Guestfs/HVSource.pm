@@ -101,12 +101,12 @@ sub find_metadata
     my $dom = shift;
     carp("find_metadata called without dom argument") unless defined($dom);
 
-    my @nodes = ();
+    my @nodeinfo = ();
     foreach my $module ($class->modules()) {
-        push(@nodes, $module->find_metadata($dom));
+        push(@nodeinfo, $module->find_metadata($dom));
     }
 
-    return @nodes;
+    return @nodeinfo;
 }
 
 1;

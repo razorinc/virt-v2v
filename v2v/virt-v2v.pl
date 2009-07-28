@@ -144,12 +144,8 @@ my $uri;
 
 =item B<--connect URI> | B<-c URI>
 
-If using libvirt, connect to the given I<URI>.  If omitted,
-then we connect to the default libvirt hypervisor.
-
-Libvirt is only used if you specify a C<domname> on the
-command line.  If you specify guest block devices directly,
-then libvirt is not used at all.
+Connect to libvirt using the given I<URI>. If omitted, then we connect to the
+default libvirt hypervisor.
 
 =cut
 
@@ -269,6 +265,11 @@ if(values(%files) > 0) {
     }
 }
 
+# Connect to libvirt
+my @vmm_params = (auth => 1);
+push(@vmm_params, uri => $uri) if(defined($uri));
+my $vmm = Sys::Virt->new(@vmm_params);
+
 ###############################################################################
 ## Start of processing
 
@@ -291,7 +292,7 @@ my $os = inspect_guest($g);
 my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::Guestfs::HVTarget->configure($guestos, $dom, $os);
+Sys::Guestfs::HVTarget->configure($vmm, $guestos, $dom, $os);
 
 print $dom->toString();
 
@@ -301,10 +302,6 @@ $g->sync();
 sub get_guestfs_handle
 {
     my @params = \@_; # Initialise parameters with list of devices
-
-    if ($uri) {
-        push @params, address => $uri;
-    }
 
     my $g = open_guest(@params, rw => 1);
 
