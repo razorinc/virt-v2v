@@ -197,7 +197,6 @@ my %files = ();
 GetOptions ("help|?" => \$help,
             "version" => \$version,
             "connect|c=s" => \$uri,
-            "output|o=s" => \$output,
             "format|f=s" => \$format_opt,
             "storage|s=s" => \$storage_opt,
             "with-file=s" => \%files,
@@ -294,7 +293,11 @@ my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files);
 # Modify the guest and its metadata for the target hypervisor
 Sys::Guestfs::HVTarget->configure($vmm, $guestos, $dom, $os);
 
-print $dom->toString();
+# Modify the name of the target guest
+my ($name) = $dom->findnodes('/domain/name/text()');
+$name->setNodeValue($target_name);
+
+$vmm->define_domain($dom->toString());
 
 $g->umount_all();
 $g->sync();

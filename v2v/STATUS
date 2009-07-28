@@ -20,8 +20,6 @@ Required features not yet implemented
 
 Detection of kernel and userspace architectures
 
-Automatic configuration of a new guest via libvirt
-
 Get guest metadata direct from libvirt (libvirt MetadataReader)
 
 Network/Bridge mapping for libvirtxml reader
