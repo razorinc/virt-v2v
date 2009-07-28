@@ -18,13 +18,7 @@ Example command-line:
 Required features not yet implemented
 -------------------------------------
 
-Completion of metadata rewrite
-  Remap drives
-
 Detection of kernel and userspace architectures
-
-Remap drive names in a guest
-  This is mostly done, just needs to be stuck into HVTarget::Linux somewhere
 
 Automatic configuration of a new guest via libvirt
 

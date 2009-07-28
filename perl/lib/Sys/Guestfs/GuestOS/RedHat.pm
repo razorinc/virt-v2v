@@ -372,7 +372,7 @@ sub ensure_transfer_mounted
 sub remap_block_devices
 {
     my $self = shift;
-    my %map = @_;
+    my $map = (@_);
 
     my $g = $self->{g};
 
@@ -381,8 +381,14 @@ sub remap_block_devices
     eval {
         foreach my $spec ($g->aug_match('/etc/fstab/*/spec')) {
             my $device = $g->aug_get($spec);
-            if(exists($map{$device})) {
-                $g->aug_set($spec, $map{$device});
+
+            next unless($device =~ m{^/dev/((?:sd|hd|xvd)(?:[a-z]+))});
+
+            if(exists($map->{$device})) {
+                $g->aug_set($spec, $map->{$device});
+            } else {
+                print STDERR __x("No mapping found for block device {device}",
+                                 device => $device)."\n";
             }
         }
     };

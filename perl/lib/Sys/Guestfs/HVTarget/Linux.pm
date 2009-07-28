@@ -66,10 +66,34 @@ sub configure
     carp("configure called without dom argument") unless defined($dom);
     carp("configure called without desc argument") unless defined($desc);
 
-    _configure_drivers($guestos, $desc);
-    _configure_applications($guestos, $desc);
-    _configure_kernels($guestos, $desc);
+    _remap_block_devices($guestos, $dom, $desc);
+    #_configure_drivers($guestos, $desc);
+    #_configure_applications($guestos, $desc);
+    #_configure_kernels($guestos, $desc);
     _configure_metadata($vmm, $dom, $desc);
+}
+
+sub _remap_block_devices
+{
+    my ($guestos, $dom, $desc) = @_;
+
+    my %map = ();
+
+    # Look for devices specified in the device metadata
+    foreach my $dev ($dom->findnodes('/domain/devices/disk/target/@dev')) {
+        if($dev->getNodeValue() =~ m{^(sd|hd|xvd)([a-z]+)\d*$}) {
+            $map{"$1$2"} = "vd$2";
+
+            # A guest might present an IDE disk as SCSI
+            if($1 eq 'hd') {
+                $map{"sd$2"} = "vd$2";
+            }
+
+            $dev->setNodeValue("vd$2");
+        }
+    }
+
+    $guestos->remap_block_devices(\%map);
 }
 
 sub _configure_drivers
