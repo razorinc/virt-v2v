@@ -93,9 +93,7 @@ sub update_guest
     my $dom = shift;
 
     # First, get a list of existing storage
-    my @sources = $dom->findnodes('/domain/devices/disk/source');
-
-    foreach my $source (@sources) {
+    foreach my $source ($dom->findnodes('/domain/devices/disk/source')) {
         my $attributes = $source->getAttributes();
 
         # Look for the source location
@@ -123,6 +121,9 @@ sub update_guest
 
         # Update the source to be a "file" with the new path
         $source->setAttribute("file", $qcow2_path);
+
+        # Also update the disk element to be a "file"
+        $source->getParentNode()->setAttribute('type', 'file');
 
         # Remove the driver element which is a sibling of source because it
         # might specify a physical device
