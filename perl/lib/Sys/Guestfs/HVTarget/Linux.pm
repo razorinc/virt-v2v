@@ -67,9 +67,9 @@ sub configure
     carp("configure called without desc argument") unless defined($desc);
 
     _remap_block_devices($guestos, $dom, $desc);
-    #_configure_drivers($guestos, $desc);
-    #_configure_applications($guestos, $desc);
-    #_configure_kernels($guestos, $desc);
+    _configure_drivers($guestos, $desc);
+    _configure_applications($guestos, $desc);
+    _configure_kernels($guestos, $desc);
     _configure_metadata($vmm, $dom, $desc);
 }
 
