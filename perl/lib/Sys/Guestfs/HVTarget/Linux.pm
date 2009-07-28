@@ -46,6 +46,26 @@ Sys::Guestfs::HVTarget::Linux - Configure a Linux guest for a target hypervisor
 
 =cut
 
+# Default values for a KVM configuration
+use constant KVM_XML => "
+<domain type='kvm'>
+  <os>
+    <type machine='pc'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <devices>
+    <disk device='disk'>
+      <target bus='virtio'/>
+    </disk>
+    <interface type='network'>
+      <model type='virtio'/>
+    </interface>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
+  </devices>
+</domain>
+";
+
 sub can_handle
 {
     my $class = shift;
@@ -243,8 +263,13 @@ sub _configure_metadata
     die("configure_metadata called without desc argument")
         unless defined($desc);
 
+    my $default_dom = new XML::DOM::Parser->parse(KVM_XML);
+
     # Replace source hypervisor metadata with KVM defaults
-    _unconfigure_hvs($dom);
+    _unconfigure_hvs($dom, $default_dom);
+
+    # Add a default os section if none exists
+    _configure_os($dom, $default_dom);
 
     # Configure guest according to local hypervisor's capabilities
     _configure_capabilities($dom, $vmm);
@@ -256,33 +281,9 @@ sub _configure_metadata
     _configure_virtio($dom);
 }
 
-# Default values for a KVM configuration
-use constant KVM_XML => "
-<domain type='kvm'>
-  <os>
-    <type machine='pc'>hvm</type>
-    <boot dev='hd'/>
-  </os>
-  <devices>
-    <disk device='disk'>
-      <target bus='virtio'/>
-    </disk>
-    <interface type='network'>
-      <model type='virtio'/>
-    </interface>
-    <input type='mouse' bus='ps2'/>
-    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
-  </devices>
-</domain>
-";
-
 sub _unconfigure_hvs
 {
-    my ($dom) = @_;
-
-    # Parse the defaults
-    my $parser = new XML::DOM::Parser;
-    my $default_dom = $parser->parse(KVM_XML);
+    my ($dom, $default_dom) = @_;
 
     # Get a list of source HV specific metadata nodes
     my @nodeinfo = Sys::Guestfs::HVSource->find_metadata($dom);
@@ -314,6 +315,24 @@ sub _unconfigure_hvs
             $node->getParentNode()->removeChild($node);
         }
     }
+}
+
+sub _configure_os
+{
+    my ($dom, $default_dom) = @_;
+
+    my ($os) = $dom->findnodes('/domain/os');
+    return if(defined($os));
+
+    my $kernel_arch = 'i686'; # XXX: Get from inspection!
+
+    my ($default_os) = $default_dom->findnodes('/domain/os');
+    $default_os = $default_os->cloneNode(1);
+    $default_os->setOwnerDocument($dom);
+    $default_os->setAttribute('arch', $kernel_arch);
+
+    my ($domain) = $dom->findnodes('/domain');
+    $domain->appendChild($default_os);
 }
 
 sub _configure_capabilities
@@ -371,7 +390,7 @@ sub _configure_capabilities
                              machine => $machine)."\n";
             
             my ($type) = $dom->findnodes('/domain/os/type');
-            $type->getAtributes()->removeNamedItem('machine');
+            $type->getAttributes()->removeNamedItem('machine');
         }
     }
 
