@@ -18,6 +18,8 @@ Example command-line:
 Required features not yet implemented
 -------------------------------------
 
+Allow for installation of dependencies when installing a new kernel/application.
+
 Detection of kernel and userspace architectures
 
 Get guest metadata direct from libvirt (libvirt MetadataReader)
