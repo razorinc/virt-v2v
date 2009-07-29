@@ -59,6 +59,22 @@ sub new
     my $self = $options;
     bless($self, $class);
 
+    # Convert mapbridge and mapnetwork options into hashes
+    foreach my $i qw(bridges networks) {
+        my %hash;
+        if(exists($self->{$i})) {
+            foreach my $map (@{$self->{$i}}) {
+                if ($map =~ /^(.+)=(.+)$/) {
+                    $hash{$1} = $2;
+                } else {
+                    print STDERR "$map is not of the format oldvalid=newvalue\n";
+                    $self->{invalidconfig} = 1;
+                }
+            }
+        }
+        $self->{$i} = \%hash;
+    }
+
     return $self;
 }
 
@@ -73,7 +89,14 @@ sub get_options
 {
     my $class = shift;
 
-    return ();
+    return (
+        [ "mapbridge=s@", "bridges",
+          "Map network bridge names between old and new hypervisors. ".
+          "e.g. --mapbridge xenbr1=virbr0" ],
+        [ "mapnetwork=s@", "networks",
+          "Map network names between old and new hypervisors. ".
+          "e.g. --mapnetwork default=newnet1" ]
+    );
 }
 
 sub is_configured
@@ -84,6 +107,8 @@ sub is_configured
         print STDERR "You must specify a filename when using ".NAME.".\n";
         return 0;
     }
+
+    return 0 if(exists($self->{invalidconfig}));
 
     return 1;
 }
@@ -121,6 +146,28 @@ sub get_dom
     if ($@) {
         print STDERR "Unable to parse ".$self->{path}.": $@\n";
         return undef;
+    }
+
+    # Rewrite bridge names
+    foreach my $bridge
+        ($dom->findnodes("/domain/devices/interface[\@type='bridge']/".
+                         "source/\@bridge"))
+    {
+        my $name = $bridge->getNodeValue();
+        if(exists($self->{bridges}->{$name})) {
+            $bridge->setNodeValue($self->{bridges}->{$name});
+        }
+    }
+
+    # Rewrite network names
+    foreach my $network
+        ($dom->findnodes("/domain/devices/interface[\@type='network']/".
+                         "source/\@network"))
+    {
+        my $name = $network->getNodeValue();
+        if(exists($self->{networks}->{$name})) {
+            $network->setNodeValue($self->{networks}->{$name});
+        }
     }
 
     return $dom;

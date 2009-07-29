@@ -13,7 +13,7 @@ Configuration of virtio drivers.
 
 Example command-line:
 
-./v2v/run-v2v-locally --with rhel.5.i386.kernel=/home/mbooth/kernel-2.6.18-128.1.14.el5.i686.rpm /media/passport/RHEL52PV32-20090213.xml foo
+./v2v/run-v2v-locally --with rhel.5.i386.kernel=/home/mbooth/kernel-2.6.18-128.1.14.el5.i686.rpm --mapbridge xenbr1=virbr0 /media/passport/RHEL53PV32-20090213.xml foo
 
 Required features not yet implemented
 -------------------------------------
@@ -23,8 +23,6 @@ Allow for installation of dependencies when installing a new kernel/application.
 Detection of kernel and userspace architectures
 
 Get guest metadata direct from libvirt (libvirt MetadataReader)
-
-Network/Bridge mapping for libvirtxml reader
 
 POD everywhere
 
