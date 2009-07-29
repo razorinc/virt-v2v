@@ -391,7 +391,7 @@ sub _configure_capabilities
         if(!$found) {
             print STDERR __x("The connected hypervisor does not support a ".
                              "machine type of {machine}.",
-                             machine => $machine)."\n";
+                             machine => $machine->getValue())."\n";
             
             my ($type) = $dom->findnodes('/domain/os/type');
             $type->getAttributes()->removeNamedItem('machine');
