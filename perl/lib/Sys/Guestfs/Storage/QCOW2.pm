@@ -75,7 +75,7 @@ sub get_options
     my $class = shift;
 
     return (["storagedir=s", "storagedir",
-            "The directory were qcow2 images will be written"]);
+            "The directory where qcow2 images will be written"]);
 }
 
 sub is_configured
