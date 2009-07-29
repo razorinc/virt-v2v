@@ -50,7 +50,7 @@ sub configure
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $dom, $desc) = @_;
+    my ($vmm, $guestos, $name, $dom, $desc) = @_;
     carp("configure called without vmm argument") unless defined($vmm);
     carp("configure called without guestos argument") unless defined($guestos);
     carp("configure called without dom argument") unless defined($dom);
@@ -59,7 +59,7 @@ sub configure
     # Find a module which can configure this guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $module->configure($vmm, $guestos, $dom, $desc);
+            $module->configure($vmm, $guestos, $name, $dom, $desc);
             return;
         }
     }

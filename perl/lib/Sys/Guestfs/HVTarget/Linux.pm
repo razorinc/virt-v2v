@@ -80,17 +80,17 @@ sub configure
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $dom, $desc) = @_;
+    my ($vmm, $guestos, $name, $dom, $desc) = @_;
     carp("configure called without vmm argument") unless defined($vmm);
     carp("configure called without guestos argument") unless defined($guestos);
     carp("configure called without dom argument") unless defined($dom);
     carp("configure called without desc argument") unless defined($desc);
 
     _remap_block_devices($guestos, $dom, $desc);
+    _configure_metadata($vmm, $name, $dom, $desc);
     _configure_drivers($guestos, $desc);
     _configure_applications($guestos, $desc);
     _configure_kernels($guestos, $desc);
-    _configure_metadata($vmm, $dom, $desc);
 }
 
 sub _remap_block_devices
@@ -254,7 +254,7 @@ sub _configure_kernels
 
 sub _configure_metadata
 {
-    my ($vmm, $dom, $desc) = @_;
+    my ($vmm, $name, $dom, $desc) = @_;
 
     die("configure_metadata called without vmm argument")
         unless defined($vmm);
@@ -265,11 +265,12 @@ sub _configure_metadata
 
     my $default_dom = new XML::DOM::Parser->parse(KVM_XML);
 
+    # Change the guest name
+    my ($name_node) = $dom->findnodes('/domain/name/text()');
+    $name_node->setNodeValue($name);
+
     # Replace source hypervisor metadata with KVM defaults
     _unconfigure_hvs($dom, $default_dom);
-
-    # Add a default os section if none exists
-    _configure_os($dom, $default_dom);
 
     # Configure guest according to local hypervisor's capabilities
     _configure_capabilities($dom, $vmm);
@@ -279,6 +280,9 @@ sub _configure_metadata
 
     # Configure virtio drivers
     _configure_virtio($dom);
+
+    # Add a default os section if none exists
+    _configure_os($dom, $default_dom);
 }
 
 sub _unconfigure_hvs

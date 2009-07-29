@@ -291,16 +291,12 @@ my $os = inspect_guest($g);
 my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::Guestfs::HVTarget->configure($vmm, $guestos, $dom, $os);
-
-# Modify the name of the target guest
-my ($name) = $dom->findnodes('/domain/name/text()');
-$name->setNodeValue($target_name);
-
-$vmm->define_domain($dom->toString());
+Sys::Guestfs::HVTarget->configure($vmm, $guestos, $target_name, $dom, $os);
 
 $g->umount_all();
 $g->sync();
+
+$vmm->define_domain($dom->toString());
 
 sub get_guestfs_handle
 {
