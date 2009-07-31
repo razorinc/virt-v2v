@@ -89,6 +89,7 @@ sub configure
     _remap_block_devices($guestos, $dom, $desc);
     _configure_metadata($vmm, $name, $dom, $desc);
     _configure_kernel_modules($guestos, $desc);
+    _configure_display_driver($guestos);
     _configure_applications($guestos, $desc);
     _configure_kernels($guestos, $desc);
 }
@@ -165,6 +166,13 @@ sub _configure_kernel_modules
                              module => $modules->{$module}->{modulename});
         }
     }
+}
+
+sub _configure_display_driver
+{
+    my ($guestos) = @_;
+
+    $guestos->update_display_driver("cirrus");
 }
 
 sub _configure_applications

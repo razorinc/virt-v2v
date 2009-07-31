@@ -169,10 +169,6 @@ sub update_kernel_module
 
     eval {
         $g->aug_set($augeas."/modulename", $module);
-
-        # XXX: The following save should not be required, but is
-        # If this save is omitted, by the time save is called just before
-        # mkinitrd, these changes will have been lost.
         $g->aug_save();
     };
 
@@ -496,6 +492,13 @@ sub prepare_bootable
 
         $g->command(["/sbin/mkinitrd", @preload_args, $initrd, $version]);
     }
+
+    # Disable kudzu in the guest
+    # Kudzu will detect the changed network hardware at boot time and either:
+    #   require manual intervention, or
+    #   disable the network interface
+    # Neither of these behaviours is desirable.
+    $g->command(['/sbin/chkconfig', 'kudzu', 'off']);
 }
 
 sub DESTROY
