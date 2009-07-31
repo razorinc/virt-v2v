@@ -39,30 +39,30 @@ Sys::Guestfs::HVSource::Xen::Linux - Unconfigure Xen/Linux changes
 
 =cut
 
-sub find_drivers
+sub find_kernel_modules
 {
     my $class = shift;
 
     my $desc = shift;
-    carp("find_drivers called without desc argument")
+    carp("find_kernel_modules called without desc argument")
         unless defined($desc);
 
     my $aliases = $desc->{modprobe_aliases};
     return unless defined($aliases);
 
-    my @drivers = ();
+    my @modules = ();
     foreach my $alias (keys(%$aliases)) {
         my $modulename = $aliases->{$alias}->{modulename};
 
-        foreach my $xen_driver qw(xennet xen-vnif xenblk xen-vbd) {
-            if($modulename eq $xen_driver) {
-                push(@drivers, $alias);
+        foreach my $xen_module qw(xennet xen-vnif xenblk xen-vbd) {
+            if($modulename eq $xen_module) {
+                push(@modules, $alias);
                 last;
             }
         }
     }
 
-    return @drivers;
+    return @modules;
 }
 
 sub find_applications

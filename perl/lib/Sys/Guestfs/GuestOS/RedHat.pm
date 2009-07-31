@@ -135,7 +135,7 @@ sub new
     return $self;
 }
 
-sub enable_driver
+sub enable_kernel_module
 {
     my $self = shift;
     my ($device, $module) = @_;
@@ -152,16 +152,16 @@ sub enable_driver
     die($@) if($@);
 }
 
-sub update_driver
+sub update_kernel_module
 {
     my $self = shift;
     my ($device, $module) = @_;
 
-    # We expect the driver to have been discovered during inspection
+    # We expect the module to have been discovered during inspection
     my $desc = $self->{desc};
     my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
 
-    # Error if the driver isn't defined
+    # Error if the module isn't defined
     die("$augeas isn't defined") unless defined($augeas);
 
     my $g = $self->{g};
@@ -180,16 +180,16 @@ sub update_driver
     die($@) if($@);
 }
 
-sub disable_driver
+sub disable_kernel_module
 {
     my $self = shift;
     my $device = shift;
 
-    # We expect the driver to have been discovered during inspection
+    # We expect the module to have been discovered during inspection
     my $desc = $self->{desc};
     my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
 
-    # Nothing to do if the driver isn't defined
+    # Nothing to do if the module isn't defined
     return if(!defined($augeas));
 
     my $g = $self->{g};
@@ -402,7 +402,7 @@ sub prepare_bootable
     my $self = shift;
 
     my $version = shift;
-    my @drivers = @_;
+    my @modules = @_;
 
     my $g = $self->{g};
 
@@ -454,10 +454,10 @@ sub prepare_bootable
         # Backup the original initrd
         $g->mv("$initrd", "$initrd.pre-v2v");
 
-        # Create a new initrd which preloads the required drivers
+        # Create a new initrd which preloads the required kernel modules
         my @preload_args = ();
-        foreach my $driver (@drivers) {
-            push(@preload_args, "--preload=$driver");
+        foreach my $module (@modules) {
+            push(@preload_args, "--preload=$module");
         }
 
         # mkinitrd reads configuration which we've probably changed

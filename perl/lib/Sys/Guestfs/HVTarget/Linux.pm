@@ -88,7 +88,7 @@ sub configure
 
     _remap_block_devices($guestos, $dom, $desc);
     _configure_metadata($vmm, $name, $dom, $desc);
-    _configure_drivers($guestos, $desc);
+    _configure_kernel_modules($guestos, $desc);
     _configure_applications($guestos, $desc);
     _configure_kernels($guestos, $desc);
 }
@@ -116,59 +116,53 @@ sub _remap_block_devices
     $guestos->remap_block_devices(\%map);
 }
 
-sub _configure_drivers
+sub _configure_kernel_modules
 {
     my ($guestos, $desc) = @_;
-    die("configure_drivers called without guestos argument")
+    die("configure_kernel_modules called without guestos argument")
         unless defined($guestos);
-    die("configure_drivers called without desc argument")
+    die("configure_kernel_modules called without desc argument")
         unless defined($desc);
 
-    # Get a list of all old-hypervisor specific drivers which need to be
+    # Get a list of all old-hypervisor specific kernel modules which need to be
     # replaced or removed
-    my %hvs_drivers;
-    foreach my $driver (Sys::Guestfs::HVSource->find_drivers($guestos)) {
-        $hvs_drivers{$driver} = undef;
+    my %hvs_modules;
+    foreach my $module (Sys::Guestfs::HVSource->find_kernel_modules($guestos)) {
+        $hvs_modules{$module} = undef;
     }
 
-    # Go through all drivers looking for network or scsi devices
-    my $drivers = $desc->{modprobe_aliases};
+    # Go through all kernel modules looking for network or scsi devices
+    my $modules = $desc->{modprobe_aliases};
 
-    foreach my $driver (keys(%$drivers)) {
-        # Replace network drivers with virtio_net
-        if($driver =~ /^eth\d+$/) {
-            # Make a note that we updated an old-HV specific driver
-            if(exists($hvs_drivers{$driver})) {
-                $hvs_drivers{$driver} = "virtio_net";
+    foreach my $module (keys(%$modules)) {
+        # Replace network modules with virtio_net
+        if($module =~ /^eth\d+$/) {
+            # Make a note that we updated an old-HV specific kernel module
+            if(exists($hvs_modules{$module})) {
+                $hvs_modules{$module} = "virtio_net";
             }
 
-            $guestos->update_driver($driver, "virtio_net");
-
-            print STDERR __x("Replaced {driver} driver with virtio_net\n",
-                      driver => $driver);
+            $guestos->update_kernel_module($module, "virtio_net");
         }
 
         # Replace block drivers with virtio_blk
-        if($driver =~ /^scsi_hostadapter/) {
-            # Make a note that we updated an old-HV specific driver
-            if(exists($hvs_drivers{$driver})) {
-                $hvs_drivers{$driver} = "virtio_blk";
+        if($module =~ /^scsi_hostadapter/) {
+            # Make a note that we updated an old-HV specific kernel module
+            if(exists($hvs_modules{$module})) {
+                $hvs_modules{$module} = "virtio_blk";
             }
 
-            $guestos->update_driver($driver, "virtio_blk");
-
-            print STDERR __x("Replaced {driver} driver with virtio_blk\n",
-                      driver => $driver);
+            $guestos->update_kernel_module($module, "virtio_blk");
         }
     }
 
-    # Warn if any old-HV specific drivers weren't updated
-    foreach my $driver (keys(%hvs_drivers)) {
-        if(!defined($hvs_drivers{$driver})) {
-            print STDERR __x("WARNING: Don't know how to update {driver}, ".
+    # Warn if any old-HV specific kernel modules weren't updated
+    foreach my $module (keys(%hvs_modules)) {
+        if(!defined($hvs_modules{$module})) {
+            print STDERR __x("WARNING: Don't know how to update {module}, ".
                              "which loads the {module} module.\n",
-                             driver => $driver,
-                             module => $drivers->{$driver}->{modulename});
+                             module => $module,
+                             module => $modules->{$module}->{modulename});
         }
     }
 }
@@ -202,15 +196,15 @@ sub _configure_kernels
             "virtio_net" => undef
         );
 
-        foreach my $driver ($kernel->{modules}) {
-            if(exists($checklist{$driver})) {
-                $checklist{$driver} = 1;
+        foreach my $module ($kernel->{modules}) {
+            if(exists($checklist{$module})) {
+                $checklist{$module} = 1;
             }
         }
 
         my $virtio = 1;
-        foreach my $driver (keys(%checklist)) {
-            if(!defined($checklist{$driver})) {
+        foreach my $module (keys(%checklist)) {
+            if(!defined($checklist{$module})) {
                 $virtio = 0;
                 last;
             }
@@ -278,7 +272,7 @@ sub _configure_metadata
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
 
-    # Configure virtio drivers
+    # Configure virtio in the guest
     _configure_virtio($dom);
 
     # Add a default os section if none exists

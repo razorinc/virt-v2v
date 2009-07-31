@@ -46,20 +46,20 @@ changes made to a guest operating system.
 
 =cut
 
-sub find_drivers
+sub find_kernel_modules
 {
     my $class = shift;
     
     my $guestos = shift;
-    carp("find_drivers called without guestos argument")
+    carp("find_kernel_modules called without guestos argument")
         unless defined($guestos);
 
-    my @drivers = ();
+    my @modules = ();
     foreach my $module ($class->modules()) {
-        push(@drivers, $module->find_drivers($guestos));
+        push(@modules, $module->find_kernel_modules($guestos));
     }
 
-    return @drivers;
+    return @modules;
 }
 
 sub find_applications
@@ -72,7 +72,7 @@ sub find_applications
 
     my @applications = ();
     foreach my $module ($class->modules()) {
-        push(@applications, $module->find_drivers($guestos));
+        push(@applications, $module->find_applications($guestos));
     }
 
     return @applications;
@@ -88,7 +88,7 @@ sub find_kernels
 
     my @kernels = ();
     foreach my $module ($class->modules()) {
-        push(@kernels, $module->find_drivers($guestos));
+        push(@kernels, $module->find_kernels($guestos));
     }
 
     return @kernels;
