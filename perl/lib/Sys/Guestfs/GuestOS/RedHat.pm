@@ -165,7 +165,7 @@ sub update_kernel_module
     die("$augeas isn't defined") unless defined($augeas);
 
     my $g = $self->{g};
-    $augeas = $self->check_augeas_device($augeas, $device);
+    $augeas = $self->_check_augeas_device($augeas, $device);
 
     eval {
         $g->aug_set($augeas."/modulename", $module);
@@ -194,9 +194,31 @@ sub disable_kernel_module
 
     my $g = $self->{g};
 
-    $augeas = $self->check_augeas_device($augeas, $device);
+    $augeas = $self->_check_augeas_device($augeas, $device);
     eval {
         $g->aug_rm($augeas);
+    };
+
+    # Propagate augeas errors
+    die($@) if($@);
+}
+
+sub update_display_driver
+{
+    my $self = shift;
+    my $driver = shift;
+
+    my $g = $self->{g};
+
+    # Update the display driver if it exists
+    eval {
+        foreach my $path
+            ($g->aug_match('/files/etc/X11/xorg.conf/Device/Driver'))
+        {
+            $g->aug_set($path, $driver);
+        }
+
+        $g->aug_save();
     };
 
     # Propagate augeas errors
@@ -207,7 +229,7 @@ sub disable_kernel_module
 # something has been inserted or removed before it.
 # Look for the alias again in the same file which contained it on the first
 # pass.
-sub check_augeas_device
+sub _check_augeas_device
 {
     my $self = shift;
     my ($path, $device) = @_;
@@ -243,7 +265,7 @@ sub add_kernel
 
     my $g = $self->{g};
 
-    my $filename = $self->match_file('kernel', $kernel_arch);
+    my $filename = $self->_match_file('kernel', $kernel_arch);
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
@@ -257,7 +279,7 @@ sub add_kernel
     die(__x"{filename} doesn't contain a valid kernel\n",
             filename => $filename) if(!defined($version));
 
-    $self->install_rpm($filename);
+    $self->_install_rpm($filename);
 
     # Make augeas reload so it'll find the new kernel
     $g->aug_load();
@@ -287,8 +309,8 @@ sub add_application
     my $label = shift;
     my $user_arch = "i386"; # XXX: Need to get this from inspection!
 
-    my $filename = $self->match_file($label, $user_arch);
-    $self->install_rpm($filename);
+    my $filename = $self->_match_file($label, $user_arch);
+    $self->_install_rpm($filename);
 }
 
 sub remove_application
@@ -303,7 +325,7 @@ sub remove_application
     die($@) if($@);
 }
 
-sub match_file
+sub _match_file
 {
     my $self = shift;
     my ($label, $arch) = @_;
@@ -317,7 +339,7 @@ sub match_file
 
     if(values(%$files) > 0) {
         # Ensure that whatever file is returned is accessible
-        $self->ensure_transfer_mounted();
+        $self->_ensure_transfer_mounted();
 
         # Search for a matching entry in the file map, in descending order of
         # specificity
@@ -338,7 +360,7 @@ sub match_file
 }
 
 # Internal use only
-sub install_rpm
+sub _install_rpm
 {
     my $self = shift;
     my $filename = shift;
@@ -352,7 +374,7 @@ sub install_rpm
     die($@) if($@);
 }
 
-sub ensure_transfer_mounted
+sub _ensure_transfer_mounted
 {
     my $self = shift;
 
