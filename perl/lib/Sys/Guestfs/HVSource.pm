@@ -49,7 +49,7 @@ changes made to a guest operating system.
 sub find_kernel_modules
 {
     my $class = shift;
-    
+
     my $guestos = shift;
     carp("find_kernel_modules called without guestos argument")
         unless defined($guestos);

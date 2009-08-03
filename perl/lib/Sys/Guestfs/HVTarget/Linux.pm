@@ -380,7 +380,7 @@ sub _configure_capabilities
     if(defined($machine)) {
         my @machine_caps = $guestcap->findnodes
             ("arch[\@name='$arch']/machine/text()");
-        
+
         my $found = 0;
         foreach my $machine_cap (@machine_caps) {
             if($machine eq $machine_cap) {
@@ -394,7 +394,7 @@ sub _configure_capabilities
             print STDERR __x("The connected hypervisor does not support a ".
                              "machine type of {machine}.",
                              machine => $machine->getValue())."\n";
-            
+
             my ($type) = $dom->findnodes('/domain/os/type');
             $type->getAttributes()->removeNamedItem('machine');
         }
