@@ -240,29 +240,7 @@ foreach my $module ($mdr, $storage) {
 }
 exit 1 if(!$ready);
 
-# Create a squashfs filesystem containing all files given on the command line
-my $transferfs;
-if(values(%files) > 0) {
-    $transferfs = File::Temp->new(UNLINK => 1, SUFFIX => '.sqsh');
-
-    # mksquashfs complains if the file already exists. We unlink it here. UNLINK
-    # specified above will ensure that the file mksquashfs creates will be
-    # automatically unlinked when the program exits.
-    unlink("$transferfs");
-
-    system("mksquashfs ".join(' ', values(%files))." $transferfs");
-    if($? != 0) {
-        print STDERR "Failed to create squashfs for file transfer\n";
-        exit(1);
-    }
-
-    # As transfer directory hierarchy is flat, remove all directory components
-    # from paths
-    foreach my $key (keys(%files)) {
-        my (undef, undef, $filename) = File::Spec->splitpath($files{$key});
-        $files{$key} = $filename;
-    }
-}
+my $transferiso = create_transfer_iso(\%files);
 
 # Connect to libvirt
 my @vmm_params = (auth => 1);
@@ -298,6 +276,10 @@ $g->sync();
 
 $vmm->define_domain($dom->toString());
 
+
+###############################################################################
+## Helper functions
+
 sub get_guestfs_handle
 {
     my @params = \@_; # Initialise parameters with list of devices
@@ -305,7 +287,7 @@ sub get_guestfs_handle
     my $g = open_guest(@params, rw => 1);
 
     # If we defined a transfer filesystem, present it as the final device
-    $g->add_drive_ro($transferfs) if(defined($transferfs));
+    $g->add_cdrom($transferiso) if(defined($transferiso));
 
     $g->launch ();
     $g->wait_ready ();
@@ -372,6 +354,33 @@ sub get_guest_devices
     }
 
     return @devices;
+}
+
+sub create_transfer_iso
+{
+    my $files = shift;
+
+    my $iso;
+
+    if(values(%$files) > 0) {
+        $iso = File::Temp->new(UNLINK => 1, SUFFIC => '.iso');
+
+        system("/usr/bin/mkisofs -o $iso -r -J -V __virt-v2v_transfer__ ".
+               join(' ', values(%files)));
+
+        if($? != 0) {
+            die(__x("Failed to create iso for file transfer"));
+        }
+
+        # As transfer directory hierarchy is flat, remove all directory
+        # components from paths
+        foreach my $key (keys(%files)) {
+            my (undef, undef, $filename) = File::Spec->splitpath($files{$key});
+            $files{$key} = $filename;
+        }
+    }
+
+    return $iso;
 }
 
 =head1 SEE ALSO
