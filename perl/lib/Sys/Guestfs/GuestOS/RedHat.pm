@@ -257,11 +257,56 @@ sub _check_augeas_device
 sub add_kernel
 {
     my $self = shift;
-    my $kernel_arch = "i386"; # XXX: Need to get this from inspection!
+
+    my $desc = $self->{desc};
+    my $boot = $desc->{boot};
+
+    # Check the default first
+    my @configs;
+    push(@configs, $boot->{default})
+        if(defined($boot->{default}));
+
+    # Then check the rest. Default will get checked twice. Shouldn't be a
+    # problem, though.
+    push(@configs, (0..$#{$boot->{configs}}));
+
+    # Get a current bootable kernel, preferrably the default
+    my $kernel_pkg;
+    my $kernel_arch;
+
+    foreach my $i (@configs) {
+        my $config = $boot->{configs}->[$i];
+
+        # Check the entry has a kernel
+        my $kernel = $config->{kernel};
+        next unless(defined($kernel));
+
+        # Check its architecture is known
+        $kernel_arch = $kernel->{arch};
+        next unless(defined($kernel_arch));
+
+        # Get the kernel package name
+        $kernel_pkg = $kernel->{package};
+
+        # Default to 'kernel' if package name wasn't discovered
+        $kernel_pkg = "kernel" if(!defined($kernel_pkg));
+    }
+
+    # Default the kernel architecture to the userspace architecture if it wasn't
+    # directly detected
+    $kernel_arch = $desc->{arch} if(!defined($kernel_arch));
+
+    die(__x("Unable to determine a kernel architecture"))
+        unless(defined($kernel_arch));
+
+    # We haven't supported anything less than i686 for the kernel on 32 bit for
+    # a very long time.
+    $kernel_arch = 'i686' if('i386' eq $kernel_arch);
+
+    # Get a matching rpm
+    my $filename = $self->_match_file($kernel_pkg, $kernel_arch);
 
     my $g = $self->{g};
-
-    my $filename = $self->_match_file('kernel', $kernel_arch);
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
@@ -303,7 +348,8 @@ sub add_application
 {
     my $self = shift;
     my $label = shift;
-    my $user_arch = "i386"; # XXX: Need to get this from inspection!
+
+    my $user_arch = $self->{desc}->{arch};
 
     my $filename = $self->_match_file($label, $user_arch);
     $self->_install_rpm($filename);
@@ -352,7 +398,6 @@ sub _match_file
 
     die (__x("No file given matching {label}\n", label =>
         "$distro.$major.$minor.$arch.$label"));
-
 }
 
 # Internal use only
