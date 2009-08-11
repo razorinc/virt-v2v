@@ -62,13 +62,15 @@ sub instantiate
 {
     my $class = shift;
 
-    my ($g, $desc, $files) = @_;
+    my ($g, $desc, $files, $deps) = @_;
     defined($g) or carp("get_instance called without g argument");
     defined($desc) or carp("get_instance called without desc argument");
     defined($files) or carp("get_instance called without files argument");
+    defined($deps) or carp("get_instance called without deps argument");
 
     foreach my $module ($class->modules()) {
-        return $module->new($g, $desc, $files) if($module->can_handle($desc));
+        return $module->new($g, $desc, $files, $deps)
+                if($module->can_handle($desc));
     }
 
     return undef;

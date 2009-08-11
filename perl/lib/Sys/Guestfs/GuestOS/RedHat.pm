@@ -75,6 +75,10 @@ sub new
     $self->{files} = shift;
     carp("new called without files description") unless defined($self->{files});
 
+    # Guest dependency map
+    $self->{deps} = shift;
+    carp("new called without dependencies") unless defined($self->{deps});
+
     # Check how new modules should be configured. Possibilities, in descending
     # order of preference, are:
     #   modprobe.d/
@@ -258,13 +262,47 @@ sub add_kernel
 {
     my $self = shift;
 
+    my ($kernel_pkg, $kernel_arch) = $self->_discover_kernel();
+
+    # Install the kernel's dependencies
+    $self->_install_rpms(1, $self->_resolve_deps($kernel_pkg));
+
+    # Get a matching rpm
+    my $filename = $self->_match_file($kernel_pkg, $kernel_arch);
+
+    # Inspect the rpm to work out what kernel version it contains
+    my $version;
+    my $g = $self->{g};
+    foreach my $file ($g->command_lines(["rpm", "-qlp", $filename])) {
+        if($file =~ m{^/boot/vmlinuz-(.*)$}) {
+            $version = $1;
+            last;
+        }
+    }
+
+    die(__x"{filename} doesn't contain a valid kernel\n",
+            filename => $filename) if(!defined($version));
+
+    $self->_install_rpms(0, ($filename));
+
+    # Make augeas reload so it'll find the new kernel
+    $g->aug_load();
+
+    return $version;
+}
+
+# Inspect the guest description to work out what kernel should be installed.
+# Returns ($kernel_pkg, $kernel_arch)
+sub _discover_kernel
+{
+    my $self = shift;
+
     my $desc = $self->{desc};
     my $boot = $desc->{boot};
 
     # Check the default first
     my @configs;
-    push(@configs, $boot->{default})
-        if(defined($boot->{default}));
+    push(@configs, $boot->{default}) if(defined($boot->{default}));
 
     # Then check the rest. Default will get checked twice. Shouldn't be a
     # problem, though.
@@ -299,33 +337,11 @@ sub add_kernel
     die(__x("Unable to determine a kernel architecture"))
         unless(defined($kernel_arch));
 
-    # We haven't supported anything less than i686 for the kernel on 32 bit for
+    # We haven't supported anything other than i686 for the kernel on 32 bit for
     # a very long time.
     $kernel_arch = 'i686' if('i386' eq $kernel_arch);
 
-    # Get a matching rpm
-    my $filename = $self->_match_file($kernel_pkg, $kernel_arch);
-
-    my $g = $self->{g};
-
-    # Inspect the rpm to work out what kernel version it contains
-    my $version;
-    foreach my $file ($g->command_lines(["rpm", "-qlp", $filename])) {
-        if($file =~ m{^/boot/vmlinuz-(.*)$}) {
-            $version = $1;
-            last;
-        }
-    }
-
-    die(__x"{filename} doesn't contain a valid kernel\n",
-            filename => $filename) if(!defined($version));
-
-    $self->_install_rpm($filename);
-
-    # Make augeas reload so it'll find the new kernel
-    $g->aug_load();
-
-    return $version;
+    return ($kernel_pkg, $kernel_arch);
 }
 
 sub remove_kernel
@@ -351,9 +367,193 @@ sub add_application
 
     my $user_arch = $self->{desc}->{arch};
 
-    my $filename = $self->_match_file($label, $user_arch);
-    $self->_install_rpm($filename);
+    # Get the rpm for this label
+    my $rpm = $self->_match_file($label, $user_arch);
+
+    # Nothing to do if it's already installed
+    return if(_is_installed($rpm));
+
+    my @install = ($rpm);
+
+    # Add the dependencies to the install set
+    push(@install, $self->_resolve_deps($label));
+
+    $self->_install_rpms(1, @install);
 }
+
+# Return a list of dependencies which must be installed before $label can be
+# installed. The list contains paths of rpm files. It does not contain the rpm
+# for $label itself. This is so _resolve_deps can be used to install kernel
+# dependencies with -U before the kernel itself is installed with -i.
+sub _resolve_deps
+{
+    my $self = shift;
+
+    my ($label, @path) = @_;
+
+    # Check that the dependency path doesn't include the given label. If it
+    # does, that's a dependency loop.
+    if(grep(/\Q$label\E/, @path) > 0) {
+        die(__x("Found dependency loop installing {label}: {path}",
+                label => $label, path => join(' ', @path))."\n");
+    }
+    push(@path, $label);
+
+    my $user_arch = $self->{desc}->{arch};
+
+    my $g = $self->{g};
+
+    my @depfiles = ();
+
+    # Find dependencies for $label
+    foreach my $dep ($self->_match_deps($label, $user_arch)) {
+        my $rpm = $self->_match_file($dep, $user_arch);
+
+        # Don't add the dependency if it's already installed
+        next if($self->_is_installed($rpm));
+
+        # Add the dependency
+        push(@depfiles, $rpm);
+
+        # Recursively add dependencies
+        push(@depfiles, $self->_resolve_deps($dep, @path));
+    }
+
+    return @depfiles;
+}
+
+# Return 1 if the requested rpm, or a newer version, is installed
+# Return 0 otherwise
+sub _is_installed
+{
+    my $self = shift;
+    my ($rpm) = @_;
+
+    my $g = $self->{g};
+
+    # Get NEVRA for the rpm to be installed
+    my $nevra = $g->command(['rpm', '-qp', '--qf',
+                             '%{NAME} %{EPOCH} %{VERSION} %{RELEASE} %{ARCH}',
+                             $rpm]);
+
+    $nevra =~ /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)$/
+        or die("Unexpected return from rpm command: $nevra");
+    my ($name, $epoch, $version, $release, $arch) = ($1, $2, $3, $4, $5);
+
+    # Ensure epoch is always numeric
+    $epoch = 0 if('(none)' eq $epoch);
+
+    # Search installed rpms matching <name>.<arch>
+    my $found = 0;
+    foreach my $installed ($g->command_lines(['rpm', '-q', '--qf',
+                           '%{EPOCH} %{VERSION} %{RELEASE}', "$name.$arch"])) {
+        $installed =~ /^(\S+)\s+(\S+)\s+(\S+)$/
+            or die("Unexpected return from rpm command: $installed");
+        my ($iepoch, $iversion, $irelease) = ($1, $2, $3);
+
+        # Ensure iepoch is always numeric
+        $iepoch = 0 if('(none)' eq $iepoch);
+
+        # Skip if installed epoch less than requested version
+        next if($iepoch < $epoch);
+
+        if($iepoch eq $epoch) {
+            # Skip if installed version less than requested version
+            next if(_rpmvercmp($iversion, $version) < 0);
+
+            # Skip if install version == requested version, but release less
+            # than requested release
+            if($iversion eq $version) {
+                next if(_rpmvercmp($irelease,$release) < 0);
+            }
+        }
+        
+        $found = 1;
+    }
+
+    return $found;
+}
+
+# An implementation of rpmvercmp. Compares two rpm version/release numbers and
+# returns -1/0/1 as appropriate.
+# Note that this is intended to have the exact same behaviour as the real
+# rpmvercmp, not be in any way sane.
+sub _rpmvercmp
+{
+    my ($a, $b) = @_;
+
+    # Simple equality test
+    return 0 if($a eq $b);
+
+    my @aparts;
+    my @bparts;
+
+    # [t]ransformation
+    # [s]tring
+    # [l]ist
+    foreach my $t ([$a => \@aparts],
+                   [$b => \@bparts]) {
+        my $s = $t->[0];
+        my $l = $t->[1];
+
+        # We split not only on non-alphanumeric characters, but also on the
+        # boundary of digits and letters. This corresponds to the behaviour of
+        # rpmvercmp because it does 2 types of iteration over a string. The
+        # first iteration skips non-alphanumeric characters. The second skips
+        # over either digits or letters only, according to the first character
+        # of $a.
+        @$l = split(/(?<=[[:digit:]])(?=[[:alpha:]]) | # digit<>alpha
+                     (?<=[[:alpha:]])(?=[[:digit:]]) | # alpha<>digit
+                     [^[:alnum:]]+                # sequence of non-alphanumeric
+                    /x, $s);
+    }
+
+    # Find the minimun of the number of parts of $a and $b
+    my $parts = scalar(@aparts) < scalar(@bparts) ?
+                scalar(@aparts) : scalar(@bparts);
+
+    for(my $i = 0; $i < $parts; $i++) {
+        my $acmp = $aparts[$i];
+        my $bcmp = $bparts[$i];
+
+        # Return 1 if $a is numeric and $b is not
+        if($acmp =~ /^[[:digit:]]/) {
+            return 1 if($bcmp !~ /^[[:digit:]]/);
+
+            # Drop leading zeroes
+            $acmp =~ /^0*(.*)$/;
+            $acmp = $1;
+            $bcmp =~ /^0*(.*)$/;
+            $bcmp = $1;
+
+            # We do a string comparison of 2 numbers later. At this stage, if
+            # they're of differing lengths, one is larger.
+            return 1 if(length($acmp) > length($bcmp));
+            return -1 if(length($bcmp) > length($acmp));
+        }
+
+        # Return -1 if $a is letters and $b is not
+        else {
+            return -1 if($bcmp !~ /^[[:alpha:]]/);
+        }
+
+        # Return only if they differ
+        return -1 if($acmp lt $bcmp);
+        return 1 if($acmp gt $bcmp);
+    }
+
+    # We got here because all the parts compared so far have been equal, and one
+    # or both have run out of parts.
+
+    # Whichever has the greatest number of parts is the largest
+    return -1 if(scalar(@aparts) < scalar(@bparts));
+    return 1  if(scalar(@aparts) > scalar(@bparts));
+
+    # We can get here if the 2 strings differ only in non-alphanumeric
+    # separators.
+    return 0;
+}
+
 
 sub remove_application
 {
@@ -362,27 +562,23 @@ sub remove_application
 
     my $g = $self->{g};
     eval {
-        $g->command(["rpm", "-e", $name]);
+        $g->command(['rpm', '-e', $name]);
     };
     die($@) if($@);
 }
 
-sub _match_file
+# Lookup a guest specific match for the given label
+sub _match
 {
     my $self = shift;
-    my ($label, $arch) = @_;
+    my ($object, $label, $arch, $hash) = @_;
 
     my $desc = $self->{desc};
     my $distro = $desc->{distro};
     my $major = $desc->{major_version};
     my $minor = $desc->{minor_version};
 
-    my $files = $self->{files};
-
-    if(values(%$files) > 0) {
-        # Ensure that whatever file is returned is accessible
-        $self->_ensure_transfer_mounted();
-
+    if(values(%$hash) > 0) {
         # Search for a matching entry in the file map, in descending order of
         # specificity
         for my $name ("$distro.$major.$minor.$arch.$label",
@@ -391,30 +587,74 @@ sub _match_file
                       "$distro.$major.$label",
                       "$distro.$arch.$label",
                       "$distro.$label") {
-            return $self->{transfer_mount}.'/'.$files->{$name}
-                if(defined($files->{$name}));
+            return $name if(defined($hash->{$name}));
         }
     }
 
-    die (__x("No file given matching {label}\n", label =>
-        "$distro.$major.$minor.$arch.$label"));
+    die (__x("No {object} given matching {label}\n",
+         object => $object,
+         label => "$distro.$major.$minor.$arch.$label"));
 }
 
-# Internal use only
-sub _install_rpm
+# Return the path to an rpm for <label>.<arch>
+# Dies if no match is found
+sub _match_file
 {
     my $self = shift;
-    my $filename = shift;
+    my ($label, $arch) = @_;
+
+    my $files = $self->{files};
+
+    my $name = $self->_match(__"file", $label, $arch, $files);
+
+    # Ensure that whatever file is returned is accessible
+    $self->_ensure_transfer_mounted();
+
+    return $self->{transfer_mount}.'/'.$files->{$name};
+}
+
+# Return a list of labels listed as dependencies of the given label.
+# Returns an empty list if no dependencies were specified.
+sub _match_deps
+{
+    my $self = shift;
+    my ($label, $arch) = @_;
+
+    my $deps = $self->{deps};
+
+    my $name;
+    eval {
+        $name = $self->_match(__"dependencies", $label, $arch, $deps);
+    };
+
+    # Return an empty list if there were no dependencies defined
+    if($@) {
+        return ();
+    } else {
+        return split(/\s+/, $deps->{$name});
+    }
+}
+
+# Install a set of rpms
+sub _install_rpms
+{
+    my $self = shift;
+
+    my ($upgrade, @rpms) = @_;
+
+    # Nothing to do if we got an empty set
+    return if(scalar(@rpms) == 0);
 
     my $g = $self->{g};
     eval {
-        $g->command(["rpm", "-i", $filename]);
+        $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
     };
 
     # Propagate command failure
     die($@) if($@);
 }
 
+# Ensure that the transfer device is mounted. If not, mount it.
 sub _ensure_transfer_mounted
 {
     my $self = shift;

@@ -194,12 +194,16 @@ my $storage_opt = "qcow2"; # storage modifier
 # Files which may to be installed in a guest during migration
 my %files = ();
 
-GetOptions ("help|?" => \$help,
-            "version" => \$version,
+# Dependencies of files to be installed
+my %deps = ();
+
+GetOptions ("help|?"      => \$help,
+            "version"     => \$version,
             "connect|c=s" => \$uri,
-            "format|f=s" => \$format_opt,
+            "format|f=s"  => \$format_opt,
             "storage|s=s" => \$storage_opt,
-            "with-file=s" => \%files,
+            "file=s"      => \%files,
+            "dep=s"       => \%deps,
             @getopt_options
     ) or pod2usage (2);
 pod2usage (1) if $help;
@@ -266,7 +270,7 @@ my $g = get_guestfs_handle(@devices);
 my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
-my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files);
+my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files, \%deps);
 
 # Modify the guest and its metadata for the target hypervisor
 Sys::Guestfs::HVTarget->configure($vmm, $guestos, $target_name, $dom, $os);
