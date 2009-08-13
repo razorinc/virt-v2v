@@ -80,6 +80,19 @@ sub new
     $self->{deps} = shift;
     carp("new called without dependencies") unless defined($self->{deps});
 
+    bless($self, $class);
+
+    $self->_init_augeas_modprobe();
+
+    return $self;
+}
+
+sub _init_augeas_modprobe
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
     # Check how new modules should be configured. Possibilities, in descending
     # order of preference, are:
     #   modprobe.d/
@@ -134,10 +147,6 @@ sub new
 
     # The augeas calls will die() on any error.
     die($@) if($@);
-
-    bless($self, $class);
-
-    return $self;
 }
 
 sub enable_kernel_module
