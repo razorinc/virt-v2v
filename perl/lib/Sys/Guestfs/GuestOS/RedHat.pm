@@ -82,9 +82,28 @@ sub new
 
     bless($self, $class);
 
+    $self->_init_selinux();
     $self->_init_augeas_modprobe();
 
     return $self;
+}
+
+# Attempt to the guest's default SELinux policy
+sub _init_selinux
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
+    # Only possible if SELinux is enabled in the appliance
+    return if(!$g->get_selinux());
+
+    # Assume SELinux isn't in use if load_policy isn't available
+    return if(!$g->exists('/usr/sbin/load_policy'));
+
+    # Try just running 'load_policy'. This won't work on older distros.
+    # XXX: Try something else if this doesn't work
+    $g->command(['/usr/sbin/load_policy']);
 }
 
 sub _init_augeas_modprobe

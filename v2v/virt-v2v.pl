@@ -293,6 +293,9 @@ sub get_guestfs_handle
     # If we defined a transfer filesystem, present it as the final device
     $g->add_cdrom($transferiso) if(defined($transferiso));
 
+    # Enable selinux in the guest
+    $g->set_selinux(1);
+
     $g->launch ();
     $g->wait_ready ();
 
