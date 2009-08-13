@@ -1,4 +1,4 @@
-# Sys::Guestfs::GuestOS:RedHat
+# Sys::Guestfs::GuestOS::RedHat
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -33,18 +33,19 @@ Sys::Guestfs::GuestOS::RedHat - Manipulate and query a Red Hat guest
 
  use Sys::Guestfs::GuestOS;
 
- $guestos = Sys::Guestfs::GuestOS->get_instance($os, $distro, $version)
+ $guestos = Sys::Guestfs::GuestOS->instantiate($g, $desc, $files, $deps)
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::GuestOS provides a mechanism for querying and manipulating a
-specific guest operating system.
-
-Sys::Guestfs::GuestOS is an interface to various backends, each of
-which implement a consistent API. Sys::Guestfs::GuestOS itself only
-implements methods to access backends.
+Sys::Guestfs::GuestOS::RedHat provides an interface for manipulating and
+querying a Red Hat based guest. Specifically it handles any Guest OS which
+Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
 
 =head1 METHODS
+
+See L<Sys::Guestfs::GuestOS>.
+
+=over
 
 =cut
 
@@ -553,7 +554,6 @@ sub _rpmvercmp
     # separators.
     return 0;
 }
-
 
 sub remove_application
 {
