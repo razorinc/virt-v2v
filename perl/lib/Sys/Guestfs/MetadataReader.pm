@@ -24,6 +24,8 @@ use Module::Pluggable sub_name => 'modules',
                       search_path => ['Sys::Guestfs::MetadataReader'],
                       require => 1;
 
+use Carp;
+
 =pod
 
 =head1 NAME
@@ -63,52 +65,37 @@ sub instantiate
     my $name = shift;
     defined($name) or carp("instantiate called without name argument");
 
-    # Get command line options for the module
-    my $options = shift;
-    defined($options) or carp("instantiate called without options argument");
+    # Get virt-v2v configuration
+    my $config = shift;
+    defined($config) or carp("instantiate called without config argument");
 
     my $instance;
     foreach my $module ($class->modules()) {
-        return $module->new($options) if($module->get_name() eq $name);
+        return $module->new($config->{$name}) if($module->get_name() eq $name);
     }
 
     return undef;
-}
-
-=item get_options(name)
-
-Return a hashref containing module_name => (module options).
-
-=cut
-
-sub get_options
-{
-    my $class = shift;
-
-    my %options;
-    foreach my $module ($class->modules()) {
-        $options{$module->get_name()} = [ $module->get_options() ];
-    }
-
-    return \%options;
 }
 
 1;
 
 =head1 BACKEND INTERFACE
 
-=item new()
+=item new(config)
 
-Instantiate an instance of the backend
+=over
+
+=item config
+
+The parsed virt-v2v configuration, as returned by Config::Tiny
+
+=back
+
+Instantiate an instance of the backend.
 
 =item get_name()
 
 Return the module's name.
-
-=item get_options()
-
-Return a list of command line options in the correct format for GetOptions. This
-list will be added to those of other modules and the main program.
 
 =item is_configured()
 

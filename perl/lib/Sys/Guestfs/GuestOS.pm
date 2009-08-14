@@ -20,11 +20,15 @@ package Sys::Guestfs::GuestOS;
 use strict;
 use warnings;
 
+use Carp;
+use File::Spec;
+use File::Temp;
+
 use Module::Pluggable::Ordered sub_name => 'modules',
                                search_path => 'Sys::Guestfs::GuestOS',
                                require => 1;
 
-use Carp;
+use Locale::TextDomain 'libguestfs';
 
 =pod
 
@@ -49,6 +53,17 @@ implements methods to access backends.
 
 Sys::Guestfs::GuestOS uses L<Module::Pluggable::Ordered> to automatically
 discover backends under Sys::Guestfs::GuestOS.
+
+=cut
+
+# A map of file labels to their paths relative to the transfer device
+my %files;
+
+# A map of file labels to their dependencies
+my %deps;
+
+# The path (on the host) to the transfer iso
+my $transferiso;
 
 =head1 METHODS
 
@@ -93,18 +108,94 @@ sub instantiate
 {
     my $class = shift;
 
-    my ($g, $desc, $files, $deps) = @_;
+    my ($g, $desc) = @_;
     defined($g) or carp("get_instance called without g argument");
     defined($desc) or carp("get_instance called without desc argument");
-    defined($files) or carp("get_instance called without files argument");
-    defined($deps) or carp("get_instance called without deps argument");
 
     foreach my $module ($class->modules()) {
-        return $module->new($g, $desc, $files, $deps)
+        return $module->new($g, $desc, \%files, \%deps)
                 if($module->can_handle($desc));
     }
 
     return undef;
+}
+
+=item configure(config)
+
+=over
+
+=item config
+
+The parsed virt-v2v config file, as returned by Config::Tiny.
+
+=back
+
+Read the [files] and [deps] section of the virt-v2v config file. Create the
+transfer iso from the contents of [files].
+
+=cut
+
+sub configure
+{
+    my $class = shift;
+
+    my $config = shift;
+
+    carp("configure called without config argument") unless(defined($config));
+
+    # Lookup the [files] config section
+    my $files_conf = $config->{files};
+
+    # Do nothing if there is no [files] config section
+    return unless(defined($files_conf));
+
+    my @paths = ();
+    foreach my $label (keys(%$files_conf)) {
+        my $path = $files_conf->{$label};
+
+        unless(-f $path && -r $path) {
+            print STDERR "virt-v2v: ".__x("WARNING unable to access {path}.",
+                                           path => $path)."\n";
+            next;
+        }
+
+        push(@paths, $path);
+
+        # As transfer directory hierarchy is flat, remove all directory
+        # components from paths
+        my (undef, undef, $filename) = File::Spec->splitpath($path);
+        $files{$label} = $filename;
+    }
+
+    # Do nothing if there are no files defined
+    return if(@paths == 0);
+
+    $transferiso = File::Temp->new(UNLINK => 1, SUFFIX => '.iso');
+    system('genisoimage', '-o', $transferiso, '-r', '-J',
+           '-V', '__virt-v2v_transfer__', @paths);
+
+    # Populate deps from the [deps] config section
+    my $deps_conf = $config->{deps};
+
+    # Do nothing if there is no [deps] config section
+    return unless(defined($deps_conf));
+
+    # Copy the deps_conf hash into %deps
+    foreach my $label (keys(%$deps_conf)) {
+        $deps{$label} = $deps_conf->{$label};
+    }
+}
+
+=item get_transfer_iso
+
+Return the path (on the host) to the transfer iso image. L</configure> must have
+been called first.
+
+=cut
+
+sub get_transfer_iso
+{
+    return $transferiso;
 }
 
 1;

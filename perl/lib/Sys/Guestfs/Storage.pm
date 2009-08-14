@@ -42,13 +42,25 @@ Sys::Guestfs::Storage - Manipulate a guest's storage during V2V migration
 Sys::Guestfs::Storage changes a guest's underlying storage underlying storage
 during a V2V migration.
 
-Sys::Guestfs::MetadataReader is an interface to various backends, each of
-which implement a consistent API. Sys::Guestfs::MetadataReader itself only
+Sys::Guestfs::Storage is an interface to various backends, each of
+which implement a consistent API. Sys::Guestfs::Storage itself only
 implements methods to access backends.
 
 =head1 METHODS
 
-=item instantiate(name)
+=item instantiate(name, config)
+
+=over
+
+=item name
+
+The name of the backend module to instantiate.
+
+=item config
+
+The parsed virt-v2v configuration file, as returned by Config::Tiny.
+
+=back
 
 Instantiate a backend instance with the given name.
 
@@ -60,54 +72,31 @@ sub instantiate
 
     # Get the name of the module we're going to instantiate
     my $name = shift;
-    defined($name) or carp("instantiate called without name argument");
+    carp("instantiate called without name argument") unless(defined($name));
 
     # Get the options for the module
-    my $options = shift;
-    defined($options) or carp("instantiate called without options argument");
+    my $config = shift;
+    carp("instantiate called without config argument") unless(defined($config));
 
     my $instance;
     foreach my $module ($class->modules()) {
-        return $module->new($options) if($module->get_name() eq $name);
+        return $module->new($config->{$name}) if($module->get_name() eq $name);
     }
 
     return undef;
-}
-
-=item get_options()
-
-Return a hashref containing module_name => (module options).
-
-=cut
-
-sub get_options
-{
-    my $class = shift;
-
-    my %options;
-    foreach my $module ($class->modules()) {
-        $options{$module->get_name()} = [ $module->get_options() ];
-    }
-
-    return \%options;
 }
 
 1;
 
 =head1 BACKEND INTERFACE
 
-=item new()
+=item new(config)
 
-Instantiate an instance of the backend
+Create an instance of the backend
 
 =item get_name()
 
 Return the module's name.
-
-=item get_options()
-
-Return a list of command line options in the correct format for GetOptions. This
-list will be added to those of other modules and the main program.
 
 =item is_configured()
 

@@ -52,10 +52,15 @@ sub new
 {
     my $class = shift;
 
-    my $options = shift;
+    my $config = shift;
 
-    my $self = $options;
+    my %obj = ();
+    my $self = \%obj;
     bless ($self, $class);
+
+    if(defined($config)) {
+        $self->{storagedir} = $config->{storagedir};
+    }
 
     # Configuration defaults
     $self->{storagedir} = "/var/tmp" if(!defined($self->{storagedir}));
@@ -68,14 +73,6 @@ sub get_name
     my $class = shift;
 
     return NAME;
-}
-
-sub get_options
-{
-    my $class = shift;
-
-    return (["storagedir=s", "storagedir",
-            "The directory where qcow2 images will be written"]);
 }
 
 sub is_configured
@@ -117,7 +114,7 @@ sub update_guest
         # XXX: Do something intelligent if it's already a qcow2 image
 
         # Create a qcow2 image for the underlying storage
-        my $qcow2_path = $self->create_qcow2($path);
+        my $qcow2_path = $self->_create_qcow2($path);
 
         # Update the source to be a "file" with the new path
         $source->setAttribute("file", $qcow2_path);
@@ -140,7 +137,7 @@ sub update_guest
 # Create a qcow2 image for <source> in the storagedir directory
 # Return the path of the newly created qcow2, or undef if there was a problem
 # XXX: This should use a libvirt storage pool
-sub create_qcow2
+sub _create_qcow2
 {
     my $self = shift;
     my $source = shift;

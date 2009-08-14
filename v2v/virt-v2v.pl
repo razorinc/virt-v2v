@@ -19,17 +19,17 @@
 use warnings;
 use strict;
 
+use Pod::Usage;
+use Getopt::Long;
+use Data::Dumper;
+use XML::Writer;
+use Config::Tiny;
+use Locale::TextDomain 'libguestfs';
+
 use Sys::Guestfs;
 use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
   inspect_all_partitions inspect_partition
   inspect_operating_systems mount_operating_system inspect_in_detail);
-use Pod::Usage;
-use Getopt::Long;
-use Data::Dumper;
-use File::Temp qw/tempdir/;
-use XML::Writer;
-use File::Spec;
-use Locale::TextDomain 'libguestfs';
 
 use Sys::Guestfs::MetadataReader;
 use Sys::Guestfs::Storage;
@@ -161,50 +161,19 @@ Set the output guest name.
 
 =cut
 
-# A hash of module_name => { module_options }
-my %module_options;
-
-# A list of additional arguments to Getopt
-my @getopt_options;
-
-# Get module specific options
-# TODO: Use the option descriptions in the online help somehow
-foreach my $module qw(Sys::Guestfs::MetadataReader Sys::Guestfs::Storage) {
-    my $options = $module->get_options();
-
-    foreach my $name (keys(%$options)) {
-        my $options = $options->{$name};
-        $module_options{$name} = {};
-
-        foreach my $option (@$options) {
-            my $getopt = $option->[0];
-            my $switch = $option->[1];
-            my $description = $option->[2];
-
-            push(@getopt_options,
-                 $getopt => \$module_options{$name}->{$switch});
-        }
-    }
-}
-
 # Option defaults
 my $format_opt = "libvirtxml"; # Metadata format
 my $storage_opt = "qcow2"; # storage modifier
 
-# Files which may to be installed in a guest during migration
-my %files = ();
-
-# Dependencies of files to be installed
-my %deps = ();
+# The path to the virt-v2v config file
+my $config_file;
 
 GetOptions ("help|?"      => \$help,
             "version"     => \$version,
             "connect|c=s" => \$uri,
             "format|f=s"  => \$format_opt,
             "storage|s=s" => \$storage_opt,
-            "file=s"      => \%files,
-            "dep=s"       => \%deps,
-            @getopt_options
+            "config|c=s"  => \$config_file
     ) or pod2usage (2);
 pod2usage (1) if $help;
 if ($version) {
@@ -215,21 +184,31 @@ if ($version) {
 }
 pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
 
+# Read the config file if one was given
+my $config;
+if(defined($config_file)) {
+    $config = Config::Tiny->read($config_file);
+
+    # Check we were able to read it
+    if(!defined($config)) {
+        print STDERR Config::Tiny->errstr."\n";
+        exit(1);
+    }
+}
+
 # Get an appropriate MetadataReader
-my $mdr = Sys::Guestfs::MetadataReader->instantiate($format_opt,
-                                                  $module_options{$format_opt});
+my $mdr = Sys::Guestfs::MetadataReader->instantiate($format_opt, $config);
 if(!defined($mdr)) {
     print STDERR __x("virt-v2v: {format} is not a valid metadata format",
                      format => $format_opt)."\n";
-    exit 1;
+    exit(1);
 }
 
-my $storage = Sys::Guestfs::Storage->instantiate($storage_opt,
-                                                 $module_options{$storage_opt});
+my $storage = Sys::Guestfs::Storage->instantiate($storage_opt, $config);
 if(!defined($storage)) {
     print STDERR __x("{virt-v2v: storage} is not a valid storage option\n",
                      storage => $storage)."\n";
-    exit 1;
+    exit(1);
 }
 
 # The name of the target guest is the last command line argument
@@ -244,7 +223,8 @@ foreach my $module ($mdr, $storage) {
 }
 exit 1 if(!$ready);
 
-my $transferiso = create_transfer_iso(\%files);
+# Configure GuestOS ([files] and [deps] sections)
+Sys::Guestfs::GuestOS->configure($config);
 
 # Connect to libvirt
 my @vmm_params = (auth => 1);
@@ -270,7 +250,7 @@ my $g = get_guestfs_handle(@devices);
 my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
-my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os, \%files, \%deps);
+my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os);
 
 # Modify the guest and its metadata for the target hypervisor
 Sys::Guestfs::HVTarget->configure($vmm, $guestos, $target_name, $dom, $os);
@@ -290,7 +270,8 @@ sub get_guestfs_handle
 
     my $g = open_guest(@params, rw => 1);
 
-    # If we defined a transfer filesystem, present it as the final device
+    # Mount the transfer iso if GuestOS needs it
+    my $transferiso = Sys::Guestfs::GuestOS->get_transfer_iso();
     $g->add_cdrom($transferiso) if(defined($transferiso));
 
     # Enable selinux in the guest
@@ -361,33 +342,6 @@ sub get_guest_devices
     }
 
     return @devices;
-}
-
-sub create_transfer_iso
-{
-    my $files = shift;
-
-    my $iso;
-
-    if(values(%$files) > 0) {
-        $iso = File::Temp->new(UNLINK => 1, SUFFIC => '.iso');
-
-        system("/usr/bin/mkisofs -o $iso -r -J -V __virt-v2v_transfer__ ".
-               join(' ', values(%files)));
-
-        if($? != 0) {
-            die(__x("Failed to create iso for file transfer"));
-        }
-
-        # As transfer directory hierarchy is flat, remove all directory
-        # components from paths
-        foreach my $key (keys(%files)) {
-            my (undef, undef, $filename) = File::Spec->splitpath($files{$key});
-            $files{$key} = $filename;
-        }
-    }
-
-    return $iso;
 }
 
 =head1 SEE ALSO

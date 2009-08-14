@@ -23,6 +23,8 @@ use warnings;
 use XML::DOM;
 use XML::DOM::XPath;
 
+use Locale::TextDomain 'libguestfs';
+
 =pod
 
 =head1 NAME
@@ -53,26 +55,38 @@ sub new
 {
     my $class = shift;
 
-    my $options = shift;
-    carp("new called without options") unless(defined($options));
+    my $config = shift;
 
-    my $self = $options;
+    my %obj = ();
+    my $self = \%obj;
+
     bless($self, $class);
 
-    # Convert mapbridge and mapnetwork options into hashes
-    foreach my $i qw(bridges networks) {
-        my %hash;
-        if(exists($self->{$i})) {
-            foreach my $map (@{$self->{$i}}) {
-                if ($map =~ /^(.+)=(.+)$/) {
-                    $hash{$1} = $2;
-                } else {
-                    print STDERR "$map is not of the format oldvalid=newvalue\n";
-                    $self->{invalidconfig} = 1;
-                }
+    if(defined($config)) {
+        my %bridges;
+        my %networks;
+
+        $self->{bridges} = \%bridges;
+        $self->{networks} = \%networks;
+
+        # Split bridges and networks into separate hashes
+        foreach my $directive (keys(%$config)) {
+            if($directive =~ /^bridge\.(.*)$/) {
+                $bridges{$1} = $config->{$directive};
+            }
+
+            elsif($directive =~ /^network\.(.*)$/) {
+                $networks{$1} = $config->{$directive};
+            }
+
+            else {
+                print STDERR "virt-v2v: ".
+                    __x("WARNING unknown configuration directive {directive} ".
+                        "in {name} section",
+                        directive => $directive, name => NAME)."\n";
+                $self->{invalidconfig} = 1;
             }
         }
-        $self->{$i} = \%hash;
     }
 
     return $self;
@@ -83,20 +97,6 @@ sub get_name
     my $class = shift;
 
     return NAME;
-}
-
-sub get_options
-{
-    my $class = shift;
-
-    return (
-        [ "mapbridge=s@", "bridges",
-          "Map network bridge names between old and new hypervisors. ".
-          "e.g. --mapbridge xenbr1=virbr0" ],
-        [ "mapnetwork=s@", "networks",
-          "Map network names between old and new hypervisors. ".
-          "e.g. --mapnetwork default=newnet1" ]
-    );
 }
 
 sub is_configured
