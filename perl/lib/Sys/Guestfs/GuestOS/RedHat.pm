@@ -80,6 +80,10 @@ sub new
     $self->{deps} = shift;
     carp("new called without dependencies") unless defined($self->{deps});
 
+    # Guest alias map
+    $self->{aliases} = shift;
+    carp("new called without aliases") unless defined($self->{aliases});
+
     bless($self, $class);
 
     $self->_init_selinux();
@@ -420,6 +424,11 @@ sub _resolve_deps
 
     my ($label, @path) = @_;
 
+    my $user_arch = $self->{desc}->{arch};
+
+    # Check for an alias for $label
+    $label = $self->_resolve_alias($label, $user_arch);
+
     # Check that the dependency path doesn't include the given label. If it
     # does, that's a dependency loop.
     if(grep(/\Q$label\E/, @path) > 0) {
@@ -427,8 +436,6 @@ sub _resolve_deps
                 label => $label, path => join(' ', @path))."\n");
     }
     push(@path, $label);
-
-    my $user_arch = $self->{desc}->{arch};
 
     my $g = $self->{g};
 
@@ -631,6 +638,9 @@ sub _match_file
     my $self = shift;
     my ($label, $arch) = @_;
 
+    # Check for an alias for $label
+    $label = $self->_resolve_alias($label, $arch);
+
     my $files = $self->{files};
 
     my $name = $self->_match(__"file", $label, $arch, $files);
@@ -639,6 +649,23 @@ sub _match_file
     $self->_ensure_transfer_mounted();
 
     return $self->{transfer_mount}.'/'.$files->{$name};
+}
+
+# Look for an alias for this label
+sub _resolve_alias
+{
+    my $self = shift;
+    my ($label, $arch) = @_;
+
+    my $aliases = $self->{aliases};
+
+    my $alias;
+    eval {
+        $alias = $self->_match(__"alias", $label, $arch, $aliases);
+    };
+
+    return $aliases->{$alias} if(defined($alias));
+    return $label;
 }
 
 # Return a list of labels listed as dependencies of the given label.

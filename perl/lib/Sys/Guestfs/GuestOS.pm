@@ -62,6 +62,9 @@ my %files;
 # A map of file labels to their dependencies
 my %deps;
 
+# A map of file labels aliases
+my %aliases;
+
 # The path (on the host) to the transfer iso
 my $transferiso;
 
@@ -113,7 +116,7 @@ sub instantiate
     defined($desc) or carp("get_instance called without desc argument");
 
     foreach my $module ($class->modules()) {
-        return $module->new($g, $desc, \%files, \%deps)
+        return $module->new($g, $desc, \%files, \%deps, \%aliases)
                 if($module->can_handle($desc));
     }
 
@@ -179,12 +182,21 @@ sub configure
     # Populate deps from the [deps] config section
     my $deps_conf = $config->{deps};
 
-    # Do nothing if there is no [deps] config section
-    return unless(defined($deps_conf));
+    if(defined($deps_conf)) {
+        # Copy the deps_conf hash into %deps
+        foreach my $label (keys(%$deps_conf)) {
+            $deps{$label} = $deps_conf->{$label};
+        }
+    }
 
-    # Copy the deps_conf hash into %deps
-    foreach my $label (keys(%$deps_conf)) {
-        $deps{$label} = $deps_conf->{$label};
+    # Populate aliases from the [aliases] config section
+    my $aliases_conf = $config->{aliases};
+
+    if(defined($deps_conf)) {
+        # Copy the aliases_conf hash into %aliases
+        foreach my $label (keys(%$aliases_conf)) {
+            $aliases{$label} = $aliases_conf->{$label};
+        }
     }
 }
 
