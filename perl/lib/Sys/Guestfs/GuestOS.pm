@@ -149,7 +149,9 @@ sub configure
     # Do nothing if there is no [files] config section
     return unless(defined($files_conf));
 
-    my @paths = ();
+    # A hash, whose labels are filenames to be added to the transfer iso. We use
+    # a hash here to remove duplicates.
+    my %paths = ();
     foreach my $label (keys(%$files_conf)) {
         my $path = $files_conf->{$label};
 
@@ -159,7 +161,7 @@ sub configure
             next;
         }
 
-        push(@paths, $path);
+        $paths{$path} = 1;
 
         # As transfer directory hierarchy is flat, remove all directory
         # components from paths
@@ -168,11 +170,11 @@ sub configure
     }
 
     # Do nothing if there are no files defined
-    return if(@paths == 0);
+    return if(keys(%paths) == 0);
 
     $transferiso = File::Temp->new(UNLINK => 1, SUFFIX => '.iso');
     system('genisoimage', '-o', $transferiso, '-r', '-J',
-           '-V', '__virt-v2v_transfer__', @paths);
+           '-V', '__virt-v2v_transfer__', keys(%paths));
 
     # Populate deps from the [deps] config section
     my $deps_conf = $config->{deps};
