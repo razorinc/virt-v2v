@@ -106,8 +106,66 @@ sub _init_selinux
     return if(!$g->exists('/usr/sbin/load_policy'));
 
     # Try just running 'load_policy'. This won't work on older distros.
-    # XXX: Try something else if this doesn't work
-    $g->command(['/usr/sbin/load_policy']);
+    eval {
+        $g->command(['/usr/sbin/load_policy']);
+    };
+
+    # If that didn't work, try running load_policy <policy file>
+    if($@) {
+        eval {
+            my $policy;
+
+            die(__"/etc/selinux/config does not exist")
+                unless($g->exists('/etc/selinux/config'));
+
+            # Parse out the SELinux policy in use
+            my $selinux_conf = $g->cat('/etc/selinux/config');
+            foreach my $line (split(/\n/, $selinux_conf)) {
+                if($line =~ /^SELINUXTYPE=(.*)$/) {
+                    $policy = $1;
+                    last;
+                }
+            }
+
+            die(__"Didn't find SELINUXTYPE n /etc/syslinux/config")
+                unless(defined($policy));
+
+            # Find files in the policy directory called policy.*
+            my @paths;
+            eval {
+                @paths = $g->glob_expand("/etc/selinux/$policy/policy/policy.*");
+            };
+
+            die(__x("Unable to find an SELinux policy file matching {path}",
+                    path => "/etc/selinux/$policy/policy/policy.*").": $!")
+                if($@);
+
+            # Check that the policy ends with a number
+            my $success = 0;
+            foreach my $path (@paths) {
+                if($path =~ /\.\d+$/) {
+                    # Try loading it if it looks right 
+                    eval {
+                        $g->command(['/usr/sbin/load_policy', $path]);
+                    };
+
+                    # Stop if it worked
+                    unless($@) {
+                        $success = 1;
+                        last;
+                    }
+                }
+            }
+
+            die(__"Unable to successfully load an SELinux policy")
+                unless($success);
+        };
+
+        if($@) {
+            print STDERR "virt-v2v: ".
+                         __"WARNING unable to configure SELinux: "."$!\n";
+        }
+    }
 }
 
 sub _init_augeas_modprobe
