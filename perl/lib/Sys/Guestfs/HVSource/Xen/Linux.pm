@@ -99,6 +99,7 @@ sub find_metadata
     # Most of this is taken from inspection of domain.rng
     my @check_nodes = (
         [ '/domain/@type', 'xen', 1 ],
+        [ '/domain/devices/emulator', 'xen', 0 ],
         [ '/domain/devices/input/@bus', 'xen', 1 ],
         [ '/domain/devices/interface/script/@path', 'vif-bridge', 0],
         [ '/domain/os/loader', 'xen', 0 ],
