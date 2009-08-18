@@ -135,6 +135,11 @@ sub _configure_kernel_modules
     # Go through all kernel modules looking for network or scsi devices
     my $modules = $desc->{modprobe_aliases};
 
+    # Make a note of whether we've added scsi_hostadapter
+    # We need this on RHEL 4/virtio because mkinitrd can't detect root on
+    # virtio. For simplicity we always ensure this is set.
+    my $scsi_hostadapter = 0;
+
     foreach my $module (keys(%$modules)) {
         # Replace network modules with virtio_net
         if($module =~ /^eth\d+$/) {
@@ -154,8 +159,14 @@ sub _configure_kernel_modules
             }
 
             $guestos->update_kernel_module($module, "virtio_blk");
+
+            $scsi_hostadapter = 1;
         }
     }
+
+    # Add an explicit scsi_hostadapter if it wasn't there before
+    $guestos->enable_kernel_module('scsi_hostadapter', 'virtio_blk')
+        unless($scsi_hostadapter);
 
     # Warn if any old-HV specific kernel modules weren't updated
     foreach my $module (keys(%hvs_modules)) {
