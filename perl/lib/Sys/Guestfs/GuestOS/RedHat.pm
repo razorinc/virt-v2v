@@ -442,17 +442,22 @@ sub _discover_kernel
 sub remove_kernel
 {
     my $self = shift;
-    my $version = shift;
+    my ($version) = @_;
+    carp("remove_kernel called without version argument")
+        unless(defined($version));
 
     my $g = $self->{g};
     eval {
         # Work out which rpm contains the kernel
-        my $rpm = $g->command(["rpm", "-qf", "/boot/vmlinuz-".$version]);
-
-        $g->command(["rpm", "-e", $rpm]);
+        my @output =
+            $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
+        $g->command(['rpm', '-e', $output[0]]);
     };
 
     die($@) if($@);
+
+    # Make augeas reload so it knows the kernel's gone
+    $g->aug_load();
 }
 
 sub add_application
