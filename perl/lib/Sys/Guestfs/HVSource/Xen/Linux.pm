@@ -84,7 +84,27 @@ sub find_kernels
     carp("find_kernels called without desc argument")
         unless defined($desc);
 
-    return ();
+    my $boot = $desc->{boot};
+    return () unless(defined($boot));
+
+    my $configs = $desc->{boot}->{configs};
+    return () unless(defined($configs));
+
+    my @kernels = ();
+    foreach my $config (@$configs) {
+        my $kernel = $config->{kernel};
+        next unless(defined($kernel));
+
+        my $modules = $kernel->{modules};
+        next unless(defined($modules));
+
+        # Look for the xennet driver in the modules list
+        if(grep(/^xennet$/, @$modules) > 0) {
+            push(@kernels, $kernel->{version});
+        }
+    }
+
+    return @kernels;
 }
 
 sub find_metadata
