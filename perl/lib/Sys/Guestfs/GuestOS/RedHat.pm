@@ -362,8 +362,14 @@ sub add_kernel
     # Install the kernel's dependencies
     $self->_install_rpms(1, $self->_resolve_deps($kernel_pkg));
 
-    # Get a matching rpm
-    my $filename = $self->_match_file($kernel_pkg, $kernel_arch);
+    my $filename;
+    eval {
+        # Get a matching rpm
+        $filename = $self->_match_file($kernel_pkg, $kernel_arch);
+    };
+
+    # Return undef if we didn't find a kernel
+    return undef if($@);
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
@@ -911,6 +917,38 @@ sub prepare_bootable
     #   disable the network interface
     # Neither of these behaviours is desirable.
     $g->command(['/sbin/chkconfig', 'kudzu', 'off']);
+}
+
+sub supports_virtio
+{
+    my $self = shift;
+    my ($kernel) = @_;
+
+    my %checklist = (
+        "virtio_net" => 0,
+        "virtio_pci" => 0,
+        "virtio_blk" => 0
+    );
+
+    my $g = $self->{g};
+
+    # Search the installed kernel's modules for the virtio drivers
+    foreach my $module ($g->find("/lib/modules/$kernel")) {
+        foreach my $driver (keys(%checklist)) {
+            if($module =~ m{/$driver\.(?:o|ko)$}) {
+                $checklist{$driver} = 1;
+            }
+        }
+    }
+
+    # Check we've got all the drivers in the checklist
+    foreach my $driver (keys(%checklist)) {
+        if(!$checklist{$driver}) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 sub DESTROY

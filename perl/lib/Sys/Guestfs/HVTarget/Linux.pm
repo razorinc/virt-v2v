@@ -47,7 +47,7 @@ Sys::Guestfs::HVTarget::Linux - Configure a Linux guest for a target hypervisor
 =cut
 
 # Default values for a KVM configuration
-use constant KVM_XML => "
+use constant KVM_XML_VIRTIO => "
 <domain type='kvm'>
   <os>
     <type machine='pc'>hvm</type>
@@ -59,6 +59,24 @@ use constant KVM_XML => "
     </disk>
     <interface type='network'>
       <model type='virtio'/>
+    </interface>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
+  </devices>
+</domain>
+";
+use constant KVM_XML_NOVIRTIO => "
+<domain type='kvm'>
+  <os>
+    <type machine='pc'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <devices>
+    <disk device='disk'>
+      <target bus='scsi'/>
+    </disk>
+    <interface type='network'>
+      <model type='e1000'/>
     </interface>
     <input type='mouse' bus='ps2'/>
     <graphics type='vnc' port='-1' listen='127.0.0.1'/>
@@ -86,33 +104,58 @@ sub configure
     carp("configure called without dom argument") unless defined($dom);
     carp("configure called without desc argument") unless defined($desc);
 
-    _remap_block_devices($guestos, $dom, $desc);
-    _configure_metadata($vmm, $name, $dom, $desc);
-    _configure_kernel_modules($guestos, $desc);
-    _configure_display_driver($guestos);
     # Get the best available kernel
     my $kernel = _configure_kernel($guestos, $desc);
     _configure_applications($guestos, $desc);
-    _configure_boot($guestos, $kernel);
+
+    # Check if the resulting kernel will support virtio
+    my $virtio = $guestos->supports_virtio($kernel);
+
+    # Configure the rest of the system
+    _configure_display_driver($guestos, $virtio);
+    _remap_block_devices($guestos, $dom, $desc, $virtio);
+    _configure_kernel_modules($guestos, $desc, $virtio);
+    _configure_boot($guestos, $kernel, $virtio);
+
+    # Configure libvirt
+    _configure_metadata($vmm, $name, $dom, $desc, $virtio);
+
+    if($virtio) {
+        print __x("{name} configured with virtio drivers", name => $name)."\n";
+    } else {
+        print __x("{name} configured without virtio drivers",
+                   name => $name)."\n";
+    }
 }
 
 sub _remap_block_devices
 {
-    my ($guestos, $dom, $desc) = @_;
+    my ($guestos, $dom, $desc, $virtio) = @_;
+    die("remap_block_devices called without guestos argument")
+        unless defined($guestos);
+    die("remap_block_devices called without dom argument")
+        unless defined($dom);
+    die("remap_block_devices called without desc argument")
+        unless defined($desc);
+    die("remap_block_devices called without virtio argument")
+        unless defined($virtio);
 
     my %map = ();
+
+    # Prefix is vd for virtio or sd for scsi
+    my $prefix = $virtio ? 'vd' : 'sd';
 
     # Look for devices specified in the device metadata
     foreach my $dev ($dom->findnodes('/domain/devices/disk/target/@dev')) {
         if($dev->getNodeValue() =~ m{^(sd|hd|xvd)([a-z]+)\d*$}) {
-            $map{"$1$2"} = "vd$2";
+            $map{"$1$2"} = "$prefix$2";
 
             # A guest might present an IDE disk as SCSI
             if($1 eq 'hd') {
-                $map{"sd$2"} = "vd$2";
+                $map{"sd$2"} = "$prefix$2";
             }
 
-            $dev->setNodeValue("vd$2");
+            $dev->setNodeValue("$prefix$2");
         }
     }
 
@@ -121,11 +164,13 @@ sub _remap_block_devices
 
 sub _configure_kernel_modules
 {
-    my ($guestos, $desc) = @_;
+    my ($guestos, $desc, $virtio) = @_;
     die("configure_kernel_modules called without guestos argument")
         unless defined($guestos);
     die("configure_kernel_modules called without desc argument")
         unless defined($desc);
+    die("configure_kernel_modules called without virtio argument")
+        unless defined($virtio);
 
     # Get a list of all old-hypervisor specific kernel modules which need to be
     # replaced or removed
@@ -147,27 +192,30 @@ sub _configure_kernel_modules
         if($module =~ /^eth\d+$/) {
             # Make a note that we updated an old-HV specific kernel module
             if(exists($hvs_modules{$module})) {
-                $hvs_modules{$module} = "virtio_net";
+                $hvs_modules{$module} = 1;
             }
 
-            $guestos->update_kernel_module($module, "virtio_net");
+            $guestos->update_kernel_module($module,
+                                           $virtio ? "virtio_net" : "e1000");
         }
 
         # Replace block drivers with virtio_blk
         if($module =~ /^scsi_hostadapter/) {
             # Make a note that we updated an old-HV specific kernel module
             if(exists($hvs_modules{$module})) {
-                $hvs_modules{$module} = "virtio_blk";
+                $hvs_modules{$module} = 1;
             }
 
-            $guestos->update_kernel_module($module, "virtio_blk");
+            $guestos->update_kernel_module($module,
+                                          $virtio ? "virtio_blk" : "sym53c8xx");
 
             $scsi_hostadapter = 1;
         }
     }
 
     # Add an explicit scsi_hostadapter if it wasn't there before
-    $guestos->enable_kernel_module('scsi_hostadapter', 'virtio_blk')
+    $guestos->enable_kernel_module('scsi_hostadapter',
+                                $virtio ? "virtio_blk" : "sym53c8xx")
         unless($scsi_hostadapter);
 
     # Warn if any old-HV specific kernel modules weren't updated
@@ -269,6 +317,12 @@ sub _configure_kernel
         $guestos->remove_kernel($kernel);
     }
 
+    # If we didn't install a new kernel, pick the highest versioned installed
+    # kernel, regardless of virtio
+    foreach my $kernel (sort {$b cmp $a} (keys(%kernels))) {
+        $boot_kernel = $kernel;
+    }
+
     die("virt-v2v: ".__x"WARNING no remaining bootable kernels")
         if(!defined($boot_kernel));
 
@@ -277,13 +331,19 @@ sub _configure_kernel
 
 sub _configure_boot
 {
-    my ($guestos, $kernel) = @_;
+    my ($guestos, $kernel, $virtio) = @_;
     die("configure_boot called without guestos argument")
         unless defined($guestos);
     die("configure_boot called without kernel argument")
         unless defined($kernel);
+    die("configure_boot called without virtio argument")
+        unless defined($virtio);
 
-    $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
+    if($virtio) {
+        $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
+    } else {
+        $guestos->prepare_bootable($kernel);
+    }
 }
 
 sub _configure_metadata
@@ -291,12 +351,21 @@ sub _configure_metadata
     my ($vmm, $name, $dom, $desc, $virtio) = @_;
     die("configure_metadata called without vmm argument")
         unless defined($vmm);
+    die("configure_metadata called without name argument")
+        unless defined($name);
     die("configure_metadata called without dom argument")
         unless defined($dom);
     die("configure_metadata called without desc argument")
         unless defined($desc);
+    die("configure_metadata called without virtio argument")
+        unless defined($virtio);
 
-    my $default_dom = new XML::DOM::Parser->parse(KVM_XML);
+    my $default_dom;
+    if($virtio) {
+        $default_dom = new XML::DOM::Parser->parse(KVM_XML_VIRTIO);
+    } else {
+        $default_dom = new XML::DOM::Parser->parse(KVM_XML_NOVIRTIO);
+    }
 
     # Change the guest name
     my ($name_node) = $dom->findnodes('/domain/name/text()');
@@ -311,8 +380,8 @@ sub _configure_metadata
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
 
-    # Configure virtio in the guest
-    _configure_virtio($dom);
+    # Configure network and block drivers in the guest
+    _configure_drivers($dom, $virtio);
 
     # Add a default os section if none exists
     _configure_os($dom, $default_dom);
@@ -466,23 +535,23 @@ sub _unconfigure_bootloaders
     }
 }
 
-sub _configure_virtio
+sub _configure_drivers
 {
-    my ($dom) = @_;
+    my ($dom, $virtio) = @_;
 
     # Convert disks
     # N.B. <disk> is required to have a <target> element
 
     # Convert alternate bus specifications
     foreach my $bus ($dom->findnodes('/domain/devices/disk/target/@bus')) {
-        $bus->setNodeValue('virtio');
+        $bus->setNodeValue($virtio ? 'virtio' : 'scsi');
     }
 
     # Add an explicit bus specification to targets without one
     foreach my $target
         ($dom->findnodes('/domain/devices/disk/target[not(@bus)]'))
     {
-        $target->setAttribute('bus', 'virtio');
+        $target->setAttribute('bus', $virtio ? 'virtio' : 'scsi');
     }
 
     # Convert network adapters
@@ -493,7 +562,7 @@ sub _configure_virtio
     foreach my $type
         ($dom->findnodes('/domain/devices/interface/model/@type'))
     {
-        $type->setNodeValue('virtio');
+        $type->setNodeValue($virtio ? 'virtio' : 'e1000');
     }
 
     # Add a model element to interfaces which don't have one
@@ -501,7 +570,7 @@ sub _configure_virtio
         ($dom->findnodes('/domain/devices/interface[not(model)]'))
     {
         my $model = $dom->createElement('model');
-        $model->setAttribute('type', 'virtio');
+        $model->setAttribute('type', $virtio ? 'virtio' : 'e1000');
         $interface->appendChild($model);
     }
 }

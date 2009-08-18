@@ -293,7 +293,8 @@ details of how files are selected for installation.
 
 add_kernel will also install dependencies of the chosen kernel.
 
-add_kernel returns the version number of the kernel it installed.
+add_kernel returns the version number of the kernel it installed, or undef if it
+did not find a kernel to install.
 
 =item remove_kernel(version)
 
@@ -361,6 +362,18 @@ A module which must be available at boot time.
 
 Ensure that the guest will boot the given kernel version by default, and it will
 make available the given modules
+
+=item supports_virtio(kernel)
+
+=over
+
+=item kernel
+
+The version number of the kernel to be inspected
+
+=back
+
+Returns 1 if the target kernel supports virtio, 0 otherwise.
 
 =back
 
