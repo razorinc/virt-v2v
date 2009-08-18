@@ -236,6 +236,7 @@ my $vmm = Sys::Virt->new(@vmm_params);
 
 # Get a libvirt configuration for the guest
 my $dom = $mdr->get_dom();
+exit(1) if(!defined($dom));
 
 # Modify the storage in the guest according to configured options
 $storage->update_guest($dom);
