@@ -90,8 +90,10 @@ sub configure
     _configure_metadata($vmm, $name, $dom, $desc);
     _configure_kernel_modules($guestos, $desc);
     _configure_display_driver($guestos);
+    # Get the best available kernel
+    my $kernel = _configure_kernel($guestos, $desc);
     _configure_applications($guestos, $desc);
-    _configure_kernels($guestos, $desc);
+    _configure_boot($guestos, $kernel);
 }
 
 sub _remap_block_devices
@@ -197,12 +199,12 @@ sub _configure_applications
     my @hvs_apps = Sys::Guestfs::HVSource->find_applications($guestos);
 }
 
-sub _configure_kernels
+sub _configure_kernel
 {
     my ($guestos, $desc) = @_;
-    die("configure_kernels called without guestos argument")
+    die("configure_kernel called without guestos argument")
         unless defined($guestos);
-    die("configure_kernels called without desc argument")
+    die("configure_kernel called without desc argument")
         unless defined($desc);
 
     my %kernels;
@@ -236,23 +238,22 @@ sub _configure_kernels
         }
     }
 
+    my @remove_kernels = ();
+
     # Remove old-HV kernels
-    foreach my $kernel (Sys::Guestfs::HVSource->find_kernels($guestos)) {
+    foreach my $kernel (Sys::Guestfs::HVSource->find_kernels($desc)) {
         # Remove the kernel from our cache
         delete($kernels{$kernel});
 
-        # Uninstall the kernel from the guest
-        $guestos->remove_kernel($kernel);
+        push(@remove_kernels, $kernel);
     }
 
     # Find the highest versioned, virtio capable, installed kernel
     my $boot_kernel;
     foreach my $kernel (sort {$b cmp $a} (keys(%kernels))) {
         if($kernels{$kernel}) {
-            if($kernels{$kernel}) {
-                $boot_kernel = $kernel;
-                last;
-            }
+            $boot_kernel = $kernel;
+            last;
         }
     }
 
@@ -261,14 +262,33 @@ sub _configure_kernels
         $boot_kernel = $guestos->add_kernel();
     }
 
-    $guestos->prepare_bootable($boot_kernel,
-                               "virtio_pci", "virtio_blk", "virtio_net");
+    # Remove old kernels. We do this after installing a new kernel to keep rpm
+    # happy
+    foreach my $kernel (@remove_kernels) {
+        # Uninstall the kernel from the guest
+        $guestos->remove_kernel($kernel);
+    }
+
+    die("virt-v2v: ".__x"WARNING no remaining bootable kernels")
+        if(!defined($boot_kernel));
+
+    return $boot_kernel;
+}
+
+sub _configure_boot
+{
+    my ($guestos, $kernel) = @_;
+    die("configure_boot called without guestos argument")
+        unless defined($guestos);
+    die("configure_boot called without kernel argument")
+        unless defined($kernel);
+
+    $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
 }
 
 sub _configure_metadata
 {
-    my ($vmm, $name, $dom, $desc) = @_;
-
+    my ($vmm, $name, $dom, $desc, $virtio) = @_;
     die("configure_metadata called without vmm argument")
         unless defined($vmm);
     die("configure_metadata called without dom argument")
