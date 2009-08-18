@@ -217,13 +217,17 @@ sub _init_augeas_modprobe
             foreach (@modprobe_add) {
                 $g->aug_set("/augeas/load/Modprobe/incl[last()+1]", $_);
             }
-
-            # Make augeas pick up the new configuration
-            $g->aug_load();
         }
 
-        # Add /boot/grub/grub.conf to the Grub lens
-        $g->aug_set("/augeas/load/Grub/incl[last()+1]", "/boot/grub/grub.conf");
+        # Remove all includes for the Grub lens, and add only
+        # /boot/grub/menu.lst
+        foreach my $incl ($g->aug_match("/augeas/load/Grub/incl")) {
+            $g->aug_rm($incl);
+        }
+        $g->aug_set("/augeas/load/Grub/incl[last()+1]", "/boot/grub/menu.lst");
+
+        # Make augeas pick up the new configuration
+        $g->aug_load();
     };
 
     # The augeas calls will die() on any error.
@@ -827,10 +831,11 @@ sub prepare_bootable
     my $found = 0;
     eval {
         foreach my $kernel
-                ($g->aug_match('/files/boot/grub/grub.conf/title/kernel')) {
+                ($g->aug_match('/files/boot/grub/menu.lst/title/kernel')) {
+
             if($g->aug_get($kernel) eq "/vmlinuz-$version") {
                 # Ensure it's the default
-                $kernel =~ m{/files/boot/grub/grub.conf/title(?:\[(\d+)\])?/kernel}
+                $kernel =~ m{/files/boot/grub/menu.lst/title(?:\[(\d+)\])?/kernel}
                     or die($kernel);
 
                 my $aug_index;
@@ -840,11 +845,11 @@ sub prepare_bootable
                     $aug_index = 1;
                 }
 
-                $g->aug_set('/files/boot/grub/grub.conf/default',
+                $g->aug_set('/files/boot/grub/menu.lst/default',
                             $aug_index - 1);
 
                 # Get the initrd for this kernel
-                $initrd = $g->aug_get("/files/boot/grub/grub.conf/title[$aug_index]/initrd");
+                $initrd = $g->aug_get("/files/boot/grub/menu.lst/title[$aug_index]/initrd");
 
                 $found = 1;
                 last;
