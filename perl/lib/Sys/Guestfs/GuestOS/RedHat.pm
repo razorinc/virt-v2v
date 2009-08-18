@@ -242,8 +242,8 @@ sub enable_kernel_module
     my $g = $self->{g};
 
     eval {
-        $g->aug_set("/files/etc/".$self->{modules}."/alias[last()+1]", $device);
-        $g->aug_set("/files/etc/".$self->{modules}."/alias[last()]/modulename",
+        $g->aug_set("/files/".$self->{modules}."/alias[last()+1]", $device);
+        $g->aug_set("/files/".$self->{modules}."/alias[last()]/modulename",
                     $module)
     };
 
