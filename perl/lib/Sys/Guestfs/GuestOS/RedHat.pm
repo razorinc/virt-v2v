@@ -898,6 +898,10 @@ sub prepare_bootable
             die($@);
         }
 
+        # We explicitly modprobe ext2 here. This is required by mkinitrd on RHEL
+        # 3, and shouldn't hurt on other OSs.
+        $g->modprobe("ext2");
+
         $g->command(["/sbin/mkinitrd", @preload_args, $initrd, $version]);
     }
 
