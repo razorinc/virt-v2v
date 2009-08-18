@@ -231,7 +231,11 @@ sub _configure_kernel_modules
 
 sub _configure_display_driver
 {
-    my ($guestos) = @_;
+    my ($guestos, $virtio) = @_;
+    die("configure_display_driver called without guestos argument")
+        unless defined($guestos);
+    die("configure_display_driver called without virtio argument")
+        unless defined($virtio);
 
     $guestos->update_display_driver("cirrus");
 }
@@ -390,6 +394,10 @@ sub _configure_metadata
 sub _unconfigure_hvs
 {
     my ($dom, $default_dom) = @_;
+    die("unconfigure_hvs called without dom argument")
+        unless defined($dom);
+    die("unconfigure_hvs called without default_dom argument")
+        unless defined($default_dom);
 
     # Get a list of source HV specific metadata nodes
     my @nodeinfo = Sys::Guestfs::HVSource->find_metadata($dom);
