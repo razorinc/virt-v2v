@@ -815,8 +815,8 @@ sub remap_block_devices
 
             next unless($device =~ m{^/dev/((?:sd|hd|xvd)(?:[a-z]+))(\d*)});
 
-            my $target = $map->{$1};
-            if(defined($target)) {
+            if(defined($map->{$1})) {
+                my $target = '/dev/'.$map->{$1};
                 $target .= $2 if(defined($2));
                 $g->aug_set($spec, $target);
             } else {
