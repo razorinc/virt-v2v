@@ -344,6 +344,32 @@ sub _configure_boot
     }
 }
 
+# Get the target architecture from the default boot kernel
+sub _get_os_arch
+{
+    my ($desc) = @_;
+
+    my $boot = $desc->{boot};
+    my $default_boot = $boot->{default} if(defined($boot));
+
+    my $arch;
+    if(defined($default_boot)) {
+        my $config = $boot->{configs}->[$default_boot];
+
+        if(defined($config->{kernel})) {
+            $arch = $config->{kernel}->{arch};
+        }
+    }
+
+    # Default to i686 if we didn't find an architecture
+    return 'i686' if(!defined($arch));
+
+    # i386 should really be i686
+    return 'i686' if($arch eq 'i386');
+
+    return $arch;
+}
+
 sub _configure_metadata
 {
     my ($vmm, $name, $dom, $desc, $virtio) = @_;
@@ -365,6 +391,8 @@ sub _configure_metadata
         $default_dom = new XML::DOM::Parser->parse(KVM_XML_NOVIRTIO);
     }
 
+    my $arch = _get_os_arch($desc);
+
     # Change the guest name
     my ($name_node) = $dom->findnodes('/domain/name/text()');
     $name_node->setNodeValue($name);
@@ -373,7 +401,7 @@ sub _configure_metadata
     _unconfigure_hvs($dom, $default_dom);
 
     # Configure guest according to local hypervisor's capabilities
-    _configure_capabilities($dom, $vmm);
+    _configure_capabilities($dom, $vmm, $arch);
 
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
@@ -382,7 +410,7 @@ sub _configure_metadata
     _configure_drivers($dom, $virtio);
 
     # Add a default os section if none exists
-    _configure_os($dom, $default_dom);
+    _configure_os($dom, $default_dom, $arch);
 }
 
 sub _unconfigure_hvs
@@ -427,44 +455,48 @@ sub _unconfigure_hvs
 
 sub _configure_os
 {
-    my ($dom, $default_dom) = @_;
+    my ($dom, $default_dom, $arch) = @_;
 
     my ($os) = $dom->findnodes('/domain/os');
-    return if(defined($os));
 
-    my $kernel_arch = 'i686'; # XXX: Get from inspection!
+    # If there's no os element, copy one from the default
+    if(!defined($os)) {
+        ($os) = $default_dom->findnodes('/domain/os');
+        $os = $os->cloneNode(1);
+        $os->setOwnerDocument($dom);
 
-    my ($default_os) = $default_dom->findnodes('/domain/os');
-    $default_os = $default_os->cloneNode(1);
-    $default_os->setOwnerDocument($dom);
-    $default_os->setAttribute('arch', $kernel_arch);
+        my ($domain) = $dom->findnodes('/domain');
+        $domain->appendChild($os);
+    }
 
-    my ($domain) = $dom->findnodes('/domain');
-    $domain->appendChild($default_os);
+    my ($type) = $os->findnodes('type');
+
+    # If there's no type element, copy one from the default
+    if(!defined($type)) {
+        ($type) = $default_dom->findnodes('/domain/os/type');
+        $type = $type->cloneNode(1);
+        $type->setOwnerDocument($dom);
+
+        $os->appendChild($type);
+    }
+
+    # Set type/@arch unless it's already set
+    my $arch_attr = $type->getAttributes()->getNamedItem('arch');
+    $type->setAttribute('arch', $arch) unless(defined($arch_attr));
 }
 
 sub _configure_capabilities
 {
-    my ($dom, $vmm) = @_;
+    my ($dom, $vmm, $arch) = @_;
 
     # Parse the capabilities of the connected libvirt
     my $caps = new XML::DOM::Parser->parse($vmm->get_capabilities());
 
-    my @kernel_archs = ('i586', 'i686'); # XXX: Get from inspection!
-    my $arch;
-
-    # Find a guest capability description for the current guest architecture
-    my $guestcap;
-    foreach $arch (@kernel_archs) {
-        ($guestcap) = $caps->findnodes
-            ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
-
-        last if(defined($guestcap));
-    }
-    # Note that this leaves $arch set to the specific discovered arch
+    (my $guestcap) = $caps->findnodes
+        ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
 
     die(__x("The connected hypervisor does not support a {arch} kvm guest",
-        arch => $kernel_archs[0])) unless(defined($guestcap));
+        arch => $arch)) unless(defined($guestcap));
 
     # Ensure that /domain/@type = 'kvm'
     my ($type) = $dom->findnodes('/domain/@type');
