@@ -321,14 +321,8 @@ sub _configure_kernel
         $guestos->remove_kernel($kernel);
     }
 
-    # If we didn't install a new kernel, pick the highest versioned installed
-    # kernel, regardless of virtio
-    foreach my $kernel (sort {$b cmp $a} (keys(%kernels))) {
-        $boot_kernel = $kernel;
-    }
-
-    die("virt-v2v: ".__x"WARNING no remaining bootable kernels")
-        if(!defined($boot_kernel));
+    # If we didn't install a new kernel, pick the default kernel
+    $boot_kernel = $guestos->get_default_kernel();
 
     return $boot_kernel;
 }

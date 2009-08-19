@@ -285,6 +285,12 @@ The name of the new disply driver. An example is I<cirrus>.
 
 Update the display driver, if defined, to the given driver.
 
+=item get_default_kernel
+
+get_default_kernel returns the version number of the kernel which will be booted
+according to the current configuration. It examines the guest directly rather
+than relying on the output from Sys::Guestfs::Lib, which may be out of date.
+
 =item add_kernel
 
 add_kernel installs a new kernel. It chooses a kernel label based on the name of

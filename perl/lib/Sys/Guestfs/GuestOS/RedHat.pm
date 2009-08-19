@@ -20,6 +20,8 @@ package Sys::Guestfs::GuestOS::RedHat;
 use strict;
 use warnings;
 
+use Sys::Guestfs::Lib qw(inspect_linux_kernel);
+
 use Carp;
 use Locale::TextDomain 'libguestfs';
 
@@ -351,6 +353,56 @@ sub _check_augeas_device
 
     return $augeas if(defined($augeas));
     die("Unable to find augeas path similar to $path for $device");
+}
+
+sub get_default_kernel
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
+    # Get the default kernel from grub if it's set
+    my $default;
+    eval {
+        $default = $g->aug_get('/files/boot/grub/menu.lst/default');
+    };
+
+    my $kernel;
+    if(defined($default)) {
+        # Grub's default is zero-based, but augeas arrays are 1-based.
+        $default += 1;
+
+        # Check it's got a kernel entry
+        eval {
+            $kernel =
+                $g->aug_get("/files/boot/grub/menu.lst/title[$default]/kernel");
+        };
+    }
+
+    # If we didn't find a default, find the first listed kernel
+    if(!defined($kernel)) {
+        eval {
+            my @paths = $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
+
+            $kernel = $g->aug_get($paths[0]) if(@paths > 0);
+        };
+    }
+
+    # If we got here, grub doesn't contain any kernels. Give up.
+    die(__"Unable to find a default kernel") unless(defined($kernel));
+
+    my $desc = $self->{desc};
+
+    # Get the grub filesystem
+    my $grub = $desc->{boot}->{grub_fs};
+
+    # Prepend the grub filesystem to the kernel path to get an absolute path
+    $kernel = "$grub$kernel" if(defined($grub));
+
+    # Work out it's version number
+    my $kernel_desc = inspect_linux_kernel ($g, $kernel, 'rpm');
+
+    return $kernel_desc->{version};
 }
 
 sub add_kernel
