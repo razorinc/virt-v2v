@@ -385,9 +385,9 @@ Returns 1 if the target kernel supports virtio, 0 otherwise.
 
 =head1 INSTALLING FILES
 
-Because different guests may need different files to be installed to satisfy
-a given requirement, files are installed by I<label> rather than by file name.
-Labels are given on the virt-v2v command line with the I<--file> option.
+Because different guests may need different files to be installed to satisfy a
+given requirement, files are installed by I<label> rather than by file name.
+Labels are specified in the [files] section of the virt-v2v configuration file.
 
 When choosing which file to install, the requested label name will be considered
 along with 4 aspects of the guest:
@@ -422,33 +422,35 @@ GuestOS will search for a matching label in the following order:
 6. distro.label
 
 So, if the guest is RHEL 5.3 x86_64 and the given label is 'udev', you can
-specify any of the following on the command line:
+specify any of the following:
 
- --file rhel.5.3.x86_64.ecryptfs-utils=<ecryptfs-utils rpm>
- --file rhel.5.3.ecryptfs-utils=<ecryptfs-utils rpm>
- --file rhel.5.x86_64.ecryptfs-utils=<ecryptfs-utils rpm>
- --file rhel.5.ecryptfs-utils=<ecryptfs-utils rpm>
- --file rhel.x86_64.ecryptfs-utils=<ecryptfs-utils rpm>
- --file rhel.ecryptfs-utils=<ecryptfs-utils rpm>
+ [files]
+ rhel.5.3.x86_64.udev=<udev rpm>
+ rhel.5.3.udev=<udev rpm>
+ rhel.5.x86_64.udev=<udev rpm>
+ rhel.5.udev=<udev rpm>
+ rhel.x86_64.udev=<udev rpm>
+ rhel.udev=<udev rpm>
 
 Which I<should> be specified depends on the applicability of the target file. In
-this case it would be I<rhel.5.x86_64.ecryptfs-utils>.
+this case it would be I<rhel.5.x86_64.udev>.
 
 =head1 INSTALLING DEPENDENCIES
 
 virt-v2v requires that all necessary files are made available before it is
 invoked. This includes dependencies of new files which are to be installed into
-a guest. Dependencies must be specified manually with the I<--dep> command line
-option.
+a guest. Dependencies must be specified manually in the [deps] section of the
+virt-v2v configuration file.
 
-Dependencies are specified on labels, and define new labels. Labels are resolved
+Dependencies are defined on labels, and specify new labels. Labels are resolved
 as described in L</INSTALLING FILES>.
 
 So, for example, to specify that when installing a new kernel on RHEL 5.2 x86_64
 you also need to install new versions of ecryptfs-utils and lvm2, add the
-following command line argument:
+following:
 
- --dep rhel.5.2.kernel="ecryptfs-utils lvm2"
+ [deps]
+ rhel.5.2.kernel="ecryptfs-utils lvm2"
 
 This will cause GuestOS to first resolve both labels ecryptfs-utils and lvm2 for
 the current guest, then check that the requested package is both installed, and
@@ -456,6 +458,22 @@ at the same or a greater version number that the given package. If this is not
 the case the package will be installed or upgraded.
 
 Dependencies can be specified recursively to any depth.
+
+=head1 ALIASES
+
+Aliases can be used to specify that when a particular label has been requested,
+a different label should be used instead. Aliases are specified in the [aliases]
+section of the virt-v2v configuration file.
+
+For example to specify that when looking for a replacement for 'kernel-xenU' on
+RHEL 4, 'kernel' should be used instead, add the following:
+
+ [aliases]
+ rhel.4.kernel-xenU=kernel
+
+Aliases are resolved as described in L</INSTALLING FILES>. Thus a label can have
+different aliases in different contexts. An alias will be used both when
+installing a file, and when resolving its dependencies.
 
 =head1 COPYRIGHT
 
