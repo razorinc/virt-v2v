@@ -185,7 +185,7 @@ if ($version) {
 pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
 
 # Read the config file if one was given
-my $config;
+my $config = {};
 if(defined($config_file)) {
     $config = Config::Tiny->read($config_file);
 
