@@ -803,20 +803,22 @@ sub _ensure_transfer_mounted
 sub remap_block_devices
 {
     my $self = shift;
-    my $map = (@_);
+    my ($map) = @_;
 
     my $g = $self->{g};
 
     # Iterate over fstab. Any entries with a spec in the the map, replace them
     # with their mapped values
     eval {
-        foreach my $spec ($g->aug_match('/etc/fstab/*/spec')) {
+        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
             my $device = $g->aug_get($spec);
 
-            next unless($device =~ m{^/dev/((?:sd|hd|xvd)(?:[a-z]+))});
+            next unless($device =~ m{^/dev/((?:sd|hd|xvd)(?:[a-z]+))(\d*)});
 
-            if(exists($map->{$device})) {
-                $g->aug_set($spec, $map->{$device});
+            my $target = $map->{$1};
+            if(defined($target)) {
+                $target .= $2 if(defined($2));
+                $g->aug_set($spec, $target);
             } else {
                 print STDERR __x("No mapping found for block device {device}",
                                  device => $device)."\n";
