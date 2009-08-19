@@ -103,8 +103,6 @@ Returns a capable Sys::Guestfs::GuestOS backend if one is found.
 
 Returns undef otherwise.
 
-=back
-
 =cut
 
 sub instantiate
@@ -213,6 +211,8 @@ sub get_transfer_iso
 }
 
 1;
+
+=back
 
 =head1 BACKEND METHODS
 
