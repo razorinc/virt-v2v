@@ -314,6 +314,13 @@ sub _configure_kernel
         $boot_kernel = $guestos->add_kernel();
     }
 
+    # Check that either there are still kernels in the cache, or we just added a
+    # kernel. If neither of these is the case, we're about to try to remove all
+    # kernels, which will fail unpleasantly. Fail nicely instead.
+    die(__"No bootable kernels installed, and no replacement specified in ".
+          "configuration.\nUnable to continue")
+        unless(keys(%kernels) > 0 || defined($boot_kernel));
+
     # Remove old kernels. We do this after installing a new kernel to keep rpm
     # happy
     foreach my $kernel (@remove_kernels) {
