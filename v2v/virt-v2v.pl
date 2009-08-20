@@ -211,9 +211,6 @@ if(!defined($storage)) {
     exit(1);
 }
 
-# The name of the target guest is the last command line argument
-my $target_name = pop;
-
 $mdr->handle_arguments(@ARGV);
 
 # Check all modules are properly initialised
@@ -254,7 +251,7 @@ my $os = inspect_guest($g);
 my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::Guestfs::HVTarget->configure($vmm, $guestos, $target_name, $dom, $os);
+Sys::Guestfs::HVTarget->configure($vmm, $guestos, $dom, $os);
 
 $g->umount_all();
 $g->sync();

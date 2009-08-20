@@ -98,7 +98,7 @@ sub configure
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $name, $dom, $desc) = @_;
+    my ($vmm, $guestos, $dom, $desc) = @_;
     carp("configure called without vmm argument") unless defined($vmm);
     carp("configure called without guestos argument") unless defined($guestos);
     carp("configure called without dom argument") unless defined($dom);
@@ -118,7 +118,10 @@ sub configure
     _configure_boot($guestos, $kernel, $virtio);
 
     # Configure libvirt
-    _configure_metadata($vmm, $name, $dom, $desc, $virtio);
+    _configure_metadata($vmm, $dom, $desc, $virtio);
+
+    my ($name) = $dom->findnodes('/domain/name/text()');
+    $name = $name->getNodeValue();
 
     if($virtio) {
         print __x("{name} configured with virtio drivers", name => $name)."\n";
@@ -379,11 +382,9 @@ sub _get_os_arch
 
 sub _configure_metadata
 {
-    my ($vmm, $name, $dom, $desc, $virtio) = @_;
+    my ($vmm, $dom, $desc, $virtio) = @_;
     die("configure_metadata called without vmm argument")
         unless defined($vmm);
-    die("configure_metadata called without name argument")
-        unless defined($name);
     die("configure_metadata called without dom argument")
         unless defined($dom);
     die("configure_metadata called without desc argument")
@@ -399,10 +400,6 @@ sub _configure_metadata
     }
 
     my $arch = _get_os_arch($desc);
-
-    # Change the guest name
-    my ($name_node) = $dom->findnodes('/domain/name/text()');
-    $name_node->setNodeValue($name);
 
     # Replace source hypervisor metadata with KVM defaults
     _unconfigure_hvs($dom, $default_dom);
