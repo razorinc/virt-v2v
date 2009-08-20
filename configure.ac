@@ -78,6 +78,7 @@ fi
 
 AC_CONFIG_FILES([Makefile
                  perl/Makefile
+                 perl/Makefile.PL
                  v2v/Makefile
                  po/Makefile.in])
 AC_OUTPUT

@@ -41,4 +41,8 @@ virt-v2v.1: virt-v2v.pl
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(bindir)
-	install -m 0755 virt-v2v.pl $(DESTDIR)$(bindir)/virt-v2v
+	install -m 0755 $(srcdir)/virt-v2v.pl $(DESTDIR)$(bindir)/virt-v2v
+
+uninstall-hook:
+	rm -f $(DESTDIR)$(bindir)/virt-v2v
+	-rmdir $(DESTDIR)$(bindir)

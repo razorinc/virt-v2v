@@ -20,6 +20,6 @@ use ExtUtils::MakeMaker;
 WriteMakefile (
     FIRST_MAKEFILE => 'Makefile-pl',
 
-    NAME => 'virtv2v',
-    VERSION => '1.0.68',
+    NAME => '@PACKAGE_NAME@',
+    VERSION => '@PACKAGE_VERSION@',
 );
