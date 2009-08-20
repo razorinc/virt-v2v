@@ -1,4 +1,4 @@
-# Sys::Guestfs::MetadataReader::LibVirtXML
+# Sys::VirtV2V::MetadataReader::LibVirtXML
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::MetadataReader::LibVirtXML;
+package Sys::VirtV2V::MetadataReader::LibVirtXML;
 
 use strict;
 use warnings;
@@ -29,22 +29,22 @@ use Locale::TextDomain 'libguestfs';
 
 =head1 NAME
 
-Sys::Guestfs::MetadataReader::LibVirtXML - Read libvirt XML from a file
+Sys::VirtV2V::MetadataReader::LibVirtXML - Read libvirt XML from a file
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::MetadataReader;
+ use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::Guestfs::MetadataReader->get_instance("libvirtxml);
+ $reader = Sys::VirtV2V::MetadataReader->get_instance("libvirtxml);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::MetadataReader::LibVirtXML is a backend for
-Sys::Guestfs::MetadataReader which reads libvirt XML guest descriptions from a
+Sys::VirtV2V::MetadataReader::LibVirtXML is a backend for
+Sys::VirtV2V::MetadataReader which reads libvirt XML guest descriptions from a
 file.
 
-See L<Sys::Guestfs::MetadataReader> for a description of its exported
+See L<Sys::VirtV2V::MetadataReader> for a description of its exported
 methods.
 
 =cut
@@ -185,7 +185,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::Guestfs::MetadataReader(3)>,
+L<Sys::VirtV2V::MetadataReader(3)>,
 L<virt-inspector(1)>,
 L<Sys::Guestfs(3)>,
 L<guestfs(3)>,

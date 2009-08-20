@@ -31,10 +31,10 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
   inspect_all_partitions inspect_partition
   inspect_operating_systems mount_operating_system inspect_in_detail);
 
-use Sys::Guestfs::MetadataReader;
-use Sys::Guestfs::Storage;
-use Sys::Guestfs::GuestOS;
-use Sys::Guestfs::HVTarget;
+use Sys::VirtV2V::MetadataReader;
+use Sys::VirtV2V::Storage;
+use Sys::VirtV2V::GuestOS;
+use Sys::VirtV2V::HVTarget;
 
 =encoding utf8
 
@@ -197,14 +197,14 @@ if(defined($config_file)) {
 }
 
 # Get an appropriate MetadataReader
-my $mdr = Sys::Guestfs::MetadataReader->instantiate($format_opt, $config);
+my $mdr = Sys::VirtV2V::MetadataReader->instantiate($format_opt, $config);
 if(!defined($mdr)) {
     print STDERR __x("virt-v2v: {format} is not a valid metadata format",
                      format => $format_opt)."\n";
     exit(1);
 }
 
-my $storage = Sys::Guestfs::Storage->instantiate($storage_opt, $config);
+my $storage = Sys::VirtV2V::Storage->instantiate($storage_opt, $config);
 if(!defined($storage)) {
     print STDERR __x("{virt-v2v: storage} is not a valid storage option\n",
                      storage => $storage)."\n";
@@ -221,7 +221,7 @@ foreach my $module ($mdr, $storage) {
 exit 1 if(!$ready);
 
 # Configure GuestOS ([files] and [deps] sections)
-Sys::Guestfs::GuestOS->configure($config);
+Sys::VirtV2V::GuestOS->configure($config);
 
 # Connect to libvirt
 my @vmm_params = (auth => 1);
@@ -248,10 +248,10 @@ my $g = get_guestfs_handle(@devices);
 my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
-my $guestos = Sys::Guestfs::GuestOS->instantiate($g, $os);
+my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::Guestfs::HVTarget->configure($vmm, $guestos, $dom, $os);
+Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
 
 $g->umount_all();
 $g->sync();
@@ -269,7 +269,7 @@ sub get_guestfs_handle
     my $g = open_guest(@params, rw => 1);
 
     # Mount the transfer iso if GuestOS needs it
-    my $transferiso = Sys::Guestfs::GuestOS->get_transfer_iso();
+    my $transferiso = Sys::VirtV2V::GuestOS->get_transfer_iso();
     $g->add_cdrom($transferiso) if(defined($transferiso));
 
     # Enable selinux in the guest

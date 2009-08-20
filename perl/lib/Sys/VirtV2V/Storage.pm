@@ -1,4 +1,4 @@
-# Sys::Guestfs::MetadataReader
+# Sys::VirtV2V::Storage
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,43 +15,52 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::MetadataReader;
+package Sys::VirtV2V::Storage;
 
 use strict;
 use warnings;
 
 use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::Guestfs::MetadataReader'],
+                      search_path => ['Sys::VirtV2V::Storage'],
                       require => 1;
-
-use Carp;
 
 =pod
 
 =head1 NAME
 
-Sys::Guestfs::MetadataReader - Read a variety of guest metadata formats
+Sys::VirtV2V::Storage - Manipulate a guest's storage during V2V migration
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::MetadataReader;
+ use Sys::VirtV2V::Storage;
 
- $reader = Sys::Guestfs::MetadataReader->get_instance("libvirtxml);
- $dom = $reader->get_dom();
+ $storage = Sys::VirtV2V::Storage->get_instance("snapshot");
+ $storage->update_guest($dom);
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::MetadataReader reads the metadata of a, possibly foreign,
-guest. It provides the DOM representation of an equivalent libvirt XML
-representation.
+Sys::VirtV2V::Storage changes a guest's underlying storage underlying storage
+during a V2V migration.
 
-Sys::Guestfs::MetadataReader is an interface to various backends, each of
-which implement a consistent API. Sys::Guestfs::MetadataReader itself only
+Sys::VirtV2V::Storage is an interface to various backends, each of
+which implement a consistent API. Sys::VirtV2V::Storage itself only
 implements methods to access backends.
 
 =head1 METHODS
 
-=item instantiate(name)
+=item instantiate(name, config)
+
+=over
+
+=item name
+
+The name of the backend module to instantiate.
+
+=item config
+
+The parsed virt-v2v configuration file, as returned by Config::Tiny.
+
+=back
 
 Instantiate a backend instance with the given name.
 
@@ -63,11 +72,11 @@ sub instantiate
 
     # Get the name of the module we're going to instantiate
     my $name = shift;
-    defined($name) or carp("instantiate called without name argument");
+    carp("instantiate called without name argument") unless(defined($name));
 
-    # Get virt-v2v configuration
+    # Get the options for the module
     my $config = shift;
-    defined($config) or carp("instantiate called without config argument");
+    carp("instantiate called without config argument") unless(defined($config));
 
     my $instance;
     foreach my $module ($class->modules()) {
@@ -83,15 +92,7 @@ sub instantiate
 
 =item new(config)
 
-=over
-
-=item config
-
-The parsed virt-v2v configuration, as returned by Config::Tiny
-
-=back
-
-Instantiate an instance of the backend.
+Create an instance of the backend
 
 =item get_name()
 
@@ -102,16 +103,13 @@ Return the module's name.
 Return 1 if the module has been suffiently configured to proceed.
 Return 0 and display an error message otherwise.
 
-=item handle_arguments(@arguments)
+=item update_guest(dom)
 
-A backend may take any number of arguments describing where its data is located.
+dom is an XML::DOM::Document object describing a libvirt configuration.
+update_guest finds the storage defined in the guest, creates new storage for it
+and updates the guest DOM accordingly.
 
-=item get_dom
-
-Returns an XML::DOM::Document describing a libvirt configuration equivalent to
-the input.
-
-Returns undef and displays an error if there was an error
+Returns 1 on success or 0 on error.
 
 =head1 COPYRIGHT
 

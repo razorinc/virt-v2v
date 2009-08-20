@@ -1,4 +1,4 @@
-# Sys::Guestfs::GuestOS
+# Sys::VirtV2V::GuestOS
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::GuestOS;
+package Sys::VirtV2V::GuestOS;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ use File::Spec;
 use File::Temp;
 
 use Module::Pluggable::Ordered sub_name => 'modules',
-                               search_path => 'Sys::Guestfs::GuestOS',
+                               search_path => 'Sys::VirtV2V::GuestOS',
                                require => 1;
 
 use Locale::TextDomain 'libguestfs';
@@ -34,25 +34,25 @@ use Locale::TextDomain 'libguestfs';
 
 =head1 NAME
 
-Sys::Guestfs::GuestOS - Manipulate and query a Guest OS
+Sys::VirtV2V::GuestOS - Manipulate and query a Guest OS
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::GuestOS;
+ use Sys::VirtV2V::GuestOS;
 
- $guestos = Sys::Guestfs::GuestOS->instantiate($g, $desc, $files, $deps)
+ $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc, $files, $deps)
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::GuestOS provides a mechanism for querying and manipulating a
+Sys::VirtV2V::GuestOS provides a mechanism for querying and manipulating a
 specific guest operating system.
 
-Sys::Guestfs::GuestOS is an interface to various backends, each of
-which implement a consistent API. Sys::Guestfs::GuestOS itself only
+Sys::VirtV2V::GuestOS is an interface to various backends, each of
+which implement a consistent API. Sys::VirtV2V::GuestOS itself only
 implements methods to access backends.
 
-Sys::Guestfs::GuestOS uses L<Module::Pluggable::Ordered> to automatically
-discover backends under Sys::Guestfs::GuestOS.
+Sys::VirtV2V::GuestOS uses L<Module::Pluggable::Ordered> to automatically
+discover backends under Sys::VirtV2V::GuestOS.
 
 =cut
 
@@ -99,7 +99,7 @@ install dependencies when installing an application in the guest.
 
 =back
 
-Returns a capable Sys::Guestfs::GuestOS backend if one is found.
+Returns a capable Sys::VirtV2V::GuestOS backend if one is found.
 
 Returns undef otherwise.
 
@@ -232,7 +232,7 @@ An OS description as returned by L<Sys::Guestfs::Lib>.
 
 Returns true if the backend can handle the guest described by L<desc>.
 
-can_handle is only intended to be called by Sys::Guestfs::GuestOS.
+can_handle is only intended to be called by Sys::VirtV2V::GuestOS.
 
 =item CLASS->new(g, desc, files, deps)
 
@@ -241,7 +241,7 @@ See instantiate above for a description of the arguments.
 Instantiate a new backend object. Assumes can_handle has previously returned
 true.
 
-new is only intended to be called by Sys::Guestfs::GuestOS.
+new is only intended to be called by Sys::VirtV2V::GuestOS.
 
 =item enable_kernel_module(device, module)
 

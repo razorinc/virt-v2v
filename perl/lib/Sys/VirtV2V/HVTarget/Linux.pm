@@ -1,4 +1,4 @@
-# Sys::Guestfs::HVTarget::Linux
+# Sys::VirtV2V::HVTarget::Linux
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::HVTarget::Linux;
+package Sys::VirtV2V::HVTarget::Linux;
 
 use strict;
 use warnings;
@@ -26,7 +26,7 @@ use Locale::TextDomain 'libguestfs';
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::Guestfs::HVSource;
+use Sys::VirtV2V::HVSource;
 
 use Carp;
 
@@ -34,11 +34,11 @@ use Carp;
 
 =head1 NAME
 
-Sys::Guestfs::HVTarget::Linux - Configure a Linux guest for a target hypervisor
+Sys::VirtV2V::HVTarget::Linux - Configure a Linux guest for a target hypervisor
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::HVTarget;
+ use Sys::VirtV2V::HVTarget;
 
 =head1 DESCRIPTION
 
@@ -178,7 +178,7 @@ sub _configure_kernel_modules
     # Get a list of all old-hypervisor specific kernel modules which need to be
     # replaced or removed
     my %hvs_modules;
-    foreach my $module (Sys::Guestfs::HVSource->find_kernel_modules($guestos)) {
+    foreach my $module (Sys::VirtV2V::HVSource->find_kernel_modules($guestos)) {
         $hvs_modules{$module} = undef;
     }
 
@@ -251,7 +251,7 @@ sub _configure_applications
     die("configure_applications called without desc argument")
         unless defined($desc);
 
-    my @hvs_apps = Sys::Guestfs::HVSource->find_applications($guestos);
+    my @hvs_apps = Sys::VirtV2V::HVSource->find_applications($guestos);
 }
 
 sub _configure_kernel
@@ -296,7 +296,7 @@ sub _configure_kernel
     my @remove_kernels = ();
 
     # Remove old-HV kernels
-    foreach my $kernel (Sys::Guestfs::HVSource->find_kernels($desc)) {
+    foreach my $kernel (Sys::VirtV2V::HVSource->find_kernels($desc)) {
         # Remove the kernel from our cache
         delete($kernels{$kernel});
 
@@ -426,7 +426,7 @@ sub _unconfigure_hvs
         unless defined($default_dom);
 
     # Get a list of source HV specific metadata nodes
-    my @nodeinfo = Sys::Guestfs::HVSource->find_metadata($dom);
+    my @nodeinfo = Sys::VirtV2V::HVSource->find_metadata($dom);
 
     for(my $i = 0; $i < $#nodeinfo; $i += 2) {
         my $node = $nodeinfo[$i];

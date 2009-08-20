@@ -1,4 +1,4 @@
-# Sys::Guestfs::Storage::QCOW2
+# Sys::VirtV2V::Storage::QCOW2
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::Storage::QCOW2;
+package Sys::VirtV2V::Storage::QCOW2;
 
 use strict;
 use warnings;
@@ -30,19 +30,19 @@ use XML::DOM::XPath;
 
 =head1 NAME
 
-Sys::Guestfs::Storage::QCOW2 - Create QCOW2 images for guest storage
+Sys::VirtV2V::Storage::QCOW2 - Create QCOW2 images for guest storage
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::Storage;
+ use Sys::VirtV2V::Storage;
 
- $storage = Sys::Guestfs::Storage->get_instance("qcow2");
+ $storage = Sys::VirtV2V::Storage->get_instance("qcow2");
  $storage->update_guest($dom);
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::Storage::QCOW2 is a backend for Sys::Guestfs::Storage. See
-L<Sys::Guestfs::Storage> for a description of its exported methods.
+Sys::VirtV2V::Storage::QCOW2 is a backend for Sys::VirtV2V::Storage. See
+L<Sys::VirtV2V::Storage> for a description of its exported methods.
 
 =cut
 
@@ -166,7 +166,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::Guestfs::MetadataReader(3)>,
+L<Sys::VirtV2V::MetadataReader(3)>,
 L<virt-inspector(1)>,
 L<Sys::Guestfs(3)>,
 L<guestfs(3)>,

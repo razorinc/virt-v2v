@@ -1,4 +1,4 @@
-# Sys::Guestfs::GuestOS::RedHat
+# Sys::VirtV2V::GuestOS::RedHat
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::GuestOS::RedHat;
+package Sys::VirtV2V::GuestOS::RedHat;
 
 use strict;
 use warnings;
@@ -29,23 +29,23 @@ use Locale::TextDomain 'libguestfs';
 
 =head1 NAME
 
-Sys::Guestfs::GuestOS::RedHat - Manipulate and query a Red Hat guest
+Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat guest
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::GuestOS;
+ use Sys::VirtV2V::GuestOS;
 
- $guestos = Sys::Guestfs::GuestOS->instantiate($g, $desc, $files, $deps)
+ $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc, $files, $deps)
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::GuestOS::RedHat provides an interface for manipulating and
+Sys::VirtV2V::GuestOS::RedHat provides an interface for manipulating and
 querying a Red Hat based guest. Specifically it handles any Guest OS which
 Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
 
 =head1 METHODS
 
-See L<Sys::Guestfs::GuestOS>.
+See L<Sys::VirtV2V::GuestOS>.
 
 =over
 

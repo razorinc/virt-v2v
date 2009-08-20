@@ -1,4 +1,4 @@
-# Sys::Guestfs::HVTarget
+# Sys::VirtV2V::HVTarget
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,13 +15,13 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::HVTarget;
+package Sys::VirtV2V::HVTarget;
 
 use strict;
 use warnings;
 
 use Module::Pluggable::Ordered sub_name => 'modules',
-                               search_path => ['Sys::Guestfs::HVTarget'],
+                               search_path => ['Sys::VirtV2V::HVTarget'],
                                require => 1;
 
 use Locale::TextDomain 'libguestfs';
@@ -30,11 +30,11 @@ use Locale::TextDomain 'libguestfs';
 
 =head1 NAME
 
-Sys::Guestfs::HVTarget - Manipulate a guest's storage during V2V migration
+Sys::VirtV2V::HVTarget - Manipulate a guest's storage during V2V migration
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::HVTarget;
+ use Sys::VirtV2V::HVTarget;
 
 =head1 DESCRIPTION
 

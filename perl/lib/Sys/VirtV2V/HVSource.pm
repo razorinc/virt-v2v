@@ -1,4 +1,4 @@
-# Sys::Guestfs::HVSource
+# Sys::VirtV2V::HVSource
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,13 +15,13 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::HVSource;
+package Sys::VirtV2V::HVSource;
 
 use strict;
 use warnings;
 
 use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::Guestfs::HVSource'],
+                      search_path => ['Sys::VirtV2V::HVSource'],
                       require => 1;
 use Carp;
 
@@ -29,17 +29,17 @@ use Carp;
 
 =head1 NAME
 
-Sys::Guestfs::HVSource - Manipulate a guest based on its source Hypervisor
+Sys::VirtV2V::HVSource - Manipulate a guest based on its source Hypervisor
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::HVSource;
+ use Sys::VirtV2V::HVSource;
 
- Sys::Guestfs::HVSource->unconfigure_all();
+ Sys::VirtV2V::HVSource->unconfigure_all();
 
 =head1 DESCRIPTION
 
-Sys::Guestfs::HVSource provides a mechanism for identifying hypervisor specific
+Sys::VirtV2V::HVSource provides a mechanism for identifying hypervisor specific
 changes made to a guest operating system.
 
 =head1 METHODS

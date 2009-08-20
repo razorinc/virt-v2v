@@ -1,4 +1,4 @@
-# Sys::Guestfs::HVSource::Xen::Linux
+# Sys::VirtV2V::HVSource::Xen::Linux
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::Guestfs::HVSource::Xen::Linux;
+package Sys::VirtV2V::HVSource::Xen::Linux;
 
 use strict;
 use warnings;
@@ -29,11 +29,11 @@ use XML::DOM::XPath;
 
 =head1 NAME
 
-Sys::Guestfs::HVSource::Xen::Linux - Unconfigure Xen/Linux changes
+Sys::VirtV2V::HVSource::Xen::Linux - Unconfigure Xen/Linux changes
 
 =head1 SYNOPSIS
 
- use Sys::Guestfs::HVSource;
+ use Sys::VirtV2V::HVSource;
 
 =head1 DESCRIPTION
 
@@ -167,7 +167,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::Guestfs::MetadataReader(3)>,
+L<Sys::VirtV2V::MetadataReader(3)>,
 L<virt-inspector(1)>,
 L<Sys::Guestfs(3)>,
 L<guestfs(3)>,
