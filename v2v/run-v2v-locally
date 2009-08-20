@@ -38,4 +38,4 @@ fi
 
 export PERL5LIB LD_LIBRARY_PATH LIBGUESTFS_PATH
 
-exec perl $VIRTV2V_ROOT/v2v/virt-v2v.pl "$@"
+exec perl "$VIRTV2V_ROOT/v2v/virt-v2v.pl" "$@"
