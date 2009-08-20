@@ -1,0 +1,41 @@
+#!/bin/sh
+# virt-v2v
+# Copyright (C) 2009 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# This script sets up the environment so you can run virt-v2v in place
+# without needing to do 'make install' first. You can also run virt-v2v
+# by creating a symlink to this script and putting it in your path.
+#
+# Use it like this:
+#   ./run-v2v-locally [usual virt-v2v args ...]
+
+if [ -z "$VIRTV2V_ROOT" ]; then
+    echo "VIRTV2V_ROOT must be set"
+    exit 1
+fi
+
+PERL5LIB="$VIRTV2V_ROOT/perl/blib/lib"
+
+if [ ! -z "$LIBGUESTFS_ROOT" ]; then
+    LD_LIBRARY_PATH="$LIBGUESTFS_ROOT/src/.libs"
+    LIBGUESTFS_PATH="$LIBGUESTFS_ROOT/appliance"
+    PERL5LIB="$PERL5LIB:$LIBGUESTFS_ROOT/perl/blib/lib:$LIBGUESTFS_ROOT/perl/blib/arch"
+fi
+
+export PERL5LIB LD_LIBRARY_PATH LIBGUESTFS_PATH
+
+exec perl $VIRTV2V_ROOT/v2v/virt-v2v.pl "$@"
