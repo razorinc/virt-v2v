@@ -33,8 +33,9 @@ Makefile-pl: Makefile.PL
 #CLEANFILES = Makefile-pl
 
 clean-local:
-	-$(MAKE) -f Makefile-pl clean
+	-$(MAKE) -f Makefile-pl realclean
 	rm -f Makefile-pl
 
-install-data-hook:
-	$(MAKE) -f Makefile-pl DESTDIR=$(DESTDIR) install
+# Don't do this: it causes "make distcheck" to fail.
+#install-data-hook:
+#	$(MAKE) -f Makefile-pl DESTDIR=$(DESTDIR) install

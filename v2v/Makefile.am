@@ -20,15 +20,17 @@ EXTRA_DIST = \
 	virt-v2v.pl
 
 man_MANS = virt-v2v.1
+CLEANFILES = $(man_MANS)
 
 noinst_DATA = @top_builddir@/html/virt-v2v.1.html
 
 virt-v2v.1: virt-v2v.pl
+	rm -f $@-t $@
 	$(POD2MAN) \
 	  --section 1 \
 	  -c "Virtualization Support" \
 	  --release "$(PACKAGE_NAME)-$(PACKAGE_VERSION)" \
-	  $< > $@
+	  $< > $@-t && mv $@-t $@
 
 @top_builddir@/html/virt-v2v.1.html: virt-v2v.pl
 	mkdir -p @top_builddir@/html
