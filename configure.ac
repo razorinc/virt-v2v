@@ -22,7 +22,7 @@ m4_define([virtv2v_release], [0])
 # extra can be any string
 m4_define([virtv2v_extra],   [])
 
-AC_INIT([virtv2v],virtv2v_major.virtv2v_minor.virtv2v_release[]virtv2v_extra)
+AC_INIT([virt-v2v],virtv2v_major.virtv2v_minor.virtv2v_release[]virtv2v_extra)
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
 
