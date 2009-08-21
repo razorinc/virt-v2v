@@ -16,9 +16,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # major/minor/release must be numbers
-m4_define([virtv2v_major],   [1])
-m4_define([virtv2v_minor],   [0])
-m4_define([virtv2v_release], [68])
+m4_define([virtv2v_major],   [0])
+m4_define([virtv2v_minor],   [1])
+m4_define([virtv2v_release], [0])
 # extra can be any string
 m4_define([virtv2v_extra],   [])
 
