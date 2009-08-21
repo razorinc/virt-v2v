@@ -200,9 +200,9 @@ sub _init_augeas_modprobe
     }
 
     # If the modprobe.d directory exists, create new entries in
-    # modprobe.d/libguestfs-added.conf
+    # modprobe.d/virtv2v-added.conf
     if($g->exists("/etc/modprobe.d")) {
-        $self->{modules} = "modprobe.d/libguestfs-added.conf";
+        $self->{modules} = "modprobe.d/virtv2v-added.conf";
     }
 
     die(__"Unable to find any valid modprobe configuration")
