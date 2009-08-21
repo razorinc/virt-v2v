@@ -23,7 +23,7 @@ use warnings;
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 
 use Carp;
-use Locale::TextDomain 'libguestfs';
+use Locale::TextDomain 'virt-v2v';
 
 =pod
 

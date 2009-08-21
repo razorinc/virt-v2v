@@ -28,7 +28,7 @@ use Module::Pluggable::Ordered sub_name => 'modules',
                                search_path => 'Sys::VirtV2V::GuestOS',
                                require => 1;
 
-use Locale::TextDomain 'libguestfs';
+use Locale::TextDomain 'virt-v2v';
 
 =pod
 

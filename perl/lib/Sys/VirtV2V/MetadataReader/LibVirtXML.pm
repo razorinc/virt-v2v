@@ -23,7 +23,7 @@ use warnings;
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Locale::TextDomain 'libguestfs';
+use Locale::TextDomain 'virt-v2v';
 
 =pod
 

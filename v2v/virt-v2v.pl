@@ -24,7 +24,7 @@ use Getopt::Long;
 use Data::Dumper;
 use XML::Writer;
 use Config::Tiny;
-use Locale::TextDomain 'libguestfs';
+use Locale::TextDomain 'virt-v2v';
 
 use Sys::Guestfs;
 use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path

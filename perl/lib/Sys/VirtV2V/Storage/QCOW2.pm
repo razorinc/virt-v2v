@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use File::Temp qw(:mktemp);
-use Locale::TextDomain 'libguestfs';
+use Locale::TextDomain 'virt-v2v';
 
 use XML::DOM;
 use XML::DOM::XPath;
