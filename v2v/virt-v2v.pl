@@ -163,7 +163,6 @@ Set the output guest name.
 
 # Option defaults
 my $format_opt = "libvirtxml"; # Metadata format
-my $storage_opt = "qcow2"; # storage modifier
 
 # The path to the virt-v2v config file
 my $config_file;
@@ -203,7 +202,8 @@ if(!defined($mdr)) {
     exit(1);
 }
 
-my $storage = Sys::VirtV2V::Storage->instantiate($storage_opt, $config);
+# XXX: Remove this when virt-snapshot is available
+my $storage = Sys::VirtV2V::Storage->instantiate('qcow2', $config);
 if(!defined($storage)) {
     print STDERR __x("{virt-v2v: storage} is not a valid storage option\n",
                      storage => $storage)."\n";
