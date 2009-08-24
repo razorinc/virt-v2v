@@ -65,6 +65,7 @@ use constant KVM_XML_VIRTIO => "
   </devices>
 </domain>
 ";
+
 use constant KVM_XML_NOVIRTIO => "
 <domain type='kvm'>
   <os>
