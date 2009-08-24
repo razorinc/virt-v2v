@@ -172,8 +172,7 @@ GetOptions ("help|?"      => \$help,
             "version"     => \$version,
             "connect|c=s" => \$uri,
             "format|f=s"  => \$format_opt,
-            "storage|s=s" => \$storage_opt,
-            "config|c=s"  => \$config_file
+            "config|s=s"  => \$config_file
     ) or pod2usage (2);
 pod2usage (1) if $help;
 if ($version) {
