@@ -1,0 +1,12 @@
+Required features not yet implemented
+-------------------------------------
+
+* Get guest metadata direct from libvirt (libvirt MetadataReader)
+* Windows support
+
+
+Roadmap features
+----------------
+
+* OVF metadata reader
+* VMWare HVSource
