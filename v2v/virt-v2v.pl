@@ -40,15 +40,15 @@ use Sys::VirtV2V::HVTarget;
 
 =head1 NAME
 
-virt-v2v - Convert Xen or VMWare guests to KVM
+virt-v2v - Convert a guest to use KVM
 
 =head1 SYNOPSIS
 
- virt-v2v xen_name -o kvm_name
+ virt-v2v guest-domain.xml
 
- virt-v2v guest.ovf.zip -o kvm_name
+ virt-v2v -s virt-v2v.conf guest-domain.xml
 
- virt-v2v guest.img [guest.img ...]
+ virt-v2v --connect qemu:///system guest-domain.xml
 
 =head1 DESCRIPTION
 
@@ -62,62 +62,14 @@ table below.
  Xen domain managed by          |
  libvirt                        |
                                 |
- Xen compatibility:             |
-   - PV or FV kernel            |  KVM guest managed by
-   - with or without PV drivers |  libvirt
-   - RHEL 3.9+, 4.8+, 5.3+      |    - with virtio drivers
-   - Windows XP, 2003           |
-                                |
- -------------------------------+
-                                |
- VMWare VMDK image with         |
- OVF metadata, exported from    |
- vSphere                        |
-                                |
- VMWare compatibility:          |
-   - RHEL 3.9+, 4.8+, 5.3+      |
-   - VMWare tools               |
+ Xen compatibility:             | KVM guest managed by
+   - PV or FV kernel            | libvirt                   
+   - with or without PV drivers |   - with virtio drivers   
+   - RHEL 3.x, 4.x, 5.x         |     if supported by guest 
+                                |  
                                 |
  -------------------------------+----------------------------
-
-=head2 CONVERTING XEN DOMAINS
-
-For Xen domains managed by libvirt, perform the initial conversion
-using:
-
- virt-v2v xen_name -o kvm_name
-
-where C<xen_name> is the libvirt Xen domain name, and C<kvm_name> is
-the (new) name for the converted KVM guest.
-
-Then test boot the new guest in KVM:
-
- virsh start kvm_name
- virt-viewer kvm_name
-
-When you have verified that this works, shut down the new KVM domain
-and I<commit> the changes by doing:
-
- virt-v2v --commit kvm_name
-
-I<This command will destroy the original Xen domain>.
-
-Or you can I<rollback> to the original Xen domain by doing:
-
- virt-v2v --rollback kvm_name
-
-B<Very important note:> Do I<not> try to run both the original Xen
-domain and the KVM domain at the same time!  This will cause guest
-corruption.
-
-=head2 CONVERTING VMWARE GUESTS
-
-I<This section to be written>
-
-
-
-
-
+ 
 =head1 OPTIONS
 
 =over 4
@@ -157,15 +109,24 @@ Set the output guest name.
 
 =cut
 
-=back
+my $format_opt = "libvirtxml";
+
+=item B<--format format> | B<-f format>
+
+The specified guest description uses the given I<format>. The default is
+C<libvirtxml>, which is also the only currently supported option.
 
 =cut
 
-# Option defaults
-my $format_opt = "libvirtxml"; # Metadata format
-
-# The path to the virt-v2v config file
 my $config_file;
+
+=item B<--config file> | B<-s file>
+
+Load the virt-v2v configuration from I<file>. There is no default.
+
+=back
+
+=cut
 
 GetOptions ("help|?"      => \$help,
             "version"     => \$version,
@@ -174,12 +135,14 @@ GetOptions ("help|?"      => \$help,
             "config|s=s"  => \$config_file
     ) or pod2usage (2);
 pod2usage (1) if $help;
+
 if ($version) {
     my $g = Sys::Guestfs->new ();
     my %h = $g->version ();
     print "$h{major}.$h{minor}.$h{release}$h{extra}\n";
     exit
 }
+
 pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
 
 # Read the config file if one was given
@@ -341,14 +304,129 @@ sub get_guest_devices
     return @devices;
 }
 
+=head1 PREPARING TO RUN VIRT-V2V
+
+=head2 Backup the guest
+
+Virt-v2v converts guests 'in-place': it will make changes to a guest directly
+without creating a backup. It is recommended that virt-v2v be run against a
+copy.
+
+The L<virt-snapshot(1)> tool can be used to convert a guest to use a snapshot
+for storage prior to running virt-v2v against it. This snapshot can then be
+committed to the original storage after the conversion is confirmed as
+successful.
+
+The L<virt-clone(1)> tool can make a complete copy of a guest, including all its
+storage.
+
+=head2 Obtain domain XML for the guest domain
+
+Virt-v2v uses a libvirt domain description to determine the current
+configuration of the guest, including the location of its storage. This should
+be obtained from the host running the guest pre-conversion by running:
+
+ virsh dumpxml <domain> > <domain>.xml
+
+=head1 CONVERTING A GUEST
+
+In the simplest case, virt-v2v can be run as follows:
+
+ virt-v2v <domain>.xml
+
+where C<< <domain>.xml >> is the path to the exported guest domain's xml. This
+is the simplest form of conversion. It can only be used when the guest has an
+installed kernel which will boot on KVM, i.e. a guest with only paravirtualised
+Xen kernels installed will not work. Virtio will be configured if it is
+supported, otherwise the guest will be configured to use non-virtio drivers. See
+L</GUEST DRIVERS> for details of which drivers will be used.
+
+Virt-v2v can also be configured to install new software into a guest. This might
+be necessary if the guest will not boot on KVM without modification, or if you
+want to upgrade it to support virtio during conversion. Doing this requires
+specifying a configuration file describing where to find the new software. In
+this case, virt-v2v is called as:
+
+ virt-v2v -s <virt-v2v.conf> <domain>.xml
+
+See L<virt-v2v.conf(5)> for details of this configuration file. During the
+conversion process, if virt-v2v does not detect that the guest is capable of
+supporting virtio it will try to upgrade components to resolve this.  On Linux
+guests this will involve upgrading the kernel, and may involve upgrading
+dependent parts of userspace.
+
+To text boot the new guest in KVM, run:
+
+ virsh start <domain>
+ virt-viewer <domain>
+
+If you have created a guest snapshot using L<virt-snapshot(1)>, it can be
+committed or rolled back at this stage.
+
+=head1 GUEST CONFIGURATION CHANGES
+
+As well as configuring libvirt appropriately, virt-v2v will make certain changes
+to a guest to enable it support running under a KVM host either with or without
+virtio driver. These changes are guest OS specific. Currently only Red Hat based
+Linux distributions are supported.
+
+=head2 Linux
+
+virt-v2v will make the following changes to a Linux guest:
+
+=over
+
+=item Kernel
+
+Un-bootable, i.e. xen paravirtualised, kernels will be uninstalled. No new
+kernel will be installed if there is a remaining kernel which supports virtio.
+If no remaining kernel supports virtio and the configuration file specifies a
+new kernel it will be installed and configured as the default.
+
+=item X reconfiguration
+
+If the guest has X configured, its display driver will be updated. See L</GUEST
+DRIVERS> for which driver will be used.
+
+=item Rename block devices
+
+If changes have caused block devices to change name, these changes will be
+reflected in /etc/fstab.
+
+=item Configure device drivers
+
+Whether virtio or non-virtio drivers are configured, virt-v2v will ensure that
+the correct network and block drivers are specified in the modprobe
+configuration.
+
+=item initrd
+
+virt-v2v will ensure that the initrd for the default kernel supports booting the
+root device, whether it is using virtio or not.
+
+=back
+
+=head1 GUEST DRIVERS
+
+Virt-v2v will install the following drivers in a Linux guest:
+
+=head2 VirtIO
+
+ X display      cirrus
+ Block          virtio_blk
+ Network        virtio_net
+
+Additionally, initrd will preload the virtio_pci driver.
+
+=head2 Non-VirtIO
+
+ X display      cirrus
+ Block          sym53c8xx (scsi)
+ Network        e1000
+
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<guestfs(3)>,
-L<guestfish(1)>,
-L<Sys::Guestfs(3)>,
-L<Sys::Guestfs::Lib(3)>,
-L<Sys::Virt(3)>,
+L<virt-snapshot(1)>
 L<http://libguestfs.org/>.
 
 For Windows registry parsing we require the C<reged> program

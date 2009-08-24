@@ -1,0 +1,167 @@
+=encoding utf8
+
+=head1 NAME
+
+virt-v2v.conf - configuration file for virt-v2v
+
+=head1 DESCRIPTION
+
+C<virt-v2v.conf> describes:
+
+software which can be installed by virt-v2v during the conversion process.
+
+how to rename networks and bridges when importing them from another environment.
+
+=head1 EXAMPLE
+
+The following is an example virt-v2v configuration file which is sufficient to
+convert RHEL 5 guests to run on KVM with virtio drivers enabled:
+ 
+ [files]
+ rhel.5.i686.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.1.el5.i686.rpm
+ rhel.5.x86_64.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.4.1.el5.x86_64.
+
+This section specifies i686 and x86_64 RHEL 5 kernel packages.
+ 
+ # The RHEL 5.3 kernel conflicts with older versions of ecryptfs-utils
+ rhel.5.i386.ecryptfs-utils=/var/lib/virt-v2v/ecryptfs-utils-56-8.el5.i38
+  
+ # The following userspace packages are required on RHEL 5 prior to RHEL
+ # 5.3 to suport virtio
+ rhel.5.i386.lvm2=/var/lib/virt-v2v/lvm2-2.02.40-6.el5.i386.rpm
+ rhel.5.i386.device-mapper=/var/lib/virt-v2v/device-mapper-1.02.28-2.el5.
+ rhel.5.i386.device-mapper-event=/var/lib/virt-v2v/device-mapper-event-1.
+
+This section specifies some additional userspace packages for i386 RHEL 5. See
+below for how these can be used.
+
+ [deps]
+ # Only update userspace on RHEL 5 prior to RHEL 5.3
+ rhel.5.2.kernel=ecryptfs-utils lvm2
+ rhel.5.1.kernel=ecryptfs-utils lvm2
+ rhel.5.0.kernel=ecryptfs-utils lvm2
+
+This section specifies that when installing C<kernel> on RHEL 5.0, RHEL 5.1 or
+RHEL 5.2, virt-v2v must also install C<ecryptfs-utils> and C<lvm2>.
+
+ # RPM version dependencies
+ rhel.5.lvm2=device-mapper
+ rhel.5.device-mapper=device-mapper-event
+
+Dependencies can be specified to any depth. The above specifies that C<lvm2>
+depends on C<device-mapper>, which in turn depends on C<device-mapper-event>.
+
+ [aliases]
+ # Install a regular kernel in place of a xen kernel
+ rhel.5.kernel-xen=kernel
+
+The above section specifies that if virt-v2v is looking for a kernel called
+C<kernel-xen> on RHEL 5 it should instead look for a label called C<kernel>.
+
+ [libvirtxml]
+ bridge.xenbr1=virbr0
+
+The above section specifies that if a guest connects to a bridge on the host
+called C<xenbr1>, the converted guest should instead connect to a bridge called
+C<virbr0>.
+
+=head1 INSTALLING FILES
+
+Because different guests may need different files to be installed to satisfy a
+given requirement, files are installed by I<label> rather than by file name.
+Labels are specified in the [files] section of the virt-v2v configuration file.
+
+When choosing which file to install, the requested label name will be considered
+along with 4 aspects of the guest:
+
+=over
+
+=item distro
+
+The distribution name discovered by L<Sys::Guestfs::Lib>, e.g. 'rhel'.
+
+=item major
+
+The major version number of the distribution.
+
+=item minor
+
+The minor version number of the distribution.
+
+=item arch
+
+The required architecture of the file to be installed.
+
+=back
+
+GuestOS will search for a matching label in the following order:
+
+1. distro.major.minor.arch.label
+2. distro.major.minor.label
+3. distro.major.arch.label
+4. distro.major.label
+5. distro.arch.label
+6. distro.label
+
+So, if the guest is RHEL 5.3 x86_64 and the given label is 'udev', you can
+specify any of the following:
+
+ [files]
+ rhel.5.3.x86_64.udev=<udev rpm>
+ rhel.5.3.udev=<udev rpm>
+ rhel.5.x86_64.udev=<udev rpm>
+ rhel.5.udev=<udev rpm>
+ rhel.x86_64.udev=<udev rpm>
+ rhel.udev=<udev rpm>
+
+Which I<should> be specified depends on the applicability of the target file. In
+this case it would be I<rhel.5.x86_64.udev>.
+
+=head1 INSTALLING DEPENDENCIES
+
+virt-v2v requires that all necessary files are made available before it is
+invoked. This includes dependencies of new files which are to be installed into
+a guest. Dependencies must be specified manually in the [deps] section of the
+virt-v2v configuration file.
+
+Dependencies are defined on labels, and specify new labels. Labels are resolved
+as described in L</INSTALLING FILES>.
+
+So, for example, to specify that when installing a new kernel on RHEL 5.2 x86_64
+you also need to install new versions of ecryptfs-utils and lvm2, add the
+following:
+
+ [deps]
+ rhel.5.2.kernel="ecryptfs-utils lvm2"
+
+This will cause GuestOS to first resolve both labels ecryptfs-utils and lvm2 for
+the current guest, then check that the requested package is both installed, and
+at the same or a greater version number that the given package. If this is not
+the case the package will be installed or upgraded.
+
+Dependencies can be specified recursively to any depth.
+
+=head1 ALIASES
+
+Aliases can be used to specify that when a particular label has been requested,
+a different label should be used instead. Aliases are specified in the [aliases]
+section of the virt-v2v configuration file.
+
+For example to specify that when looking for a replacement for 'kernel-xenU' on
+RHEL 4, 'kernel' should be used instead, add the following:
+
+ [aliases]
+ rhel.4.kernel-xenU=kernel
+
+Aliases are resolved as described in L</INSTALLING FILES>. Thus a label can have
+different aliases in different contexts. An alias will be used both when
+installing a file, and when resolving its dependencies.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009 Red Hat Inc.
+
+=head1 SEE ALSO
+
+L<virt-v2v(1)>,
+L<http://libguestfs.org/>

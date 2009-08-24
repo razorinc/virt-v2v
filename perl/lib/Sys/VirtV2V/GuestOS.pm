@@ -294,8 +294,8 @@ than relying on the output from Sys::Guestfs::Lib, which may be out of date.
 =item add_kernel
 
 add_kernel installs a new kernel. It chooses a kernel label based on the name of
-the default kernel installed in the guest. See L</INSTALLING FILES> for more
-details of how files are selected for installation.
+the default kernel installed in the guest. See L<virt-v2v(5)> for details of how
+files are selected for installation.
 
 add_kernel will also install dependencies of the chosen kernel.
 
@@ -320,8 +320,8 @@ remove_kernel uninstalls a kernel from the guest.
 
 =item label
 
-The label of the application to be installed. See L</INSTALLING FILES> for
-more details.
+The label of the application to be installed. See L<virt-v2v.conf(5)> for more
+details.
 
 =back
 
@@ -382,98 +382,6 @@ The version number of the kernel to be inspected
 Returns 1 if the target kernel supports virtio, 0 otherwise.
 
 =back
-
-=head1 INSTALLING FILES
-
-Because different guests may need different files to be installed to satisfy a
-given requirement, files are installed by I<label> rather than by file name.
-Labels are specified in the [files] section of the virt-v2v configuration file.
-
-When choosing which file to install, the requested label name will be considered
-along with 4 aspects of the guest:
-
-=over
-
-=item distro
-
-The distribution name discovered by L<Sys::Guestfs::Lib>, e.g. 'rhel'.
-
-=item major
-
-The major version number of the distribution.
-
-=item minor
-
-The minor version number of the distribution.
-
-=item arch
-
-The required architecture of the file to be installed.
-
-=back
-
-GuestOS will search for a matching label in the following order:
-
-1. distro.major.minor.arch.label
-2. distro.major.minor.label
-3. distro.major.arch.label
-4. distro.major.label
-5. distro.arch.label
-6. distro.label
-
-So, if the guest is RHEL 5.3 x86_64 and the given label is 'udev', you can
-specify any of the following:
-
- [files]
- rhel.5.3.x86_64.udev=<udev rpm>
- rhel.5.3.udev=<udev rpm>
- rhel.5.x86_64.udev=<udev rpm>
- rhel.5.udev=<udev rpm>
- rhel.x86_64.udev=<udev rpm>
- rhel.udev=<udev rpm>
-
-Which I<should> be specified depends on the applicability of the target file. In
-this case it would be I<rhel.5.x86_64.udev>.
-
-=head1 INSTALLING DEPENDENCIES
-
-virt-v2v requires that all necessary files are made available before it is
-invoked. This includes dependencies of new files which are to be installed into
-a guest. Dependencies must be specified manually in the [deps] section of the
-virt-v2v configuration file.
-
-Dependencies are defined on labels, and specify new labels. Labels are resolved
-as described in L</INSTALLING FILES>.
-
-So, for example, to specify that when installing a new kernel on RHEL 5.2 x86_64
-you also need to install new versions of ecryptfs-utils and lvm2, add the
-following:
-
- [deps]
- rhel.5.2.kernel="ecryptfs-utils lvm2"
-
-This will cause GuestOS to first resolve both labels ecryptfs-utils and lvm2 for
-the current guest, then check that the requested package is both installed, and
-at the same or a greater version number that the given package. If this is not
-the case the package will be installed or upgraded.
-
-Dependencies can be specified recursively to any depth.
-
-=head1 ALIASES
-
-Aliases can be used to specify that when a particular label has been requested,
-a different label should be used instead. Aliases are specified in the [aliases]
-section of the virt-v2v configuration file.
-
-For example to specify that when looking for a replacement for 'kernel-xenU' on
-RHEL 4, 'kernel' should be used instead, add the following:
-
- [aliases]
- rhel.4.kernel-xenU=kernel
-
-Aliases are resolved as described in L</INSTALLING FILES>. Thus a label can have
-different aliases in different contexts. An alias will be used both when
-installing a file, and when resolving its dependencies.
 
 =head1 COPYRIGHT
 

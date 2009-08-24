@@ -17,12 +17,16 @@
 
 EXTRA_DIST = \
 	run-v2v-locally \
-	virt-v2v.pl
+	virt-v2v.pl \
+	virt-v2v.conf \
+	virt-v2v.conf.pod
 
-man_MANS = virt-v2v.1
+man_MANS = virt-v2v.1 virt-v2v.conf.5
 CLEANFILES = $(man_MANS)
 
-noinst_DATA = @top_builddir@/html/virt-v2v.1.html
+noinst_DATA =
+	@top_builddir@/html/virt-v2v.1.html \
+	@top_builddir@/html/virt-v2v.conf.5.html
 
 virt-v2v.1: virt-v2v.pl
 	rm -f $@-t $@
@@ -39,6 +43,23 @@ virt-v2v.1: virt-v2v.pl
 	  --title 'virt-v2v, convert virtual machine from Xen to KVM' \
 	  --htmldir html \
 	  --outfile html/virt-v2v.1.html \
+	  v2v/$<
+
+virt-v2v.conf.5: virt-v2v.conf.pod
+	rm -f $@-t $@
+	$(POD2MAN) \
+	  --section 5 \
+	  -c "Virtualization Support" \
+	  --release "$(PACKAGE_NAME)-$(PACKAGE_VERSION)" \
+	  $< > $@-t && mv $@-t $@
+
+@top_builddir@/html/virt-v2v.conf.5.html: virt-v2v.conf.pod
+	mkdir -p @top_builddir@/html
+	cd @top_builddir@ && pod2html \
+	  --css 'pod.css' \
+	  --title 'virt-v2v, convert virtual machine from Xen to KVM' \
+	  --htmldir html \
+	  --outfile html/virt-v2v.conf.5.html \
 	  v2v/$<
 
 install-data-hook:

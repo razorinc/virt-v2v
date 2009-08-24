@@ -21,8 +21,6 @@ perl/Makefile-pl
 perl/Makefile-pl.old
 perl/Makefile.PL
 perl/pm_to_blib
-/pod2htm?.tmp
-/html
 
 po/*.gmo
 po/Makevars.template
@@ -42,3 +40,6 @@ po/quot.sed
 po/remove-potcdate.sin
 
 v2v/virt-v2v.1
+v2v/virt-v2v.conf.5
+/pod2htm?.tmp
+/html
