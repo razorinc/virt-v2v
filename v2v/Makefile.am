@@ -40,7 +40,7 @@ virt-v2v.1: virt-v2v.pl
 	mkdir -p @top_builddir@/html
 	cd @top_builddir@ && pod2html \
 	  --css 'pod.css' \
-	  --title 'virt-v2v, convert virtual machine from Xen to KVM' \
+	  --title 'virt-v2v: convert a guest to use KVM' \
 	  --htmldir html \
 	  --outfile html/virt-v2v.1.html \
 	  v2v/$<
@@ -57,7 +57,7 @@ virt-v2v.conf.5: virt-v2v.conf.pod
 	mkdir -p @top_builddir@/html
 	cd @top_builddir@ && pod2html \
 	  --css 'pod.css' \
-	  --title 'virt-v2v, convert virtual machine from Xen to KVM' \
+	  --title 'virt-v2v.conf: configuration file for virt-v2v' \
 	  --htmldir html \
 	  --outfile html/virt-v2v.conf.5.html \
 	  v2v/$<
