@@ -17,11 +17,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # This script sets up the environment so you can run virt-v2v in place
-# without needing to do 'make install' first. You can also run virt-v2v
-# by creating a symlink to this script and putting it in your path.
+# without needing to do 'make install' first.
 #
 # Use it like this:
 #   ./run-v2v-locally [usual virt-v2v args ...]
+#
+# It requires the environment variable VIRTV2V_ROOT to be set. If using
+# libguestfs from source, LIBGUESTFS_ROOT must also be set.
 
 if [ -z "$VIRTV2V_ROOT" ]; then
     echo "VIRTV2V_ROOT must be set"
