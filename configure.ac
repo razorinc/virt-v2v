@@ -80,5 +80,6 @@ AC_CONFIG_FILES([Makefile
                  perl/Makefile
                  perl/Makefile.PL
                  v2v/Makefile
+                 v2v/virt-v2v.pl
                  po/Makefile.in])
 AC_OUTPUT

@@ -129,10 +129,8 @@ GetOptions ("help|?"      => \$help,
 pod2usage (1) if $help;
 
 if ($version) {
-    my $g = Sys::Guestfs->new ();
-    my %h = $g->version ();
-    print "$h{major}.$h{minor}.$h{release}$h{extra}\n";
-    exit
+    print "@PACKAGE_VERSION@\n";
+    exit(0);
 }
 
 pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
@@ -418,8 +416,11 @@ Additionally, initrd will preload the virtio_pci driver.
 
 =head1 SEE ALSO
 
-L<virt-snapshot(1)>,
+L<virt-snapshot(1)>
 L<http://libguestfs.org/>.
+
+For Windows registry parsing we require the C<reged> program
+from L<http://home.eunet.no/~pnordahl/ntpasswd/>.
 
 =head1 AUTHOR
 
