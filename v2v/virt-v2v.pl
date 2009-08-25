@@ -101,14 +101,6 @@ default libvirt hypervisor.
 
 =cut
 
-my $output;
-
-=item B<--output name> | B<-o name>
-
-Set the output guest name.
-
-=cut
-
 my $format_opt = "libvirtxml";
 
 =item B<--format format> | B<-f format>
