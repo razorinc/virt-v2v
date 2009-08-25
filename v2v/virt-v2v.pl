@@ -418,11 +418,8 @@ Additionally, initrd will preload the virtio_pci driver.
 
 =head1 SEE ALSO
 
-L<virt-snapshot(1)>
+L<virt-snapshot(1)>,
 L<http://libguestfs.org/>.
-
-For Windows registry parsing we require the C<reged> program
-from L<http://home.eunet.no/~pnordahl/ntpasswd/>.
 
 =head1 AUTHOR
 
