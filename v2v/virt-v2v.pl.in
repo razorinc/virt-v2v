@@ -32,7 +32,6 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
   inspect_operating_systems mount_operating_system inspect_in_detail);
 
 use Sys::VirtV2V::MetadataReader;
-use Sys::VirtV2V::Storage;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::HVTarget;
 
@@ -155,22 +154,10 @@ if(!defined($mdr)) {
     exit(1);
 }
 
-# XXX: Remove this when virt-snapshot is available
-my $storage = Sys::VirtV2V::Storage->instantiate('qcow2', $config);
-if(!defined($storage)) {
-    print STDERR __x("{virt-v2v: storage} is not a valid storage option\n",
-                     storage => $storage)."\n";
-    exit(1);
-}
-
 $mdr->handle_arguments(@ARGV);
 
-# Check all modules are properly initialised
-my $ready = 1;
-foreach my $module ($mdr, $storage) {
-    $ready = 0 if(!$module->is_configured());
-}
-exit 1 if(!$ready);
+# Check MetadataReader is properly initialised
+exit 1 unless($mdr->is_configured());
 
 # Configure GuestOS ([files] and [deps] sections)
 Sys::VirtV2V::GuestOS->configure($config);
@@ -186,9 +173,6 @@ my $vmm = Sys::Virt->new(@vmm_params);
 # Get a libvirt configuration for the guest
 my $dom = $mdr->get_dom();
 exit(1) if(!defined($dom));
-
-# Modify the storage in the guest according to configured options
-$storage->update_guest($dom);
 
 # Get a list of the guest's storage devices
 my @devices = get_guest_devices($dom);
