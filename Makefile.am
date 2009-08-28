@@ -17,6 +17,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = perl po v2v
+SUBDIRS = perl po v2v snapshot
 
 CLEANFILES = pod2htmd.tmp pod2htmi.tmp html/$(PACKAGE_NAME).1.html po/stamp-po

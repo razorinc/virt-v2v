@@ -79,6 +79,8 @@ fi
 AC_CONFIG_FILES([Makefile
                  perl/Makefile
                  perl/Makefile.PL
+                 snapshot/Makefile
+                 snapshot/virt-snapshot.pl
                  v2v/Makefile
                  v2v/virt-v2v.pl
                  po/Makefile.in])
