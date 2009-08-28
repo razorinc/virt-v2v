@@ -124,15 +124,15 @@ GetOptions ("help|?"      => \$help,
             "connect|c=s" => \$uri,
             "format|f=s"  => \$format_opt,
             "config|s=s"  => \$config_file
-    ) or pod2usage (2);
-pod2usage (1) if $help;
+    ) or pod2usage(2);
+pod2usage(0) if($help);
 
 if ($version) {
     print "@PACKAGE_VERSION@\n";
     exit(0);
 }
 
-pod2usage (__"virt-v2v: no image or VM names given") if @ARGV == 0;
+pod2usage(__"virt-v2v: no guest argument given") if @ARGV == 0;
 
 # Read the config file if one was given
 my $config = {};

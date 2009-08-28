@@ -125,15 +125,15 @@ GetOptions ("help|?"        => \$help,
             "outputxml|o=s" => \$outputxml,
             "commit"        => \$commit,
             "rollback"      => \$rollback
-    ) or pod2usage (2);
-pod2usage (1) if $help;
+    ) or pod2usage(2);
+pod2usage(0) if $help;
 
 if ($version) {
     print "@PACKAGE_VERSION@\n";
     exit(0);
 }
 
-pod2usage (_user_msg(__"no guest given")) if @ARGV == 0;
+pod2usage(_user_msg(__"no guest argument given")) if @ARGV == 0;
 
 # Get an appropriate MetadataReader
 my $mdr = Sys::VirtV2V::MetadataReader->instantiate($format_opt, {});
