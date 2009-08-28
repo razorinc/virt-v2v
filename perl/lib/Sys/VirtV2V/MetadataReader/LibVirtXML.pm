@@ -187,12 +187,8 @@ Please see the file COPYING.LIB for the full license.
 =head1 SEE ALSO
 
 L<Sys::VirtV2V::MetadataReader(3)>,
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<virt-v2v(1)>,
+L<virt-snapshot(1)>,
+L<http://libguestfs.org/>.
 
 =cut
