@@ -404,6 +404,9 @@ sub _commit_guest
                                        backingstore => $backing_path));
             exit(1);
         }
+
+        # Delete the snapshot volume
+        $vol->delete(0);
     }
 }
 
