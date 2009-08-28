@@ -106,7 +106,15 @@ Return 0 and display an error message otherwise.
 
 A backend may take any number of arguments describing where its data is located.
 
-=item get_dom
+=item get_dom(vmm)
+
+=over
+
+=item vmm
+
+A Sys::Virt connection.
+
+=back
 
 Returns an XML::DOM::Document describing a libvirt configuration equivalent to
 the input.

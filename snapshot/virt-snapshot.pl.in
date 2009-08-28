@@ -155,7 +155,7 @@ push(@vmm_params, uri => $uri) if(defined($uri));
 my $vmm = Sys::Virt->new(@vmm_params);
 
 # Get a libvirt configuration for the guest
-my $dom = $mdr->get_dom();
+my $dom = $mdr->get_dom($vmm);
 exit(1) unless(defined($dom));
 
 my $pool = _get_pool($vmm);

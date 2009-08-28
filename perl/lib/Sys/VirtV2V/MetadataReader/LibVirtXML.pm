@@ -36,7 +36,7 @@ Sys::VirtV2V::MetadataReader::LibVirtXML - Read libvirt XML from a file
  use Sys::VirtV2V::MetadataReader;
 
  $reader = Sys::VirtV2V::MetadataReader->get_instance("libvirtxml);
- $dom = $reader->get_dom();
+ $dom = $reader->get_dom($vmm);
 
 =head1 DESCRIPTION
 
@@ -129,6 +129,7 @@ sub handle_arguments
 sub get_dom
 {
     my $self = shift;
+    my ($vmm) = shift; # Unused in this backend
 
     # Open the input file
     my $xml; # Implicitly closed on function exit
