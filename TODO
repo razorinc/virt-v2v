@@ -1,7 +1,6 @@
 Required features not yet implemented
 -------------------------------------
 
-* Get guest metadata direct from libvirt (libvirt MetadataReader)
 * Windows support
 
 
