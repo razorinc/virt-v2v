@@ -175,12 +175,12 @@ exit(1) unless(defined($dom));
 my $pool = _get_pool($vmm);
 
 if($commit) {
-    _commit_guest($dom, $vmm, $pool);
+    _commit_guest($dom, $vmm, $pool) == 0 or exit(1);
 }
 
 # No commit or rollback. Snapshot the guest
 else {
-    _snapshot_guest($dom, $vmm, $pool);
+    _snapshot_guest($dom, $vmm, $pool) == 0 or exit(1);
 }
 
 # If --outputxml was given, just write the xml instead of creating the domain
@@ -363,7 +363,7 @@ sub _commit_guest
                     }
 
                     print STDERR _user_msg($msg);
-                    exit(1);
+                    return -1;
                 } else {
                     $pool->refresh(0);
                     $refreshed = 1;
@@ -438,7 +438,7 @@ sub _commit_guest
                                        "backing store '{backingstore}'",
                                        path => $path,
                                        backingstore => $backing_path));
-            exit(1);
+            return -1;
         }
 
         # Delete the snapshot volume
@@ -450,39 +450,14 @@ sub _snapshot_guest
 {
     my ($dom, $vmm, $pool) = @_;
 
-    # Get the name of the guest from the domain description
-    my ($name_elem) = $dom->findnodes('/domain/name/text()');
-    my $name = $name_elem->toString();
+    my $name = _get_guest_name($dom);
 
     # Get a timestamp for use in naming snapshot volumes
     my $time = time();
 
-    # First, get a list of existing disks
-    foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
-        my ($source) = $disk->findnodes('source');
-        my ($target) = $disk->findnodes('target/@dev');
 
-        # Look for the source location
-        my $path;
-        my $src_attrs = $source->getAttributes();
-        foreach my $attr qw(dev file) {
-            my $item = $src_attrs->getNamedItem($attr);
-            if(defined($item)) {
-                $path = $item->getNodeValue();
-
-                # Remove the attribute. We'll add a new one in below.
-                $src_attrs->removeNamedItem($attr);
-
-                last;
-            }
-        }
-
-        # Warn and ignore this source if we didn't find either
-        if(!defined($path)) {
-            print STDERR _user_msg(__x("invalid source element: {element}",
-                                        element => $source->toString()));
-            next;
-        }
+    return _foreach_disk($dom, sub {
+        my ($disk, $source, $target, $path) = @_;
 
         # Create a new qcow2 volume in the virt-snapshot storage pool
         my $target_name = $target->getNodeValue();
@@ -509,7 +484,7 @@ sub _snapshot_guest
             print STDERR
                 _user_msg(__x("Unable to create storage volume: {error}",
                            error => $@->stringify()));
-            exit(1);
+            return -1;
         }
 
         # Update the source to be a "file" with the new path
@@ -526,9 +501,44 @@ sub _snapshot_guest
 
         $driver->setAttribute('name', 'qemu');
         $driver->setAttribute('type', 'qcow2');
-    }
 
-    return 1;
+        return 0;
+    });
+}
+
+sub _foreach_disk
+{
+    my ($dom, $func) = @_;
+
+    # Get a list of existing disks
+    foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
+        my ($source) = $disk->findnodes('source');
+        my ($target) = $disk->findnodes('target/@dev');
+
+        # Look for the source location
+        my $path;
+        my $src_attrs = $source->getAttributes();
+        foreach my $attr qw(dev file) {
+            my $item = $src_attrs->getNamedItem($attr);
+            if(defined($item)) {
+                $path = $item->getNodeValue();
+
+                # Remove the attribute. We'll add a new one in below.
+                $src_attrs->removeNamedItem($attr);
+
+                last;
+            }
+        }
+
+        # Warn and ignore this source if we didn't find either
+        if(!defined($path)) {
+            print STDERR _user_msg(__x("invalid source element: {element}",
+                                        element => $source->toString()));
+            next;
+        }
+
+        $func->($disk, $source, $target, $path) == 0 or return -1;
+    }
 }
 
 sub _get_guest_name
