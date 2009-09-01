@@ -107,9 +107,9 @@ my $outputxml;
 Write the updated domain xml to I<file> instead of directly creating the domain.
 If I<file> is '-' output will be to standard out.
 
-This option can be useful when running virt-snapshot on domain XML which can't
-be created on the local hypervisor, for example because Xen is not available
-locally.
+This option can be useful when snapshotting or rolling back to domain XML which
+can't be created on the local hypervisor, for example because Xen is not
+available locally.
 
 =cut
 
@@ -143,6 +143,8 @@ Force an action to complete which might not be safe. Force is required to:
 
 Create a snapshot of a guest which already has an active snapshot (overwrites
 the XML backup).
+
+Rollback a guest which has no XML backup (all guest metadata is lost).
 
 =back
 
@@ -179,6 +181,10 @@ GetOptions ("help|?"          => \$help,
             "rollback"        => \$rollback
     ) or pod2usage(2);
 pod2usage(0) if($help);
+pod2usage({
+    -message => __"--commit and --rollback are mutually exclusive",
+    -exitval => 1
+}) if($commit && $rollback);
 
 if ($version) {
     print "@PACKAGE_VERSION@\n";
@@ -216,9 +222,22 @@ if($commit) {
     _commit_guest($dom, $vmm, $pool) == 0 or exit(1);
 }
 
+elsif($rollback) {
+    my $retval;
+    ($retval, $dom) = _rollback_guest($dom, $vmm, $pool);
+
+    exit(1) unless($retval == 0);
+}
+
 # No commit or rollback. Snapshot the guest
 else {
     _snapshot_guest($dom, $vmm, $pool) == 0 or exit(1);
+}
+
+# Don't try to output anything if the domain is no longer defined
+if(!defined($dom)) {
+    print _user_msg(__"No resulting domain");
+    exit($force == 1 ? 0 : 1);
 }
 
 # If --outputxml was given, just write the xml instead of creating the domain
@@ -569,6 +588,73 @@ sub _snapshot_guest
 
         return 0;
     });
+}
+
+sub _rollback_guest
+{
+    my ($dom, $vmm, $pool) = @_;
+
+    my $name = _get_guest_name($dom);
+    my $xmlpath = _get_xml_path($dom);
+
+    # Only rollback a guest without stored XML if force was specified
+    if(! -e $xmlpath && !$force) {
+        print STDERR _user_msg(__x("Refusing to rollback guest {name} without ".
+                                   "backed-up xml",
+                                   name => _get_guest_name($dom)));
+        return -1;
+    }
+
+    # Delete all snapshots
+    _foreach_disk($dom, sub {
+        my ($disk, $source, $target, $path) = @_;
+
+        if(-e $path && unlink($path) != 1) {
+            print STDERR _user_msg(__x("Failed to delete {file}: {error}",
+                                       file => $path, error => $!));
+            return -1;
+        }
+        return 0;
+    }) == 0 or return -1;
+
+    # Load the backed-up XML
+    if(-e $xmlpath) {
+        $dom = new XML::DOM::Parser->parsefile($xmlpath);
+        if(unlink($xmlpath) != 1) {
+            print STDERR _user_msg(__x("Unable to delete backup xml file ".
+                                       "{file}: {error}",
+                                       file => $xmlpath, error => $!));
+            return -1;
+        }
+    }
+
+    # Or there is no backed-up XML (force must have been given)
+    else {
+        $dom = undef;
+    }
+
+    # undefined the guest if it is defined
+    my $domain;
+    eval {
+        $domain = $vmm->get_domain_by_name($name);
+    };
+
+    # Nothing to do if the guest isn't defined
+    if(defined($domain)) {
+        my $state = $domain->get_info()->{state};
+
+        # Check the domain is shutoff
+        unless($state == Sys::Virt::Domain::STATE_SHUTOFF) {
+            $domain->destroy();
+
+            # $domain is now undefined. Get it back again
+            $domain = $vmm->get_domain_by_name($name);
+        }
+
+        $domain->undefine();
+    }
+
+    return (0, $dom);
 }
 
 sub _foreach_disk
