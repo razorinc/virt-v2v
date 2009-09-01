@@ -113,6 +113,41 @@ locally.
 
 =cut
 
+use constant DEFAULT_LIBDIR => '/var/lib/virt-snapshot';
+
+my $snapshotdir = DEFAULT_LIBDIR.'/snapshots';
+
+=item B<--snapshotdir dir> | B<-s dir>
+
+The directory where snapshot files will be created. This defaults to
+I</var/lib/virt-snapshot/snapshots>.
+
+=cut
+
+my $xmldir = DEFAULT_LIBDIR.'/xml';
+
+=item B<--xmldir dir> | B<-x dir>
+
+The directory where XML backups will be stored. This defaults to
+I</var/lib/virt-snapshot/xml>.
+
+=cut
+
+my $force = 0;
+
+=item B<--force> | B<-f>
+
+Force an action to complete which might not be safe. Force is required to:
+
+=over
+
+Create a snapshot of a guest which already has an active snapshot (overwrites
+the XML backup).
+
+=back
+
+=cut
+
 my $commit = 0;
 
 =item B<--commit>
@@ -132,13 +167,16 @@ Remove the snapshot and restore the guest to its previous, unmodified storage.
 
 =cut
 
-GetOptions ("help|?"        => \$help,
-            "version"       => \$version,
-            "connect|c=s"   => \$uri,
-            "input|i=s"     => \$input,
-            "outputxml|o=s" => \$outputxml,
-            "commit"        => \$commit,
-            "rollback"      => \$rollback
+GetOptions ("help|?"          => \$help,
+            "version"         => \$version,
+            "connect|c=s"     => \$uri,
+            "input|i=s"       => \$input,
+            "outputxml|o=s"   => \$outputxml,
+            "snapshotdir|s=s" => \$snapshotdir,
+            "xmldir|x=s"      => \$xmldir,
+            "force|f"         => \$force,
+            "commit"          => \$commit,
+            "rollback"        => \$rollback
     ) or pod2usage(2);
 pod2usage(0) if($help);
 
@@ -263,7 +301,7 @@ sub _get_pool
                 <pool type='dir'>
                     <name>virt-snapshot</name>
                     <target>
-                        <path>/var/lib/virt-snapshot</path>
+                        <path>/var/lib/virt-snapshot/images</path>
                     </target>
                 </pool>
             ");
@@ -444,6 +482,10 @@ sub _commit_guest
         # Delete the snapshot volume
         $vol->delete(0);
     }
+
+    # Remove the XML backup if it exists
+    my $xmlpath = _get_xml_path($dom);
+    unlink($xmlpath) if(-e $xmlpath);
 }
 
 sub _snapshot_guest
@@ -452,9 +494,32 @@ sub _snapshot_guest
 
     my $name = _get_guest_name($dom);
 
+    # Store a backup of the domain XML before modification
+    my $xmlpath = _get_xml_path($dom);
+
+    # Error if the xml backup already exists and force not specified
+    if(-e $xmlpath && !$force) {
+        print STDERR
+            _user_msg(__x("A snapshot already exists for {guest}. You must ".
+                          "commit it or roll it back back before creating a ".
+                          "new snapshot.", guest => $name));
+        return -1;
+    }
+
+    # Write the backup
+    my $xmlbackup;
+    open($xmlbackup, '>', $xmlpath)
+        or die(__x("Unable to write to {path}: {error}",
+                   path => $xmlpath, error => $!));
+
+    print $xmlbackup $dom->toString();
+
+    close($xmlbackup)
+        or die(__x("Error closing {path}: {error}",
+                   path => $xmlpath, error => $!));
+
     # Get a timestamp for use in naming snapshot volumes
     my $time = time();
-
 
     return _foreach_disk($dom, sub {
         my ($disk, $source, $target, $path) = @_;
@@ -548,6 +613,13 @@ sub _get_guest_name
     # Get the name of the guest from the domain description
     my ($name_elem) = $dom->findnodes('/domain/name/text()');
     return $name_elem->toString();
+}
+
+sub _get_xml_path
+{
+    my ($dom) = @_;
+
+    return $xmldir.'/'._get_guest_name($dom).'.xml';
 }
 
 sub _user_msg
