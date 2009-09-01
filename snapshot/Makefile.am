@@ -44,8 +44,8 @@ virt-snapshot.1: virt-snapshot.pl
 
 install-data-hook:
 	mkdir -p $(DESTDIR)$(bindir)
-	install -m 0755 $(srcdir)/virt-v2v.pl $(DESTDIR)$(bindir)/virt-v2v
+	install -m 0755 $(srcdir)/virt-snapshot.pl $(DESTDIR)$(bindir)/virt-snapshot
 
 uninstall-hook:
-	rm -f $(DESTDIR)$(bindir)/virt-v2v
+	rm -f $(DESTDIR)$(bindir)/virt-snapshot
 	-rmdir $(DESTDIR)$(bindir)
