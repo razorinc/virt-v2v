@@ -100,12 +100,24 @@ default libvirt hypervisor.
 
 =cut
 
-my $format_opt = "libvirtxml";
+my $input = "libvirt";
 
-=item B<--format format> | B<-f format>
+=item B<--input input> | B<-i input>
 
-The specified guest description uses the given I<format>. The default is
-C<libvirtxml>, which is also the only currently supported option.
+The specified guest description uses the given I<input format>. The default is
+C<libvirt>. Supported options are:
+
+=over
+
+=item I<libvirt>
+
+Guest argument is the name of a libvirt domain.
+
+=item I<libvirtxml>
+
+Guest argument is the path to an XML file describing a libvirt domain.
+
+=back
 
 =cut
 
@@ -122,7 +134,7 @@ Load the virt-v2v configuration from I<file>. There is no default.
 GetOptions ("help|?"      => \$help,
             "version"     => \$version,
             "connect|c=s" => \$uri,
-            "format|f=s"  => \$format_opt,
+            "input|i=s"   => \$input,
             "config|s=s"  => \$config_file
     ) or pod2usage(2);
 pod2usage(0) if($help);
@@ -147,10 +159,10 @@ if(defined($config_file)) {
 }
 
 # Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($format_opt, $config);
+my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, $config);
 if(!defined($mdr)) {
-    print STDERR __x("virt-v2v: {format} is not a valid metadata format",
-                     format => $format_opt)."\n";
+    print STDERR __x("virt-v2v: {input} is not a valid metadata format",
+                     input => $input)."\n";
     exit(1);
 }
 
