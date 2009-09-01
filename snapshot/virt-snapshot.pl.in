@@ -19,8 +19,10 @@
 use warnings;
 use strict;
 
-use Pod::Usage;
+use File::Temp qw(tempfile);
 use Getopt::Long;
+use Pod::Usage;
+
 use Locale::TextDomain 'virt-v2v';
 
 use Sys::Virt;
@@ -184,6 +186,7 @@ else {
 # If --outputxml was given, just write the xml instead of creating the domain
 if($outputxml) {
     my $out;
+    my $error = 0;
 
     # Write output to a file
     if('-' ne $outputxml) {
@@ -191,12 +194,21 @@ if($outputxml) {
             print STDERR _user_msg(__x("Unable to open {file}: {error}",
                                        file => $outputxml,
                                        error => $!));
-            exit(1);
+            ($out, $outputxml) = tempfile(_get_guest_name($dom).'-XXXXXX',
+                                          SUFFIX => '.xml');
+            $error = 1;
         }
 
         print $out $dom->toString();
 
-        close($out);
+        close($out) or die(__x("Error closing {file}: {error}",
+                               file => $outputxml, error => $!));
+
+        if($error) {
+            print STDERR _user_msg(__x("Wrote output to {file}",
+                                       file => $outputxml));
+            exit(1);
+        }
     }
 
     # Write output to STDOUT
@@ -214,10 +226,22 @@ else {
         print STDERR _user_msg(__x("Unable to create guest: {error}",
                                    error => $@->stringify()));
         print STDERR _user_msg(__"Consider using the --outputxml option");
+
+        # Write the output to a temporary file
+        my ($out, $outputxml) = tempfile(_get_guest_name($dom).'-XXXXXX',
+                                         SUFFIX => '.xml');
+
+        print $out $dom->toString();
+
+        close($out) or die(__x("Error closing {file}: {error}",
+                               file => $outputxml, error => $!));
+
+        print STDERR _user_msg(__x("Wrote output to {file}",
+                                   file => $outputxml));
+
         exit(1);
     }
 }
-
 
 ###############################################################################
 ## Helper functions
@@ -505,6 +529,15 @@ sub _snapshot_guest
     }
 
     return 1;
+}
+
+sub _get_guest_name
+{
+    my ($dom) = @_;
+
+    # Get the name of the guest from the domain description
+    my ($name_elem) = $dom->findnodes('/domain/name/text()');
+    return $name_elem->toString();
 }
 
 sub _user_msg
