@@ -21,22 +21,6 @@
 set -e
 set -v
 
-# Run autopoint, to get po/Makevars.template:
-autopoint
-
-# Create gettext configuration.
-echo "$0: Creating po/Makevars from po/Makevars.template ..."
-rm -f po/Makevars
-sed '
-  /^EXTRA_LOCALE_CATEGORIES *=/s/=.*/= '"$EXTRA_LOCALE_CATEGORIES"'/
-  /^MSGID_BUGS_ADDRESS *=/s/=.*/= '"$MSGID_BUGS_ADDRESS"'/
-  /^XGETTEXT_OPTIONS *=/{
-    s/$/ \\/
-    a\
-        '"$XGETTEXT_OPTIONS"' $${end_of_xgettext_options+}
-  }
-' po/Makevars.template >po/Makevars
-
 autoreconf -i
 
 CONFIGUREDIR=.

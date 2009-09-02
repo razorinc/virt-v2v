@@ -52,10 +52,6 @@ AC_PATH_PROGS([MKISOFS],[mkisofs],[no],
         [$PATH$PATH_SEPARATOR/usr/sbin$PATH_SEPARATOR/sbin])
 test "x$MKISOFS" = "xno" && AC_MSG_ERROR([mkisofs must be installed])
 
-dnl For i18n.
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.14])
-
 dnl Check for Perl
 AC_CHECK_PROG([PERL],[perl],[perl],[no])
 test "x$PERL" = "xno" &&
@@ -82,6 +78,5 @@ AC_CONFIG_FILES([Makefile
                  snapshot/Makefile
                  snapshot/virt-snapshot.pl
                  v2v/Makefile
-                 v2v/virt-v2v.pl
-                 po/Makefile.in])
+                 v2v/virt-v2v.pl])
 AC_OUTPUT

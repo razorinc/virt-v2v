@@ -23,23 +23,6 @@ perl/Makefile-pl.old
 perl/Makefile.PL
 perl/pm_to_blib
 
-po/*.gmo
-po/Makevars.template
-po/POTFILES
-po/remove-potcdate.sed
-po/stamp-it
-po/stamp-po
-po/LINGUAS
-po/Makefile.in.in
-po/Makevars
-po/Rules-quot
-po/boldquot.sed
-po/en@boldquot.header
-po/en@quot.header
-po/insert-header.sin
-po/quot.sed
-po/remove-potcdate.sin
-
 v2v/virt-v2v.1
 v2v/virt-v2v.conf.5
 v2v/virt-v2v.pl
