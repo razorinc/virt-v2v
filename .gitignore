@@ -16,13 +16,13 @@ Makefile.in
 /m4
 /virt-v2v*.tar.gz
 
-# Subdir specific
-perl/blib
-perl/Makefile-pl
-perl/Makefile-pl.old
-perl/Makefile.PL
-perl/pm_to_blib
-perl/lib/Sys/VirtV2V.pm
+# Perl build related
+/blib
+/Makefile-pl
+/Makefile-pl.old
+/Makefile.PL
+/pm_to_blib
+/lib/Sys/VirtV2V.pm
 
 v2v/virt-v2v.1
 v2v/virt-v2v.conf.5

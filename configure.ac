@@ -73,9 +73,8 @@ if test "x$missing_perl_modules" = "xyes"; then
 fi
 
 AC_CONFIG_FILES([Makefile
-                 perl/Makefile
-                 perl/Makefile.PL
-                 perl/lib/Sys/VirtV2V.pm
+                 Makefile.PL
+                 lib/Sys/VirtV2V.pm
                  snapshot/Makefile
                  v2v/Makefile])
 AC_OUTPUT

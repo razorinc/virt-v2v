@@ -17,6 +17,27 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = perl po v2v snapshot
+EXTRA_DIST = Makefile.PL.in
+
+SUBDIRS = po v2v snapshot
 
 CLEANFILES = pod2htmd.tmp pod2htmi.tmp html/$(PACKAGE_NAME).1.html po/stamp-po
+
+INSTALLDIRS = site
+
+all: Makefile-pl
+	$(MAKE) -f Makefile-pl
+
+Makefile-pl: Makefile.PL
+	perl Makefile.PL INSTALLDIRS=$(INSTALLDIRS) PREFIX=$(prefix)
+
+# No!  Otherwise it is deleted before the clean-local rule runs.
+#CLEANFILES = Makefile-pl
+
+clean-local:
+	-$(MAKE) -f Makefile-pl realclean
+	rm -f Makefile-pl
+
+# Don't do this: it causes "make distcheck" to fail.
+#install-data-hook:
+#	$(MAKE) -f Makefile-pl DESTDIR=$(DESTDIR) install

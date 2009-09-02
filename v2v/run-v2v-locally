@@ -30,7 +30,7 @@ if [ -z "$VIRTV2V_ROOT" ]; then
     exit 1
 fi
 
-PERL5LIB="$VIRTV2V_ROOT/perl/blib/lib"
+PERL5LIB="$VIRTV2V_ROOT/blib/lib"
 
 if [ ! -z "$LIBGUESTFS_ROOT" ]; then
     LD_LIBRARY_PATH="$LIBGUESTFS_ROOT/src/.libs"
