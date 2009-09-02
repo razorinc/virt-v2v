@@ -1,8 +1,0 @@
-For the time being, virt-v2v requires the xorg lens in this directory in order
-to work. The updated lens has been submitted upstream (see
-augeas-devel@redhat.com 30/07/2009-31/07/2009). This directory should be removed
-on the release of a version of augeas including this file.
-
-Until this lens is included in a released package, it is only usable by
-replacing the installed version in /usr/share/augeas/lenses/dist/xorg.conf on
-your host system, and using the supermin appliance.
