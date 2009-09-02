@@ -17,9 +17,10 @@
 
 EXTRA_DIST = \
 	run-v2v-locally \
-	virt-v2v.pl \
 	virt-v2v.conf \
 	virt-v2v.conf.pod
+
+dist_bin_SCRIPTS = virt-v2v.pl
 
 man_MANS = virt-v2v.1 virt-v2v.conf.5
 CLEANFILES = $(man_MANS)

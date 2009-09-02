@@ -27,6 +27,7 @@ use Locale::TextDomain 'virt-v2v';
 
 use Sys::Virt;
 
+use Sys::VirtV2V;
 use Sys::VirtV2V::MetadataReader;
 
 =encoding utf8
@@ -187,7 +188,7 @@ pod2usage({
 }) if($commit && $rollback);
 
 if ($version) {
-    print "@PACKAGE_VERSION@\n";
+    print "$Sys::VirtV2V::VERSION\n";
     exit(0);
 }
 

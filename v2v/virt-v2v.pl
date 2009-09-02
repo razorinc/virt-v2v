@@ -31,6 +31,7 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
   inspect_all_partitions inspect_partition
   inspect_operating_systems mount_operating_system inspect_in_detail);
 
+use Sys::VirtV2V;
 use Sys::VirtV2V::MetadataReader;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::HVTarget;
@@ -140,7 +141,7 @@ GetOptions ("help|?"      => \$help,
 pod2usage(0) if($help);
 
 if ($version) {
-    print "@PACKAGE_VERSION@\n";
+    print "$Sys::VirtV2V::VERSION\n";
     exit(0);
 }
 

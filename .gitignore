@@ -22,12 +22,11 @@ perl/Makefile-pl
 perl/Makefile-pl.old
 perl/Makefile.PL
 perl/pm_to_blib
+perl/lib/Sys/VirtV2V.pm
 
 v2v/virt-v2v.1
 v2v/virt-v2v.conf.5
-v2v/virt-v2v.pl
 /pod2htm?.tmp
 /html
 
 snapshot/virt-snapshot.1
-snapshot/virt-snapshot.pl

@@ -16,8 +16,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 EXTRA_DIST = \
-	run-snapshot-locally \
-	virt-snapshot.pl
+	run-snapshot-locally
+
+dist_bin_SCRIPTS = virt-snapshot.pl
 
 man_MANS = virt-snapshot.1
 CLEANFILES = $(man_MANS)
