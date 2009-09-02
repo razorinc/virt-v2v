@@ -24,9 +24,9 @@ use Carp;
 use File::Spec;
 use File::Temp;
 
-use Module::Pluggable::Ordered sub_name => 'modules',
-                               search_path => 'Sys::VirtV2V::GuestOS',
-                               require => 1;
+use Module::Pluggable sub_name => 'modules',
+                      search_path => 'Sys::VirtV2V::GuestOS',
+                      require => 1;
 
 use Locale::TextDomain 'virt-v2v';
 

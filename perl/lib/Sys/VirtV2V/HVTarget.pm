@@ -20,9 +20,9 @@ package Sys::VirtV2V::HVTarget;
 use strict;
 use warnings;
 
-use Module::Pluggable::Ordered sub_name => 'modules',
-                               search_path => ['Sys::VirtV2V::HVTarget'],
-                               require => 1;
+use Module::Pluggable sub_name => 'modules',
+                      search_path => ['Sys::VirtV2V::HVTarget'],
+                      require => 1;
 
 use Locale::TextDomain 'virt-v2v';
 
