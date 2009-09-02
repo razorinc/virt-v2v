@@ -165,7 +165,8 @@ sub _init_selinux
 
         if($@) {
             print STDERR "virt-v2v: ".
-                         __"WARNING unable to configure SELinux: "."$!\n";
+                         _x("WARNING unable to configure SELinux: {error})",
+                            error => $!)."\n";
         }
     }
 }
