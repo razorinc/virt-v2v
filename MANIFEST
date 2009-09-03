@@ -20,6 +20,8 @@ po/virt-v2v.pot
 README-NLS
 snapshot/run-snapshot-locally
 snapshot/virt-snapshot.pl
+t/001-pod.t
+t/002-pod-coverage.t
 TODO
 v2v/run-v2v-locally
 v2v/virt-v2v.conf
