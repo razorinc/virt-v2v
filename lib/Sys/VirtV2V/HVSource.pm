@@ -29,20 +29,36 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::HVSource - Manipulate a guest based on its source Hypervisor
+Sys::VirtV2V::HVSource - Discover source hypervisor artifacts in a guest
 
 =head1 SYNOPSIS
 
  use Sys::VirtV2V::HVSource;
 
- Sys::VirtV2V::HVSource->unconfigure_all();
+ my @modules = Sys::VirtV2V::HVSource->find_kernel_modules();
+ my @apps    = Sys::VirtV2V::HVSource->find_applications();
+ my @kernels = Sys::VirtV2V::HVSource->find_kernels();
+ my @xpaths  = Sys::VirtV2V::HVSource->find_metadata();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::HVSource provides a mechanism for identifying hypervisor specific
-changes made to a guest operating system.
+Sys::VirtV2V::HVSource provides a mechanism for identifying properties of a
+guest operating system which relate specifically to a particular hypervisor. It
+is used by a Sys::VirtV2V::HVTarget when reconfiguring the guest.
+
+A call to any of these methods will aggregate all returned values from all
+implemented Sys::VirtV2V::HVSource backends.
 
 =head1 METHODS
+
+In each of these methods, the desc argument is an OS description as returned by
+Sys::Guestfs::Lib.
+
+=over
+
+=item Sys::VirtV2V::HVSource->find_kernel_modules(desc)
+
+Return a list of modprobe aliases which load hypervisor-specific modules.
 
 =cut
 
@@ -50,49 +66,79 @@ sub find_kernel_modules
 {
     my $class = shift;
 
-    my $guestos = shift;
-    carp("find_kernel_modules called without guestos argument")
-        unless defined($guestos);
+    my $desc = shift;
+    carp("find_kernel_modules called without desc argument")
+        unless defined($desc);
 
     my @modules = ();
     foreach my $module ($class->modules()) {
-        push(@modules, $module->find_kernel_modules($guestos));
+        push(@modules, $module->find_kernel_modules($desc));
     }
 
     return @modules;
 }
 
+=item Sys::VirtV2V::HVSource->find_applications(desc)
+
+Return a list of installed hypervisor-specific applications. The list contains
+package names as understood by the guest operating system.
+
+=cut
+
 sub find_applications
 {
     my $class = shift;
 
-    my $guestos = shift;
-    carp("find_applications called without guestos argument")
-        unless defined($guestos);
+    my $desc = shift;
+    carp("find_applications called without desc argument")
+        unless defined($desc);
 
     my @applications = ();
     foreach my $module ($class->modules()) {
-        push(@applications, $module->find_applications($guestos));
+        push(@applications, $module->find_applications($desc));
     }
 
     return @applications;
 }
 
+=item Sys::VirtV2V::HVSource->find_kernels(desc)
+
+Return a list of version numbers of kernels which will only boot on a specific
+hypervisor.
+
+=cut
+
 sub find_kernels
 {
     my $class = shift;
 
-    my $guestos = shift;
-    carp("find_kernels called without guestos argument")
-        unless defined($guestos);
+    my $desc = shift;
+    carp("find_kernels called without desc argument")
+        unless defined($desc);
 
     my @kernels = ();
     foreach my $module ($class->modules()) {
-        push(@kernels, $module->find_kernels($guestos));
+        push(@kernels, $module->find_kernels($desc));
     }
 
     return @kernels;
 }
+
+=item Sys::VirtV2V::HVSource->find_metadata(dom)
+
+Return guest libvirt metadata which is specific to a particular hypervisor. The
+data is returned as a list of XPath paths which relate to the guest's libvirt
+domain XML.
+
+=over
+
+=item dom
+
+An XML::DOM resulting from parsing the guest's libvirt domain XML.
+
+=back
+
+=cut
 
 sub find_metadata
 {
@@ -109,7 +155,7 @@ sub find_metadata
     return @nodeinfo;
 }
 
-1;
+=back
 
 =head1 COPYRIGHT
 
@@ -121,12 +167,11 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<virt-v2v(1)>,
+L<Sys::Guestfs::Lib(3pm)>,
+L<Sys::VirtV2V(3pm)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;

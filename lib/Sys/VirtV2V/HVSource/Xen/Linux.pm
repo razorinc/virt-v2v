@@ -29,13 +29,28 @@ use XML::DOM::XPath;
 
 =head1 NAME
 
-Sys::VirtV2V::HVSource::Xen::Linux - Unconfigure Xen/Linux changes
+Sys::VirtV2V::HVSource::Xen::Linux - Discover Xen artifects in a Linux guest
 
 =head1 SYNOPSIS
 
  use Sys::VirtV2V::HVSource;
 
+ my @modules = Sys::VirtV2V::HVSource->find_kernel_modules();
+ my @apps    = Sys::VirtV2V::HVSource->find_applications();
+ my @kernels = Sys::VirtV2V::HVSource->find_kernels();
+ my @xpaths  = Sys::VirtV2V::HVSource->find_metadata();
+
 =head1 DESCRIPTION
+
+Sys::VirtV2V::HVSource::Xen::Linux is a backend to Sys::VirtV2V::HVSource which detects properties of a Linux guest specific to the Xen hypervisor.
+
+=head1 METHODS
+
+=over
+
+=item Sys::VirtV2V::HVSource::Linux->find_kernel_modules(desc)
+
+See L<Sys::VirtV2V::HVSource> for details.
 
 =cut
 
@@ -65,6 +80,12 @@ sub find_kernel_modules
     return @modules;
 }
 
+=item Sys::VirtV2V::HVSource::Linux->find_applications(desc)
+
+See L<Sys::VirtV2V::HVSource> for details.
+
+=cut
+
 sub find_applications
 {
     my $class = shift;
@@ -75,6 +96,12 @@ sub find_applications
 
     return ();
 }
+
+=item Sys::VirtV2V::HVSource::Linux->find_kernels(desc)
+
+See L<Sys::VirtV2V::HVSource> for details.
+
+=cut
 
 sub find_kernels
 {
@@ -106,6 +133,12 @@ sub find_kernels
 
     return @kernels;
 }
+
+=item Sys::VirtV2V::HVSource::Linux->find_metadata(dom)
+
+See L<Sys::VirtV2V::HVSource> for details.
+
+=cut
 
 sub find_metadata
 {
@@ -155,7 +188,7 @@ sub find_metadata
     return @nodeinfo;
 }
 
-1;
+=back
 
 =head1 COPYRIGHT
 
@@ -167,13 +200,10 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::MetadataReader(3)>,
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<Sys::VirtV2V::HVSource(3pm)>,
+L<virt-v2v(2)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;
