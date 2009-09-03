@@ -10,7 +10,7 @@
 /META.yml
 /virt-v2v*.tar.gz
 
-v2v/virt-v2v.1
-v2v/virt-v2v.conf.5
+/v2v/virt-v2v.1
+/v2v/virt-v2v.conf.5
 
-snapshot/virt-snapshot.1
+/snapshot/virt-snapshot.1
