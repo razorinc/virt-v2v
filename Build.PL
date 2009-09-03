@@ -31,6 +31,21 @@ sub process_locale_files
            'LOCALEDIR=../blib/locale');
 }
 
+# Remove the .pl extension from installed scripts
+sub process_script_files
+{
+    my $self = shift;
+
+    # Run the regular process_script_files action
+    $self->SUPER::process_script_files;
+
+    foreach my $script (<blib/script/*>) {
+        if($script =~ /^(.*)\.pl$/) {
+            rename($script, $1) or die("rename $script to $1 failed: $!");
+        }
+    }
+}
+
 SUBCLASS
 
 my $build = $class->new (
