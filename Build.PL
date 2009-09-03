@@ -76,6 +76,25 @@ sub process_confdoc_files
     }
 }
 
+# Add syntaxcheck target
+sub ACTION_syntaxcheck
+{
+    my $self = shift;
+
+    # Check for trailing whitespace in all files in the manifest
+    require ExtUtils::Manifest;
+    foreach my $file (keys(%{ExtUtils::Manifest::maniread()})) {
+        my $fh;
+        open($fh, '<', $file) or die("Unable to read manifest file $file: $!");
+
+        while(<$fh>) {
+            if(/\s\n$/) {
+                $self->log_info("$file: trailing whitespace on line $.\n");
+            }
+        }
+    }
+}
+
 SUBCLASS
 
 my $build = $class->new (
