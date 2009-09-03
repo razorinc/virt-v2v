@@ -3,6 +3,8 @@
 srcdir = .
 libdir = ../lib
 
+LOCALEDIR = $(libdir)/LocaleData
+
 #CATALOGS = $(addsuffix .po, LINGUAS)
 CATALOGS = $(LINGUAS)
 MO_FILES = $(addsuffix .mo, $(LINGUAS))
@@ -59,7 +61,7 @@ $(TD).pot: $(POTFILES)
 
 install: $(MO_FILES)
 	cd $(srcdir); \
-	targetdir='$(libdir)/LocaleData'; \
+	targetdir='$(LOCALEDIR)'; \
 	languages='$(LINGUAS)'; \
 	for lang in $$languages; do \
 		mkdir -p "$$targetdir/$$lang/LC_MESSAGES" || exit 1; \
