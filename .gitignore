@@ -6,6 +6,7 @@
 /_build
 /blib
 /Build
+/MANIFEST.bak
 /META.yml
 /virt-v2v*.tar.gz
 
