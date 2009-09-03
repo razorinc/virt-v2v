@@ -146,7 +146,7 @@ sub _init_selinux
             my $success = 0;
             foreach my $path (@paths) {
                 if($path =~ /\.\d+$/) {
-                    # Try loading it if it looks right 
+                    # Try loading it if it looks right
                     eval {
                         $g->command(['/usr/sbin/load_policy', $path]);
                     };
@@ -629,7 +629,7 @@ sub _is_installed
                 next if(_rpmvercmp($irelease,$release) < 0);
             }
         }
-        
+
         $found = 1;
     }
 

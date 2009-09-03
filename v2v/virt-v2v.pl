@@ -63,13 +63,13 @@ table below.
  libvirt                        |
                                 |
  Xen compatibility:             | KVM guest managed by
-   - PV or FV kernel            | libvirt                   
-   - with or without PV drivers |   - with virtio drivers   
-   - RHEL 3.x, 4.x, 5.x         |     if supported by guest 
-                                |  
+   - PV or FV kernel            | libvirt
+   - with or without PV drivers |   - with virtio drivers
+   - RHEL 3.x, 4.x, 5.x         |     if supported by guest
+                                |
                                 |
  -------------------------------+----------------------------
- 
+
 =head1 OPTIONS
 
 =over 4

@@ -31,9 +31,9 @@ help:
 	@echo "  all			   - all of the above"
 
 POTFILES = $(srcdir)/POTFILES.in \
-	$(shell cat $(srcdir)/POTFILES.in) 
+	$(shell cat $(srcdir)/POTFILES.in)
 
-pot: $(TD).pot 
+pot: $(TD).pot
 
 clean:
 	rm -f *~ *.bak *.mo

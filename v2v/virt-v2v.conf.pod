@@ -16,16 +16,16 @@ how to rename networks and bridges when importing them from another environment.
 
 The following is an example virt-v2v configuration file which is sufficient to
 convert RHEL 5 guests to run on KVM with virtio drivers enabled:
- 
+
  [files]
  rhel.5.i686.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.1.el5.i686.rpm
  rhel.5.x86_64.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.4.1.el5.x86_64.
 
 This section specifies i686 and x86_64 RHEL 5 kernel packages.
- 
+
  # The RHEL 5.3 kernel conflicts with older versions of ecryptfs-utils
  rhel.5.i386.ecryptfs-utils=/var/lib/virt-v2v/ecryptfs-utils-56-8.el5.i38
-  
+
  # The following userspace packages are required on RHEL 5 prior to RHEL
  # 5.3 to suport virtio
  rhel.5.i386.lvm2=/var/lib/virt-v2v/lvm2-2.02.40-6.el5.i386.rpm
