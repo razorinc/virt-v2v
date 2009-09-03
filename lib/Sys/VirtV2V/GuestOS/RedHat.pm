@@ -47,8 +47,6 @@ Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
 
 See L<Sys::VirtV2V::GuestOS>.
 
-=over
-
 =cut
 
 sub can_handle

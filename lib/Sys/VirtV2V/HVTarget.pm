@@ -40,6 +40,8 @@ Sys::VirtV2V::HVTarget - Manipulate a guest's storage during V2V migration
 
 =head1 METHODS
 
+=over
+
 =item configure(guestos, mdr, $desc)
 
 Instantiate a backend instance with the given name.
@@ -68,6 +70,8 @@ sub configure
 }
 
 1;
+
+=back
 
 =head1 COPYRIGHT
 

@@ -51,6 +51,8 @@ implements methods to access backends.
 
 =head1 METHODS
 
+=over
+
 =item instantiate(name)
 
 Instantiate a backend instance with the given name.
@@ -79,7 +81,11 @@ sub instantiate
 
 1;
 
+=back
+
 =head1 BACKEND INTERFACE
+
+=over
 
 =item new(config)
 
@@ -120,6 +126,8 @@ Returns an XML::DOM::Document describing a libvirt configuration equivalent to
 the input.
 
 Returns undef and displays an error if there was an error
+
+=back
 
 =head1 COPYRIGHT
 
