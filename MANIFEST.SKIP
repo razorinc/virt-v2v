@@ -1,0 +1,16 @@
+# Build related
+^_build
+^Build$
+^blib
+
+# Backup files
+~$
+\.bak$
+(^|/)\.[^/]*\.swp$
+
+# This file
+^MANIFEST\.SKIP$
+
+# git
+^.git(/.*)$
+^.gitignore$

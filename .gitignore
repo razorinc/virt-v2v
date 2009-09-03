@@ -3,30 +3,13 @@
 .*.swp
 
 # Build related files
-Makefile
-Makefile.in
-/ABOUT-NLS
-/aclocal.m4
-/autom4te.cache
-/build-aux
-/config.log
-/config.status
-/configure
-/libtool
-/m4
-/virt-v2v*.tar.gz
-
-# Perl build related
+/_build
 /blib
-/Makefile-pl
-/Makefile-pl.old
-/Makefile.PL
-/pm_to_blib
-/lib/Sys/VirtV2V.pm
+/Build
+/META.yml
+/virt-v2v*.tar.gz
 
 v2v/virt-v2v.1
 v2v/virt-v2v.conf.5
-/pod2htm?.tmp
-/html
 
 snapshot/virt-snapshot.1

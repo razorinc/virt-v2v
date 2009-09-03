@@ -20,13 +20,13 @@ package Sys::VirtV2V;
 use strict;
 use warnings;
 
-$Sys::VirtV2V::VERSION = "@PACKAGE_VERSION@";
+$Sys::VirtV2V::VERSION = "0.1.0";
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V - Modules for converting a virtual guest to use KVM
+Sys::VirtV2V - Convert a virtual guest to use KVM
 
 =head1 DESCRIPTION
 

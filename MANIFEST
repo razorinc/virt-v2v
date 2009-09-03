@@ -1,0 +1,27 @@
+Build.PL
+COPYING
+COPYING.LIB
+lib/Sys/VirtV2V.pm
+lib/Sys/VirtV2V/GuestOS.pm
+lib/Sys/VirtV2V/GuestOS/RedHat.pm
+lib/Sys/VirtV2V/HVSource.pm
+lib/Sys/VirtV2V/HVSource/Xen/Linux.pm
+lib/Sys/VirtV2V/HVTarget.pm
+lib/Sys/VirtV2V/HVTarget/Linux.pm
+lib/Sys/VirtV2V/MetadataReader.pm
+lib/Sys/VirtV2V/MetadataReader/LibVirt.pm
+lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm
+MANIFEST			This list of files
+META.yml
+po/Makefile
+po/PACKAGE
+po/POTFILES.in
+po/virt-v2v.pot
+README-NLS
+snapshot/run-snapshot-locally
+snapshot/virt-snapshot.pl
+TODO
+v2v/run-v2v-locally
+v2v/virt-v2v.conf
+v2v/virt-v2v.conf.pod
+v2v/virt-v2v.pl
