@@ -34,15 +34,24 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::HVTarget::Linux - Configure a Linux guest for a target hypervisor
+Sys::VirtV2V::HVTarget::Linux - Configure a Linux guest to run on KVM
 
 =head1 SYNOPSIS
 
+ use Sys::VirtV2V::GuestOS;
  use Sys::VirtV2V::HVTarget;
+
+ my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
+ Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
 
 =head1 DESCRIPTION
 
+Sys::VirtV2V::HVTarget::Linux configures a Linux guest to use KVM. It is an
+implementation of the Sys::VirtV2V::HVTarget interface.
+
 =head1 METHODS
+
+=over
 
 =cut
 
@@ -85,6 +94,12 @@ use constant KVM_XML_NOVIRTIO => "
 </domain>
 ";
 
+=item Sys::VirtV2V::HVTarget::Linux->can_handle(desc)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::HVTarget> for details.
+
+=cut
+
 sub can_handle
 {
     my $class = shift;
@@ -94,6 +109,12 @@ sub can_handle
 
     return ($desc->{os} eq 'linux');
 }
+
+=item Sys::VirtV2V::HVTarget::Linux->configure(vmm, guestos, dom, desc)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::HVTarget> for details.
+
+=cut
 
 sub configure
 {
@@ -614,7 +635,7 @@ sub _configure_drivers
     }
 }
 
-1;
+=back
 
 =head1 COPYRIGHT
 
@@ -626,12 +647,11 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<Sys::VirtV2V::HVTarget(3pm)>,
+L<Sys::VirtV2V(3pm)>,
+L<virt-v2v(1)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;

@@ -30,21 +30,48 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::HVTarget - Manipulate a guest's storage during V2V migration
+Sys::VirtV2V::HVTarget - Configure a guest to run on KVM
 
 =head1 SYNOPSIS
 
+ use Sys::VirtV2V::GuestOS;
  use Sys::VirtV2V::HVTarget;
 
+ my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
+ Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
+
 =head1 DESCRIPTION
+
+Sys::VirtV2V::HVTarget instantiates an appropriate backend for the target guest
+OS, and uses it to configure the guest to run on KVM.
 
 =head1 METHODS
 
 =over
 
-=item configure(guestos, mdr, $desc)
+=item Sys::VirtV2V::HVTarget->configure(vmm, guestos, dom, desc)
 
-Instantiate a backend instance with the given name.
+Instantiate an appropriate backend and call configure on it.
+
+=over
+
+=item vmm
+
+A Sys::Virt connection.
+
+=item guestos
+
+An initialised Sys::VirtV2V::GuestOS object for the guest.
+
+=item dom
+
+An XML::DOM object resulting from parsing the guests's libvirt domain XML.
+
+=item desc
+
+The OS description returned by Sys::Guestfs::Lib.
+
+=back
 
 =cut
 
@@ -69,7 +96,49 @@ sub configure
     die(__"Unable to find a module to configure this guest");
 }
 
-1;
+=back
+
+=head1 BACKEND INTERFACE
+
+=over
+
+=item CLASS->can_handle(desc)
+
+Returns 1 if the backend can handle the guest described by $desc, 0 otherwise.
+
+=over
+
+=item desc
+
+An OS description as returned by Sys::Guestfs::Lib.
+
+=back
+
+=item CLASS->configure(vmm, guestos, dom, desc)
+
+Configure the target guest to run on KVM.
+
+can_handle() must have been checked prior to running configure().
+
+=over
+
+=item vmm
+
+A Sys::Virt connection.
+
+=item guestos
+
+An initialised Sys::VirtV2V::GuestOS object for the guest.
+
+=item dom
+
+An XML::DOM object resulting from parsing the guests's libvirt domain XML.
+
+=item desc
+
+The OS description returned by Sys::Guestfs::Lib.
+
+=back
 
 =back
 
@@ -83,12 +152,13 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<Sys::VirtV2V::HVTarget::Linux(3pm)>,
+L<Sys::VirtV2V::GuestOS(3pm)>,
+L<Sys::Guestfs::Lib(3pm)>,
+L<Sys::Virt(3pm)>,
+L<virt-v2v(1)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;
