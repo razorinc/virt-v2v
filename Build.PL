@@ -131,6 +131,14 @@ my $build = $class->new (
     confdoc_files => [ 'v2v/virt-v2v.conf.pod' ],
     install_path => { 'locale' => '/usr/local/share/locale' },
     script_files => [ 'snapshot/virt-snapshot.pl', 'v2v/virt-v2v.pl' ],
+    meta_add => {
+        resources => {
+          license => "http://www.gnu.org/licenses/gpl.html",
+          homepage =>  "http://people.redhat.com/mbooth/virt-v2v/",
+          repository => "http://gitorious.org/virt-v2v/virt-v2v",
+          MailingList => "http://www.redhat.com/mailman/listinfo/libguestfs",
+        },
+    },
     syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ]
 );
 
