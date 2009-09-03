@@ -10,6 +10,7 @@ my $class = Module::Build->subclass(
     code => <<'SUBCLASS' );
 
 __PACKAGE__->add_property('confdoc_files');
+__PACKAGE__->add_property('syntaxcheck_exclude');
 
 # Run 'make -C pot update-po' before the dist action
 sub ACTION_dist
@@ -81,9 +82,24 @@ sub ACTION_syntaxcheck
 {
     my $self = shift;
 
+    # Populate %exclude with files we won't syntax check
+    my %excludes;
+
+    # Glob expand syntaxcheck_excludes into %excludes
+    if(defined($self->syntaxcheck_exclude())) {
+        foreach my $exclude (@{$self->syntaxcheck_exclude()}) {
+            foreach my $match (glob($exclude)) {
+                $excludes{$match} = 1;
+            }
+        }
+    }
+
     # Check for trailing whitespace in all files in the manifest
     require ExtUtils::Manifest;
     foreach my $file (keys(%{ExtUtils::Manifest::maniread()})) {
+        # Skip file if it's excluded
+        next if($excludes{$file});
+
         my $fh;
         open($fh, '<', $file) or die("Unable to read manifest file $file: $!");
 
@@ -115,6 +131,7 @@ my $build = $class->new (
     confdoc_files => [ 'v2v/virt-v2v.conf.pod' ],
     install_path => { 'locale' => '/usr/local/share/locale' },
     script_files => [ 'snapshot/virt-snapshot.pl', 'v2v/virt-v2v.pl' ],
+    syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ]
 );
 
 $build->add_build_element('confdoc');
