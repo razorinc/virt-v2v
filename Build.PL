@@ -87,9 +87,20 @@ sub ACTION_syntaxcheck
         my $fh;
         open($fh, '<', $file) or die("Unable to read manifest file $file: $!");
 
+        # Check for leading tabs by default
+        my $checktabs = 1;
+
+        # Don't check for leading tabs in Makefiles
+        my (undef, undef, $name) = File::Spec->splitpath($file);
+        $checktabs = 0 if($name =~ /^Makefile(\..*)?$/);
+
         while(<$fh>) {
             if(/\s\n$/) {
                 $self->log_info("$file: trailing whitespace on line $.\n");
+            }
+
+            if($checktabs && /^\s*\t/) {
+                $self->log_info("$file: indentation uses tabs on line $.\n");
             }
         }
     }
