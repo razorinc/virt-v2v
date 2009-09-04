@@ -35,7 +35,7 @@ Sys::VirtV2V::MetadataReader::LibVirtXML - Read libvirt XML from a file
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->get_instance("libvirtxml);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml);
  $dom = $reader->get_dom($vmm);
 
 =head1 DESCRIPTION
@@ -44,14 +44,18 @@ Sys::VirtV2V::MetadataReader::LibVirtXML is a backend for
 Sys::VirtV2V::MetadataReader which reads libvirt XML guest descriptions from a
 file.
 
-See L<Sys::VirtV2V::MetadataReader> for a description of its exported
-methods.
+=head1 METHODS
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for a detailed
+description of its exported methods.
+
+=over
 
 =cut
 
 use constant NAME => "libvirtxml";
 
-sub new
+sub _new
 {
     my $class = shift;
 
@@ -92,12 +96,24 @@ sub new
     return $self;
 }
 
+=item Sys::VirtV2V::MetadataReader::LibVirtXML->get_name()
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+
+=cut
+
 sub get_name
 {
     my $class = shift;
 
     return NAME;
 }
+
+=item is_configured()
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+
+=cut
 
 sub is_configured
 {
@@ -113,6 +129,12 @@ sub is_configured
     return 1;
 }
 
+=item handle_arguments(@arguments)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+
+=cut
+
 sub handle_arguments
 {
     my $self = shift;
@@ -125,6 +147,12 @@ sub handle_arguments
         print STDERR "Warning: ".NAME." only takes a single filename.\n";
     }
 }
+
+=item get_dom(vmm)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+
+=cut
 
 sub get_dom
 {
@@ -174,7 +202,7 @@ sub get_dom
     return $dom;
 }
 
-1;
+=back
 
 =head1 COPYRIGHT
 
@@ -192,3 +220,5 @@ L<virt-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =cut
+
+1;

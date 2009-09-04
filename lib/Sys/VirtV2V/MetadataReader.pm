@@ -36,7 +36,7 @@ Sys::VirtV2V::MetadataReader - Read a variety of guest metadata formats
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->get_instance("libvirtxml);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
@@ -73,13 +73,11 @@ sub instantiate
 
     my $instance;
     foreach my $module ($class->modules()) {
-        return $module->new($config->{$name}) if($module->get_name() eq $name);
+        return $module->_new($config->{$name}) if($module->get_name() eq $name);
     }
 
     return undef;
 }
-
-1;
 
 =back
 
@@ -87,19 +85,7 @@ sub instantiate
 
 =over
 
-=item new(config)
-
-=over
-
-=item config
-
-The parsed virt-v2v configuration, as returned by Config::Tiny
-
-=back
-
-Instantiate an instance of the backend.
-
-=item get_name()
+=item CLASS->get_name()
 
 Return the module's name.
 
@@ -139,12 +125,12 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<Sys::VirtV2V::MetadataReader::LibVirt(3pm)>,
+L<Sys::VirtV2V::MetadataReader::LibVirtXML(3pm)>,
+L<virt-v2v(1)>,
+L<virt-snapshot(1)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;
