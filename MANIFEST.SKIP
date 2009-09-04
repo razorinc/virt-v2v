@@ -1,7 +1,7 @@
 # Build related
-^_build
+^_build/
 ^Build$
-^blib
+^blib/
 ^virt-v2v-(\d+(\.\d+)*)(\.tar\.gz$|/)
 
 # Backup files
@@ -13,7 +13,7 @@
 ^MANIFEST\.SKIP$
 
 # git
-^.git(/.*)$
+^.git/
 ^.gitignore$
 ^.gitmodules$
-^git2cl(/.*)$
+^git2cl/
