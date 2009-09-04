@@ -46,8 +46,16 @@ virt-snapshot - Convert a guest to use a qcow2 snapshot for storage
 
 =head1 DESCRIPTION
 
-Virt-snapshot creates a qcow2 snapshot for all a guest's block devices and
-updates the guest's libvirt domain to use them.
+Virt-snapshot is a tool for creating a local snapshot of a guest's storage. It
+is suitable for use when making a change to a guest which might have to be
+rolled back. It is not intended as a long-term storage option. Virt-snapshot
+creates a qcow2 snapshot for all a guest's block devices and updates the guest's
+libvirt domain to use them.
+
+When a change has been tested, virt-snapshot can either commit the change, which
+will update the original storage with the changes made to the snapshot, or
+rollback the change, which will remove the snapshot. In either case, the guest
+will be updated again to use its original storage.
 
 =head1 OPTIONS
 
