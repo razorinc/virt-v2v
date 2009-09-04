@@ -2,7 +2,7 @@
 ^_build
 ^Build$
 ^blib
-^virt-v2v-.*\.tar\.gz$
+^virt-v2v-(\d+(\.\d+)*)(\.tar\.gz$|/)
 
 # Backup files
 ~$
