@@ -507,6 +507,8 @@ sub _commit_guest
     # Remove the XML backup if it exists
     my $xmlpath = _get_xml_path($dom);
     unlink($xmlpath) if(-e $xmlpath);
+
+    return 0;
 }
 
 sub _snapshot_guest
