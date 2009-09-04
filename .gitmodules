@@ -1,0 +1,3 @@
+[submodule "git2cl"]
+	path = git2cl
+	url = git://git.savannah.nongnu.org/git2cl.git

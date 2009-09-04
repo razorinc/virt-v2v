@@ -15,3 +15,5 @@
 # git
 ^.git(/.*)$
 ^.gitignore$
+^.gitmodules$
+^git2cl(/.*)$
