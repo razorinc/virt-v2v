@@ -406,16 +406,17 @@ sub _commit_guest
                     my $pool_xml = $pool->get_xml_description();
                     my $pool_dom = new XML::DOM::Parser->parse($pool_xml);
 
-                    my ($pool_path) = $pool_dom->findnodes('/pool/target/path');
+                    my ($pool_path) =
+                        $pool_dom->findnodes('/pool/target/path/text()');
 
-                    my $msg = _x("Unable to find {path} in the virt-snapshot ".
+                    my $msg = __x("Unable to find {path} in the virt-snapshot ".
                                  "storage pool.", path => $path)."\n";
 
                     if($pool_path) {
-                        $msg .= _x("Try moving it to {path} and retrying",
-                                   path => $pool_path);
+                        $msg .= __x("Try moving it to {path} and retrying",
+                                   path => $pool_path->toString());
                     } else {
-                        $msg .= _x("Try deleting the virt-snapshot storage ".
+                        $msg .= __x("Try deleting the virt-snapshot storage ".
                                    "pool and moving it to {path}.",
                                    path => '/var/lib/virt-snapshot');
                     }
