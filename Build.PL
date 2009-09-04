@@ -144,9 +144,9 @@ sub ACTION_changelog
     }
 
     # Check that git is available
-    eval { use Git; };
+    eval "use Git;";
     if($@) {
-        $self->log_info("Git module is not available\n");
+        $self->log_info("Git is not installed\n");
         return 1;
     }
 
