@@ -40,7 +40,7 @@ Sys::VirtV2V::GuestOS - Manipulate and query a Guest OS
 
  use Sys::VirtV2V::GuestOS;
 
- $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc, $files, $deps)
+ $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc);
 
 =head1 DESCRIPTION
 
@@ -51,8 +51,8 @@ Sys::VirtV2V::GuestOS is an interface to various backends, each of
 which implement a consistent API. Sys::VirtV2V::GuestOS itself only
 implements methods to access backends.
 
-Sys::VirtV2V::GuestOS uses L<Module::Pluggable::Ordered> to automatically
-discover backends under Sys::VirtV2V::GuestOS.
+Sys::VirtV2V::GuestOS uses L<Module::Pluggable> to automatically discover
+backends under Sys::VirtV2V::GuestOS.
 
 =cut
 
@@ -72,7 +72,7 @@ my $transferiso;
 
 =over
 
-=item instantiate(g, desc, files, deps)
+=item instantiate(g, desc)
 
 Instantiate a GuestOS object capable of manipulating the target OS.
 
@@ -85,17 +85,6 @@ A L<Sys::Guestfs> handle.
 =item desc
 
 An OS description created by L<Sys::Guestfs::Lib>.
-
-=item files
-
-A hash containing 'label => filename' mappings. These mappings are consulted
-when a guest needs to install a specific application.
-
-=item deps
-
-A hash containing 'label => C<space separated dependency list>'. The
-dependencies are given as labels rather than specific files. This is used to
-install dependencies when installing an application in the guest.
 
 =back
 
@@ -131,8 +120,8 @@ The parsed virt-v2v config file, as returned by Config::Tiny.
 
 =back
 
-Read the [files] and [deps] section of the virt-v2v config file. Create the
-transfer iso from the contents of [files].
+Read the [files], [deps] and [aliases] sections of the virt-v2v config file.
+Create the transfer iso from the contents of [files].
 
 =cut
 
@@ -210,11 +199,9 @@ sub get_transfer_iso
     return $transferiso;
 }
 
-1;
-
 =back
 
-=head1 BACKEND METHODS
+=head1 BACKEND INTERFACE
 
 All GuestOS backends are required to implement the following methods:
 
@@ -234,12 +221,37 @@ Returns true if the backend can handle the guest described by L<desc>.
 
 can_handle is only intended to be called by Sys::VirtV2V::GuestOS.
 
-=item CLASS->new(g, desc, files, deps)
+=item CLASS->new(g, desc, files, deps, aliases)
 
-See instantiate above for a description of the arguments.
+=over
 
-Instantiate a new backend object. Assumes can_handle has previously returned
-true.
+=item g
+
+A L<Sys::Guestfs> handle.
+
+=item desc
+
+An OS description created by L<Sys::Guestfs::Lib>.
+
+=item files
+
+A hash containing 'label => filename' mappings. These mappings are consulted
+when a guest needs to install a specific application.
+
+=item deps
+
+A hash containing 'label => C<space separated dependency list>'. The
+dependencies are given as labels rather than specific files. This is used to
+install dependencies when installing an application in the guest.
+
+=item aliases
+
+A hack containing 'label => alias'. Aliases are given as labels rather than
+specific files. This is used to substitute packages during installation.
+
+=back
+
+Construct a new backend object. Assumes can_handle has previously returned true.
 
 new is only intended to be called by Sys::VirtV2V::GuestOS.
 
@@ -393,10 +405,12 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::Guestfs>,
-L<Sys::Guestfs::Lib>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<virt-v2v(1)>
+L<virt-v2v(1)>,
+L<Sys::VirtV2V::GuestOS::RedHat(3pm)>,
+L<Sys::Guestfs(3pm)>,
+L<Sys::Guestfs::Lib(3pm)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;

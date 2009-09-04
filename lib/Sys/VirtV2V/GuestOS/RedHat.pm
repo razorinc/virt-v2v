@@ -35,7 +35,7 @@ Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat guest
 
  use Sys::VirtV2V::GuestOS;
 
- $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc, $files, $deps)
+ $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc);
 
 =head1 DESCRIPTION
 
@@ -45,7 +45,14 @@ Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
 
 =head1 METHODS
 
-See L<Sys::VirtV2V::GuestOS>.
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for a detailed description of
+exported methods.
+
+=over
+
+=item Sys::VirtV2V::GuestOS::RedHat->can_handle(desc)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
 
 =cut
 
@@ -57,6 +64,12 @@ sub can_handle
 
     return ($desc->{os} eq 'linux') && ($desc->{package_format} eq 'rpm');
 }
+
+=item Sys::VirtV2V::GuestOS::RedHat->new(g, desc, files, deps, aliases)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub new
 {
@@ -235,6 +248,12 @@ sub _init_augeas_modprobe
     die($@) if($@);
 }
 
+=item enable_kernel_module(device, module)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub enable_kernel_module
 {
     my $self = shift;
@@ -251,6 +270,12 @@ sub enable_kernel_module
     # Propagate augeas errors
     die($@) if($@);
 }
+
+=item update_kernel_module(device, module)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub update_kernel_module
 {
@@ -276,6 +301,12 @@ sub update_kernel_module
     die($@) if($@);
 }
 
+=item disable_kernel_module(device)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub disable_kernel_module
 {
     my $self = shift;
@@ -298,6 +329,12 @@ sub disable_kernel_module
     # Propagate augeas errors
     die($@) if($@);
 }
+
+=item update_display_driver(driver)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub update_display_driver
 {
@@ -354,6 +391,12 @@ sub _check_augeas_device
     die("Unable to find augeas path similar to $path for $device");
 }
 
+=item get_default_kernel()
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub get_default_kernel
 {
     my $self = shift;
@@ -403,6 +446,12 @@ sub get_default_kernel
 
     return $kernel_desc->{version};
 }
+
+=item add_kernel()
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub add_kernel
 {
@@ -496,6 +545,12 @@ sub _discover_kernel
     return ($kernel_pkg, $kernel_arch);
 }
 
+=item remove_kernel(version)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub remove_kernel
 {
     my $self = shift;
@@ -516,6 +571,12 @@ sub remove_kernel
     # Make augeas reload so it knows the kernel's gone
     $g->aug_load();
 }
+
+=item add_application(label)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub add_application
 {
@@ -714,6 +775,12 @@ sub _rpmvercmp
     return 0;
 }
 
+=item remove_application(name)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub remove_application
 {
     my $self = shift;
@@ -851,6 +918,12 @@ sub _ensure_transfer_mounted
     $g->mount_ro($transfer, $self->{transfer_mount});
 }
 
+=item remap_block_devices(map)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub remap_block_devices
 {
     my $self = shift;
@@ -880,6 +953,12 @@ sub remap_block_devices
     # Propagate augeas failure
     die($@) if($@);
 }
+
+=item prepare_bootable(version [, module, module, ...])
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
 
 sub prepare_bootable
 {
@@ -972,6 +1051,12 @@ sub prepare_bootable
     $g->command(['/sbin/chkconfig', 'kudzu', 'off']);
 }
 
+=item supports_virtio(kernel)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
 sub supports_virtio
 {
     my $self = shift;
@@ -1017,7 +1102,7 @@ sub DESTROY
     }
 }
 
-1;
+=back
 
 =head1 COPYRIGHT
 
@@ -1029,12 +1114,12 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<virt-inspector(1)>,
-L<Sys::Guestfs(3)>,
-L<guestfs(3)>,
-L<http://libguestfs.org/>,
-L<Sys::Virt(3)>,
-L<http://libvirt.org/>,
-L<guestfish(1)>.
+L<virt-v2v(1)>,
+L<Sys::VirtV2V::GuestOS(3pm)>,
+L<Sys::Guestfs(3pm)>,
+L<Sys::Guestfs::Lib(3pm)>,
+L<http://libguestfs.org/>.
 
 =cut
+
+1;
