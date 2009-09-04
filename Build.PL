@@ -20,6 +20,9 @@ sub ACTION_dist
     # Run make pot in the po directory
     system($self->config('make'), '-C', 'po', 'pot', 'update-po');
 
+    # Make a ChangeLog
+    $self->depends_on('changelog');
+
     # Run the regular dist action
     $self->SUPER::ACTION_dist;
 }
@@ -126,6 +129,63 @@ sub ACTION_syntaxcheck
     }
 
     return $error;
+}
+
+# Add changelog target
+sub ACTION_changelog
+{
+    my $self = shift;
+
+    # Check that this is a git repository
+    unless(-d '.git') {
+        $self->log_info('ChangeLog can only be generated from a git '.
+                         "repository\n");
+        return 1;
+    }
+
+    # Check that git is available
+    eval { use Git; };
+    if($@) {
+        $self->log_info("Git module is not available\n");
+        return 1;
+    }
+
+    # Update submodules to get git2cl
+    my $repo = Git->repository(Directory => '.');
+
+    eval {
+        $repo->command_noisy('submodule', 'update');
+    };
+
+    if($@) {
+        $self->log_info("Failed to initialise git2cl\n");
+        return 1;
+    }
+
+    my $git2cl;
+    unless(open($git2cl, '-|', './git2cl/git2cl')) {
+        $self->log_info("Failed to execute git2cl: $!");
+        return 1;
+    }
+
+    my $changelog;
+    unless(open($changelog, '>', 'ChangeLog')) {
+        $self->log_info("Failed to open ChangeLog for writing: $!\n");
+        return 1;
+    }
+
+    while(<$git2cl>) {
+        # Replace leading tabs with spaces
+        s/^(\t+)/' ' x (length($1) * 8)/e;
+
+        # Remove trailing whitespace
+        s/\s+$//;
+
+        # Write the output to the ChangeLog
+        print $changelog $_."\n";
+    }
+
+    return 0;
 }
 
 SUBCLASS
