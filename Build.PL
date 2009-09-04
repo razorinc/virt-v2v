@@ -94,6 +94,8 @@ sub ACTION_syntaxcheck
         }
     }
 
+    my $error = 0;
+
     # Check for trailing whitespace in all files in the manifest
     require ExtUtils::Manifest;
     foreach my $file (keys(%{ExtUtils::Manifest::maniread()})) {
@@ -113,13 +115,17 @@ sub ACTION_syntaxcheck
         while(<$fh>) {
             if(/\s\n$/) {
                 $self->log_info("$file: trailing whitespace on line $.\n");
+                $error = 1;
             }
 
             if($checktabs && /^\s*\t/) {
                 $self->log_info("$file: indentation uses tabs on line $.\n");
+                $error = 1;
             }
         }
     }
+
+    return $error;
 }
 
 SUBCLASS
