@@ -25,6 +25,7 @@ use File::Spec;
 use File::Temp;
 
 use Sys::VirtV2V::ExecHelper;
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Module::Pluggable sub_name => 'modules',
                       search_path => 'Sys::VirtV2V::GuestOS',
@@ -148,8 +149,8 @@ sub configure
         my $path = $files_conf->{$label};
 
         unless(-f $path && -r $path) {
-            print STDERR "virt-v2v: ".__x("WARNING unable to access {path}.",
-                                           path => $path)."\n";
+            print STDERR user_message(__x("WARNING: unable to access {path}.",
+                                          path => $path));
             next;
         }
 
@@ -169,9 +170,9 @@ sub configure
         ('genisoimage', '-o', $transferiso, '-r', '-J',
          '-V', '__virt-v2v_transfer__', keys(%paths));
     if($eh->status() != 0) {
-        print STDERR "virt-v2v: ".__x("Failed to create transfer iso. Command ".
+        print STDERR user_message(__x("Failed to create transfer iso. Command ".
                                       "output was:\n{output}",
-                                      output => $eh->output())."\n";
+                                      output => $eh->output()));
     }
 
     # Populate deps from the [deps] config section

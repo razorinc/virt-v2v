@@ -21,8 +21,8 @@ use strict;
 use warnings;
 
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
+use Sys::VirtV2V::UserMessage qw(user_message);
 
-use Carp;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -128,7 +128,7 @@ sub _init_selinux
         eval {
             my $policy;
 
-            die(__"/etc/selinux/config does not exist")
+            die(user_message(__"/etc/selinux/config does not exist"))
                 unless($g->exists('/etc/selinux/config'));
 
             # Parse out the SELinux policy in use
@@ -140,7 +140,8 @@ sub _init_selinux
                 }
             }
 
-            die(__"Didn't find SELINUXTYPE n /etc/syslinux/config")
+            die(user_message(__"Didn't find SELINUXTYPE in ".
+                               "/etc/syslinux/config"))
                 unless(defined($policy));
 
             # Find files in the policy directory called policy.*
@@ -149,9 +150,11 @@ sub _init_selinux
                 @paths = $g->glob_expand("/etc/selinux/$policy/policy/policy.*");
             };
 
-            die(__x("Unable to find an SELinux policy file matching {path}",
-                    path => "/etc/selinux/$policy/policy/policy.*").": $!")
-                if($@);
+            die(user_message
+                (__x("Unable to find an SELinux policy file matching {path}: ".
+                     "{error}",
+                     path => "/etc/selinux/$policy/policy/policy.*",
+                     error => $!))) if($@);
 
             # Check that the policy ends with a number
             my $success = 0;
@@ -170,14 +173,13 @@ sub _init_selinux
                 }
             }
 
-            die(__"Unable to successfully load an SELinux policy")
+            die(user_message(__"Unable to load an SELinux policy"))
                 unless($success);
         };
 
         if($@) {
-            print STDERR "virt-v2v: ".
-                         _x("WARNING unable to configure SELinux: {error})",
-                            error => $!)."\n";
+            print STDERR user_message(__x("WARNING: unable to configure ".
+                                          "SELinux: {error})", error => $!));
         }
     }
 }
@@ -217,7 +219,7 @@ sub _init_augeas_modprobe
         $self->{modules} = "modprobe.d/virtv2v-added.conf";
     }
 
-    die(__"Unable to find any valid modprobe configuration")
+    die(user_message(__"Unable to find any valid modprobe configuration"))
         unless(defined($self->{modules}));
 
     # Initialise augeas
@@ -431,7 +433,8 @@ sub get_default_kernel
     }
 
     # If we got here, grub doesn't contain any kernels. Give up.
-    die(__"Unable to find a default kernel") unless(defined($kernel));
+    die(user_message(__"Unable to find a default kernel"))
+        unless(defined($kernel));
 
     my $desc = $self->{desc};
 
@@ -481,8 +484,8 @@ sub add_kernel
         }
     }
 
-    die(__x"{filename} doesn't contain a valid kernel\n",
-            filename => $filename) if(!defined($version));
+    die(user_message(__x("{filename} doesn't contain a valid kernel",
+                         filename => $filename))) if(!defined($version));
 
     $self->_install_rpms(0, ($filename));
 
@@ -535,7 +538,8 @@ sub _discover_kernel
     # directly detected
     $kernel_arch = $desc->{arch} if(!defined($kernel_arch));
 
-    die(__x("Unable to determine a kernel architecture"))
+    die(user_message(__"Unable to determine a kernel architecture for this ".
+                       "guest"))
         unless(defined($kernel_arch));
 
     # We haven't supported anything other than i686 for the kernel on 32 bit for
@@ -617,8 +621,8 @@ sub _resolve_deps
     # Check that the dependency path doesn't include the given label. If it
     # does, that's a dependency loop.
     if(grep(/\Q$label\E/, @path) > 0) {
-        die(__x("Found dependency loop installing {label}: {path}",
-                label => $label, path => join(' ', @path))."\n");
+        die(user_message(__x("Found dependency loop installing {label}: {path}",
+                             label => $label, path => join(' ', @path))));
     }
     push(@path, $label);
 
@@ -817,9 +821,9 @@ sub _match
         }
     }
 
-    die (__x("No {object} given matching {label}\n",
-         object => $object,
-         label => "$distro.$major.$minor.$arch.$label"));
+    die(user_message(__x("No {object} given matching {label}",
+                         object => $object,
+                         label => "$distro.$major.$minor.$arch.$label")));
 }
 
 # Return the path to an rpm for <label>.<arch>
@@ -944,8 +948,9 @@ sub remap_block_devices
                 $target .= $2 if(defined($2));
                 $g->aug_set($spec, $target);
             } else {
-                print STDERR __x("No mapping found for block device {device}",
-                                 device => $device)."\n";
+                print STDERR user_message(__x("No mapping found for block ".
+                                              "device {device}",
+                                              device => $device));
             }
         }
     };
@@ -1004,13 +1009,14 @@ sub prepare_bootable
     die($@) if($@);
 
     if(!$found) {
-        die(__x"Didn't find a grub entry for kernel version {version}",
-               version => $version);
+        die(user_message(__x("Didn't find a grub entry for kernel version ".
+                             "{version}", version => $version)));
     }
 
     if(!defined($initrd)) {
-        print STDERR __x("WARNING: Kernel version {version} doesn't have an ".
-                         "initrd entry in grub", version => $version);
+        print STDERR user_message(__x("WARNING: Kernel version {version} ".
+                                      "doesn't have an initrd entry in grub",
+                                      version => $version));
     } else {
         # Initrd as returned by grub is relative to /boot
         $initrd = "/boot$initrd";
