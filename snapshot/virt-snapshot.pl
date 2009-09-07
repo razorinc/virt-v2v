@@ -28,6 +28,7 @@ use Locale::TextDomain 'virt-v2v';
 use Sys::Virt;
 
 use Sys::VirtV2V;
+use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::MetadataReader;
 
 =encoding utf8
@@ -497,14 +498,18 @@ sub _commit_guest
 
         # Commit snapshot to its backing store
         # XXX: There should be a libvirt API to do this
-        system('/usr/bin/qemu-img', 'commit', '-f', 'qcow2', $path);
+        my $eh = Sys::VirtV2V::ExecHelper->run
+            ('/usr/bin/qemu-img', 'commit', '-f', 'qcow2', $path);
 
         # Check commit succeeded
-        if($? >> 8 != 0) {
+        if($eh->status != 0) {
             print STDERR _user_msg(__x("Failed to commit snapshot '{path}' to ".
                                        "backing store '{backingstore}'",
                                        path => $path,
                                        backingstore => $backing_path));
+            print STDERR _user_msg(__x("Command output was:\n{output}",
+                                       output => $eh->output()));
+
             return -1;
         }
 
