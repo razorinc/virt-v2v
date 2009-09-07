@@ -27,6 +27,7 @@ use XML::DOM;
 use XML::DOM::XPath;
 
 use Sys::VirtV2V::HVSource;
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Carp;
 
@@ -146,10 +147,11 @@ sub configure
     $name = $name->getNodeValue();
 
     if($virtio) {
-        print __x("{name} configured with virtio drivers", name => $name)."\n";
+        print user_message
+            (__x("{name} configured with virtio drivers", name => $name));
     } else {
-        print __x("{name} configured without virtio drivers",
-                   name => $name)."\n";
+        print user_message
+            (__x("{name} configured without virtio drivers", name => $name));
     }
 }
 
@@ -246,10 +248,11 @@ sub _configure_kernel_modules
     # Warn if any old-HV specific kernel modules weren't updated
     foreach my $module (keys(%hvs_modules)) {
         if(!defined($hvs_modules{$module})) {
-            print STDERR __x("WARNING: Don't know how to update {module}, ".
-                             "which loads the {module} module.\n",
-                             module => $module,
-                             module => $modules->{$module}->{modulename});
+            print STDERR user_message
+                (__x("WARNING: Don't know how to update {module}, which loads ".
+                     "the {modulename} module.",
+                     module => $module,
+                     modulename => $modules->{$module}->{modulename}));
         }
     }
 }
@@ -342,8 +345,8 @@ sub _configure_kernel
     # Check that either there are still kernels in the cache, or we just added a
     # kernel. If neither of these is the case, we're about to try to remove all
     # kernels, which will fail unpleasantly. Fail nicely instead.
-    die(__"No bootable kernels installed, and no replacement specified in ".
-          "configuration.\nUnable to continue")
+    die(user_message(__"No bootable kernels installed, and no replacement ".
+                       "specified in configuration.\nUnable to continue."))
         unless(keys(%kernels) > 0 || defined($boot_kernel));
 
     # Remove old kernels. We do this after installing a new kernel to keep rpm
@@ -470,9 +473,10 @@ sub _unconfigure_hvs
 
         else {
             # Warn if a replacement is required, but none was found
-            print STDERR __x("WARNING: No replacement found for {xpath} in ".
-                             "domain XML. The node was removed.",
-                             xpath => $xpath) if($required);
+            print STDERR user_message
+                (__x("WARNING: No replacement found for {xpath} in ".
+                     "domain XML. The node was removed.",
+                     xpath => $xpath)) if($required);
 
             $node->getParentNode()->removeChild($node);
         }
@@ -551,9 +555,10 @@ sub _configure_capabilities
 
         # If the machine isn't listed as a capability, warn and remove it
         if(!$found) {
-            print STDERR __x("The connected hypervisor does not support a ".
-                             "machine type of {machine}.",
-                             machine => $machine->getValue())."\n";
+            print STDERR user_message
+                (__x("The connected hypervisor does not support a ".
+                     "machine type of {machine}.",
+                     machine => $machine->getValue()));
 
             my ($type) = $dom->findnodes('/domain/os/type');
             $type->getAttributes()->removeNamedItem('machine');
@@ -569,8 +574,9 @@ sub _configure_capabilities
 
     foreach my $feature ($dom->findnodes('/domain/features/*')) {
         if(!exists($features{$feature->getNodeName()})) {
-            print STDERR __x("The connected hypervisor does not support ".
-                             "feature {feature}", feature => $feature)."\n";
+            print STDERR user_message
+                (__x("The connected hypervisor does not support ".
+                     "feature {feature}", feature => $feature));
             $feature->getParentNode()->removeChild($feature);
         }
     }
