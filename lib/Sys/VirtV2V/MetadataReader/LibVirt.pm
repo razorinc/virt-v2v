@@ -22,6 +22,8 @@ use warnings;
 
 use XML::DOM;
 
+use Sys::VirtV2V::UserMessage qw(user_message);
+
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -108,7 +110,9 @@ sub handle_arguments
 
     # Warn if we were given more than 1 argument
     if(scalar(@_) > 0) {
-        print STDERR "Warning: ".NAME." only takes a single filename.\n";
+        print STDERR user_message
+            (__x("WARNING: {modulename} only takes a single filename.",
+                 modulename => NAME));
     }
 }
 
@@ -132,8 +136,8 @@ sub get_dom
 
     # Warn and exit if we didn't find it
     unless($domain) {
-        print STDERR __x("{name} isn't a valid guest name",
-                         name => $self->{name})."\n";
+        print STDERR user_message
+            (__x("{name} isn't a valid guest name", name => $self->{name}));
         return undef;
     }
 

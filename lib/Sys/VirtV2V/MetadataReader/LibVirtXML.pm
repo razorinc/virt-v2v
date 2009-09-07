@@ -23,6 +23,8 @@ use warnings;
 use XML::DOM;
 use XML::DOM::XPath;
 
+use Sys::VirtV2V::UserMessage qw(user_message);
+
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -84,10 +86,10 @@ sub _new
             }
 
             else {
-                print STDERR "virt-v2v: ".
-                    __x("WARNING unknown configuration directive {directive} ".
-                        "in {name} section",
-                        directive => $directive, name => NAME)."\n";
+                print STDERR user_message
+                    (__x("WARNING: unknown configuration directive ".
+                         "{directive} in {name} section.",
+                         directive => $directive, name => NAME));
                 $self->{invalidconfig} = 1;
             }
         }
@@ -120,7 +122,9 @@ sub is_configured
     my $self = shift;
 
     if(!defined($self->{path})) {
-        print STDERR "You must specify a filename when using ".NAME.".\n";
+        print STDERR user_message
+            (__x("You must specify a filename when using {modulename}",
+                 modulename => NAME));
         return 0;
     }
 
@@ -144,7 +148,9 @@ sub handle_arguments
 
     # Warn if we were given more than 1 argument
     if(scalar(@_) > 0) {
-        print STDERR "Warning: ".NAME." only takes a single filename.\n";
+        print STDERR user_message
+            (__x("WARNING: {modulename} only takes a single filename.",
+                 modulename => NAME));
     }
 }
 
@@ -162,7 +168,9 @@ sub get_dom
     # Open the input file
     my $xml; # Implicitly closed on function exit
     if(!open($xml, '<', $self->{path})) {
-        print STDERR "Failed to open ".$self->{path}.": $!\n";
+        print STDERR user_message
+            (__x("Failed to open {path}: {error}",
+                 path => $self->{path}, error => $!));
         return undef;
     }
 
@@ -173,7 +181,9 @@ sub get_dom
 
     # Display any parse errors
     if ($@) {
-        print STDERR "Unable to parse ".$self->{path}.": $@\n";
+        print STDERR user_message
+            (__x("Unable to parse {path}: {error}",
+                 path => $self->{path}, error => $@));
         return undef;
     }
 
