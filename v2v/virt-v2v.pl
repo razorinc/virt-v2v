@@ -32,9 +32,10 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
   inspect_operating_systems mount_operating_system inspect_in_detail);
 
 use Sys::VirtV2V;
-use Sys::VirtV2V::MetadataReader;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::HVTarget;
+use Sys::VirtV2V::MetadataReader;
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
 
@@ -132,6 +133,9 @@ Load the virt-v2v configuration from I<file>. There is no default.
 
 =cut
 
+# Initialise the message output prefix
+Sys::VirtV2V::UserMessage->set_identifier('virt-v2v');
+
 GetOptions ("help|?"      => \$help,
             "version"     => \$version,
             "connect|c=s" => \$uri,
@@ -145,7 +149,7 @@ if ($version) {
     exit(0);
 }
 
-pod2usage(__"virt-v2v: no guest argument given") if @ARGV == 0;
+pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 
 # Read the config file if one was given
 my $config = {};
@@ -154,7 +158,9 @@ if(defined($config_file)) {
 
     # Check we were able to read it
     if(!defined($config)) {
-        print STDERR Config::Tiny->errstr."\n";
+        print STDERR user_message(__x("Unable to parse {file}: {error}",
+                                      file => $config_file,
+                                      error => Config::Tiny->errstr));
         exit(1);
     }
 }
@@ -162,8 +168,8 @@ if(defined($config_file)) {
 # Get an appropriate MetadataReader
 my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, $config);
 if(!defined($mdr)) {
-    print STDERR __x("virt-v2v: {input} is not a valid metadata format",
-                     input => $input)."\n";
+    print STDERR user_message __x("{input} is not a valid metadata format",
+                                  input => $input);
     exit(1);
 }
 
@@ -257,8 +263,19 @@ sub inspect_guest
     # Only work on single-root operating systems.
     my $root_dev;
     my @roots = keys %$oses;
-    die __"no root device found in this operating system image" if @roots == 0;
-    die __"multiboot operating systems are not supported by v2v" if @roots > 1;
+
+    if(@roots == 0) {
+        print STDERR user_message(__"no root device found in this operating ".
+                                    "system image");
+        exit(1);
+    }
+
+    if(@roots > 1) {
+        print STDERR user_message(__"multiboot operating systems are not ".
+                                    "supported by virt-v2v");
+        exit(1);
+    }
+
     $root_dev = $roots[0];
 
     # Mount up the disks and check for applications.
