@@ -30,6 +30,7 @@ use Sys::Virt;
 use Sys::VirtV2V;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::MetadataReader;
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
 
@@ -179,6 +180,9 @@ Remove the snapshot and restore the guest to its previous, unmodified storage.
 
 =cut
 
+# Initialise the message output prefix
+Sys::VirtV2V::UserMessage->set_identifier('virt-snapshot');
+
 GetOptions ("help|?"          => \$help,
             "version"         => \$version,
             "connect|c=s"     => \$uri,
@@ -192,7 +196,7 @@ GetOptions ("help|?"          => \$help,
     ) or pod2usage(2);
 pod2usage(0) if($help);
 pod2usage({
-    -message => __"--commit and --rollback are mutually exclusive",
+    -message => __"--commit and --rollback options are mutually exclusive",
     -exitval => 1
 }) if($commit && $rollback);
 
@@ -201,13 +205,13 @@ if ($version) {
     exit(0);
 }
 
-pod2usage(_user_msg(__"no guest argument given")) if @ARGV == 0;
+pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 
 # Get an appropriate MetadataReader
 my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, {});
 if(!defined($mdr)) {
-    print STDERR _user_msg(__x("{input} is not a valid input format",
-                                input => $input));
+    print STDERR user_message(__x("{input} is not a valid input format",
+                                  input => $input));
     exit(1);
 }
 
@@ -246,7 +250,7 @@ else {
 
 # Don't try to output anything if the domain is no longer defined
 if(!defined($dom)) {
-    print _user_msg(__"No resulting domain");
+    print user_message(__"No domain has been created.");
     exit($force == 1 ? 0 : 1);
 }
 
@@ -258,9 +262,9 @@ if($outputxml) {
     # Write output to a file
     if('-' ne $outputxml) {
         unless(open($out, '>', $outputxml)) {
-            print STDERR _user_msg(__x("Unable to open {file}: {error}",
-                                       file => $outputxml,
-                                       error => $!));
+            print STDERR user_message(__x("Unable to open {file}: {error}",
+                                          file => $outputxml,
+                                          error => $!));
             ($out, $outputxml) = tempfile(_get_guest_name($dom).'-XXXXXX',
                                           SUFFIX => '.xml');
             $error = 1;
@@ -272,8 +276,8 @@ if($outputxml) {
                                file => $outputxml, error => $!));
 
         if($error) {
-            print STDERR _user_msg(__x("Wrote output to {file}",
-                                       file => $outputxml));
+            print STDERR user_message(__x("Wrote output to {file}",
+                                          file => $outputxml));
             exit(1);
         }
     }
@@ -290,9 +294,9 @@ else {
     };
 
     if($@) {
-        print STDERR _user_msg(__x("Unable to create guest: {error}",
-                                   error => $@->stringify()));
-        print STDERR _user_msg(__"Consider using the --outputxml option");
+        print STDERR user_message(__x("Unable to create guest: {error}",
+                                      error => $@->stringify()));
+        print STDERR user_message(__"Consider using the --outputxml option");
 
         # Write the output to a temporary file
         my ($out, $outputxml) = tempfile(_get_guest_name($dom).'-XXXXXX',
@@ -300,11 +304,13 @@ else {
 
         print $out $dom->toString();
 
-        close($out) or die(__x("Error closing {file}: {error}",
-                               file => $outputxml, error => $!));
+        print STDERR user_message(__x("Wrote output to {file}",
+                                      file => $outputxml));
 
-        print STDERR _user_msg(__x("Wrote output to {file}",
-                                   file => $outputxml));
+        unless(close($out)) {
+            print STDERR user_message(__x("Error closing {file}: {error}",
+                                          file => $outputxml, error => $!));
+        }
 
         exit(1);
     }
@@ -338,9 +344,9 @@ sub _get_pool
 
         # If that didn't work, give up
         if($@) {
-            print STDERR _user_msg(__x("Unable to create virt-snapshot ".
-                                       "storage pool: {error}",
-                                       error => $@->stringify()))
+            print STDERR user_message(__x("Unable to create virt-snapshot ".
+                                          "storage pool: {error}",
+                                          error => $@->stringify()))
                 unless(defined($pool));
             exit(1);
         }
@@ -356,9 +362,9 @@ sub _get_pool
         };
 
         if($@) {
-            print STDERR _user_msg(__x("Unable to start virt-snapshot ".
-                                       "storage pool: {error}",
-                                       error => $@->stringify()))
+            print STDERR user_message(__x("Unable to start virt-snapshot ".
+                                          "storage pool: {error}",
+                                          error => $@->stringify()))
                 unless(defined($pool));
             exit(1);
         }
@@ -366,8 +372,8 @@ sub _get_pool
 
     # If it's building, there's nothing to do but wait
     elsif($pool_info->{state} == Sys::Virt::StoragePool::STATE_BUILDING) {
-        print STDERR _user_msg(__("virt-snapshot storage pool is temporarily ".
-                                  "unavailable"));
+        print STDERR user_message(__"virt-snapshot storage pool is ".
+                                    "temporarily unavailable");
         exit(1);
     }
 
@@ -430,7 +436,7 @@ sub _commit_guest
                                    path => '/var/lib/virt-snapshot');
                     }
 
-                    print STDERR _user_msg($msg);
+                    print STDERR user_message($msg);
                     return -1;
                 } else {
                     $pool->refresh(0);
@@ -446,9 +452,9 @@ sub _commit_guest
 
         # Skip it if it doesn't have a backing store
         unless($backing_store) {
-            print STDERR _user_msg(_x("Skipping device {target} as it doesn't ".
-                                      "have a backing store",
-                                      target => $target->getNodeValue()));
+            print STDERR user_message(__x("Skipping device {target} as it ".
+                                          "doesn't have a backing store",
+                                          target => $target->getNodeValue()));
             next;
         }
 
@@ -503,12 +509,12 @@ sub _commit_guest
 
         # Check commit succeeded
         if($eh->status != 0) {
-            print STDERR _user_msg(__x("Failed to commit snapshot '{path}' to ".
-                                       "backing store '{backingstore}'",
-                                       path => $path,
-                                       backingstore => $backing_path));
-            print STDERR _user_msg(__x("Command output was:\n{output}",
-                                       output => $eh->output()));
+            print STDERR user_message(__x("Failed to commit snapshot '{path}' ".
+                                          "to backing store '{backingstore}'.".
+                                          "\nCommand output was:\n{output}",
+                                          path => $path,
+                                          backingstore => $backing_path,
+                                          output => $eh->output()));
 
             return -1;
         }
@@ -536,9 +542,9 @@ sub _snapshot_guest
     # Error if the xml backup already exists and force not specified
     if(-e $xmlpath && !$force) {
         print STDERR
-            _user_msg(__x("A snapshot already exists for {guest}. You must ".
-                          "commit it or roll it back back before creating a ".
-                          "new snapshot.", guest => $name));
+            user_message(__x("A snapshot already exists for {guest}. You must ".
+                             "commit it or roll it back back before creating ".
+                             "a new snapshot.", guest => $name));
         return -1;
     }
 
@@ -583,8 +589,8 @@ sub _snapshot_guest
 
         if($@) {
             print STDERR
-                _user_msg(__x("Unable to create storage volume: {error}",
-                           error => $@->stringify()));
+                user_message(__x("Unable to create storage volume: {error}",
+                                 error => $@->stringify()));
             return -1;
         }
 
@@ -616,9 +622,9 @@ sub _rollback_guest
 
     # Only rollback a guest without stored XML if force was specified
     if(! -e $xmlpath && !$force) {
-        print STDERR _user_msg(__x("Refusing to rollback guest {name} without ".
-                                   "backed-up xml",
-                                   name => _get_guest_name($dom)));
+        print STDERR user_message(__x("Refusing to rollback guest {name} ".
+                                      "without backed-up xml",
+                                      name => _get_guest_name($dom)));
         return -1;
     }
 
@@ -627,8 +633,8 @@ sub _rollback_guest
         my ($disk, $source, $target, $path) = @_;
 
         if(-e $path && unlink($path) != 1) {
-            print STDERR _user_msg(__x("Failed to delete {file}: {error}",
-                                       file => $path, error => $!));
+            print STDERR user_message(__x("Failed to delete {file}: {error}",
+                                          file => $path, error => $!));
             return -1;
         }
         return 0;
@@ -638,9 +644,9 @@ sub _rollback_guest
     if(-e $xmlpath) {
         $dom = new XML::DOM::Parser->parsefile($xmlpath);
         if(unlink($xmlpath) != 1) {
-            print STDERR _user_msg(__x("Unable to delete backup xml file ".
-                                       "{file}: {error}",
-                                       file => $xmlpath, error => $!));
+            print STDERR user_message(__x("Unable to delete backup xml file ".
+                                          "{file}: {error}",
+                                          file => $xmlpath, error => $!));
             return -1;
         }
     }
@@ -700,8 +706,8 @@ sub _foreach_disk
 
         # Warn and ignore this source if we didn't find either
         if(!defined($path)) {
-            print STDERR _user_msg(__x("invalid source element: {element}",
-                                        element => $source->toString()));
+            print STDERR user_message(__x("invalid source element: {element}",
+                                          element => $source->toString()));
             next;
         }
 
@@ -723,13 +729,6 @@ sub _get_xml_path
     my ($dom) = @_;
 
     return $xmldir.'/'._get_guest_name($dom).'.xml';
-}
-
-sub _user_msg
-{
-    my $msg = shift;
-
-    return "virt-snapshot: ".$msg."\n";
 }
 
 =head1 SEE ALSO
