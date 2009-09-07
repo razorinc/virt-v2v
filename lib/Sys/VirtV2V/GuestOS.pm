@@ -24,6 +24,8 @@ use Carp;
 use File::Spec;
 use File::Temp;
 
+use Sys::VirtV2V::ExecHelper;
+
 use Module::Pluggable sub_name => 'modules',
                       search_path => 'Sys::VirtV2V::GuestOS',
                       require => 1;
@@ -163,8 +165,14 @@ sub configure
     return if(keys(%paths) == 0);
 
     $transferiso = File::Temp->new(UNLINK => 1, SUFFIX => '.iso');
-    system('genisoimage', '-o', $transferiso, '-r', '-J',
-           '-V', '__virt-v2v_transfer__', keys(%paths));
+    my $eh = Sys::VirtV2V::ExecHelper->run
+        ('genisoimage', '-o', $transferiso, '-r', '-J',
+         '-V', '__virt-v2v_transfer__', keys(%paths));
+    if($eh->status() != 0) {
+        print STDERR "virt-v2v: ".__x("Failed to create transfer iso. Command ".
+                                      "output was:\n{output}",
+                                      output => $eh->output())."\n";
+    }
 
     # Populate deps from the [deps] config section
     my $deps_conf = $config->{deps};
