@@ -3,6 +3,7 @@ ChangeLog
 COPYING
 COPYING.LIB
 lib/Sys/VirtV2V.pm
+lib/Sys/VirtV2V/ExecHelper.pm
 lib/Sys/VirtV2V/GuestOS.pm
 lib/Sys/VirtV2V/GuestOS/RedHat.pm
 lib/Sys/VirtV2V/HVSource.pm
@@ -24,6 +25,7 @@ snapshot/virt-snapshot.pl
 t/001-pod.t
 t/002-pod-coverage.t
 t/003-syntax.t
+t/004-ExecHelper.t
 TODO
 v2v/run-v2v-locally
 v2v/virt-v2v.conf
