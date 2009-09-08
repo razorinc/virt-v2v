@@ -10,6 +10,7 @@
 /META.yml
 /virt-v2v*.tar.gz
 /ChangeLog
+/pod2htm?.tmp
 
 /v2v/virt-v2v.1
 /v2v/virt-v2v.conf.5
