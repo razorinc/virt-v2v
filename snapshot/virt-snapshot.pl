@@ -738,7 +738,7 @@ L<http://libguestfs.org/>.
 
 =head1 AUTHOR
 
-Matthew Booth L<mbooth@redhat.com>
+Matthew Booth <mbooth@redhat.com>
 
 =head1 COPYRIGHT
 

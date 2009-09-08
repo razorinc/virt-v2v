@@ -440,7 +440,7 @@ from L<http://home.eunet.no/~pnordahl/ntpasswd/>.
 
 Richard W.M. Jones L<http://et.redhat.com/~rjones/>
 
-Matthew Booth L<mbooth@redhat.com>
+Matthew Booth <mbooth@redhat.com>
 
 =head1 COPYRIGHT
 
