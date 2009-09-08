@@ -57,19 +57,55 @@ Virt-v2v converts guests from one virtualization hypervisor to
 another.  Currently it is limited in what it can convert.  See the
 table below.
 
+=begin html
+
+<table border="1" style="border-collapse: collapse">
+    <tr>
+        <th>Source</th>
+        <th>Target</th>
+    </tr>
+
+    <tr>
+        <td valign="top" style="padding: 0 0.5em 0 0.5em">
+            <p>Xen domain managed by libvirt</p>
+            <p>Guest
+                <ul>
+                    <li>PV or FV Kernel</li>
+                    <li>with or without PV drivers</li>
+                    <li>RHEL 3.x, 4.x, 5.x</li>
+                </ul>
+            </p>
+        </td>
+        <td valign="top" style="padding: 0 0.5em 0 0.5em">
+            <p>KVM domain managed by libvirt</p>
+            <p>Guest
+                <ul>
+                    <li>with virtio drivers if support by guest</li>
+                </ul>
+            </p>
+        </td>
+    </tr>
+</table>
+
+=end html
+
+=begin :man
+
  -------------------------------+----------------------------
  SOURCE                         | TARGET
  -------------------------------+----------------------------
- Xen domain managed by          |
- libvirt                        |
+ Xen domain managed by          | KVM domain managed by
+ libvirt                        | libvirt
                                 |
- Xen compatibility:             | KVM guest managed by
-   - PV or FV kernel            | libvirt
-   - with or without PV drivers |   - with virtio drivers
-   - RHEL 3.x, 4.x, 5.x         |     if supported by guest
+ Guest:                         | Guest:
+   - PV or FV kernel            |   - with virtio drivers
+   - with or without PV drivers |     if supported by guest
+   - RHEL 3.x, 4.x, 5.x         |
                                 |
                                 |
  -------------------------------+----------------------------
+
+=end :man
 
 =head1 OPTIONS
 
