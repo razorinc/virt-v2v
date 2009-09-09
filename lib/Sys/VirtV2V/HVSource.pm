@@ -35,10 +35,12 @@ Sys::VirtV2V::HVSource - Discover source hypervisor artifacts in a guest
 
  use Sys::VirtV2V::HVSource;
 
- my @modules = Sys::VirtV2V::HVSource->find_kernel_modules();
- my @apps    = Sys::VirtV2V::HVSource->find_applications();
- my @kernels = Sys::VirtV2V::HVSource->find_kernels();
- my @xpaths  = Sys::VirtV2V::HVSource->find_metadata();
+ my @modules = Sys::VirtV2V::HVSource->find_kernel_modules(desc);
+ my @apps    = Sys::VirtV2V::HVSource->find_applications(desc);
+ my @kernels = Sys::VirtV2V::HVSource->find_kernels(desc);
+ my @xpaths  = Sys::VirtV2V::HVSource->find_metadata(dom);
+
+ Sys::VirtV2V::HVSource->unconfigure(g, guestos, desc);
 
 =head1 DESCRIPTION
 
@@ -46,7 +48,7 @@ Sys::VirtV2V::HVSource provides a mechanism for identifying properties of a
 guest operating system which relate specifically to a particular hypervisor. It
 is used by a Sys::VirtV2V::HVTarget when reconfiguring the guest.
 
-A call to any of these methods will aggregate all returned values from all
+A call to any of these methods will call, and aggregate if relevant,  all
 implemented Sys::VirtV2V::HVSource backends.
 
 =head1 METHODS
@@ -153,6 +155,29 @@ sub find_metadata
     }
 
     return @nodeinfo;
+}
+
+=item Sys::VirtV2V::HVSource->unconfigure(guestos, desc)
+
+Perform custom unconfiguration tasks. These tasks differ from the above, in they
+require no replacement configuration. Examples are removing VMWare tools or Xen
+PV drivers.
+
+=cut
+
+sub unconfigure
+{
+    my $class = shift;
+
+    my ($guestos, $desc) = @_;
+    carp("unconfigure called without guestos argument")
+        unless defined($guestos);
+    carp("unconfigure called without desc argument")
+        unless defined($desc);
+
+    foreach my $module ($class->modules()) {
+        $module->unconfigure($guestos, $desc);
+    }
 }
 
 =back

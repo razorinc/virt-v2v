@@ -35,10 +35,12 @@ Sys::VirtV2V::HVSource::Xen::Linux - Discover Xen artifects in a Linux guest
 
  use Sys::VirtV2V::HVSource;
 
- my @modules = Sys::VirtV2V::HVSource->find_kernel_modules();
- my @apps    = Sys::VirtV2V::HVSource->find_applications();
- my @kernels = Sys::VirtV2V::HVSource->find_kernels();
- my @xpaths  = Sys::VirtV2V::HVSource->find_metadata();
+ my @modules = Sys::VirtV2V::HVSource->find_kernel_modules(desc);
+ my @apps    = Sys::VirtV2V::HVSource->find_applications(desc);
+ my @kernels = Sys::VirtV2V::HVSource->find_kernels(desc);
+ my @xpaths  = Sys::VirtV2V::HVSource->find_metadata(dom);
+
+ Sys::VirtV2V::HVSource->unconfigure(g, guestos, desc);
 
 =head1 DESCRIPTION
 
@@ -186,6 +188,86 @@ sub find_metadata
     }
 
     return @nodeinfo;
+}
+
+=item Sys::VirtV2V::HVSource::Linux->unconfigure(guestos, desc)
+
+See L<Sys::VirtV2V::HVSource> for details.
+
+=cut
+
+sub unconfigure
+{
+    my $class = shift;
+
+    my ($guestos, $desc) = @_;
+    carp("unconfigure called without guestos argument")
+        unless defined($guestos);
+    carp("unconfigure called without desc argument")
+        unless defined($desc);
+
+    my $found_kmod = 0;
+
+    # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
+    foreach my $app (@{$desc->{apps}}) {
+        my $name = $app->{name};
+
+        if($name =~ /^kmod-xenpv(-.*)?$/) {
+            $guestos->remove_application($name);
+            $found_kmod = 1;
+        }
+    }
+
+    # Undo related nastiness if kmod-xenpv was installed
+    if($found_kmod) {
+        # What follows is custom nastiness, so we need to use the libguestfs
+        # handle directly
+        my $g = $guestos->get_handle();
+
+        # kmod-xenpv modules may have been manually copied to other kernels.
+        # Hunt them down and destroy them.
+        foreach my $dir (grep(m{/xenpv$}, $g->find('/lib/modules'))) {
+            $dir = '/lib/modules/'.$dir;
+
+            # Check it's a directory
+            next unless($g->is_dir($dir));
+
+            # Check it's not owned by an installed application
+            eval {
+                $g->get_application_owner($dir);
+            };
+
+            # Remove it if get_application_owner didn't find an owner
+            if($@) {
+                $g->rm_rf($dir);
+            }
+        }
+
+        # rc.local may contain an insmod or modprobe of the xen-vbd driver
+        my @rc_local = ();
+        eval {
+            @rc_local = $g->read_lines('/etc/rc.local');
+        };
+
+        if($@) {
+            print STDERR user_message(__x("Unable to open /etc/rc.local: ".
+                                          "{error}", error => $@));
+        }
+
+        else {
+            my $size = 0;
+
+            foreach my $line (@rc_local) {
+                if($line =~ /\b(insmod|modprobe)\b.*\bxen-vbd/) {
+                    $line = '#'.$line;
+                }
+
+                $size += length($line) + 1;
+            }
+
+            $g->write_file('/etc/rc.local', join("\n", @rc_local)."\n", $size);
+        }
+    }
 }
 
 =back
