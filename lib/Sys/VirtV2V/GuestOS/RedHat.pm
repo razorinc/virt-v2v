@@ -810,6 +810,24 @@ sub remove_application
     die($@) if($@);
 }
 
+=item get_application_owner(file)
+
+See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+
+=cut
+
+sub get_application_owner
+{
+    my $self = shift;
+    my ($file) = @_;
+
+    my $g = $self->{g};
+    eval {
+        return $g->command(['rpm', '-qf', $file]);
+    };
+    die($@) if($@);
+}
+
 # Lookup a guest specific match for the given label
 sub _match
 {

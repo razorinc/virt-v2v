@@ -365,6 +365,21 @@ manager.
 
 remove an application from the guest.
 
+=item get_application_owner(file)
+
+=over
+
+=item file
+
+The absolute path to a file or directory on the guest.
+
+=back
+
+Return the name of the application which owns the given file.
+
+get_application_owner() will throw an exception if the file is not owned by any
+application.
+
 =item remap_block_devices(map)
 
 =over
