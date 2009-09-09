@@ -36,7 +36,6 @@ Sys::VirtV2V::HVSource::Xen::Linux - Discover Xen artifects in a Linux guest
  use Sys::VirtV2V::HVSource;
 
  my @modules = Sys::VirtV2V::HVSource->find_kernel_modules(desc);
- my @apps    = Sys::VirtV2V::HVSource->find_applications(desc);
  my @kernels = Sys::VirtV2V::HVSource->find_kernels(desc);
  my @xpaths  = Sys::VirtV2V::HVSource->find_metadata(dom);
 
@@ -80,23 +79,6 @@ sub find_kernel_modules
     }
 
     return @modules;
-}
-
-=item Sys::VirtV2V::HVSource::Linux->find_applications(desc)
-
-See L<Sys::VirtV2V::HVSource> for details.
-
-=cut
-
-sub find_applications
-{
-    my $class = shift;
-
-    my $desc = shift;
-    carp("find_applications called without desc argument")
-        unless defined($desc);
-
-    return ();
 }
 
 =item Sys::VirtV2V::HVSource::Linux->find_kernels(desc)

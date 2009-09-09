@@ -36,7 +36,6 @@ Sys::VirtV2V::HVSource - Discover source hypervisor artifacts in a guest
  use Sys::VirtV2V::HVSource;
 
  my @modules = Sys::VirtV2V::HVSource->find_kernel_modules(desc);
- my @apps    = Sys::VirtV2V::HVSource->find_applications(desc);
  my @kernels = Sys::VirtV2V::HVSource->find_kernels(desc);
  my @xpaths  = Sys::VirtV2V::HVSource->find_metadata(dom);
 
@@ -78,29 +77,6 @@ sub find_kernel_modules
     }
 
     return @modules;
-}
-
-=item Sys::VirtV2V::HVSource->find_applications(desc)
-
-Return a list of installed hypervisor-specific applications. The list contains
-package names as understood by the guest operating system.
-
-=cut
-
-sub find_applications
-{
-    my $class = shift;
-
-    my $desc = shift;
-    carp("find_applications called without desc argument")
-        unless defined($desc);
-
-    my @applications = ();
-    foreach my $module ($class->modules()) {
-        push(@applications, $module->find_applications($desc));
-    }
-
-    return @applications;
 }
 
 =item Sys::VirtV2V::HVSource->find_kernels(desc)
