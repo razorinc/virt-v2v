@@ -127,9 +127,12 @@ sub configure
     carp("configure called without dom argument") unless defined($dom);
     carp("configure called without desc argument") unless defined($desc);
 
+    # Un-configure HV specific attributes which don't require a direct
+    # replacement
+    Sys::VirtV2V::HVSource->unconfigure($guestos, $desc);
+
     # Get the best available kernel
     my $kernel = _configure_kernel($guestos, $desc);
-    _configure_applications($guestos, $desc);
 
     # Check if the resulting kernel will support virtio
     my $virtio = $guestos->supports_virtio($kernel);
@@ -266,17 +269,6 @@ sub _configure_display_driver
         unless defined($virtio);
 
     $guestos->update_display_driver("cirrus");
-}
-
-sub _configure_applications
-{
-    my ($guestos, $desc) = @_;
-    die("configure_applications called without guestos argument")
-        unless defined($guestos);
-    die("configure_applications called without desc argument")
-        unless defined($desc);
-
-    my @hvs_apps = Sys::VirtV2V::HVSource->find_applications($guestos);
 }
 
 sub _configure_kernel
