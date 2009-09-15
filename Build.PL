@@ -199,6 +199,18 @@ sub ACTION_distmeta
     $self->SUPER::ACTION_distmeta;
 }
 
+# Make Build test depend on distmeta so syntax test succeeds
+sub ACTION_test
+{
+    my $self = shift;
+
+    # Ensure distmeta runs first
+    $self->depends_on('distmeta');
+
+    # Run the regular test action
+    $self->SUPER::ACTION_test;
+}
+
 SUBCLASS
 
 my $build = $class->new (
