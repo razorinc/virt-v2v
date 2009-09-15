@@ -20,9 +20,6 @@ sub ACTION_dist
     # Run make pot in the po directory
     system($self->config('make'), '-C', 'po', 'pot', 'update-po');
 
-    # Make a ChangeLog
-    $self->depends_on('changelog');
-
     # Run the regular dist action
     $self->SUPER::ACTION_dist;
 }
@@ -188,6 +185,18 @@ sub ACTION_changelog
     }
 
     return 0;
+}
+
+# ChangeLog is part of distmeta
+sub ACTION_distmeta
+{
+    my $self = shift;
+
+    # Add a dependency on changelog
+    $self->depends_on('changelog');
+
+    # Run the regular distmeta action
+    $self->SUPER::ACTION_distmeta;
 }
 
 SUBCLASS
