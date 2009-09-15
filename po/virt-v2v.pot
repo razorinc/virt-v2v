@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2009-09-07 16:53+0100\n"
+"POT-Creation-Date: 2009-09-15 10:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,98 +54,103 @@ msgstr ""
 msgid "Unable to find any valid modprobe configuration"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:436
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
 msgid "Unable to find a default kernel"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:487
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
 #, perl-brace-format
 msgid "{filename} doesn't contain a valid kernel"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:541
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:624
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
 #, perl-brace-format
 msgid "Found dependency loop installing {label}: {path}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:824
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
 msgid "No {object} given matching {label}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:841
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
 msgid "file"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:859
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
 msgid "alias"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:877
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
 msgid "dependencies"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:951
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
 #, perl-brace-format
 msgid "No mapping found for block device {device}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1012
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1017
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:151
+#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
 #, perl-brace-format
-msgid "{name} configured with virtio drivers"
+msgid "Unable to open /etc/rc.local: {error}"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
 #, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:252
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
 "module."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:348
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
 "Unable to continue."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:477
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
 "removed."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:528
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:559
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:578
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr ""
@@ -189,7 +194,7 @@ msgstr ""
 msgid "--commit and --rollback options are mutually exclusive"
 msgstr ""
 
-#: ../snapshot/virt-snapshot.pl:208 ../v2v/virt-v2v.pl:152
+#: ../snapshot/virt-snapshot.pl:208 ../v2v/virt-v2v.pl:188
 msgid "no guest argument given"
 msgstr ""
 
@@ -310,20 +315,20 @@ msgstr ""
 msgid "invalid source element: {element}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:161
+#: ../v2v/virt-v2v.pl:197
 #, perl-brace-format
 msgid "Unable to parse {file}: {error}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:171
+#: ../v2v/virt-v2v.pl:207
 #, perl-brace-format
 msgid "{input} is not a valid metadata format"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:268
+#: ../v2v/virt-v2v.pl:304
 msgid "no root device found in this operating system image"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:274
+#: ../v2v/virt-v2v.pl:310
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr ""
