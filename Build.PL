@@ -168,6 +168,8 @@ sub ACTION_changelog
         return 1;
     }
 
+    $self->log_info("Creating ChangeLog\n");
+
     my $changelog;
     unless(open($changelog, '>', 'ChangeLog')) {
         $self->log_info("Failed to open ChangeLog for writing: $!\n");
