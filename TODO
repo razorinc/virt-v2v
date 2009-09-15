@@ -14,8 +14,6 @@ Roadmap features
 Cleanup required
 ----------------
 
-* Consistent error reporting, especially in virt-v2v
-* Suppress external command output
 * Error message when unmounting transfer iso
 
 
