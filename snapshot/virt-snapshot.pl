@@ -124,14 +124,14 @@ available locally.
 
 =cut
 
-use constant DEFAULT_LIBDIR => '/var/lib/virt-snapshot';
+use constant DEFAULT_LIBDIR => '/var/lib/virt-v2v';
 
 my $snapshotdir = DEFAULT_LIBDIR.'/snapshots';
 
 =item B<--snapshotdir dir> | B<-s dir>
 
 The directory where snapshot files will be created. This defaults to
-I</var/lib/virt-snapshot/snapshots>.
+I</var/lib/virt-v2v/snapshots>.
 
 =cut
 
@@ -140,7 +140,7 @@ my $xmldir = DEFAULT_LIBDIR.'/xml';
 =item B<--xmldir dir> | B<-x dir>
 
 The directory where XML backups will be stored. This defaults to
-I</var/lib/virt-snapshot/xml>.
+I</var/lib/virt-v2v/xml>.
 
 =cut
 
