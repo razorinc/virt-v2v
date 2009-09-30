@@ -1,0 +1,326 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: virt-v2v\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"POT-Creation-Date: 2009-09-15 10:37+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Domingo Becker <domingobecker@gmail.com>\n"
+"Language-Team: Fedora Spanish <fedora-trans-es@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:152
+#, perl-brace-format
+msgid "WARNING: unable to access {path}."
+msgstr "ADVERTENCIA: no se pudo accerder a {path}."
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:173
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
+msgid "/etc/selinux/config does not exist"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
+msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
+#, perl-brace-format
+msgid "Unable to find an SELinux policy file matching {path}: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
+msgid "Unable to load an SELinux policy"
+msgstr "Imposible cargar una política de SELinux"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
+#, perl-brace-format
+msgid "WARNING: unable to configure SELinux: {error})"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
+msgid "Unable to find any valid modprobe configuration"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
+msgid "Unable to find a default kernel"
+msgstr "Imposible encontrar un kernel predeterminado"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
+#, perl-brace-format
+msgid "{filename} doesn't contain a valid kernel"
+msgstr "{filename} no contiene un kernel válido"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
+msgid "Unable to determine a kernel architecture for this guest"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
+#, perl-brace-format
+msgid "Found dependency loop installing {label}: {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
+#, perl-brace-format
+msgid "No {object} given matching {label}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
+msgid "file"
+msgstr "archivo"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
+msgid "alias"
+msgstr "alias"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
+msgid "dependencies"
+msgstr "dependencias"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
+#, perl-brace-format
+msgid "No mapping found for block device {device}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
+#, perl-brace-format
+msgid "Didn't find a grub entry for kernel version {version}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
+#, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#, perl-brace-format
+msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+msgid ""
+"No bootable kernels installed, and no replacement specified in configuration.\n"
+"Unable to continue."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#, perl-brace-format
+msgid "WARNING: No replacement found for {xpath} in domain XML. The node was removed."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#, perl-brace-format
+msgid "The connected hypervisor does not support a machine type of {machine}."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "El hipervisor conectado no soporta la característica {feature}"
+
+#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+msgid "Unable to find a module to configure this guest"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:114
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:152
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:140
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "{name} no es un nombre de invitado válido"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:126
+#, perl-brace-format
+msgid "You must specify a filename when using {modulename}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:172
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "Falló al abrir {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:185
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "Imposible analizar sintácticamente a {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:199
+msgid "--commit and --rollback options are mutually exclusive"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:208
+#: ../v2v/virt-v2v.pl:188
+msgid "no guest argument given"
+msgstr "no se ha dado ningún argumento de invitado"
+
+#: ../snapshot/virt-snapshot.pl:213
+#, perl-brace-format
+msgid "{input} is not a valid input format"
+msgstr "{input} no es un formato de entrada válido"
+
+#: ../snapshot/virt-snapshot.pl:253
+msgid "No domain has been created."
+msgstr "Ningún dominio fue creado."
+
+#: ../snapshot/virt-snapshot.pl:265
+#, perl-brace-format
+msgid "Unable to open {file}: {error}"
+msgstr "Imposible abrir {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:275
+#: ../snapshot/virt-snapshot.pl:311
+#, perl-brace-format
+msgid "Error closing {file}: {error}"
+msgstr "Error al cerrar {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:279
+#: ../snapshot/virt-snapshot.pl:307
+#, perl-brace-format
+msgid "Wrote output to {file}"
+msgstr "Se escribió la salida en {file}"
+
+#: ../snapshot/virt-snapshot.pl:297
+#, perl-brace-format
+msgid "Unable to create guest: {error}"
+msgstr "Imposible crear el invitado: {error}"
+
+#: ../snapshot/virt-snapshot.pl:299
+msgid "Consider using the --outputxml option"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:347
+#, perl-brace-format
+msgid "Unable to create virt-snapshot storage pool: {error}"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:365
+#, perl-brace-format
+msgid "Unable to start virt-snapshot storage pool: {error}"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:375
+msgid "virt-snapshot storage pool is temporarily unavailable"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:427
+#, perl-brace-format
+msgid "Unable to find {path} in the virt-snapshot storage pool."
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:431
+#, perl-brace-format
+msgid "Try moving it to {path} and retrying"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:434
+#, perl-brace-format
+msgid "Try deleting the virt-snapshot storage pool and moving it to {path}."
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:455
+#, perl-brace-format
+msgid "Skipping device {target} as it doesn't have a backing store"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:512
+#, perl-brace-format
+msgid ""
+"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+"Command output was:\n"
+"{output}"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:545
+#, perl-brace-format
+msgid "A snapshot already exists for {guest}. You must commit it or roll it back back before creating a new snapshot."
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:554
+#, perl-brace-format
+msgid "Unable to write to {path}: {error}"
+msgstr "Imposible escribir en {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:560
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "Error al cerrar {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:592
+#, perl-brace-format
+msgid "Unable to create storage volume: {error}"
+msgstr "Imposible crear el volumen de almacenamiento: {error}"
+
+#: ../snapshot/virt-snapshot.pl:625
+#, perl-brace-format
+msgid "Refusing to rollback guest {name} without backed-up xml"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:636
+#, perl-brace-format
+msgid "Failed to delete {file}: {error}"
+msgstr "Falló al borrar {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:647
+#, perl-brace-format
+msgid "Unable to delete backup xml file {file}: {error}"
+msgstr ""
+
+#: ../snapshot/virt-snapshot.pl:709
+#, perl-brace-format
+msgid "invalid source element: {element}"
+msgstr "elemento fuente inválido: {element}"
+
+#: ../v2v/virt-v2v.pl:197
+#, perl-brace-format
+msgid "Unable to parse {file}: {error}"
+msgstr "No se pudo analizar sintácticamente a {file}: {error}"
+
+#: ../v2v/virt-v2v.pl:207
+#, perl-brace-format
+msgid "{input} is not a valid metadata format"
+msgstr "{input} no tiene un formato de metadatos válido"
+
+#: ../v2v/virt-v2v.pl:304
+msgid "no root device found in this operating system image"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:310
+msgid "multiboot operating systems are not supported by virt-v2v"
+msgstr ""
+
