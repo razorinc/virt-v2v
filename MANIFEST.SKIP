@@ -4,6 +4,9 @@
 ^blib/
 ^virt-v2v-(\d+(\.\d+)*)(\.tar\.gz$|/)
 
+# Built translations
+^po/.*\.mo$
+
 # Backup files
 ~$
 \.bak$
