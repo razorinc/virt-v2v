@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2009-09-30 13:58+0100\n"
+"POT-Creation-Date: 2009-09-30 17:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,27 +245,17 @@ msgstr ""
 msgid "v2v-snapshot storage pool is temporarily unavailable"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:427
+#: ../snapshot/v2v-snapshot.pl:403
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:431
-#, perl-brace-format
-msgid "Try moving it to {path} and retrying"
-msgstr ""
-
-#: ../snapshot/v2v-snapshot.pl:434
-#, perl-brace-format
-msgid "Try deleting the v2v-snapshot storage pool and moving it to {path}."
-msgstr ""
-
-#: ../snapshot/v2v-snapshot.pl:455
+#: ../snapshot/v2v-snapshot.pl:458
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:512
+#: ../snapshot/v2v-snapshot.pl:515
 #, perl-brace-format
 msgid ""
 "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
@@ -273,44 +263,49 @@ msgid ""
 "{output}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:545
+#: ../snapshot/v2v-snapshot.pl:548
 #, perl-brace-format
 msgid ""
 "A snapshot already exists for {guest}. You must commit it or roll it back "
 "back before creating a new snapshot."
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:554
+#: ../snapshot/v2v-snapshot.pl:557
 #, perl-brace-format
 msgid "Unable to write to {path}: {error}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:560
+#: ../snapshot/v2v-snapshot.pl:563
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:592
+#: ../snapshot/v2v-snapshot.pl:595
 #, perl-brace-format
 msgid "Unable to create storage volume: {error}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:625
+#: ../snapshot/v2v-snapshot.pl:628
 #, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:636
+#: ../snapshot/v2v-snapshot.pl:655
+#, perl-brace-format
+msgid "{path} is not a snapshot volume"
+msgstr ""
+
+#: ../snapshot/v2v-snapshot.pl:661
 #, perl-brace-format
 msgid "Failed to delete {file}: {error}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:647
+#: ../snapshot/v2v-snapshot.pl:673
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:709
+#: ../snapshot/v2v-snapshot.pl:735
 #, perl-brace-format
 msgid "invalid source element: {element}"
 msgstr ""
