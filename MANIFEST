@@ -23,7 +23,7 @@ po/POTFILES.in
 po/virt-v2v.pot
 README-NLS
 snapshot/run-snapshot-locally
-snapshot/virt-snapshot.pl
+snapshot/v2v-snapshot.pl
 t/001-pod.t
 t/002-pod-coverage.t
 t/003-syntax.t

@@ -226,7 +226,7 @@ Please see the file COPYING.LIB for the full license.
 
 L<Sys::VirtV2V::MetadataReader(3)>,
 L<virt-v2v(1)>,
-L<virt-snapshot(1)>,
+L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =cut

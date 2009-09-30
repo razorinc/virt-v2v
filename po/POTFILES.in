@@ -7,5 +7,5 @@
 ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm
 ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm
 ../lib/Sys/VirtV2V/MetadataReader.pm
-../snapshot/virt-snapshot.pl
+../snapshot/v2v-snapshot.pl
 ../v2v/virt-v2v.pl

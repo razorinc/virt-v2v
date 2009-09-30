@@ -219,7 +219,7 @@ my $build = $class->new (
     dist_version_from => 'lib/Sys/VirtV2V.pm',
     confdoc_files => [ 'v2v/virt-v2v.conf.pod' ],
     install_path => { 'locale' => '/usr/local/share/locale' },
-    script_files => [ 'snapshot/virt-snapshot.pl', 'v2v/virt-v2v.pl' ],
+    script_files => [ 'snapshot/v2v-snapshot.pl', 'v2v/virt-v2v.pl' ],
     meta_add => {
         resources => {
           license => "http://www.gnu.org/licenses/gpl.html",

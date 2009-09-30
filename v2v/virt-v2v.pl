@@ -352,7 +352,7 @@ Virt-v2v converts guests 'in-place': it will make changes to a guest directly
 without creating a backup. It is recommended that virt-v2v be run against a
 copy.
 
-The L<virt-snapshot(1)> tool can be used to convert a guest to use a snapshot
+The L<v2v-snapshot(1)> tool can be used to convert a guest to use a snapshot
 for storage prior to running virt-v2v against it. This snapshot can then be
 committed to the original storage after the conversion is confirmed as
 successful.
@@ -400,7 +400,7 @@ To text boot the new guest in KVM, run:
  virsh start <domain>
  virt-viewer <domain>
 
-If you have created a guest snapshot using L<virt-snapshot(1)>, it can be
+If you have created a guest snapshot using L<v2v-snapshot(1)>, it can be
 committed or rolled back at this stage.
 
 =head1 GUEST CONFIGURATION CHANGES
@@ -466,7 +466,7 @@ Additionally, initrd will preload the virtio_pci driver.
 
 =head1 SEE ALSO
 
-L<virt-snapshot(1)>
+L<v2v-snapshot(1)>
 L<http://libguestfs.org/>.
 
 For Windows registry parsing we require the C<reged> program

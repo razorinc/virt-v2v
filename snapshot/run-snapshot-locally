@@ -1,5 +1,5 @@
 #!/bin/sh
-# virt-snapshot
+# v2v-snapshot
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,11 +16,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# This script sets up the environment so you can run virt-snapshot in place
+# This script sets up the environment so you can run v2v-snapshot in place
 # without needing to do 'make install' first.
 #
 # Use it like this:
-#   ./run-snapshot-locally [usual virt-snapshot args ...]
+#   ./run-snapshot-locally [usual v2v-snapshot args ...]
 #
 # It requires the environment variable VIRTV2V_ROOT to be set. If using
 # libguestfs from source, LIBGUESTFS_ROOT must also be set.
@@ -40,4 +40,4 @@ fi
 
 export PERL5LIB LD_LIBRARY_PATH LIBGUESTFS_PATH
 
-exec perl "$VIRTV2V_ROOT/snapshot/virt-snapshot.pl" "$@"
+exec perl "$VIRTV2V_ROOT/snapshot/v2v-snapshot.pl" "$@"

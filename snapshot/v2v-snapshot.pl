@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# virt-snapshot
+# v2v-snapshot
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -36,25 +36,25 @@ use Sys::VirtV2V::UserMessage qw(user_message);
 
 =head1 NAME
 
-virt-snapshot - Convert a guest to use a qcow2 snapshot for storage
+v2v-snapshot - Convert a guest to use a qcow2 snapshot for storage
 
 =head1 SYNOPSIS
 
- virt-snapshot guest-domain
+ v2v-snapshot guest-domain
 
- virt-snapshot --rollback guest-domain
+ v2v-snapshot --rollback guest-domain
 
- virt-snapshot --commit guest-domain
+ v2v-snapshot --commit guest-domain
 
 =head1 DESCRIPTION
 
-Virt-snapshot is a tool for creating a local snapshot of a guest's storage. It
+v2v-snapshot is a tool for creating a local snapshot of a guest's storage. It
 is suitable for use when making a change to a guest which might have to be
-rolled back. It is not intended as a long-term storage option. Virt-snapshot
+rolled back. It is not intended as a long-term storage option. v2v-snapshot
 creates a qcow2 snapshot for all a guest's block devices and updates the guest's
 libvirt domain to use them.
 
-When a change has been tested, virt-snapshot can either commit the change, which
+When a change has been tested, v2v-snapshot can either commit the change, which
 will update the original storage with the changes made to the snapshot, or
 rollback the change, which will remove the snapshot. In either case, the guest
 will be updated again to use its original storage.
@@ -181,7 +181,7 @@ Remove the snapshot and restore the guest to its previous, unmodified storage.
 =cut
 
 # Initialise the message output prefix
-Sys::VirtV2V::UserMessage->set_identifier('virt-snapshot');
+Sys::VirtV2V::UserMessage->set_identifier('v2v-snapshot');
 
 GetOptions ("help|?"          => \$help,
             "version"         => \$version,
@@ -323,10 +323,10 @@ sub _get_pool
 {
     my ($vmm) = @_;
 
-    # Look for the virt-snapshot storage pool
+    # Look for the v2v-snapshot storage pool
     my $pool;
     eval {
-        $pool = $vmm->get_storage_pool_by_name('virt-snapshot');
+        $pool = $vmm->get_storage_pool_by_name('v2v-snapshot');
     };
 
     # If it wasn't there, try creating it
@@ -334,7 +334,7 @@ sub _get_pool
         eval {
             $pool = $vmm->create_storage_pool("
                 <pool type='dir'>
-                    <name>virt-snapshot</name>
+                    <name>v2v-snapshot</name>
                     <target>
                         <path>$snapshotdir</path>
                     </target>
@@ -344,7 +344,7 @@ sub _get_pool
 
         # If that didn't work, give up
         if($@) {
-            print STDERR user_message(__x("Unable to create virt-snapshot ".
+            print STDERR user_message(__x("Unable to create v2v-snapshot ".
                                           "storage pool: {error}",
                                           error => $@->stringify()))
                 unless(defined($pool));
@@ -362,7 +362,7 @@ sub _get_pool
         };
 
         if($@) {
-            print STDERR user_message(__x("Unable to start virt-snapshot ".
+            print STDERR user_message(__x("Unable to start v2v-snapshot ".
                                           "storage pool: {error}",
                                           error => $@->stringify()))
                 unless(defined($pool));
@@ -372,7 +372,7 @@ sub _get_pool
 
     # If it's building, there's nothing to do but wait
     elsif($pool_info->{state} == Sys::Virt::StoragePool::STATE_BUILDING) {
-        print STDERR user_message(__"virt-snapshot storage pool is ".
+        print STDERR user_message(__"v2v-snapshot storage pool is ".
                                     "temporarily unavailable");
         exit(1);
     }
@@ -424,14 +424,14 @@ sub _commit_guest
                     my ($pool_path) =
                         $pool_dom->findnodes('/pool/target/path/text()');
 
-                    my $msg = __x("Unable to find {path} in the virt-snapshot ".
+                    my $msg = __x("Unable to find {path} in the v2v-snapshot ".
                                  "storage pool.", path => $path)."\n";
 
                     if($pool_path) {
                         $msg .= __x("Try moving it to {path} and retrying",
                                    path => $pool_path->toString());
                     } else {
-                        $msg .= __x("Try deleting the virt-snapshot storage ".
+                        $msg .= __x("Try deleting the v2v-snapshot storage ".
                                    "pool and moving it to {path}.",
                                    path => $snapshotdir);
                     }
@@ -566,7 +566,7 @@ sub _snapshot_guest
     return _foreach_disk($dom, sub {
         my ($disk, $source, $target, $path) = @_;
 
-        # Create a new qcow2 volume in the virt-snapshot storage pool
+        # Create a new qcow2 volume in the v2v-snapshot storage pool
         my $target_name = $target->getNodeValue();
         my $vol_name = "$name-$target_name-$time.qcow2";
         my $vol_xml = "

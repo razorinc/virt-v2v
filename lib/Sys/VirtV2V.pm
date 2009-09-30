@@ -30,7 +30,8 @@ Sys::VirtV2V - Convert a virtual guest to use KVM
 
 =head1 DESCRIPTION
 
-Modules under Sys::VirtV2V are used by the L<virt-v2v(1)> and L<virt-snapshot(1)> tools. See those tools for a more detailed description.
+Modules under Sys::VirtV2V are used by the L<virt-v2v(1)> and L<v2v-snapshot(1)>
+tools. See the documentation for those tools for a more detailed description.
 
 The Sys::VirtV2V module provides package information for virt-v2v.
 
@@ -59,7 +60,7 @@ Please see the file COPYING.LIB for the full license.
 =head1 SEE ALSO
 
 L<virt-v2v(1)>,
-L<virt-snapshot(1)>,
+L<v2v-snapshot(1)>,
 L<Sys::VirtV2V::GuestOS(3pm)>,
 L<Sys::VirtV2V::HVSource(3pm)>,
 L<Sys::VirtV2V::HVTarget(3pm)>,
