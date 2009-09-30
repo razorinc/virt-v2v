@@ -1,0 +1,352 @@
+# translation of pl.po to Polish
+# Piotr Drąg <piotrdrag@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pl\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"POT-Creation-Date: 2009-09-15 10:37+0100\n"
+"PO-Revision-Date: 2009-09-22 14:51+0200\n"
+"Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
+"Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:152
+#, perl-brace-format
+msgid "WARNING: unable to access {path}."
+msgstr "OSTRZEŻENIE: nie można uzyskać dostępu do {path}."
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:173
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"Utworzenie pliku ISO przesyłania nie powiodło się. Wyjście polecenia:\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
+msgid "/etc/selinux/config does not exist"
+msgstr "/etc/selinux/config nie istnieje"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
+msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+msgstr "Nie odnaleziono SELINUXTYPE w /etc/syslinux/config"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
+#, perl-brace-format
+msgid "Unable to find an SELinux policy file matching {path}: {error}"
+msgstr ""
+"Nie można odnaleźć pliku polityki SELinuksa pasującego do {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
+msgid "Unable to load an SELinux policy"
+msgstr "Nie można wczytać polityki SELinuksa"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
+#, perl-brace-format
+msgid "WARNING: unable to configure SELinux: {error})"
+msgstr "OSTRZEŻENIE: nie można skonfigurować SELinuksa: {error})"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
+msgid "Unable to find any valid modprobe configuration"
+msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
+msgid "Unable to find a default kernel"
+msgstr "Nie można odnaleźć domyślnego jądra"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
+#, perl-brace-format
+msgid "{filename} doesn't contain a valid kernel"
+msgstr "{filename} nie zawiera prawidłowego jądra"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
+msgid "Unable to determine a kernel architecture for this guest"
+msgstr "Nie można określić architektury jądra dla tego gościa"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
+#, perl-brace-format
+msgid "Found dependency loop installing {label}: {path}"
+msgstr "Odnaleziono pętlę zależności podczas instalowania {label}: {path}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
+#, perl-brace-format
+msgid "No {object} given matching {label}"
+msgstr "Żaden podany {object} nie pasuje do {label}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
+msgid "file"
+msgstr "plik"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
+msgid "alias"
+msgstr "alias"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
+msgid "dependencies"
+msgstr "zależności"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
+#, perl-brace-format
+msgid "No mapping found for block device {device}"
+msgstr "Nie znaleziono mapowania dla urządzenia blokowego {device}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
+#, perl-brace-format
+msgid "Didn't find a grub entry for kernel version {version}"
+msgstr "Nie odnaleziono wpisu programu GRUB dla wersji jądra {version}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
+#, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+msgstr ""
+"OSTRZEŻENIE: wersja jądra {version} nie posiada wpisu initrd w programie GRUB"
+
+#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "Nie można otworzyć /etc/rc.local: {error}"
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "{name} jest skonfigurowane ze sterownikami virtio"
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} jest skonfigurowane bez sterowników virtio"
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr ""
+"OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
+"{modulename}"
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
+"Unable to continue."
+msgstr ""
+"Nie zainstalowano startowych jąder i nie podano żadnych zamienników w "
+"konfiguracji.\n"
+"Nie można kontynuować."
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#, perl-brace-format
+msgid ""
+"WARNING: No replacement found for {xpath} in domain XML. The node was "
+"removed."
+msgstr ""
+"OSTRZEŻENIE: nie odnaleziono zamiennika dla {xpath} w domenie XML. Węzeł "
+"został usunięty."
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}"
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#, perl-brace-format
+msgid "The connected hypervisor does not support a machine type of {machine}."
+msgstr "Połączony nadzorca nie obsługuje typu komputera {machine}."
+
+#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "Połączony nadzorca nie obsługuje funkcji {feature}"
+
+#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+msgid "Unable to find a module to configure this guest"
+msgstr "Nie można odnaleźć modułu do skonfigurowania tego gościa"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:114
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:152
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:140
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "{name} nie jest prawidłową nazwą gościa"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr ""
+"OSTRZEŻENIE: nieznana dyrektywa konfiguracji {directive} w sekcji {name}."
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:126
+#, perl-brace-format
+msgid "You must specify a filename when using {modulename}"
+msgstr "Należy podać nazwę pliku podczas używania {modulename}"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:172
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "Otwarcie {path} nie powiodło się: {error}"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:185
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "Nie można przetworzyć {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:199
+msgid "--commit and --rollback options are mutually exclusive"
+msgstr "opcje --commit i --rollback są wzajemnie wyłączne"
+
+#: ../snapshot/virt-snapshot.pl:208 ../v2v/virt-v2v.pl:188
+msgid "no guest argument given"
+msgstr "nie podano parametrów gościa"
+
+#: ../snapshot/virt-snapshot.pl:213
+#, perl-brace-format
+msgid "{input} is not a valid input format"
+msgstr "{input} nie jest prawidłowym formatem wejściowym"
+
+#: ../snapshot/virt-snapshot.pl:253
+msgid "No domain has been created."
+msgstr "Nie utworzono żadnej domeny."
+
+#: ../snapshot/virt-snapshot.pl:265
+#, perl-brace-format
+msgid "Unable to open {file}: {error}"
+msgstr "Nie można otworzyć {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:275 ../snapshot/virt-snapshot.pl:311
+#, perl-brace-format
+msgid "Error closing {file}: {error}"
+msgstr "Błąd podczas zamykania {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:279 ../snapshot/virt-snapshot.pl:307
+#, perl-brace-format
+msgid "Wrote output to {file}"
+msgstr "Zapisano wyjście do {file}"
+
+#: ../snapshot/virt-snapshot.pl:297
+#, perl-brace-format
+msgid "Unable to create guest: {error}"
+msgstr "Nie można utworzyć gościa: {error}"
+
+#: ../snapshot/virt-snapshot.pl:299
+msgid "Consider using the --outputxml option"
+msgstr "Proszę rozważyć użycie opcji --outputxml"
+
+#: ../snapshot/virt-snapshot.pl:347
+#, perl-brace-format
+msgid "Unable to create virt-snapshot storage pool: {error}"
+msgstr "Nie można utworzyć puli pamięci masowej virt-snapshot: {error}"
+
+#: ../snapshot/virt-snapshot.pl:365
+#, perl-brace-format
+msgid "Unable to start virt-snapshot storage pool: {error}"
+msgstr "Nie można uruchomić puli pamięci masowej virt-snapshot: {error}"
+
+#: ../snapshot/virt-snapshot.pl:375
+msgid "virt-snapshot storage pool is temporarily unavailable"
+msgstr "Pula pamięci masowej virt-snapshot jest tymczasowo niedostępna"
+
+#: ../snapshot/virt-snapshot.pl:427
+#, perl-brace-format
+msgid "Unable to find {path} in the virt-snapshot storage pool."
+msgstr "Nie można odnaleźć {path} w puli pamięci masowej virt-snapshot."
+
+#: ../snapshot/virt-snapshot.pl:431
+#, perl-brace-format
+msgid "Try moving it to {path} and retrying"
+msgstr "Proszę spróbować przenieść do {path} i spróbować ponownie"
+
+#: ../snapshot/virt-snapshot.pl:434
+#, perl-brace-format
+msgid "Try deleting the virt-snapshot storage pool and moving it to {path}."
+msgstr ""
+"Proszę spróbować usunąć pulę pamięci masowej virt-snapshot i przenieść ją do "
+"{path}."
+
+#: ../snapshot/virt-snapshot.pl:455
+#, perl-brace-format
+msgid "Skipping device {target} as it doesn't have a backing store"
+msgstr ""
+"Pomijanie urządzenia {target}, ponieważ nie posiada przechowalni zaplecza"
+
+#: ../snapshot/virt-snapshot.pl:512
+#, perl-brace-format
+msgid ""
+"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+"Command output was:\n"
+"{output}"
+msgstr ""
+"Wysłanie migawki \"{path}\" do przechowalni zaplecza \"{backingstore}\" nie "
+"powiodło się.\n"
+"Wyjście polecenie:\n"
+"{output}"
+
+#: ../snapshot/virt-snapshot.pl:545
+#, perl-brace-format
+msgid ""
+"A snapshot already exists for {guest}. You must commit it or roll it back "
+"back before creating a new snapshot."
+msgstr ""
+"Migawka już istnieje dla {guest}. Należy wysłać ją lub przywrócić przed "
+"utworzeniem nowej."
+
+#: ../snapshot/virt-snapshot.pl:554
+#, perl-brace-format
+msgid "Unable to write to {path}: {error}"
+msgstr "Nie można zapisać do {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:560
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "Błąd podczas zamykania {path}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:592
+#, perl-brace-format
+msgid "Unable to create storage volume: {error}"
+msgstr "Nie można utworzyć woluminu pamięci masowej: {error}"
+
+#: ../snapshot/virt-snapshot.pl:625
+#, perl-brace-format
+msgid "Refusing to rollback guest {name} without backed-up xml"
+msgstr "Odmawianie przywrócenia gościa {name} bez zapasowego pliku XML"
+
+#: ../snapshot/virt-snapshot.pl:636
+#, perl-brace-format
+msgid "Failed to delete {file}: {error}"
+msgstr "Usunięcie {file} nie powiodło się: {error}"
+
+#: ../snapshot/virt-snapshot.pl:647
+#, perl-brace-format
+msgid "Unable to delete backup xml file {file}: {error}"
+msgstr "Nie można usunąć zapasowego pliku XML {file}: {error}"
+
+#: ../snapshot/virt-snapshot.pl:709
+#, perl-brace-format
+msgid "invalid source element: {element}"
+msgstr "nieprawidłowy element źródłowy: {element}"
+
+#: ../v2v/virt-v2v.pl:197
+#, perl-brace-format
+msgid "Unable to parse {file}: {error}"
+msgstr "Nie można przetworzyć {file}: {error}"
+
+#: ../v2v/virt-v2v.pl:207
+#, perl-brace-format
+msgid "{input} is not a valid metadata format"
+msgstr "{input} nie jest prawidłowym formatem metadanych"
+
+#: ../v2v/virt-v2v.pl:304
+msgid "no root device found in this operating system image"
+msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
+
+#: ../v2v/virt-v2v.pl:310
+msgid "multiboot operating systems are not supported by virt-v2v"
+msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
