@@ -15,6 +15,7 @@ lib/Sys/VirtV2V/MetadataReader/LibVirt.pm
 lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm
 lib/Sys/VirtV2V/UserMessage.pm
 MANIFEST			This list of files
+MANIFEST.SKIP
 META.yml
 po/Makefile
 po/PACKAGE

@@ -9,9 +9,6 @@
 \.bak$
 (^|/)\.[^/]*\.swp$
 
-# This file
-^MANIFEST\.SKIP$
-
 # git
 ^.git/
 ^.gitignore$
