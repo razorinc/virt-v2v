@@ -17,8 +17,10 @@ lib/Sys/VirtV2V/UserMessage.pm
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
+po/es.po
 po/Makefile
 po/PACKAGE
+po/pl.po
 po/POTFILES.in
 po/virt-v2v.pot
 README-NLS
