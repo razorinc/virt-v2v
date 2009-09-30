@@ -336,7 +336,7 @@ sub _get_pool
                 <pool type='dir'>
                     <name>virt-snapshot</name>
                     <target>
-                        <path>/var/lib/virt-snapshot/images</path>
+                        <path>$snapshotdir</path>
                     </target>
                 </pool>
             ");
@@ -433,7 +433,7 @@ sub _commit_guest
                     } else {
                         $msg .= __x("Try deleting the virt-snapshot storage ".
                                    "pool and moving it to {path}.",
-                                   path => '/var/lib/virt-snapshot');
+                                   path => $snapshotdir);
                     }
 
                     print STDERR user_message($msg);
