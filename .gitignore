@@ -7,12 +7,16 @@
 /blib
 /Build
 /MANIFEST.bak
+
+# Files related to 'Build dist'
 /META.yml
 /virt-v2v*.tar.gz
 /ChangeLog
+
+# Generated to pod2html
 /pod2htm?.tmp
 
+# Man pages
 /v2v/virt-v2v.1
 /v2v/virt-v2v.conf.5
-
 /snapshot/virt-snapshot.1
