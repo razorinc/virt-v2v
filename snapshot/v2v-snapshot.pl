@@ -380,6 +380,39 @@ sub _get_pool
     return $pool;
 }
 
+# Get a storage volume object for a given path
+sub _get_volume
+{
+    my ($path, $pool) = @_;
+
+    my $vol;
+    my $refreshed = 0;
+    do {
+        # XXX: Shouldn't be using an undocumented API
+        # See RHBZ 519647. Replace with lookupByPath when it's available.
+        eval {
+            $vol = Sys::Virt::StorageVol->_new(path => $path,
+                                               connection => $vmm);
+        };
+
+        if($@) {
+            if($refreshed) {
+                my $pool_xml = $pool->get_xml_description();
+                my $pool_dom = new XML::DOM::Parser->parse($pool_xml);
+
+                die(user_message(__x("Unable to find {path} in the ".
+                                     "v2v-snapshot storage pool.",
+                                     path => $path)));
+            } else {
+                $pool->refresh(0);
+                $refreshed = 1;
+            }
+        }
+    } until(defined($vol));
+
+    return $vol;
+}
+
 sub _commit_guest
 {
     my ($dom, $vmm, $pool) = @_;
@@ -407,43 +440,13 @@ sub _commit_guest
         # Find the storage volume, which will include information on the backing
         # store
         my $vol;
-        my $refreshed = 0;
-        do {
-            # XXX: Shouldn't be using an undocumented API
-            # See RHBZ 519647. Replace with lookupByPath when it's available.
-            eval {
-                $vol = Sys::Virt::StorageVol->_new(path => $path,
-                                                   connection => $vmm);
-            };
-
-            if($@) {
-                if($refreshed) {
-                    my $pool_xml = $pool->get_xml_description();
-                    my $pool_dom = new XML::DOM::Parser->parse($pool_xml);
-
-                    my ($pool_path) =
-                        $pool_dom->findnodes('/pool/target/path/text()');
-
-                    my $msg = __x("Unable to find {path} in the v2v-snapshot ".
-                                 "storage pool.", path => $path)."\n";
-
-                    if($pool_path) {
-                        $msg .= __x("Try moving it to {path} and retrying",
-                                   path => $pool_path->toString());
-                    } else {
-                        $msg .= __x("Try deleting the v2v-snapshot storage ".
-                                   "pool and moving it to {path}.",
-                                   path => $snapshotdir);
-                    }
-
-                    print STDERR user_message($msg);
-                    return -1;
-                } else {
-                    $pool->refresh(0);
-                    $refreshed = 1;
-                }
-            }
-        } until(defined($vol));
+        eval {
+            $vol = _get_volume($path, $pool);
+        };
+        if($@) {
+            print STDERR $@;
+            return -1;
+        }
 
         # Get the volume's backing store
         my $vol_xml = $vol->get_xml_description();
@@ -632,11 +635,34 @@ sub _rollback_guest
     _foreach_disk($dom, sub {
         my ($disk, $source, $target, $path) = @_;
 
+        # Find the storage volume, which will include information on the backing
+        # store
+        my $vol;
+        eval {
+            $vol = _get_volume($path, $pool);
+        };
+        if($@) {
+            print STDERR $@;
+            return -1;
+        }
+
+        # Check that the volume has a backing store
+        my $vol_xml = $vol->get_xml_description();
+        my $vol_dom = new XML::DOM::Parser->parse($vol_xml);
+        my ($backing_store) = $vol_dom->findnodes('/volume/backingStore');
+
+        unless(defined($backing_store)) {
+            print STDERR user_message(__x("{path} is not a snapshot volume",
+                                          path => $path));
+            return -1;
+        }
+
         if(-e $path && unlink($path) != 1) {
             print STDERR user_message(__x("Failed to delete {file}: {error}",
                                           file => $path, error => $!));
             return -1;
         }
+
         return 0;
     }) == 0 or return -1;
 
