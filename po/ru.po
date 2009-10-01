@@ -1,25 +1,25 @@
-# SOME DESCRIPTIVE TITLE.
+# translation of ru.po to
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Yulia Poyarkova <yulia.poyarkova@redhat.com>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-09-30 17:33+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2009-10-01 16:24+1000\n"
+"Last-Translator: Yulia Poyarkova <yulia.poyarkova@redhat.com>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
 msgid "WARNING: unable to access {path}."
-msgstr ""
+msgstr "ВНИМАНИЕ: Невозможен доступ к {path}."
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:173
 #, perl-brace-format
@@ -27,104 +27,107 @@ msgid ""
 "Failed to create transfer iso. Command output was:\n"
 "{output}"
 msgstr ""
+"Не удалось создать ISO для передачи. Вывод команды:\n"
+"{output}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
 msgid "/etc/selinux/config does not exist"
-msgstr ""
+msgstr "/etc/selinux/config не существует"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
 msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-msgstr ""
+msgstr "Не найден SELINUXTYPE в /etc/syslinux/config"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
 #, perl-brace-format
 msgid "Unable to find an SELinux policy file matching {path}: {error}"
-msgstr ""
+msgstr "Не удалось найти файл политики SELinux в {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
 msgid "Unable to load an SELinux policy"
-msgstr ""
+msgstr "Не удалось загрузить политику SELinux"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
 #, perl-brace-format
 msgid "WARNING: unable to configure SELinux: {error})"
-msgstr ""
+msgstr "ВНИМАНИЕ: Не удалось настроить SELinux: {error})"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
 msgid "Unable to find any valid modprobe configuration"
-msgstr ""
+msgstr "Не удалось найти корректную конфигурацию modprobe"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
 msgid "Unable to find a default kernel"
-msgstr ""
+msgstr "Не найдено ядро по умолчанию"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
 #, perl-brace-format
 msgid "{filename} doesn't contain a valid kernel"
-msgstr ""
+msgstr "{filename} не содержит корректное ядро"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
 msgid "Unable to determine a kernel architecture for this guest"
-msgstr ""
+msgstr "Не удалось определить архитектуру ядра для данного гостя"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
 #, perl-brace-format
+#, fuzzy
 msgid "Found dependency loop installing {label}: {path}"
-msgstr ""
+msgstr "Найдена зависимость в цикле установки {label}: {path}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
 msgid "No {object} given matching {label}"
-msgstr ""
+msgstr "Нет {object}, соответствующего {label}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
 msgid "file"
-msgstr ""
+msgstr "файл"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
 msgid "alias"
-msgstr ""
+msgstr "псевдоним"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
 msgid "dependencies"
-msgstr ""
+msgstr "зависимости"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
 #, perl-brace-format
 msgid "No mapping found for block device {device}"
-msgstr ""
+msgstr "Не найдено сопоставление для блочного устройства {device}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
-msgstr ""
+msgstr "В grub не найдена запись для версии ядра {version}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
-msgstr ""
+msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для версии ядра {version}"
 
 #: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
-msgstr ""
+msgstr "Не удалось открыть /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
-msgstr ""
+msgstr "{name} настроен с драйверами virtio"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
-msgstr ""
+msgstr "{name} настроен без драйверов virtio"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
 "module."
-msgstr ""
+msgstr "ВНИМАНИЕ: Неизвестно, как обновить {module}, который загружает модуль {modulename}."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
 msgid ""
@@ -132,104 +135,106 @@ msgid ""
 "configuration.\n"
 "Unable to continue."
 msgstr ""
+"Не установлено загрузочное ядро и в настройках не определена замена.\n"
+"Продолжение невозможно."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
 "removed."
-msgstr ""
+msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удален."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr ""
+msgstr "Подключенный гипервизор не поддерживает KVM-гостей {arch}"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
-msgstr ""
+msgstr "Подключенный гипервизор не поддерживает тип машин {machine}."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
-msgstr ""
+msgstr "Подключенный гипервизор не поддерживает возможность {feature}"
 
 #: ../lib/Sys/VirtV2V/HVTarget.pm:96
 msgid "Unable to find a module to configure this guest"
-msgstr ""
+msgstr "Не найден модуль для настройки этого гостя"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:114
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:152
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
-msgstr ""
+msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:140
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
-msgstr ""
+msgstr "Недопустимое имя гостя: {name}"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr ""
+msgstr "ВНИМАНИЕ: Неизвестная директива настройки {directive} в секции {name}."
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:126
 #, perl-brace-format
 msgid "You must specify a filename when using {modulename}"
-msgstr ""
+msgstr "Необходимо указать имя файла при использовании {modulename}"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:172
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
-msgstr ""
+msgstr "Не удалось открыть {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:185
 #, perl-brace-format
 msgid "Unable to parse {path}: {error}"
-msgstr ""
+msgstr "Не удалось разобрать {path}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:199
 msgid "--commit and --rollback options are mutually exclusive"
-msgstr ""
+msgstr "--commit и --rollback являются взаимоисключающими параметрами"
 
 #: ../snapshot/v2v-snapshot.pl:208 ../v2v/virt-v2v.pl:188
 msgid "no guest argument given"
-msgstr ""
+msgstr "Не задан аргумент гостя"
 
 #: ../snapshot/v2v-snapshot.pl:213
 #, perl-brace-format
 msgid "{input} is not a valid input format"
-msgstr ""
+msgstr "Недопустимый входной формат: {input}"
 
 #: ../snapshot/v2v-snapshot.pl:253
 msgid "No domain has been created."
-msgstr ""
+msgstr "Домен не был создан."
 
 #: ../snapshot/v2v-snapshot.pl:265
 #, perl-brace-format
 msgid "Unable to open {file}: {error}"
-msgstr ""
+msgstr "Не удалось открыть {file}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:275 ../snapshot/v2v-snapshot.pl:311
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
-msgstr ""
+msgstr "Ошибка при попытке закрыть {file}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:279 ../snapshot/v2v-snapshot.pl:307
 #, perl-brace-format
 msgid "Wrote output to {file}"
-msgstr ""
+msgstr "Вывод сохранён в {file}"
 
 #: ../snapshot/v2v-snapshot.pl:297
 #, perl-brace-format
 msgid "Unable to create guest: {error}"
-msgstr ""
+msgstr "Не удалось создать гостя: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:299
 msgid "Consider using the --outputxml option"
-msgstr ""
+msgstr "Попробуйте использовать опцию --outputxml"
 
 #: ../snapshot/v2v-snapshot.pl:347
 #, perl-brace-format
@@ -253,7 +258,7 @@ msgstr ""
 #: ../snapshot/v2v-snapshot.pl:458
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr ""
+msgstr "Пропускается устройство {target}, так как оно не имеет резервного хранилища"
 
 #: ../snapshot/v2v-snapshot.pl:515
 #, perl-brace-format
@@ -262,68 +267,72 @@ msgid ""
 "Command output was:\n"
 "{output}"
 msgstr ""
+"Не удалось сохранить снимок '{path}' в резервное хранилище '{backingstore}'.\n"
+"Вывод команды:\n"
+"{output}"
 
 #: ../snapshot/v2v-snapshot.pl:548
 #, perl-brace-format
 msgid ""
 "A snapshot already exists for {guest}. You must commit it or roll it back "
 "back before creating a new snapshot."
-msgstr ""
+msgstr "Снимок системы уже существует для {guest}. Необходимо его сохранить или выполнить откат прежде чем создать новый снимок."
 
 #: ../snapshot/v2v-snapshot.pl:557
 #, perl-brace-format
 msgid "Unable to write to {path}: {error}"
-msgstr ""
+msgstr "Не удалось выполнить запись в {path}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:563
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
-msgstr ""
+msgstr "Ошибка при попытке закрыть {path}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:595
 #, perl-brace-format
 msgid "Unable to create storage volume: {error}"
-msgstr ""
+msgstr "Не удалось создать том хранилища: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:628
 #, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
-msgstr ""
+msgstr "Отказ выполнения отката гостя {name} без резервного XML"
 
 #: ../snapshot/v2v-snapshot.pl:655
 #, perl-brace-format
 msgid "{path} is not a snapshot volume"
-msgstr ""
+msgstr "{path} не является томом снимков"
 
 #: ../snapshot/v2v-snapshot.pl:661
 #, perl-brace-format
 msgid "Failed to delete {file}: {error}"
-msgstr ""
+msgstr "Не удалось удалить {file}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:673
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
-msgstr ""
+msgstr "Не удалось удалить резервный XML-файл {file}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:735
 #, perl-brace-format
 msgid "invalid source element: {element}"
-msgstr ""
+msgstr "Недопустимый исходный элемент: {element}"
 
 #: ../v2v/virt-v2v.pl:197
 #, perl-brace-format
 msgid "Unable to parse {file}: {error}"
-msgstr ""
+msgstr "Не удалось разобрать {file}: {error}"
 
 #: ../v2v/virt-v2v.pl:207
 #, perl-brace-format
 msgid "{input} is not a valid metadata format"
-msgstr ""
+msgstr "Недопустимый формат метаданных: {input}"
 
 #: ../v2v/virt-v2v.pl:304
 msgid "no root device found in this operating system image"
-msgstr ""
+msgstr "Не найдено корневое устройство для этого образа операционной системы"
 
 #: ../v2v/virt-v2v.pl:310
 msgid "multiboot operating systems are not supported by virt-v2v"
-msgstr ""
+msgstr "virt-v2v не поддерживает многозагрузочные операционные системы"
+
