@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-09-30 17:33+0100\n"
-"PO-Revision-Date: 2009-09-22 14:51+0200\n"
+"PO-Revision-Date: 2009-10-01 13:30+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -307,9 +307,9 @@ msgid "Refusing to rollback guest {name} without backed-up xml"
 msgstr "Odmawianie przywrócenia gościa {name} bez zapasowego pliku XML"
 
 #: ../snapshot/v2v-snapshot.pl:655
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{path} is not a snapshot volume"
-msgstr "{input} nie jest prawidłowym formatem wejściowym"
+msgstr "{path} nie jest woluminem migawki"
 
 #: ../snapshot/v2v-snapshot.pl:661
 #, perl-brace-format
@@ -343,11 +343,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:310
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "Try moving it to {path} and retrying"
-#~ msgstr "Proszę spróbować przenieść do {path} i spróbować ponownie"
-
-#~ msgid "Try deleting the v2v-snapshot storage pool and moving it to {path}."
-#~ msgstr ""
-#~ "Proszę spróbować usunąć pulę pamięci masowej v2v-snapshot i przenieść ją "
-#~ "do {path}."
