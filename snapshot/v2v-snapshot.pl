@@ -48,16 +48,19 @@ v2v-snapshot - Convert a guest to use a qcow2 snapshot for storage
 
 =head1 DESCRIPTION
 
-v2v-snapshot is a tool for creating a local snapshot of a guest's storage. It
-is suitable for use when making a change to a guest which might have to be
-rolled back. It is not intended as a long-term storage option. v2v-snapshot
-creates a qcow2 snapshot for all a guest's block devices and updates the guest's
-libvirt domain to use them.
+v2v-snapshot is a tool for creating a local snapshot of a guest's storage. It is
+suitable for use when making a change to a guest which might have to be rolled
+back. v2v-snapshot creates a qcow2 snapshot for all a guest's block devices and
+updates the guest's libvirt domain to use them.
 
 When a change has been tested, v2v-snapshot can either commit the change, which
 will update the original storage with the changes made to the snapshot, or
 rollback the change, which will remove the snapshot. In either case, the guest
 will be updated again to use its original storage.
+
+B<v2v-snapshot can only snapshot a guest which is shutdown. It is not intended
+as a long-term storage option, and is not a general snapshotting tool for
+guests.>
 
 =head1 OPTIONS
 
@@ -756,6 +759,73 @@ sub _get_xml_path
 
     return $xmldir.'/'._get_guest_name($dom).'.xml';
 }
+
+=head1 EXAMPLES
+
+=head2 Snapshot a local guest
+
+=over
+
+This example covers snapshotting a guest which is available through libvirt on
+the local machine. The guest domain's name is I<E<lt>guestE<gt>>.
+
+First ensure the guest is shutdown:
+
+ # virsh destroy <guest>
+
+Snapshot the guest:
+
+ # v2v-snapshot <guest>
+
+Start the guest, make some changes, modify hardware, test changes. To commit
+the changes:
+
+ # v2v-snapshot --commit <guest>
+
+Alternatively, to rollback the changes:
+
+ # v2v-snapshot --rollback <guest>
+
+=back
+
+=head2 Snapshot an imported guest
+
+=over
+
+This example covers snapshotting a guest which has been copied from another
+machine. For this to work you must have the domain XML exported from the origin
+machine:
+
+ (Origin) # virsh dumpxml <guest> > guest.xml
+
+You must also present all of the guest's disk images to the local machine in the
+locations specified in guest.xml. If copying the images, the easiest
+way to achieve this is to copy it to the same path on the local machine as it
+had on the origin machine. If the storage can be remotely mounted, it should be
+presented to the local machine with the same paths as on the origin machine. If
+the location of the storage must change, you must manually edit guest.xml to
+reflect the new paths.
+
+If it is possible to create the domain on the local machine:
+
+ # v2v-snapshot -i libvirtxml guest.xml
+
+This command will create the imported domain locally with snapshot storage.
+
+If it is not possible to create the domain locally, for example because it is a
+Xen domain and the local libvirt cannot manage Xen domains:
+
+ # v2v-snapshot -o snapshot-guest.xml -i libvirtxml guest.xml
+
+This command does not attempt the create the domain locally, which would fail.
+Instead it writes updated domain XML to I<snapshot-guest.xml>. The disks in
+snapshot-guest.xml point to the newly created snapshot volumes.
+
+The latter method of import is intended for use when importing a Xen domain from
+a origin machine for conversion with L<virt-v2v(1)>. virt-v2v should be given
+I<snapshot-guest.xml> as the domain XML.
+
+=back
 
 =head1 SEE ALSO
 
