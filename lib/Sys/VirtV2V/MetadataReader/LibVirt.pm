@@ -36,8 +36,8 @@ Sys::VirtV2V::MetadataReader::LibVirt - Read libvirt metadata from libvirtd
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirt);
- $dom = $reader->get_dom($vmm);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirt", $vmm, @args);
+ $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
 
@@ -60,13 +60,31 @@ sub _new
 {
     my $class = shift;
 
-    my $config = shift; # Unused in this backend
+    my ($config, $vmm, @args) = @_;
 
     my $self = {};
 
     bless($self, $class);
 
+    $self->{vmm} = $vmm;
+    $self->_handle_args(@args);
+
     return $self;
+}
+
+sub _handle_args
+{
+    my $self = shift;
+
+    # The first argument is the name of a libvirt domain
+    $self->{name} = shift;
+
+    # Warn if we were given more than 1 argument
+    if(scalar(@_) > 0) {
+        print STDERR user_message
+            (__x("WARNING: {modulename} only takes a single filename.",
+                 modulename => NAME));
+    }
 }
 
 =item Sys::VirtV2V::MetadataReader::LibVirtXML->get_name()
@@ -95,28 +113,7 @@ sub is_configured
     return 1;
 }
 
-=item handle_arguments(@arguments)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
-
-=cut
-
-sub handle_arguments
-{
-    my $self = shift;
-
-    # The first argument is the name of a libvirt domain
-    $self->{name} = shift;
-
-    # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
-        print STDERR user_message
-            (__x("WARNING: {modulename} only takes a single filename.",
-                 modulename => NAME));
-    }
-}
-
-=item get_dom(vmm)
+=item get_dom()
 
 See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
 
@@ -126,7 +123,7 @@ sub get_dom
 {
     my $self = shift;
 
-    my ($vmm) = shift;
+    my $vmm = $self->{vmm};
 
     # Lookup the domain
     my $domain;

@@ -210,27 +210,26 @@ if ($version) {
 
 pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 
+# Get a libvirt connection
+my @vmm_params = (auth => 1);
+push(@vmm_params, uri => $uri) if(defined($uri));
+my $vmm = Sys::Virt->new(@vmm_params);
+
 # Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, {});
+my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, {}, $vmm, @ARGV);
 if(!defined($mdr)) {
     print STDERR user_message(__x("{input} is not a valid input format",
                                   input => $input));
     exit(1);
 }
 
-$mdr->handle_arguments(@ARGV);
-
 exit(1) unless($mdr->is_configured());
 
 ###############################################################################
 ## Start of processing
 
-my @vmm_params = (auth => 1);
-push(@vmm_params, uri => $uri) if(defined($uri));
-my $vmm = Sys::Virt->new(@vmm_params);
-
 # Get a libvirt configuration for the guest
-my $dom = $mdr->get_dom($vmm);
+my $dom = $mdr->get_dom();
 exit(1) unless(defined($dom));
 
 my $pool = _get_pool($vmm);

@@ -37,8 +37,8 @@ Sys::VirtV2V::MetadataReader::LibVirtXML - Read libvirt XML from a file
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml);
- $dom = $reader->get_dom($vmm);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml", $vmm, @args);
+ $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
 
@@ -61,7 +61,7 @@ sub _new
 {
     my $class = shift;
 
-    my $config = shift;
+    my ($config, $vmm, @args) = @_;
 
     my %obj = ();
     my $self = \%obj;
@@ -95,7 +95,24 @@ sub _new
         }
     }
 
+    $self->_handle_args(@args);
+
     return $self;
+}
+
+sub _handle_args
+{
+    my $self = shift;
+
+    # The first argument is the libvirt xml file's path
+    $self->{path} = shift;
+
+    # Warn if we were given more than 1 argument
+    if(scalar(@_) > 0) {
+        print STDERR user_message
+            (__x("WARNING: {modulename} only takes a single filename.",
+                 modulename => NAME));
+    }
 }
 
 =item Sys::VirtV2V::MetadataReader::LibVirtXML->get_name()
@@ -133,28 +150,7 @@ sub is_configured
     return 1;
 }
 
-=item handle_arguments(@arguments)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
-
-=cut
-
-sub handle_arguments
-{
-    my $self = shift;
-
-    # The first argument is the libvirt xml file's path
-    $self->{path} = shift;
-
-    # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
-        print STDERR user_message
-            (__x("WARNING: {modulename} only takes a single filename.",
-                 modulename => NAME));
-    }
-}
-
-=item get_dom(vmm)
+=item get_dom()
 
 See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
 
@@ -163,7 +159,6 @@ See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
 sub get_dom
 {
     my $self = shift;
-    my ($vmm) = shift; # Unused in this backend
 
     # Open the input file
     my $xml; # Implicitly closed on function exit

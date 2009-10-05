@@ -36,7 +36,7 @@ Sys::VirtV2V::MetadataReader - Read a variety of guest metadata formats
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml", $vmm, @args);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
@@ -53,7 +53,27 @@ implements methods to access backends.
 
 =over
 
-=item instantiate(name)
+=item instantiate(name, vmm, @args)
+
+=over
+
+=item name
+
+The name of the module to instantiate.
+
+=item config
+
+A parsed virt-v2v configuration file.
+
+=item vmm
+
+A Sys::Virt connection.
+
+=item args
+
+Backend-specific arguments describing where its data is located.
+
+=back
 
 Instantiate a backend instance with the given name.
 
@@ -63,17 +83,16 @@ sub instantiate
 {
     my $class = shift;
 
-    # Get the name of the module we're going to instantiate
-    my $name = shift;
+    my ($name, $config, $vmm, @args) = @_;
+
     defined($name) or carp("instantiate called without name argument");
-
-    # Get virt-v2v configuration
-    my $config = shift;
     defined($config) or carp("instantiate called without config argument");
+    defined($vmm) or carp("instantiate called without vmm argument");
 
-    my $instance;
     foreach my $module ($class->modules()) {
-        return $module->_new($config->{$name}) if($module->get_name() eq $name);
+        if($module->get_name() eq $name) {
+            return $module->_new($config->{$name}, $vmm, @args);
+        }
     }
 
     return undef;
@@ -94,19 +113,7 @@ Return the module's name.
 Return 1 if the module has been suffiently configured to proceed.
 Return 0 and display an error message otherwise.
 
-=item handle_arguments(@arguments)
-
-A backend may take any number of arguments describing where its data is located.
-
-=item get_dom(vmm)
-
-=over
-
-=item vmm
-
-A Sys::Virt connection.
-
-=back
+=item get_dom()
 
 Returns an XML::DOM::Document describing a libvirt configuration equivalent to
 the input.

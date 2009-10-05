@@ -187,6 +187,11 @@ if ($version) {
 
 pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 
+# Connect to libvirt
+my @vmm_params = (auth => 1);
+push(@vmm_params, uri => $uri) if(defined($uri));
+my $vmm = Sys::Virt->new(@vmm_params);
+
 # Read the config file if one was given
 my $config = {};
 if(defined($config_file)) {
@@ -202,14 +207,13 @@ if(defined($config_file)) {
 }
 
 # Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, $config);
+my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, $config,
+                                                    $vmm, @ARGV);
 if(!defined($mdr)) {
     print STDERR user_message __x("{input} is not a valid metadata format",
                                   input => $input);
     exit(1);
 }
-
-$mdr->handle_arguments(@ARGV);
 
 # Check MetadataReader is properly initialised
 exit 1 unless($mdr->is_configured());
@@ -217,17 +221,12 @@ exit 1 unless($mdr->is_configured());
 # Configure GuestOS ([files] and [deps] sections)
 Sys::VirtV2V::GuestOS->configure($config);
 
-# Connect to libvirt
-my @vmm_params = (auth => 1);
-push(@vmm_params, uri => $uri) if(defined($uri));
-my $vmm = Sys::Virt->new(@vmm_params);
-
 ###############################################################################
 ## Start of processing
 
 # Get a libvirt configuration for the guest
-my $dom = $mdr->get_dom($vmm);
-exit(1) if(!defined($dom));
+my $dom = $mdr->get_dom();
+exit(1) unless(defined($dom));
 
 # Get a list of the guest's storage devices
 my @devices = get_guest_devices($dom);
