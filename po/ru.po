@@ -1,16 +1,18 @@
+# translation of ru.po to Russian
 # translation of ru.po to
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
 #
+# Valentin Kazimirov <v.kazimirov@mail.ru>, 2009.
 # Yulia Poyarkova <yulia.poyarkova@redhat.com>, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-09-30 17:33+0100\n"
-"PO-Revision-Date: 2009-10-01 16:24+1000\n"
-"Last-Translator: Yulia Poyarkova <yulia.poyarkova@redhat.com>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2009-10-05 17:05+1100\n"
+"Last-Translator: Valentin Kazimirov <v.kazimirov@mail.ru>\n"
+"Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -71,9 +73,8 @@ msgstr "Не удалось определить архитектуру ядра
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
 #, perl-brace-format
-#, fuzzy
 msgid "Found dependency loop installing {label}: {path}"
-msgstr "Найдена зависимость в цикле установки {label}: {path}"
+msgstr "Найдена зацикленная зависимость при установки {label}: {path}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
@@ -124,15 +125,12 @@ msgstr "{name} настроен без драйверов virtio"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
 #, perl-brace-format
-msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
-"module."
+msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
 msgstr "ВНИМАНИЕ: Неизвестно, как обновить {module}, который загружает модуль {modulename}."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
 msgid ""
-"No bootable kernels installed, and no replacement specified in "
-"configuration.\n"
+"No bootable kernels installed, and no replacement specified in configuration.\n"
 "Unable to continue."
 msgstr ""
 "Не установлено загрузочное ядро и в настройках не определена замена.\n"
@@ -140,10 +138,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
 #, perl-brace-format
-msgid ""
-"WARNING: No replacement found for {xpath} in domain XML. The node was "
-"removed."
-msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удален."
+msgid "WARNING: No replacement found for {xpath} in domain XML. The node was removed."
+msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удалён."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
 #, perl-brace-format
@@ -199,7 +195,8 @@ msgstr "Не удалось разобрать {path}: {error}"
 msgid "--commit and --rollback options are mutually exclusive"
 msgstr "--commit и --rollback являются взаимоисключающими параметрами"
 
-#: ../snapshot/v2v-snapshot.pl:208 ../v2v/virt-v2v.pl:188
+#: ../snapshot/v2v-snapshot.pl:208
+#: ../v2v/virt-v2v.pl:188
 msgid "no guest argument given"
 msgstr "Не задан аргумент гостя"
 
@@ -217,12 +214,14 @@ msgstr "Домен не был создан."
 msgid "Unable to open {file}: {error}"
 msgstr "Не удалось открыть {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:275 ../snapshot/v2v-snapshot.pl:311
+#: ../snapshot/v2v-snapshot.pl:275
+#: ../snapshot/v2v-snapshot.pl:311
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
 msgstr "Ошибка при попытке закрыть {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:279 ../snapshot/v2v-snapshot.pl:307
+#: ../snapshot/v2v-snapshot.pl:279
+#: ../snapshot/v2v-snapshot.pl:307
 #, perl-brace-format
 msgid "Wrote output to {file}"
 msgstr "Вывод сохранён в {file}"
@@ -239,21 +238,21 @@ msgstr "Попробуйте использовать опцию --outputxml"
 #: ../snapshot/v2v-snapshot.pl:347
 #, perl-brace-format
 msgid "Unable to create v2v-snapshot storage pool: {error}"
-msgstr ""
+msgstr "Не удалось создать пул хранилища v2v-snapshot: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:365
 #, perl-brace-format
 msgid "Unable to start v2v-snapshot storage pool: {error}"
-msgstr ""
+msgstr "Не удалось запустить пул хранилища v2v-snapshot: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:375
 msgid "v2v-snapshot storage pool is temporarily unavailable"
-msgstr ""
+msgstr "Пул хранилища v2v-snapshot временно недоступен"
 
 #: ../snapshot/v2v-snapshot.pl:403
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
-msgstr ""
+msgstr "Невозможной найти в {path} пул хранилища v2v-snapshot."
 
 #: ../snapshot/v2v-snapshot.pl:458
 #, perl-brace-format
@@ -273,9 +272,7 @@ msgstr ""
 
 #: ../snapshot/v2v-snapshot.pl:548
 #, perl-brace-format
-msgid ""
-"A snapshot already exists for {guest}. You must commit it or roll it back "
-"back before creating a new snapshot."
+msgid "A snapshot already exists for {guest}. You must commit it or roll it back back before creating a new snapshot."
 msgstr "Снимок системы уже существует для {guest}. Необходимо его сохранить или выполнить откат прежде чем создать новый снимок."
 
 #: ../snapshot/v2v-snapshot.pl:557
