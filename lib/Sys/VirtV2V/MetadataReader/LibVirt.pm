@@ -110,7 +110,42 @@ sub is_configured
 {
     my $self = shift;
 
+    my $vmm = $self->{vmm};
+    my $name = $self->{name};
+
+    # Check the given domain exists
+    my $domain = _get_domain($vmm, $name);
+
+    # Don't continue if it isn't
+    return 0 unless(defined($domain));
+
+    # Check the domain is shutdown
+    unless($domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTDOWN) {
+        print STDERR user_message
+            (__x("Guest {name} must be shutdown first", name => $name));
+        return 0;
+    }
+
     return 1;
+}
+
+sub _get_domain
+{
+    my ($vmm, $name) = @_;
+
+    # Lookup the domain
+    my $domain;
+    eval {
+        $domain = $vmm->get_domain_by_name($name);
+    };
+
+    # Warn and exit if we didn't find it
+    unless($domain) {
+        print STDERR user_message
+            (__x("{name} isn't a valid guest name", name => $name));
+    }
+
+    return $domain;
 }
 
 =item get_dom()
@@ -124,19 +159,13 @@ sub get_dom
     my $self = shift;
 
     my $vmm = $self->{vmm};
+    my $name = $self->{name};
 
     # Lookup the domain
-    my $domain;
-    eval {
-        $domain = $vmm->get_domain_by_name($self->{name});
-    };
+    my $domain = _get_domain($vmm, $name);
 
     # Warn and exit if we didn't find it
-    unless($domain) {
-        print STDERR user_message
-            (__x("{name} isn't a valid guest name", name => $self->{name}));
-        return undef;
-    }
+    return undef unless(defined($domain));
 
     my $xml = $domain->get_xml_description();
     return new XML::DOM::Parser->parse($xml);
