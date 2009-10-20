@@ -1,3 +1,4 @@
+# translation of virt-v2v.master.es(2).po to Spanish
 # Fedora Spanish Translation of virt-v2v.
 # This file is distributed under the same license as the virt-v2v package.
 #
@@ -5,21 +6,22 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: virt-v2v\n"
+"Project-Id-Version: virt-v2v.master.es(2)\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-09-30 17:33+0100\n"
-"PO-Revision-Date: \n"
-"Last-Translator: Héctor Daniel Cabrera <h.daniel.cabrera@gmail.com>\n"
-"Language-Team: Fedora Spanish <fedora-trans-es@redhat.com>\n"
+"PO-Revision-Date: 2009-10-20 12:04+1000\n"
+"Last-Translator:  <gguerrer@redhat.com>\n"
+"Language-Team: Spanish <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Spanish\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
 msgid "WARNING: unable to access {path}."
-msgstr "ADVERTENCIA: no se pudo accerder a {path}."
+msgstr "ADVERTENCIA: no se pudo acceder a {path}."
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:173
 #, perl-brace-format
@@ -27,7 +29,7 @@ msgid ""
 "Failed to create transfer iso. Command output was:\n"
 "{output}"
 msgstr ""
-"Falló al crear iso de transferencia. El comando de salida fue:\n"
+"Falló al crear ISO de transferencia. El comando de salida fue:\n"
 "{output}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
@@ -36,12 +38,14 @@ msgstr "no existe el archivo /etc/selinux/config"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
 msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-msgstr "No se pudo encoentrar SELINUXTYPE en /etc/syslinux/config"
+msgstr "No se pudo encontrar SELINUXTYPE en /etc/syslinux/config"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
 #, perl-brace-format
 msgid "Unable to find an SELinux policy file matching {path}: {error}"
-msgstr "No se pudo encontrar un archivo de políticas SELinux que concuerde con {path}: {error}"
+msgstr ""
+"No se pudo encontrar un archivo de políticas SELinux que concuerde con "
+"{path}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
 msgid "Unable to load an SELinux policy"
@@ -50,7 +54,7 @@ msgstr "Imposible cargar una política de SELinux"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
 #, perl-brace-format
 msgid "WARNING: unable to configure SELinux: {error})"
-msgstr "AVISO: no es posible configurar SELinux: {error}"
+msgstr "ADVERTENCIA: no es posible configurar SELinux: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
 msgid "Unable to find any valid modprobe configuration"
@@ -70,9 +74,11 @@ msgid "Unable to determine a kernel architecture for this guest"
 msgstr "No es posible determinar una arquitectura de kernel para este huésped"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Found dependency loop installing {label}: {path}"
-msgstr "Se ha encontrado un error de dependencias circulares mientras se instalaba  {label}: {path} "
+msgstr ""
+"Se ha encontrado dependencia circular durante la instalación "
+"{label}: {path} "
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
@@ -94,22 +100,26 @@ msgstr "dependencias"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
 #, perl-brace-format
 msgid "No mapping found for block device {device}"
-msgstr "No se ha encoentrado un mapeo para el dispositivo de bloque {device}"
+msgstr "No se ha encontrado una asignación para el dispositivo de bloque {device}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
-msgstr "No se ha encontrado una entrada en el grub para la versión del kernel {version}"
+msgstr ""
+"No se ha encontrado una entrada en el GRUB para la versión del kernel "
+"{version}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
-msgstr "AVISO: La versión del kernel {version} no posee una entrada de initrd en el grub"
+msgstr ""
+"ADVERTENCIA: La versión del kernel {version} no posee una entrada de initrd en el "
+"GRUB"
 
 #: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
-msgstr "No es posible abrir  /etc/rc.local: {error}"
+msgstr "No es posible abrir /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
 #, perl-brace-format
@@ -123,26 +133,36 @@ msgstr "{name} configurado sin controladores virtio"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
 #, perl-brace-format
-msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
-msgstr "AVISO: No se sabe cómo actualizar {module}, encargado de cargar el módulo {modulename}. "
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr ""
+"ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el módulo "
+"{modulename}. "
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
 msgid ""
-"No bootable kernels installed, and no replacement specified in configuration.\n"
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
 "Unable to continue."
 msgstr ""
-"No se han instalado kernels inicializables, y no se ha especificado ningún reemplazo en la configuración.\n"
+"No se han instalado kernels de inicio, y no se ha especificado ningún "
+"remplazo en la configuración.\n"
 "No es posible continuar."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
 #, perl-brace-format
-msgid "WARNING: No replacement found for {xpath} in domain XML. The node was removed."
-msgstr "AVISO: No se ha encontrado un reemplazo para {xpath} en el dominio XML. El nodo ha sido eliminado."
+msgid ""
+"WARNING: No replacement found for {xpath} in domain XML. The node was "
+"removed."
+msgstr ""
+"ADVERTENCIA: No se ha encontrado un reemplazo para {xpath} en el dominio XML. El "
+"nodo ha sido eliminado."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr "El hipervisor conectado no tiene soporte para un huesped kvm {arch}"
+msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
 #, perl-brace-format
@@ -162,17 +182,19 @@ msgstr "No es posible encontrar un módulo con el que poder configurar este hué
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:152
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
-msgstr "AVISO: {modulename} solo necesita un nombre de archivo."
+msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:140
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
-msgstr "{name} no es un nombre de invitado válido"
+msgstr "{name} no es un nombre de huésped válido"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr "AVISO: directiva {directive} de configuración desconocida en la sección {name}. "
+msgstr ""
+"ADVERTENCIA: directiva {directive} de configuración desconocida en la sección "
+"{name}. "
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:126
 #, perl-brace-format
@@ -191,12 +213,11 @@ msgstr "Imposible analizar sintácticamente a {path}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:199
 msgid "--commit and --rollback options are mutually exclusive"
-msgstr "las opciones --comit y --rollback se excluyen mutuamente"
+msgstr "las opciones --commit y --rollback se excluyen mutuamente"
 
-#: ../snapshot/v2v-snapshot.pl:208
-#: ../v2v/virt-v2v.pl:188
+#: ../snapshot/v2v-snapshot.pl:208 ../v2v/virt-v2v.pl:188
 msgid "no guest argument given"
-msgstr "no se ha dado ningún argumento de invitado"
+msgstr "no se ha dado ningún argumento de huésped"
 
 #: ../snapshot/v2v-snapshot.pl:213
 #, perl-brace-format
@@ -212,14 +233,12 @@ msgstr "Ningún dominio fue creado."
 msgid "Unable to open {file}: {error}"
 msgstr "Imposible abrir {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:275
-#: ../snapshot/v2v-snapshot.pl:311
+#: ../snapshot/v2v-snapshot.pl:275 ../snapshot/v2v-snapshot.pl:311
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
 msgstr "Error al cerrar {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:279
-#: ../snapshot/v2v-snapshot.pl:307
+#: ../snapshot/v2v-snapshot.pl:279 ../snapshot/v2v-snapshot.pl:307
 #, perl-brace-format
 msgid "Wrote output to {file}"
 msgstr "Se escribió la salida en {file}"
@@ -253,25 +272,29 @@ msgid "Unable to find {path} in the v2v-snapshot storage pool."
 msgstr "No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
 
 #: ../snapshot/v2v-snapshot.pl:458
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr "Ignorando el dispositivo {target} ya que no posee un depósito de reserva"
+msgstr "Ignorando el dispositivo {target} porque no posee un depósito de reserva"
 
 #: ../snapshot/v2v-snapshot.pl:515
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
 "Command output was:\n"
 "{output}"
 msgstr ""
-"Falló al enviar imagen '{path}' al depósito de reserva '{backingstore}'.\n"
+"Falló al enviar instantánea '{path}' al depósito de reserva '{backingstore}'.\n"
 "El comando de salida fue:\n"
 "{output}"
 
 #: ../snapshot/v2v-snapshot.pl:548
-#, fuzzy, perl-brace-format
-msgid "A snapshot already exists for {guest}. You must commit it or roll it back back before creating a new snapshot."
-msgstr "Ya existe una imagen para {guest}. Debe, o bien enviarla, o bien deshacerla antes de crear una nueva."
+#, perl-brace-format
+msgid ""
+"A snapshot already exists for {guest}. You must commit it or roll it back "
+"back before creating a new snapshot."
+msgstr ""
+"Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien deshacerla "
+"antes de crear una nueva."
 
 #: ../snapshot/v2v-snapshot.pl:557
 #, perl-brace-format
@@ -289,9 +312,11 @@ msgid "Unable to create storage volume: {error}"
 msgstr "Imposible crear el volumen de almacenamiento: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:628
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
-msgstr "No es posible deshacer el húesped {name} sin haber hecho un respaldo del archivo xml"
+msgstr ""
+"Se niega a restaurar el huésped {name} sin haber hecho una copia de seguridad del "
+"archivo xml"
 
 #: ../snapshot/v2v-snapshot.pl:655
 #, perl-brace-format
@@ -306,7 +331,7 @@ msgstr "Falló al borrar {file}: {error}"
 #: ../snapshot/v2v-snapshot.pl:673
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
-msgstr "No es posible eliminar el archivo xml {file} de respaldo: {error} "
+msgstr "No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
 
 #: ../snapshot/v2v-snapshot.pl:735
 #, perl-brace-format
@@ -325,9 +350,13 @@ msgstr "{input} no tiene un formato de metadatos válido"
 
 #: ../v2v/virt-v2v.pl:304
 msgid "no root device found in this operating system image"
-msgstr "no se ha encontrado un dispositivo raíz en la imagen de este sistema operativo"
+msgstr ""
+"no se ha encontrado un dispositivo raíz en la imagen de este sistema "
+"operativo"
 
 #: ../v2v/virt-v2v.pl:310
 msgid "multiboot operating systems are not supported by virt-v2v"
-msgstr "con virt-v2v, no existe soporte para inicializar múltiples sistemas operativos"
+msgstr ""
+"con virt-v2v, no existe soporte para inicializar múltiples sistemas "
+"operativos"
 
