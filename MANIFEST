@@ -18,11 +18,14 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 po/es.po
+po/it.po
 po/Makefile
 po/PACKAGE
 po/pl.po
 po/POTFILES.in
+po/ru.po
 po/virt-v2v.pot
+po/zh_CN.po
 README-NLS
 snapshot/run-snapshot-locally
 snapshot/v2v-snapshot.pl
