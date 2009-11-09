@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-11-09 13:32+0000\n"
-"PO-Revision-Date: 2009-10-01 13:30+0200\n"
+"PO-Revision-Date: 2009-11-09 16:58+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -176,7 +176,7 @@ msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
 #, perl-brace-format
 msgid "Guest {name} must be shutdown first"
-msgstr ""
+msgstr "Gość {name} musi najpierw zostać wyłączony"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
 #, perl-brace-format
