@@ -18,10 +18,11 @@ sub ACTION_dist
     my $self = shift;
 
     # Run make pot in the po directory
-    system($self->config('make'), '-C', 'po', 'pot', 'update-po');
+    system($self->config('make'), '-C', 'po', 'pot', 'update-po') == 0
+        or return 1;
 
     # Run the regular dist action
-    $self->SUPER::ACTION_dist;
+    return $self->SUPER::ACTION_dist;
 }
 
 # Generate locale files and install them to blib/locale
@@ -30,8 +31,11 @@ sub process_locale_files
     my $self = shift;
 
     # Make them first
+    $self->log_info("process_locale_files\n");
     system($self->config('make'), '-C', 'po', 'install',
-           'LOCALEDIR=../blib/locale');
+           'LOCALEDIR=../blib/locale') == 0
+        or die(); # We need to die() here because process_foo_files return isn't
+                  # checked.
 }
 
 # Remove the .pl extension from installed scripts
@@ -40,13 +44,19 @@ sub process_script_files
     my $self = shift;
 
     # Run the regular process_script_files action
-    $self->SUPER::process_script_files;
+    $self->SUPER::process_script_files()
+        or return 1;
 
     foreach my $script (<blib/script/*>) {
         if($script =~ /^(.*)\.pl$/) {
-            rename($script, $1) or die("rename $script to $1 failed: $!");
+            unless(rename($script, $1)) {
+                $self->log_info("rename $script to $1 failed: $1\n");
+                return 1;
+            }
         }
     }
+
+    return 0;
 }
 
 # Also process confdoc files
@@ -75,6 +85,8 @@ sub process_confdoc_files
         $self->log_info("Manifying $pod -> $outfile\n");
         $parser->parse_from_file( $pod, $outfile );
     }
+
+    return 0;
 }
 
 # Add syntaxcheck target
@@ -103,7 +115,10 @@ sub ACTION_syntaxcheck
         next if($excludes{$file});
 
         my $fh;
-        open($fh, '<', $file) or die("Unable to read manifest file $file: $!");
+        unless(open($fh, '<', $file)) {
+            $self->log_info("Unable to read manifest file $file: $!\n");
+            return 1;
+        }
 
         # Check for leading tabs by default
         my $checktabs = 1;
@@ -193,10 +208,11 @@ sub ACTION_distmeta
     my $self = shift;
 
     # Add a dependency on changelog
-    $self->depends_on('changelog');
+    $self->depends_on('changelog') == 0
+        or return 1;
 
     # Run the regular distmeta action
-    $self->SUPER::ACTION_distmeta;
+    return $self->SUPER::ACTION_distmeta;
 }
 
 # Make Build test depend on distmeta so syntax test succeeds
@@ -205,10 +221,11 @@ sub ACTION_test
     my $self = shift;
 
     # Ensure distmeta runs first
-    $self->depends_on('distmeta');
+    $self->depends_on('distmeta') == 0
+        or return 1;
 
     # Run the regular test action
-    $self->SUPER::ACTION_test;
+    return $self->SUPER::ACTION_test;
 }
 
 SUBCLASS
