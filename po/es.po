@@ -1,17 +1,18 @@
-# translation of virt-v2v.master.es(2).po to Spanish
+# translation of virt-v2v.master.es(4).po to Spanish
 # Fedora Spanish Translation of virt-v2v.
 # This file is distributed under the same license as the virt-v2v package.
 #
-# Héctor Daniel Cabrera <h.daniel.cabrera@gmail.com>, 2009.
 #
+# Héctor Daniel Cabrera <h.daniel.cabrera@gmail.com>, 2009.
+# Gladys Guerrero  <gguerrer@redhat.com>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: virt-v2v.master.es(2)\n"
+"Project-Id-Version: virt-v2v.master.es(4)\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2009-11-09 13:32+0000\n"
-"PO-Revision-Date: 2009-10-20 12:04+1000\n"
-"Last-Translator:  <gguerrer@redhat.com>\n"
-"Language-Team: Spanish <en@li.org>\n"
+"PO-Revision-Date: 2009-11-12 14:53+1000\n"
+"Last-Translator: Gladys Guerrero  <gguerrer@redhat.com>\n"
+"Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -76,8 +77,7 @@ msgstr "No es posible determinar una arquitectura de kernel para este huésped"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
 #, perl-brace-format
 msgid "Found dependency loop installing {label}: {path}"
-msgstr ""
-"Se ha encontrado dependencia circular durante la instalación {label}: {path} "
+msgstr "Se ha encontrado dependencia circular durante la instalación {label}: {path} "
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
@@ -99,8 +99,7 @@ msgstr "dependencias"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
 #, perl-brace-format
 msgid "No mapping found for block device {device}"
-msgstr ""
-"No se ha encontrado una asignación para el dispositivo de bloque {device}"
+msgstr "No se ha encontrado una asignación para el dispositivo de bloque {device}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
 #, perl-brace-format
@@ -167,8 +166,7 @@ msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
-msgstr ""
-"El hipervisor conectado no tiene soporte para una máquina del tipo {machine}."
+msgstr "El hipervisor conectado no tiene soporte para una máquina del tipo {machine}."
 
 #: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
 #, perl-brace-format
@@ -177,8 +175,7 @@ msgstr "El hipervisor conectado no soporta la característica {feature}"
 
 #: ../lib/Sys/VirtV2V/HVTarget.pm:96
 msgid "Unable to find a module to configure this guest"
-msgstr ""
-"No es posible encontrar un módulo con el que poder configurar este huésped"
+msgstr "No es posible encontrar un módulo para configurar este huésped"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
@@ -189,7 +186,7 @@ msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
 #, perl-brace-format
 msgid "Guest {name} must be shutdown first"
-msgstr ""
+msgstr "Huésped {name} se debe apagar primero"
 
 #: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
 #, perl-brace-format
@@ -262,7 +259,7 @@ msgstr "Considere la utilización de la opción --outputxml"
 #: ../snapshot/v2v-snapshot.pl:349
 #, perl-brace-format
 msgid "Unable to create v2v-snapshot storage pool: {error}"
-msgstr "No es posible generar grupo de almacenamiento v2v-snapshot: {error}"
+msgstr "No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:367
 #, perl-brace-format
@@ -271,20 +268,17 @@ msgstr "No es posible iniciar el grupo de almacenamiento v2v-snapshot: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:377
 msgid "v2v-snapshot storage pool is temporarily unavailable"
-msgstr ""
-"El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
+msgstr "El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
 
 #: ../snapshot/v2v-snapshot.pl:405
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
-msgstr ""
-"No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
+msgstr "No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
 
 #: ../snapshot/v2v-snapshot.pl:460
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr ""
-"Ignorando el dispositivo {target} porque no posee un depósito de reserva"
+msgstr "Ignorando el dispositivo {target} porque no posee un depósito de reserva"
 
 #: ../snapshot/v2v-snapshot.pl:517
 #, perl-brace-format
@@ -332,7 +326,7 @@ msgstr ""
 #: ../snapshot/v2v-snapshot.pl:657
 #, perl-brace-format
 msgid "{path} is not a snapshot volume"
-msgstr "{path} no es una imagen de volúmen"
+msgstr "{path} no es una imagen de volumen"
 
 #: ../snapshot/v2v-snapshot.pl:663
 #, perl-brace-format
@@ -342,8 +336,7 @@ msgstr "Falló al borrar {file}: {error}"
 #: ../snapshot/v2v-snapshot.pl:675
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
-msgstr ""
-"No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
+msgstr "No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
 
 #: ../snapshot/v2v-snapshot.pl:737
 #, perl-brace-format
@@ -371,3 +364,4 @@ msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr ""
 "con virt-v2v, no existe soporte para inicializar múltiples sistemas "
 "operativos"
+
