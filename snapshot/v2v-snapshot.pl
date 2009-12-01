@@ -321,12 +321,24 @@ sub _get_pool
 
     # If it wasn't there, try creating it
     if($@) {
+        my $snapshotdir = $datadir.'/snapshots';
+
+        unless (-d $snapshotdir) {
+            unless(mkdir($snapshotdir)) {
+                print STDERR user_message(__x("Unable to create snapshot ".
+                                              "directory {dir}: {error}",
+                                              dir => $snapshotdir,
+                                              error => $@));
+                exit(1);
+            }
+        }
+
         eval {
             $pool = $vmm->create_storage_pool("
                 <pool type='dir'>
                     <name>v2v-snapshot</name>
                     <target>
-                        <path>$datadir/snapshots</path>
+                        <path>$snapshotdir</path>
                     </target>
                 </pool>
             ");
@@ -744,7 +756,19 @@ sub _get_xml_path
 {
     my ($dom) = @_;
 
-    return $datadir.'/xml/'._get_guest_name($dom).'.xml';
+    my $xmldir = $datadir.'/xml';
+
+    # Ensure it exists
+    unless (-d $xmldir) {
+        unless (mkdir($xmldir)) {
+            print STDERR user_message(__x("Unable to create xml storage ".
+                                          "directory {dir}: {error}",
+                                          dir => $xmldir, error => $@));
+            exit(1);
+        }
+    }
+
+    return $xmldir.'/'._get_guest_name($dom).'.xml';
 }
 
 =head1 EXAMPLES
