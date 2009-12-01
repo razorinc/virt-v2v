@@ -127,23 +127,12 @@ available locally.
 
 =cut
 
-use constant DEFAULT_LIBDIR => '/var/lib/virt-v2v';
+my $datadir = '/var/lib/virt-v2v';
 
-my $snapshotdir = DEFAULT_LIBDIR.'/snapshots';
+=item B<--datadir dir> | B<-d dir>
 
-=item B<--snapshotdir dir> | B<-s dir>
-
-The directory where snapshot files will be created. This defaults to
-I</var/lib/virt-v2v/snapshots>.
-
-=cut
-
-my $xmldir = DEFAULT_LIBDIR.'/xml';
-
-=item B<--xmldir dir> | B<-x dir>
-
-The directory where XML backups will be stored. This defaults to
-I</var/lib/virt-v2v/xml>.
+The directory v2v-snapshot will store its data. 2 subdirectories will be created
+for holding snapshot images and XML backups.
 
 =cut
 
@@ -186,16 +175,15 @@ Remove the snapshot and restore the guest to its previous, unmodified storage.
 # Initialise the message output prefix
 Sys::VirtV2V::UserMessage->set_identifier('v2v-snapshot');
 
-GetOptions ("help|?"          => \$help,
-            "version"         => \$version,
-            "connect|c=s"     => \$uri,
-            "input|i=s"       => \$input,
-            "outputxml|o=s"   => \$outputxml,
-            "snapshotdir|s=s" => \$snapshotdir,
-            "xmldir|x=s"      => \$xmldir,
-            "force|f"         => \$force,
-            "commit"          => \$commit,
-            "rollback"        => \$rollback
+GetOptions ("help|?"        => \$help,
+            "version"       => \$version,
+            "connect|c=s"   => \$uri,
+            "input|i=s"     => \$input,
+            "outputxml|o=s" => \$outputxml,
+            "datadir|d=s"   => \$datadir,
+            "force|f"       => \$force,
+            "commit"        => \$commit,
+            "rollback"      => \$rollback
     ) or pod2usage(2);
 pod2usage(0) if($help);
 pod2usage({
@@ -338,7 +326,7 @@ sub _get_pool
                 <pool type='dir'>
                     <name>v2v-snapshot</name>
                     <target>
-                        <path>$snapshotdir</path>
+                        <path>$datadir/snapshots</path>
                     </target>
                 </pool>
             ");
@@ -756,7 +744,7 @@ sub _get_xml_path
 {
     my ($dom) = @_;
 
-    return $xmldir.'/'._get_guest_name($dom).'.xml';
+    return $datadir.'/xml/'._get_guest_name($dom).'.xml';
 }
 
 =head1 EXAMPLES
