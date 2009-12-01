@@ -713,9 +713,13 @@ sub _foreach_disk
     my ($dom, $func) = @_;
 
     # Get a list of existing disks
-    foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
+    foreach my $disk ($dom->findnodes('/domain/devices/disk[@device = \'disk\']'))
+    {
         my ($source) = $disk->findnodes('source');
         my ($target) = $disk->findnodes('target/@dev');
+
+        # Ignore disks with no source
+        next if (!defined($source));
 
         # Look for the source location
         my $path;
