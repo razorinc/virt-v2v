@@ -22,6 +22,8 @@ use warnings;
 
 use XML::DOM;
 
+use Sys::Virt;
+
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -120,9 +122,10 @@ sub is_configured
     return 0 unless(defined($domain));
 
     # Check the domain is shutdown
-    unless($domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTDOWN) {
+    unless ($domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTOFF) {
         print STDERR user_message
-            (__x("Guest {name} is currently {state}. It must be shutdown first",
+            (__x("Guest {name} is currently {state}. ".
+                 "It must be shut down first.",
                  state => _state_string($domain->get_info()->{state}),
                  name => $name));
         return 0;
