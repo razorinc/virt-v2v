@@ -122,11 +122,36 @@ sub is_configured
     # Check the domain is shutdown
     unless($domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTDOWN) {
         print STDERR user_message
-            (__x("Guest {name} must be shutdown first", name => $name));
+            (__x("Guest {name} is currently {state}. It must be shutdown first",
+                 state => _state_string($domain->get_info()->{state}),
+                 name => $name));
         return 0;
     }
 
     return 1;
+}
+
+sub _state_string
+{
+    my ($state) = @_;
+
+    if ($state == Sys::Virt::Domain::STATE_NOSTATE) {
+        return __"idle";
+    } elsif ($state == Sys::Virt::Domain::STATE_RUNNING) {
+        return __"running";
+    } elsif ($state == Sys::Virt::Domain::STATE_BLOCKED) {
+        return __"blocked";
+    } elsif ($state == Sys::Virt::Domain::STATE_PAUSED) {
+        return __"paused";
+    } elsif ($state == Sys::Virt::Domain::STATE_SHUTDOWN) {
+        return __"shutting down";
+    } elsif ($state == Sys::Virt::Domain::STATE_SHUTOFF) {
+        return __"shut down";
+    } elsif ($state == Sys::Virt::Domain::STATE_CRASHED) {
+        return __"crashed";
+    } else {
+        return "unknown state ($state)";
+    }
 }
 
 sub _get_domain
