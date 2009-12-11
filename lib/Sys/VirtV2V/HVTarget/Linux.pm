@@ -568,7 +568,7 @@ sub _configure_capabilities
         if(!exists($features{$feature->getNodeName()})) {
             print STDERR user_message
                 (__x("The connected hypervisor does not support ".
-                     "feature {feature}", feature => $feature));
+                     "feature {feature}", feature => $feature->getNodeName()));
             $feature->getParentNode()->removeChild($feature);
         }
     }
