@@ -21,15 +21,14 @@ use strict;
 
 use Pod::Usage;
 use Getopt::Long;
-use Data::Dumper;
-use XML::Writer;
+#use Data::Dumper;
 use Config::Tiny;
 use Locale::TextDomain 'virt-v2v';
 
 use Sys::Guestfs;
-use Sys::Guestfs::Lib qw(open_guest get_partitions resolve_windows_path
-  inspect_all_partitions inspect_partition
-  inspect_operating_systems mount_operating_system inspect_in_detail);
+use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
+                         inspect_operating_systems mount_operating_system
+                         inspect_in_detail);
 
 use Sys::VirtV2V;
 use Sys::VirtV2V::GuestOS;
