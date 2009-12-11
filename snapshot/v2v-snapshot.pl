@@ -553,69 +553,93 @@ sub _snapshot_guest
         return -1;
     }
 
-    # Write the backup
-    my $xmlbackup;
-    open($xmlbackup, '>', $xmlpath)
-        or die(__x("Unable to write to {path}: {error}",
-                   path => $xmlpath, error => $!));
+    # Keep a list files and volumes created by the snapshot process. We need to
+    # clean all of these up in the event of an error.
+    my @created_files = ();
+    my @created_volumes = ();
 
-    print $xmlbackup $dom->toString();
+    my $ret = eval {
+        # Write the backup
+        my $xmlbackup;
+        open($xmlbackup, '>', $xmlpath)
+            or die(__x("Unable to write to {path}: {error}",
+                       path => $xmlpath, error => $!));
+        push(@created_files, $xmlpath);
 
-    close($xmlbackup)
-        or die(__x("Error closing {path}: {error}",
-                   path => $xmlpath, error => $!));
+        print $xmlbackup $dom->toString();
 
-    # Get a timestamp for use in naming snapshot volumes
-    my $time = time();
+        close($xmlbackup)
+            or die(__x("Error closing {path}: {error}",
+                       path => $xmlpath, error => $!));
 
-    return _foreach_disk($dom, sub {
-        my ($disk, $source, $target, $path) = @_;
+        # Get a timestamp for use in naming snapshot volumes
+        my $time = time();
 
-        # Create a new qcow2 volume in the v2v-snapshot storage pool
-        my $target_name = $target->getNodeValue();
-        my $vol_name = "$name-$target_name-$time.qcow2";
-        my $vol_xml = "
-            <volume>
-                <name>$vol_name</name>
-                <capacity>0</capacity>
-                <target>
-                    <format type='qcow2'/>
-                </target>
-                <backingStore>
-                    <path>$path</path>
-                </backingStore>
-            </volume>
-        ";
+        return _foreach_disk($dom, sub {
+            my ($disk, $source, $target, $path) = @_;
 
-        my $vol;
-        eval {
-            $vol = $pool->create_volume($vol_xml);
-        };
+            # Create a new qcow2 volume in the v2v-snapshot storage pool
+            my $target_name = $target->getNodeValue();
+            my $vol_name = "$name-$target_name-$time.qcow2";
+            my $vol_xml = "
+                <volume>
+                    <name>$vol_name</name>
+                    <capacity>0</capacity>
+                    <target>
+                        <format type='qcow2'/>
+                    </target>
+                    <backingStore>
+                        <path>$path</path>
+                    </backingStore>
+                </volume>
+            ";
 
-        if($@) {
-            print STDERR
-                user_message(__x("Unable to create storage volume: {error}",
-                                 error => $@->stringify()));
-            return -1;
+            my $vol;
+            eval {
+                $vol = $pool->create_volume($vol_xml);
+            };
+
+            if($@) {
+                print STDERR
+                    user_message(__x("Unable to create storage volume: {error}",
+                                     error => $@->stringify()));
+                return -1;
+            }
+
+            push(@created_volumes, $vol);
+
+            # Update the source to be a "file" with the new path
+            $source->setAttribute("file", $vol->get_path());
+
+            # Also update the disk element to be a "file"
+            $source->getParentNode()->setAttribute('type', 'file');
+
+            # Replace the driver element with one which describes the qcow2 file
+            my ($driver) = $disk->findnodes('driver');
+
+            # Initialise the driver if it's not set
+            $driver ||= $disk->appendChild($dom->createElement('driver'));
+
+            $driver->setAttribute('name', 'qemu');
+            $driver->setAttribute('type', 'qcow2');
+
+            return 0;
+        });
+    };
+
+    if ($@ || $ret < 0) {
+        foreach my $file (@created_files) {
+            unlink($file); # Don't check for further errors
         }
 
-        # Update the source to be a "file" with the new path
-        $source->setAttribute("file", $vol->get_path());
+        foreach my $vol (@created_volumes) {
+            $vol->delete();
+        }
 
-        # Also update the disk element to be a "file"
-        $source->getParentNode()->setAttribute('type', 'file');
+        die($@) if ($@);
+    }
 
-        # Replace the driver element with one which describes the qcow2 file
-        my ($driver) = $disk->findnodes('driver');
-
-        # Initialise the driver if it's not set
-        $driver ||= $disk->appendChild($dom->createElement('driver'));
-
-        $driver->setAttribute('name', 'qemu');
-        $driver->setAttribute('type', 'qcow2');
-
-        return 0;
-    });
+    return $ret;
 }
 
 sub _rollback_guest
