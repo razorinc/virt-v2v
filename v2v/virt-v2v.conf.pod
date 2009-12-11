@@ -8,7 +8,11 @@ virt-v2v.conf - configuration file for virt-v2v
 
 C<virt-v2v.conf> describes:
 
+=item *
+
 software which can be installed by virt-v2v during the conversion process.
+
+=item *
 
 how to rename networks and bridges when importing them from another environment.
 
