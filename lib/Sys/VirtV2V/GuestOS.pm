@@ -167,7 +167,7 @@ sub configure
 
     $transferiso = File::Temp->new(UNLINK => 1, SUFFIX => '.iso');
     my $eh = Sys::VirtV2V::ExecHelper->run
-        ('genisoimage', '-o', $transferiso, '-r', '-J',
+        ('mkisofs', '-o', $transferiso, '-r', '-J',
          '-V', '__virt-v2v_transfer__', keys(%paths));
     if($eh->status() != 0) {
         print STDERR user_message(__x("Failed to create transfer iso. Command ".
