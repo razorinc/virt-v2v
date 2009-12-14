@@ -752,10 +752,6 @@ sub _foreach_disk
             my $item = $src_attrs->getNamedItem($attr);
             if(defined($item)) {
                 $path = $item->getNodeValue();
-
-                # Remove the attribute. We'll add a new one in below.
-                $src_attrs->removeNamedItem($attr);
-
                 last;
             }
         }
