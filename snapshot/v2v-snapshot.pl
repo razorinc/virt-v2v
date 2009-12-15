@@ -19,6 +19,8 @@
 use warnings;
 use strict;
 
+use English;
+
 use File::Temp qw(tempfile);
 use Getopt::Long;
 use Pod::Usage;
@@ -127,12 +129,14 @@ available locally.
 
 =cut
 
-my $datadir = '/var/lib/virt-v2v';
+my $datadir;
 
 =item B<--datadir dir> | B<-d dir>
 
 The directory v2v-snapshot will store its data. 2 subdirectories will be created
-for holding snapshot images and XML backups.
+for holding snapshot images and XML backups. It defaults to
+I</var/lib/virt-v2v>, except for connections to qemu:///session, when it
+defaults to ~/.virt-v2v.
 
 =cut
 
@@ -202,6 +206,38 @@ pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 my @vmm_params = (auth => 1);
 push(@vmm_params, uri => $uri) if(defined($uri));
 my $vmm = Sys::Virt->new(@vmm_params);
+
+# Set the default datadir depending on the connection
+if (!defined($datadir)) {
+    if ($vmm->get_uri() eq "qemu:///session") {
+        # Get the current user's home directory
+        my (undef, undef, undef, undef, undef, # name, passwd, uid, gid, quota
+            undef, undef, $home, undef, undef  # comment, gcos, dir, shell, expire
+           ) = getpwuid($UID);
+
+        unless (defined($home)) {
+            print STDERR user_message(__x("Unable to get home directory ".
+                                          "for current user"));
+            exit(1);
+        }
+
+        $datadir = File::Spec->catdir($home, ".virt-v2v");
+    }
+    
+    else {
+        $datadir = "/var/lib/virt-v2v";
+    }
+
+    unless (-d $datadir) {
+        unless(mkdir($datadir)) {
+            print STDERR user_message(__x("Unable to create data ".
+                                          "directory {dir}: {error}",
+                                          dir => $datadir,
+                                          error => $@));
+            exit(1);
+        }
+    }
+}
 
 # Get an appropriate MetadataReader
 my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, {}, $vmm, @ARGV);
