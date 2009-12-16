@@ -349,7 +349,7 @@ sub _configure_kernel
     }
 
     # If we didn't install a new kernel, pick the default kernel
-    $boot_kernel = $guestos->get_default_kernel() if(!defined($boot_kernel));
+    $boot_kernel ||= $guestos->get_default_kernel();
 
     return $boot_kernel;
 }
