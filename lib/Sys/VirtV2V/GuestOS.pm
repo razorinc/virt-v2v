@@ -188,7 +188,7 @@ sub configure
     # Populate aliases from the [aliases] config section
     my $aliases_conf = $config->{aliases};
 
-    if(defined($deps_conf)) {
+    if(defined($aliases_conf)) {
         # Copy the aliases_conf hash into %aliases
         foreach my $label (keys(%$aliases_conf)) {
             $aliases{$label} = $aliases_conf->{$label};
