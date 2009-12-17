@@ -223,7 +223,7 @@ if (!defined($datadir)) {
 
         $datadir = File::Spec->catdir($home, ".virt-v2v");
     }
-    
+
     else {
         $datadir = "/var/lib/virt-v2v";
     }
