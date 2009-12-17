@@ -2,8 +2,8 @@
 ../lib/Sys/VirtV2V/GuestOS/RedHat.pm
 ../lib/Sys/VirtV2V/HVSource.pm
 ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm
-../lib/Sys/VirtV2V/HVTarget/Linux.pm
-../lib/Sys/VirtV2V/HVTarget.pm
+../lib/Sys/VirtV2V/Converter/Linux.pm
+../lib/Sys/VirtV2V/Converter.pm
 ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm
 ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm
 ../lib/Sys/VirtV2V/MetadataReader.pm

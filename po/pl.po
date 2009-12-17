@@ -110,17 +110,17 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} jest skonfigurowane ze sterownikami virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} jest skonfigurowane bez sterowników virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
@@ -129,7 +129,7 @@ msgstr ""
 "OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
 "{modulename}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -139,7 +139,7 @@ msgstr ""
 "konfiguracji.\n"
 "Nie można kontynuować."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
@@ -148,22 +148,22 @@ msgstr ""
 "OSTRZEŻENIE: nie odnaleziono zamiennika dla {xpath} w domenie XML. Węzeł "
 "został usunięty."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr "Połączony nadzorca nie obsługuje typu komputera {machine}."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "Połączony nadzorca nie obsługuje funkcji {feature}"
 
-#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+#: ../lib/Sys/VirtV2V/Converter.pm:96
 msgid "Unable to find a module to configure this guest"
 msgstr "Nie można odnaleźć modułu do skonfigurowania tego gościa"
 

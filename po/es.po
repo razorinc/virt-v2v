@@ -120,17 +120,17 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "No es posible abrir /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} configurado con controladores virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} configurado sin controladores virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
@@ -139,7 +139,7 @@ msgstr ""
 "ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el "
 "módulo {modulename}. "
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -149,7 +149,7 @@ msgstr ""
 "remplazo en la configuración.\n"
 "No es posible continuar."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
@@ -158,22 +158,22 @@ msgstr ""
 "ADVERTENCIA: No se ha encontrado un reemplazo para {xpath} en el dominio "
 "XML. El nodo ha sido eliminado."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr "El hipervisor conectado no tiene soporte para una máquina del tipo {machine}."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "El hipervisor conectado no soporta la característica {feature}"
 
-#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+#: ../lib/Sys/VirtV2V/Converter.pm:96
 msgid "Unable to find a module to configure this guest"
 msgstr "No es posible encontrar un módulo para configurar este huésped"
 

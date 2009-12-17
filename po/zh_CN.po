@@ -113,24 +113,24 @@ msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "无法打开 /etc/rc.local：{error}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "virtio 驱动程序配置的 {name}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "非 virtio 驱动程序配置的 {name}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
 "module."
 msgstr "警告：不知道如何更新 {module}，它可载入 {modulename} 模块。"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -140,29 +140,29 @@ msgstr ""
 "\n"
 "无法继续。"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
 "removed."
 msgstr "警告：在域 XML 中没有找到用于 {xpath} 的替换。节点被删除。"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "连接的管理程序不支持 {arch} kvm 客户端"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr "连接的管理程序不支持机器类型 {machine}。"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "连接的管理程序不支持特性 {feature}"
 
-#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+#: ../lib/Sys/VirtV2V/Converter.pm:96
 msgid "Unable to find a module to configure this guest"
 msgstr "无法找到配置这个客户端的模块"
 

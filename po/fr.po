@@ -109,53 +109,53 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
 "module."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
 "Unable to continue."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
 "removed."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+#: ../lib/Sys/VirtV2V/Converter.pm:96
 msgid "Unable to find a module to configure this guest"
 msgstr ""
 

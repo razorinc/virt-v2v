@@ -113,17 +113,17 @@ msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для вер
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Не удалось открыть /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:154
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} настроен с драйверами virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:157
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} настроен без драйверов virtio"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
@@ -132,7 +132,7 @@ msgstr ""
 "ВНИМАНИЕ: Неизвестно, как обновить {module}, который загружает модуль "
 "{modulename}."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:340
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -141,29 +141,29 @@ msgstr ""
 "Не установлено загрузочное ядро и в настройках не определена замена.\n"
 "Продолжение невозможно."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
 #, perl-brace-format
 msgid ""
 "WARNING: No replacement found for {xpath} in domain XML. The node was "
 "removed."
 msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удалён."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:520
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "Подключенный гипервизор не поддерживает KVM-гостей {arch}"
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:551
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support a machine type of {machine}."
 msgstr "Подключенный гипервизор не поддерживает тип машин {machine}."
 
-#: ../lib/Sys/VirtV2V/HVTarget/Linux.pm:570
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "Подключенный гипервизор не поддерживает возможность {feature}"
 
-#: ../lib/Sys/VirtV2V/HVTarget.pm:96
+#: ../lib/Sys/VirtV2V/Converter.pm:96
 msgid "Unable to find a module to configure this guest"
 msgstr "Не найден модуль для настройки этого гостя"
 
