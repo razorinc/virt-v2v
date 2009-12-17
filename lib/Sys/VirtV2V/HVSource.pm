@@ -45,7 +45,7 @@ Sys::VirtV2V::HVSource - Discover source hypervisor artifacts in a guest
 
 Sys::VirtV2V::HVSource provides a mechanism for identifying properties of a
 guest operating system which relate specifically to a particular hypervisor. It
-is used by a Sys::VirtV2V::HVTarget when reconfiguring the guest.
+is used by a Sys::VirtV2V::Converter when reconfiguring the guest.
 
 A call to any of these methods will call, and aggregate if relevant,  all
 implemented Sys::VirtV2V::HVSource backends.

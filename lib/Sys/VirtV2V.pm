@@ -63,7 +63,7 @@ L<virt-v2v(1)>,
 L<v2v-snapshot(1)>,
 L<Sys::VirtV2V::GuestOS(3pm)>,
 L<Sys::VirtV2V::HVSource(3pm)>,
-L<Sys::VirtV2V::HVTarget(3pm)>,
+L<Sys::VirtV2V::Converter(3pm)>,
 L<Sys::VirtV2V::MetadataReader(3pm)>,
 L<http://libguestfs.org/>
 

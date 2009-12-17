@@ -32,7 +32,7 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
 
 use Sys::VirtV2V;
 use Sys::VirtV2V::GuestOS;
-use Sys::VirtV2V::HVTarget;
+use Sys::VirtV2V::Converter;
 use Sys::VirtV2V::MetadataReader;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
@@ -240,7 +240,7 @@ my $os = inspect_guest($g);
 my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
+Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
 
 $g->umount_all();
 $g->sync();

@@ -1,4 +1,4 @@
-# Sys::VirtV2V::HVTarget
+# Sys::VirtV2V::Converter
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,13 +15,13 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::HVTarget;
+package Sys::VirtV2V::Converter;
 
 use strict;
 use warnings;
 
 use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::VirtV2V::HVTarget'],
+                      search_path => ['Sys::VirtV2V::Converter'],
                       require => 1;
 
 use Locale::TextDomain 'virt-v2v';
@@ -30,28 +30,28 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::HVTarget - Configure a guest to run on KVM
+Sys::VirtV2V::Converter - Convert a guest to run on KVM
 
 =head1 SYNOPSIS
 
  use Sys::VirtV2V::GuestOS;
- use Sys::VirtV2V::HVTarget;
+ use Sys::VirtV2V::Converter;
 
  my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
- Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
+ Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::HVTarget instantiates an appropriate backend for the target guest
-OS, and uses it to configure the guest to run on KVM.
+Sys::VirtV2V::Converter instantiates an appropriate backend for the target guest
+OS, and uses it to convert the guest to run on KVM.
 
 =head1 METHODS
 
 =over
 
-=item Sys::VirtV2V::HVTarget->configure(vmm, guestos, dom, desc)
+=item Sys::VirtV2V::Converter->convert(vmm, guestos, dom, desc)
 
-Instantiate an appropriate backend and call configure on it.
+Instantiate an appropriate backend and call convert on it.
 
 =over
 
@@ -75,25 +75,25 @@ The OS description returned by Sys::Guestfs::Lib.
 
 =cut
 
-sub configure
+sub convert
 {
     my $class = shift;
 
     my ($vmm, $guestos, $dom, $desc) = @_;
-    carp("configure called without vmm argument") unless defined($vmm);
-    carp("configure called without guestos argument") unless defined($guestos);
-    carp("configure called without dom argument") unless defined($dom);
-    carp("configure called without desc argument") unless defined($desc);
+    carp("convert called without vmm argument") unless defined($vmm);
+    carp("convert called without guestos argument") unless defined($guestos);
+    carp("convert called without dom argument") unless defined($dom);
+    carp("convert called without desc argument") unless defined($desc);
 
-    # Find a module which can configure this guest and run it
+    # Find a module which can convert this guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $module->configure($vmm, $guestos, $dom, $desc);
+            $module->convert($vmm, $guestos, $dom, $desc);
             return;
         }
     }
 
-    die(__"Unable to find a module to configure this guest");
+    die(__"Unable to find a module to convert this guest");
 }
 
 =back
@@ -114,11 +114,11 @@ An OS description as returned by Sys::Guestfs::Lib.
 
 =back
 
-=item CLASS->configure(vmm, guestos, dom, desc)
+=item CLASS->convert(vmm, guestos, dom, desc)
 
-Configure the target guest to run on KVM.
+Convert the target guest to run on KVM.
 
-can_handle() must have been checked prior to running configure().
+can_handle() must have been checked prior to running convert().
 
 =over
 
@@ -152,7 +152,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::HVTarget::Linux(3pm)>,
+L<Sys::VirtV2V::Converter::Linux(3pm)>,
 L<Sys::VirtV2V::GuestOS(3pm)>,
 L<Sys::Guestfs::Lib(3pm)>,
 L<Sys::Virt(3pm)>,

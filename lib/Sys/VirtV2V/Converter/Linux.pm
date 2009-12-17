@@ -1,4 +1,4 @@
-# Sys::VirtV2V::HVTarget::Linux
+# Sys::VirtV2V::Converter::Linux
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::HVTarget::Linux;
+package Sys::VirtV2V::Converter::Linux;
 
 use strict;
 use warnings;
@@ -35,20 +35,20 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::HVTarget::Linux - Configure a Linux guest to run on KVM
+Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
 
 =head1 SYNOPSIS
 
  use Sys::VirtV2V::GuestOS;
- use Sys::VirtV2V::HVTarget;
+ use Sys::VirtV2V::Converter;
 
  my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
- Sys::VirtV2V::HVTarget->configure($vmm, $guestos, $dom, $os);
+ Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::HVTarget::Linux configures a Linux guest to use KVM. It is an
-implementation of the Sys::VirtV2V::HVTarget interface.
+Sys::VirtV2V::Converter::Linux convert a Linux guest to use KVM. It is an
+implementation of the Sys::VirtV2V::Converter interface.
 
 =head1 METHODS
 
@@ -95,9 +95,9 @@ use constant KVM_XML_NOVIRTIO => "
 </domain>
 ";
 
-=item Sys::VirtV2V::HVTarget::Linux->can_handle(desc)
+=item Sys::VirtV2V::Converter::Linux->can_handle(desc)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::HVTarget> for details.
+See BACKEND INTERFACE in L<Sys::VirtV2V::Converter> for details.
 
 =cut
 
@@ -111,21 +111,21 @@ sub can_handle
     return ($desc->{os} eq 'linux');
 }
 
-=item Sys::VirtV2V::HVTarget::Linux->configure(vmm, guestos, dom, desc)
+=item Sys::VirtV2V::Converter::Linux->convert(vmm, guestos, dom, desc)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::HVTarget> for details.
+See BACKEND INTERFACE in L<Sys::VirtV2V::Converter> for details.
 
 =cut
 
-sub configure
+sub convert
 {
     my $class = shift;
 
     my ($vmm, $guestos, $dom, $desc) = @_;
-    carp("configure called without vmm argument") unless defined($vmm);
-    carp("configure called without guestos argument") unless defined($guestos);
-    carp("configure called without dom argument") unless defined($dom);
-    carp("configure called without desc argument") unless defined($desc);
+    carp("convert called without vmm argument") unless defined($vmm);
+    carp("convert called without guestos argument") unless defined($guestos);
+    carp("convert called without dom argument") unless defined($dom);
+    carp("convert called without desc argument") unless defined($desc);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
@@ -645,7 +645,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::HVTarget(3pm)>,
+L<Sys::VirtV2V::Converter(3pm)>,
 L<Sys::VirtV2V(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
