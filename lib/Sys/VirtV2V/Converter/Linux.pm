@@ -26,7 +26,6 @@ use Locale::TextDomain 'virt-v2v';
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::HVSource;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Carp;
@@ -53,47 +52,6 @@ implementation of the Sys::VirtV2V::Converter interface.
 =head1 METHODS
 
 =over
-
-=cut
-
-# Default values for a KVM configuration
-use constant KVM_XML_VIRTIO => "
-<domain type='kvm'>
-  <os>
-    <type machine='pc'>hvm</type>
-    <boot dev='hd'/>
-  </os>
-  <devices>
-    <disk device='disk'>
-      <target bus='virtio'/>
-    </disk>
-    <interface type='network'>
-      <model type='virtio'/>
-    </interface>
-    <input type='mouse' bus='ps2'/>
-    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
-  </devices>
-</domain>
-";
-
-use constant KVM_XML_NOVIRTIO => "
-<domain type='kvm'>
-  <os>
-    <type machine='pc'>hvm</type>
-    <boot dev='hd'/>
-  </os>
-  <devices>
-    <disk device='disk'>
-      <target bus='scsi'/>
-    </disk>
-    <interface type='network'>
-      <model type='e1000'/>
-    </interface>
-    <input type='mouse' bus='ps2'/>
-    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
-  </devices>
-</domain>
-";
 
 =item Sys::VirtV2V::Converter::Linux->can_handle(desc)
 
@@ -129,7 +87,7 @@ sub convert
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
-    Sys::VirtV2V::HVSource->unconfigure($guestos, $desc);
+    _unconfigure_hv($guestos, $desc);
 
     # Get the best available kernel
     my $kernel = _configure_kernel($guestos, $desc);
@@ -143,19 +101,12 @@ sub convert
     _configure_kernel_modules($guestos, $desc, $virtio);
     _configure_boot($guestos, $kernel, $virtio);
 
-    # Configure libvirt
-    _configure_metadata($vmm, $dom, $desc, $virtio);
+    my %guestcaps;
 
-    my ($name) = $dom->findnodes('/domain/name/text()');
-    $name = $name->getNodeValue();
+    $guestcaps{virtio} = $virtio;
+    $guestcaps{arch}   = _get_os_arch($desc);
 
-    if($virtio) {
-        print user_message
-            (__x("{name} configured with virtio drivers", name => $name));
-    } else {
-        print user_message
-            (__x("{name} configured without virtio drivers", name => $name));
-    }
+    return \%guestcaps;
 }
 
 sub _remap_block_devices
@@ -205,7 +156,7 @@ sub _configure_kernel_modules
     # Get a list of all old-hypervisor specific kernel modules which need to be
     # replaced or removed
     my %hvs_modules;
-    foreach my $module (Sys::VirtV2V::HVSource->find_kernel_modules($guestos)) {
+    foreach my $module (_find_hv_kernel_modules($guestos)) {
         $hvs_modules{$module} = undef;
     }
 
@@ -312,11 +263,14 @@ sub _configure_kernel
 
     my @remove_kernels = ();
 
-    # Remove old-HV kernels
-    foreach my $kernel (Sys::VirtV2V::HVSource->find_kernels($desc)) {
+    # Remove foreign hypervisor specific kernels from the list of available
+    # kernels
+    foreach my $kernel (_find_hv_kernels($desc)) {
         # Remove the kernel from our cache
         delete($kernels{$kernel});
 
+        # Don't actually try to remove them yet in case we remove them all. This
+        # would make your dependency checker unhappy.
         push(@remove_kernels, $kernel);
     }
 
@@ -341,8 +295,7 @@ sub _configure_kernel
                        "specified in configuration.\nUnable to continue."))
         unless(keys(%kernels) > 0 || defined($boot_kernel));
 
-    # Remove old kernels. We do this after installing a new kernel to keep rpm
-    # happy
+    # It's safe to remove kernels now
     foreach my $kernel (@remove_kernels) {
         # Uninstall the kernel from the guest
         $guestos->remove_kernel($kernel);
@@ -397,240 +350,149 @@ sub _get_os_arch
     return $arch;
 }
 
-sub _configure_metadata
+# Return a list of foreign hypervisor specific kernels
+sub _find_hv_kernels
 {
-    my ($vmm, $dom, $desc, $virtio) = @_;
-    die("configure_metadata called without vmm argument")
-        unless defined($vmm);
-    die("configure_metadata called without dom argument")
-        unless defined($dom);
-    die("configure_metadata called without desc argument")
-        unless defined($desc);
-    die("configure_metadata called without virtio argument")
-        unless defined($virtio);
+    my $desc = shift;
 
-    my $default_dom;
-    if($virtio) {
-        $default_dom = new XML::DOM::Parser->parse(KVM_XML_VIRTIO);
-    } else {
-        $default_dom = new XML::DOM::Parser->parse(KVM_XML_NOVIRTIO);
+    my $boot = $desc->{boot};
+    return () unless(defined($boot));
+
+    my $configs = $desc->{boot}->{configs};
+    return () unless(defined($configs));
+
+    # Xen PV kernels can be distinguished from other kernels by their inclusion
+    # of the xennet driver
+    my @kernels = ();
+    foreach my $config (@$configs) {
+        my $kernel = $config->{kernel};
+        next unless(defined($kernel));
+
+        my $modules = $kernel->{modules};
+        next unless(defined($modules));
+
+        # Look for the xennet driver in the modules list
+        if(grep(/^xennet$/, @$modules) > 0) {
+            push(@kernels, $kernel->{version});
+        }
     }
 
-    my $arch = _get_os_arch($desc);
-
-    # Replace source hypervisor metadata with KVM defaults
-    _unconfigure_hvs($dom, $default_dom);
-
-    # Configure guest according to local hypervisor's capabilities
-    _configure_capabilities($dom, $vmm, $arch);
-
-    # Remove any configuration related to a PV kernel bootloader
-    _unconfigure_bootloaders($dom);
-
-    # Configure network and block drivers in the guest
-    _configure_drivers($dom, $virtio);
-
-    # Add a default os section if none exists
-    _configure_os($dom, $default_dom, $arch);
+    return @kernels;
 }
 
-sub _unconfigure_hvs
+sub _unconfigure_hv
 {
-    my ($dom, $default_dom) = @_;
-    die("unconfigure_hvs called without dom argument")
-        unless defined($dom);
-    die("unconfigure_hvs called without default_dom argument")
-        unless defined($default_dom);
+    my ($guestos, $desc) = @_;
 
-    # Get a list of source HV specific metadata nodes
-    my @nodeinfo = Sys::VirtV2V::HVSource->find_metadata($dom);
+    _unconfigure_xen($guestos, $desc);
+}
 
-    for(my $i = 0; $i < $#nodeinfo; $i += 2) {
-        my $node = $nodeinfo[$i];
-        my $xpath = $nodeinfo[$i + 1]->[0];
-        my $required = $nodeinfo[$i + 1]->[1];
+# Unconfigure Xen specific guest modifications
+sub _unconfigure_xen
+{
+    my ($guestos, $desc) = @_;
 
-        # Look for a replacement in the defaults
-        my ($default) = $default_dom->findnodes($xpath);
-        if(defined($default)) {
-            if($node->isa('XML::DOM::Attr')) {
-                $node->setNodeValue($default->getNodeValue());
-            } else {
-                my $replacement = $default->cloneNode(1);
-                $replacement->setOwnerDocument($dom);
+    carp("unconfigure called without guestos argument")
+        unless defined($guestos);
+    carp("unconfigure called without desc argument")
+        unless defined($desc);
 
-                $node->getParentNode()->replaceChild($replacement, $node);
+    my $found_kmod = 0;
+
+    # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
+    foreach my $app (@{$desc->{apps}}) {
+        my $name = $app->{name};
+
+        if($name =~ /^kmod-xenpv(-.*)?$/) {
+            $guestos->remove_application($name);
+            $found_kmod = 1;
+        }
+    }
+
+    # Undo related nastiness if kmod-xenpv was installed
+    if($found_kmod) {
+        # What follows is custom nastiness, so we need to use the libguestfs
+        # handle directly
+        my $g = $guestos->get_handle();
+
+        # kmod-xenpv modules may have been manually copied to other kernels.
+        # Hunt them down and destroy them.
+        foreach my $dir (grep(m{/xenpv$}, $g->find('/lib/modules'))) {
+            $dir = '/lib/modules/'.$dir;
+
+            # Check it's a directory
+            next unless($g->is_dir($dir));
+
+            # Check it's not owned by an installed application
+            eval {
+                $g->get_application_owner($dir);
+            };
+
+            # Remove it if get_application_owner didn't find an owner
+            if($@) {
+                $g->rm_rf($dir);
             }
+        }
+
+        # rc.local may contain an insmod or modprobe of the xen-vbd driver
+        my @rc_local = ();
+        eval {
+            @rc_local = $g->read_lines('/etc/rc.local');
+        };
+
+        if($@) {
+            print STDERR user_message(__x("Unable to open /etc/rc.local: ".
+                                          "{error}", error => $@));
         }
 
         else {
-            # Warn if a replacement is required, but none was found
-            print STDERR user_message
-                (__x("WARNING: No replacement found for {xpath} in ".
-                     "domain XML. The node was removed.",
-                     xpath => $xpath)) if($required);
+            my $size = 0;
 
-            $node->getParentNode()->removeChild($node);
+            foreach my $line (@rc_local) {
+                if($line =~ /\b(insmod|modprobe)\b.*\bxen-vbd/) {
+                    $line = '#'.$line;
+                }
+
+                $size += length($line) + 1;
+            }
+
+            $g->write_file('/etc/rc.local', join("\n", @rc_local)."\n", $size);
         }
     }
 }
 
-sub _configure_os
+# Get a list of all foreign hypervisor specific kernel modules which are being
+# used by the guest
+sub _find_hv_kernel_modules
 {
-    my ($dom, $default_dom, $arch) = @_;
+    my ($desc) = @_;
 
-    my ($os) = $dom->findnodes('/domain/os');
-
-    # If there's no os element, copy one from the default
-    if(!defined($os)) {
-        ($os) = $default_dom->findnodes('/domain/os');
-        $os = $os->cloneNode(1);
-        $os->setOwnerDocument($dom);
-
-        my ($domain) = $dom->findnodes('/domain');
-        $domain->appendChild($os);
-    }
-
-    my ($type) = $os->findnodes('type');
-
-    # If there's no type element, copy one from the default
-    if(!defined($type)) {
-        ($type) = $default_dom->findnodes('/domain/os/type');
-        $type = $type->cloneNode(1);
-        $type->setOwnerDocument($dom);
-
-        $os->appendChild($type);
-    }
-
-    # Set type/@arch unless it's already set
-    my $arch_attr = $type->getAttributes()->getNamedItem('arch');
-    $type->setAttribute('arch', $arch) unless(defined($arch_attr));
+    return _find_xen_kernel_modules($desc);
 }
 
-sub _configure_capabilities
+# Get a list of xen specific kernel modules which are being used by the guest
+sub _find_xen_kernel_modules
 {
-    my ($dom, $vmm, $arch) = @_;
+    my ($desc) = @_;
+    carp("find_kernel_modules called without desc argument")
+        unless defined($desc);
 
-    # Parse the capabilities of the connected libvirt
-    my $caps = new XML::DOM::Parser->parse($vmm->get_capabilities());
+    my $aliases = $desc->{modprobe_aliases};
+    return unless defined($aliases);
 
-    (my $guestcap) = $caps->findnodes
-        ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
+    my @modules = ();
+    foreach my $alias (keys(%$aliases)) {
+        my $modulename = $aliases->{$alias}->{modulename};
 
-    die(__x("The connected hypervisor does not support a {arch} kvm guest",
-        arch => $arch)) unless(defined($guestcap));
-
-    # Ensure that /domain/@type = 'kvm'
-    my ($type) = $dom->findnodes('/domain/@type');
-    $type->setNodeValue('kvm');
-
-    # Set /domain/os/type to the value taken from capabilities
-    my ($os_type) = $dom->findnodes('/domain/os/type/text()');
-    if(defined($os_type)) {
-        my ($caps_os_type) = $guestcap->findnodes('os_type/text()');
-        $os_type->setNodeValue($caps_os_type->getNodeValue());
-    }
-
-    # Check that /domain/os/type/@machine, if set, is listed in capabilities
-    my ($machine) = $dom->findnodes('/domain/os/type/@machine');
-    if(defined($machine)) {
-        my @machine_caps = $guestcap->findnodes
-            ("arch[\@name='$arch']/machine/text()");
-
-        my $found = 0;
-        foreach my $machine_cap (@machine_caps) {
-            if($machine eq $machine_cap) {
-                $found = 1;
+        foreach my $xen_module qw(xennet xen-vnif xenblk xen-vbd) {
+            if($modulename eq $xen_module) {
+                push(@modules, $alias);
                 last;
             }
         }
-
-        # If the machine isn't listed as a capability, warn and remove it
-        if(!$found) {
-            print STDERR user_message
-                (__x("The connected hypervisor does not support a ".
-                     "machine type of {machine}.",
-                     machine => $machine->getValue()));
-
-            my ($type) = $dom->findnodes('/domain/os/type');
-            $type->getAttributes()->removeNamedItem('machine');
-        }
     }
 
-    # Check that /domain/features are listed in capabilities
-    # Get a list of supported features
-    my %features;
-    foreach my $feature ($guestcap->findnodes('features/*')) {
-        $features{$feature->getNodeName()} = 1;
-    }
-
-    foreach my $feature ($dom->findnodes('/domain/features/*')) {
-        if(!exists($features{$feature->getNodeName()})) {
-            print STDERR user_message
-                (__x("The connected hypervisor does not support ".
-                     "feature {feature}", feature => $feature->getNodeName()));
-            $feature->getParentNode()->removeChild($feature);
-        }
-    }
-}
-
-sub _unconfigure_bootloaders
-{
-    my ($dom) = @_;
-
-    # A list of paths which relate to assisted booting of a kernel on hvm
-    my @bootloader_paths = (
-        '/domain/os/loader',
-        '/domain/os/kernel',
-        '/domain/os/initrd',
-        '/domain/os/root',
-        '/domain/os/cmdline'
-    );
-
-    foreach my $path (@bootloader_paths) {
-        my ($node) = $dom->findnodes($path);
-        $node->getParentNode()->removeChild($node) if defined($node);
-    }
-}
-
-sub _configure_drivers
-{
-    my ($dom, $virtio) = @_;
-
-    # Convert disks
-    # N.B. <disk> is required to have a <target> element
-
-    # Convert alternate bus specifications
-    foreach my $bus ($dom->findnodes('/domain/devices/disk/target/@bus')) {
-        $bus->setNodeValue($virtio ? 'virtio' : 'scsi');
-    }
-
-    # Add an explicit bus specification to targets without one
-    foreach my $target
-        ($dom->findnodes('/domain/devices/disk/target[not(@bus)]'))
-    {
-        $target->setAttribute('bus', $virtio ? 'virtio' : 'scsi');
-    }
-
-    # Convert network adapters
-    # N.B. <interface> is not required to have a <model> element, but <model>
-    # is required to have a type attribute
-
-    # Convert interfaces which already have a model element
-    foreach my $type
-        ($dom->findnodes('/domain/devices/interface/model/@type'))
-    {
-        $type->setNodeValue($virtio ? 'virtio' : 'e1000');
-    }
-
-    # Add a model element to interfaces which don't have one
-    foreach my $interface
-        ($dom->findnodes('/domain/devices/interface[not(model)]'))
-    {
-        my $model = $dom->createElement('model');
-        $model->setAttribute('type', $virtio ? 'virtio' : 'e1000');
-        $interface->appendChild($model);
-    }
+    return @modules;
 }
 
 =back
