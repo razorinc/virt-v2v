@@ -319,10 +319,19 @@ sub _configure_capabilities
     }
 
     foreach my $feature ($dom->findnodes('/domain/features/*')) {
-        if (!exists($features{$feature->getNodeName()})) {
+        my $name = $feature->getNodeName();
+
+        if (!exists($features{$name})) {
             print STDERR user_message
                 (__x("The connected hypervisor does not support ".
-                     "feature {feature}", feature => $feature->getNodeName()));
+                     "feature {feature}", feature => $name));
+            $feature->getParentNode()->removeChild($feature);
+        }
+
+        if ($name eq 'acpi' && !$guestcaps->{acpi}) {
+            print STDERR user_message
+                (__"The target guest does not support acpi under KVM. ACPI ".
+                   "will be disabled.");
             $feature->getParentNode()->removeChild($feature);
         }
     }

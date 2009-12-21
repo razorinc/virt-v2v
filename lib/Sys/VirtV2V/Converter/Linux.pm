@@ -105,6 +105,7 @@ sub convert
 
     $guestcaps{virtio} = $virtio;
     $guestcaps{arch}   = _get_os_arch($desc);
+    $guestcaps{acpi}   = _supports_acpi($desc, $guestcaps{arch});
 
     return \%guestcaps;
 }
@@ -493,6 +494,21 @@ sub _find_xen_kernel_modules
     }
 
     return @modules;
+}
+
+# Return 1 if the guest supports ACPI, 0 otherwise
+sub _supports_acpi
+{
+    my ($desc, $arch) = @_;
+
+    # Blacklist configurations which are known to fail
+    # RHEL 3, x86_64
+    if ($desc->{distro} eq 'rhel' && $desc->{major_version} == 3 &&
+        $arch eq 'x86_64') {
+        return 0;
+    }
+
+    return 1;
 }
 
 =back
