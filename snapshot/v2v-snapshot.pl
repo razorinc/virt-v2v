@@ -529,8 +529,10 @@ sub _commit_guest
         # Update the domain XML with the location of the backing store
         if($backing_type == Sys::Virt::StorageVol::TYPE_BLOCK) {
             $source->setAttribute('dev', $backing_path);
+            $source->removeAttribute('file');
         } else {
             $source->setAttribute('file', $backing_path);
+            $source->removeAttribute('dev');
         }
 
         # Update the domain XML with with a driver appropriate to the backing
@@ -646,6 +648,9 @@ sub _snapshot_guest
 
             # Update the source to be a "file" with the new path
             $source->setAttribute("file", $vol->get_path());
+
+            # Remove the dev attribute in case it was set
+            $source->removeAttribute("dev");
 
             # Also update the disk element to be a "file"
             $source->getParentNode()->setAttribute('type', 'file');
