@@ -194,37 +194,7 @@ sub _unconfigure_hvs
     die("unconfigure_hvs called without default_dom argument")
         unless defined($default_dom);
 
-    # Get a list of source HV specific metadata nodes
-    my @nodeinfo = _find_hv_metadata($dom);
-
-    for(my $i = 0; $i < $#nodeinfo; $i += 2) {
-        my $node = $nodeinfo[$i];
-        my $xpath = $nodeinfo[$i + 1]->[0];
-        my $required = $nodeinfo[$i + 1]->[1];
-
-        # Look for a replacement in the defaults
-        my ($default) = $default_dom->findnodes($xpath);
-        if(defined($default)) {
-            if($node->isa('XML::DOM::Attr')) {
-                $node->setNodeValue($default->getNodeValue());
-            } else {
-                my $replacement = $default->cloneNode(1);
-                $replacement->setOwnerDocument($dom);
-
-                $node->getParentNode()->replaceChild($replacement, $node);
-            }
-        }
-
-        else {
-            # Warn if a replacement is required, but none was found
-            print STDERR user_message
-                (__x("WARNING: No replacement found for {xpath} in ".
-                     "domain XML. The node was removed.",
-                     xpath => $xpath)) if($required);
-
-            $node->getParentNode()->removeChild($node);
-        }
-    }
+    _unconfigure_xen_metadata($dom, $default_dom);
 }
 
 sub _configure_os
@@ -303,7 +273,8 @@ sub _configure_capabilities
         if(!$found) {
             print STDERR user_message
                 (__x("The connected hypervisor does not support a ".
-                     "machine type of {machine}.",
+                     "machine type of {machine}. It will be set to the ".
+                     "current default.",
                      machine => $machine->getValue()));
 
             my ($type) = $dom->findnodes('/domain/os/type');
@@ -347,7 +318,9 @@ sub _unconfigure_bootloaders
         '/domain/os/kernel',
         '/domain/os/initrd',
         '/domain/os/root',
-        '/domain/os/cmdline'
+        '/domain/os/cmdline',
+        '/domain/bootloader',
+        '/domain/bootloader_args'
     );
 
     foreach my $path (@bootloader_paths) {
@@ -396,64 +369,93 @@ sub _configure_drivers
     }
 }
 
-sub _find_hv_metadata
+sub _replace_with_default_metadata
 {
-    my ($dom) = @_;
+    my ($node, $xpath, $default_dom) = @_;
 
-    return _find_xen_metadata($dom);
-}
+    # Look for a replacement in the defaults
+    my ($default) = $default_dom->findnodes($xpath);
+    if(defined($default)) {
+        if($node->isa('XML::DOM::Attr')) {
+            $node->setNodeValue($default->getNodeValue());
+        } else {
+            my $replacement = $default->cloneNode(1);
+            $replacement->setOwnerDocument($node->getOwnerDocument());
 
-sub _find_xen_metadata
-{
-    my $dom = shift;
-    defined($dom) or carp("find_metadata called without dom argument");
-
-    # List of nodes requiring changes if they exist and match a particular
-    # pattern, and whether they need to be replaced for a guest to function
-    # Most of this is taken from inspection of domain.rng
-    my @check_nodes = (
-        [ '/domain/@type', 'xen', 1 ],
-        [ '/domain/devices/emulator', 'xen', 0 ],
-        [ '/domain/devices/input/@bus', 'xen', 1 ],
-        [ '/domain/devices/interface/script/@path', 'vif-bridge', 0],
-        [ '/domain/os/loader', 'xen', 0 ],
-        [ '/domain/os/type/@machine', '(xenpv|xenfv|xenner)', 0 ],
-        [ '/domain/devices/disk/target/@bus', 'xen', 0 ],
-        [ '/domain/bootloader', undef, 0],
-        [ '/domain/bootloader_args', undef, 0]
-    );
-
-    my @nodeinfo = ();
-    foreach my $check_node (@check_nodes) {
-        my $xpath = $check_node->[0];
-        my $pattern = $check_node->[1];
-        my $required = $check_node->[2];
-
-        foreach my $node ($dom->findnodes($xpath)) {
-            if(defined($pattern)) {
-                my $value;
-                if($node->isa('XML::DOM::Attr')) {
-                    $value = $node->getNodeValue();
-                } else {
-                    my ($text) = $node->findnodes('text()');
-                    $value = $text->getNodeValue();
-                }
-
-                next unless($value =~ m{$pattern});
-            }
-
-            push(@nodeinfo, $node => [ $xpath, $required ]);
+            $node->getParentNode()->replaceChild($replacement, $node);
         }
     }
 
-    return @nodeinfo;
+    else {
+        # Warn if no replacement was found
+        print STDERR user_message
+            (__x("WARNING: No replacement found for {xpath} in ".
+                 "domain XML. The node was removed.",
+                 xpath => $xpath));
+
+        $node->getParentNode()->removeChild($node);
+    }
+}
+
+sub _unconfigure_xen_metadata
+{
+    my ($dom, $default_dom) = @_;
+
+    # The list of target xen-specific nodes is mostly taken from inspection of
+    # domain.rng
+
+    # Nodes which should be replaced with a default if they are present
+    foreach my $hv_node (
+        [ '/domain/@type', 'xen' ],
+        [ '/domain/devices/input/@bus', 'xen' ]
+    ) {
+        my $xpath = $hv_node->[0];
+        my $pattern = $hv_node->[1];
+
+        foreach my $node ($dom->findnodes($xpath)) {
+            if(defined($pattern)) {
+                next unless($node->getNodeValue() =~ m{$pattern});
+            }
+
+            _replace_with_default_metadata($node, $xpath, $default_dom);
+        }
+    }
+
+    # Remove machine if it has a xen-specific value
+    # We could replace it with the generic 'pc', but 'pc' is a moving target
+    # across QEMU releases. By removing it entirely, libvirt will automatically
+    # add the latest machine type (e.g. pc-0.11), which is stable.
+    foreach my $machine_type ($dom->findnodes('/domain/os/type/@machine')) {
+        if ($machine_type->getNodeValue() =~ /(xenpv|xenfv|xenner)/) {
+            my ($type) = $dom->findnodes('/domain/os/type[@machine = "'.
+                                         $machine_type->getNodeValue().'"]');
+            $type->getAttributes()->removeNamedItem("machine");
+        }
+    }
+
+    # Remove emulator if it is defined
+    foreach my $emulator ($dom->findnodes('/domain/devices/emulator')) {
+        $emulator->getParent()->removeChild($emulator);
+    }
+
+    # Remove the script element if its path attribute is 'vif-bridge'
+    foreach my $script ($dom->findnodes('/domain/devices/interface/script[@path = "vif-bridge"]'))
+    {
+        $script->getParent()->removeChild($script);
+    }
+
+    # Other Xen related metadata is handled separately
+    # /domain/devices/disk/target/@bus = 'xen'
+    # /domain/os/loader = 'xen'
+    # /domain/bootloader
+    # /domain/bootloader_args
 }
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 
