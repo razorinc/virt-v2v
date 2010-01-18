@@ -38,7 +38,8 @@ Sys::VirtV2V::MetadataReader::LibVirt - Read libvirt metadata from libvirtd
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirt", $vmm, @args);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate
+    ("libvirt", "xen+ssh://xenserver.example.com/", $config, @args);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
@@ -62,11 +63,15 @@ sub _new
 {
     my $class = shift;
 
-    my ($config, $vmm, @args) = @_;
+    my ($uri, $config, @args) = @_;
 
     my $self = {};
 
     bless($self, $class);
+
+    my @vmm_params = (auth => 1);
+    push(@vmm_params, url => $uri) if defined($uri);
+    my $vmm = Sys::Virt->new(@vmm_params);
 
     $self->{vmm} = $vmm;
     $self->_handle_args(@args);

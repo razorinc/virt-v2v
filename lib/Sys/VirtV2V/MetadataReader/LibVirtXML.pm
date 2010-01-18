@@ -37,7 +37,8 @@ Sys::VirtV2V::MetadataReader::LibVirtXML - Read libvirt XML from a file
 
  use Sys::VirtV2V::MetadataReader;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml", $vmm, @args);
+ $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml", undef,
+                                                     $config, @args);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
@@ -61,7 +62,7 @@ sub _new
 {
     my $class = shift;
 
-    my ($config, $vmm, @args) = @_;
+    my ($uri, $config, @args) = @_;
 
     my %obj = ();
     my $self = \%obj;

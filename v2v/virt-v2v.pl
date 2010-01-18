@@ -46,9 +46,9 @@ virt-v2v - Convert a guest to use KVM
 
  virt-v2v guest-domain.xml
 
- virt-v2v -s virt-v2v.conf guest-domain.xml
+ virt-v2v -f virt-v2v.conf guest-domain.xml
 
- virt-v2v --connect qemu:///system guest-domain.xml
+ virt-v2v -ic qemu:///system guest-domain
 
 =head1 DESCRIPTION
 
@@ -112,37 +112,12 @@ table below.
 
 =cut
 
-my $help;
+my $input_method = "libvirt";
 
-=item B<--help>
+=item B<-i input>
 
-Display brief help.
-
-=cut
-
-my $version;
-
-=item B<--version>
-
-Display version number and exit.
-
-=cut
-
-my $uri;
-
-=item B<--connect URI> | B<-c URI>
-
-Connect to libvirt using the given I<URI>. If omitted, then we connect to the
-default libvirt hypervisor.
-
-=cut
-
-my $input = "libvirt";
-
-=item B<--input input> | B<-i input>
-
-The specified guest description uses the given I<input format>. The default is
-C<libvirt>. Supported options are:
+Specifies how the conversion source metadata can be obtained. The default is
+C<libvirt>.  Supported options are:
 
 =over
 
@@ -158,11 +133,37 @@ Guest argument is the path to an XML file describing a libvirt domain.
 
 =cut
 
+my $input_uri;
+
+=item B<-ic URI>
+
+Specifies the connection to use when using the libvirt input method. If omitted,
+then we connect to the default libvirt hypervisor.
+
+=cut
+
+my $output_uri = "qemu:///system";
+
+=item B<-oc URI>
+
+Specifies the libvirt connection to use to create the converted guest. If
+ommitted, this defaults to qemu:///system.
+
+=cut
+
 my $config_file;
 
-=item B<--config file> | B<-s file>
+=item B<-f file>, B<--config file>
 
 Load the virt-v2v configuration from I<file>. There is no default.
+
+=item B<--help>
+
+Display brief help.
+
+=item B<--version>
+
+Display version number and exit.
 
 =back
 
@@ -171,25 +172,27 @@ Load the virt-v2v configuration from I<file>. There is no default.
 # Initialise the message output prefix
 Sys::VirtV2V::UserMessage->set_identifier('virt-v2v');
 
-GetOptions ("help|?"      => \$help,
-            "version"     => \$version,
-            "connect|c=s" => \$uri,
-            "input|i=s"   => \$input,
-            "config|s=s"  => \$config_file
-    ) or pod2usage(2);
-pod2usage(0) if($help);
-
-if ($version) {
-    print "$Sys::VirtV2V::VERSION\n";
-    exit(0);
-}
+GetOptions ("help|?"      => sub {
+                pod2usage(0);
+            },
+            "version"     => sub {
+                print "$Sys::VirtV2V::VERSION\n";
+                exit(0);
+            },
+            "c|connect"   => sub {
+                # -c|--connect is the default for other virt tools. Be nice to
+                # the user and point out that virt-v2v is different.
+                pod2usage({ -message => __("Use -ic or -oc to specify an ".
+                                           "input or an output connection"),
+                            -exitval => 1 });
+            },
+            "i=s"         => \$input_method,
+            "ic=s"        => \$input_uri,
+            "oc=s"        => \$output_uri,
+            "f|config=s"  => \$config_file
+) or pod2usage(2);
 
 pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
-
-# Connect to libvirt
-my @vmm_params = (auth => 1);
-push(@vmm_params, uri => $uri) if(defined($uri));
-my $vmm = Sys::Virt->new(@vmm_params);
 
 # Read the config file if one was given
 my $config = {};
@@ -206,11 +209,11 @@ if(defined($config_file)) {
 }
 
 # Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, $config,
-                                                    $vmm, @ARGV);
+my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input_method, $input_uri,
+                                                    $config, @ARGV);
 if(!defined($mdr)) {
-    print STDERR user_message __x("{input} is not a valid metadata format",
-                                  input => $input);
+    print STDERR user_message __x("{input} is not a valid input method",
+                                  input => $input_method);
     exit(1);
 }
 
@@ -238,6 +241,11 @@ my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
 my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
+
+# Connect to target libvirt
+my @vmm_params = (auth => 1);
+push(@vmm_params, uri => $output_uri) if(defined($output_uri));
+my $vmm = Sys::Virt->new(@vmm_params);
 
 # Modify the guest and its metadata for the target hypervisor
 Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
