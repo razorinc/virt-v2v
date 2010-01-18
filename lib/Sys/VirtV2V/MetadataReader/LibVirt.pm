@@ -84,7 +84,7 @@ sub _handle_args
     # Warn if we were given more than 1 argument
     if(scalar(@_) > 0) {
         print STDERR user_message
-            (__x("WARNING: {modulename} only takes a single filename.",
+            (__x("WARNING: {modulename} only takes a single domain name.",
                  modulename => NAME));
     }
 }
