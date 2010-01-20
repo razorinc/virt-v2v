@@ -1,4 +1,4 @@
-# Sys::VirtV2V::MetadataReader
+# Sys::VirtV2V::Connection
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,13 +15,13 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::MetadataReader;
+package Sys::VirtV2V::Connection;
 
 use strict;
 use warnings;
 
 use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::VirtV2V::MetadataReader'],
+                      search_path => ['Sys::VirtV2V::Connection'],
                       require => 1;
 
 use Carp;
@@ -30,25 +30,25 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::MetadataReader - Read a variety of guest metadata formats
+Sys::VirtV2V::Connection - Read a variety of guest metadata formats
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::MetadataReader;
+ use Sys::VirtV2V::Connection;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate("libvirtxml", $uri,
+ $reader = Sys::VirtV2V::Connection->instantiate("libvirtxml", $uri,
                                                      $config, @args);
  exit 1 unless($mdr->is_configured());
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::MetadataReader reads the metadata of a, possibly foreign,
+Sys::VirtV2V::Connection reads the metadata of a, possibly foreign,
 guest. It provides the DOM representation of an equivalent libvirt XML
 representation.
 
-Sys::VirtV2V::MetadataReader is an interface to various backends, each of
-which implement a consistent API. Sys::VirtV2V::MetadataReader itself only
+Sys::VirtV2V::Connection is an interface to various backends, each of
+which implement a consistent API. Sys::VirtV2V::Connection itself only
 implements methods to access backends.
 
 =head1 METHODS
@@ -134,8 +134,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::MetadataReader::LibVirt(3pm)>,
-L<Sys::VirtV2V::MetadataReader::LibVirtXML(3pm)>,
+L<Sys::VirtV2V::Connection::LibVirt(3pm)>,
+L<Sys::VirtV2V::Connection::LibVirtXML(3pm)>,
 L<virt-v2v(1)>,
 L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.

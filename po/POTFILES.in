@@ -4,8 +4,8 @@
 ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm
 ../lib/Sys/VirtV2V/Converter/Linux.pm
 ../lib/Sys/VirtV2V/Converter.pm
-../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm
-../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm
-../lib/Sys/VirtV2V/MetadataReader.pm
+../lib/Sys/VirtV2V/Connection/LibVirt.pm
+../lib/Sys/VirtV2V/Connection/LibVirtXML.pm
+../lib/Sys/VirtV2V/Connection.pm
 ../snapshot/v2v-snapshot.pl
 ../v2v/virt-v2v.pl

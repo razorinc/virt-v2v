@@ -174,40 +174,40 @@ msgstr "L'hypervisor connesso non supporta la funzione {feature}"
 msgid "Unable to find a module to configure this guest"
 msgstr "Impossibile trovare un modulo per la configurazione dell'ospite"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:113
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "ATTENZIONE: {modulename} accetta un solo nome file."
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:125
 #, perl-brace-format
 msgid "Guest {name} must be shutdown first"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:145
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} non è un nome di ospite valido"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:90
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
 msgstr ""
 "ATTENZIONE: direttiva di configurazione {directive} sconosciuta nella "
 "sezione {name}."
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:143
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:143
 #, perl-brace-format
 msgid "You must specify a filename when using {modulename}"
 msgstr "Quando si usa {modulename} è necessario specificare un nome file"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:167
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:167
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "Impossibile aprire {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:180
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:180
 #, perl-brace-format
 msgid "Unable to parse {path}: {error}"
 msgstr "Impossibile eseguire il parsing di {path}: {error}"

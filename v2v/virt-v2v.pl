@@ -33,7 +33,7 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
 use Sys::VirtV2V;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::Converter;
-use Sys::VirtV2V::MetadataReader;
+use Sys::VirtV2V::Connection;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
@@ -208,8 +208,8 @@ if(defined($config_file)) {
     }
 }
 
-# Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input_method, $input_uri,
+# Get an appropriate Connection
+my $mdr = Sys::VirtV2V::Connection->instantiate($input_method, $input_uri,
                                                     $config, @ARGV);
 if(!defined($mdr)) {
     print STDERR user_message __x("{input} is not a valid input method",
@@ -217,7 +217,7 @@ if(!defined($mdr)) {
     exit(1);
 }
 
-# Check MetadataReader is properly initialised
+# Check Connection is properly initialised
 exit 1 unless($mdr->is_configured());
 
 # Configure GuestOS ([files] and [deps] sections)

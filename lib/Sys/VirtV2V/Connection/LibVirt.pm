@@ -1,4 +1,4 @@
-# Sys::VirtV2V::MetadataReader::LibVirt
+# Sys::VirtV2V::Connection::LibVirt
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::MetadataReader::LibVirt;
+package Sys::VirtV2V::Connection::LibVirt;
 
 use strict;
 use warnings;
@@ -32,25 +32,25 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::MetadataReader::LibVirt - Read libvirt metadata from libvirtd
+Sys::VirtV2V::Connection::LibVirt - Read libvirt metadata from libvirtd
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::MetadataReader;
+ use Sys::VirtV2V::Connection;
 
- $reader = Sys::VirtV2V::MetadataReader->instantiate
+ $reader = Sys::VirtV2V::Connection->instantiate
     ("libvirt", "xen+ssh://xenserver.example.com/", $config, @args);
  $dom = $reader->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::MetadataReader::LibVirt is a backend for
-Sys::VirtV2V::MetadataReader which reads a guest's libvirt XML directly from a
+Sys::VirtV2V::Connection::LibVirt is a backend for
+Sys::VirtV2V::Connection which reads a guest's libvirt XML directly from a
 libvirt connection.
 
 =head1 METHODS
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for a detailed
+See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for a detailed
 description of its exported methods.
 
 =over
@@ -94,9 +94,9 @@ sub _handle_args
     }
 }
 
-=item Sys::VirtV2V::MetadataReader::LibVirtXML->get_name()
+=item Sys::VirtV2V::Connection::LibVirtXML->get_name()
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
 
 =cut
 
@@ -109,7 +109,7 @@ sub get_name
 
 =item is_configured()
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
 
 =cut
 
@@ -183,7 +183,7 @@ sub _get_domain
 
 =item get_dom()
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::MetadataReader> for details.
+See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
 
 =cut
 
@@ -216,7 +216,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::MetadataReader(3)>,
+L<Sys::VirtV2V::Connection(3)>,
 L<virt-v2v(1)>,
 L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.

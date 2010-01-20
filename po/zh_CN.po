@@ -166,38 +166,38 @@ msgstr "连接的管理程序不支持特性 {feature}"
 msgid "Unable to find a module to configure this guest"
 msgstr "无法找到配置这个客户端的模块"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:113
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "警告：{modulename} 只使用单一文件名。"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:125
 #, perl-brace-format
 msgid "Guest {name} must be shutdown first"
 msgstr "必须首先关闭客户端 {name}"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:145
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} 不是有效客户端名"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:90
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
 msgstr "警告：{name} 部分的未知配置指令 {directive}。"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:143
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:143
 #, perl-brace-format
 msgid "You must specify a filename when using {modulename}"
 msgstr "使用 {modulename} 时必须指定文件名"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:167
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:167
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:180
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:180
 #, perl-brace-format
 msgid "Unable to parse {path}: {error}"
 msgstr "无法解析 {path}：{error}"

@@ -177,40 +177,40 @@ msgstr "El hipervisor conectado no soporta la característica {feature}"
 msgid "Unable to find a module to configure this guest"
 msgstr "No es posible encontrar un módulo para configurar este huésped"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:113
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:125
 #, perl-brace-format
 msgid "Guest {name} must be shutdown first"
 msgstr "Huésped {name} se debe apagar primero"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:145
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} no es un nombre de huésped válido"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:90
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
 msgstr ""
 "ADVERTENCIA: directiva {directive} de configuración desconocida en la "
 "sección {name}. "
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:143
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:143
 #, perl-brace-format
 msgid "You must specify a filename when using {modulename}"
 msgstr "Debe especificar un nombre de archivo cuando utilice {modulename}"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:167
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:167
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "Falló al abrir {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:180
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:180
 #, perl-brace-format
 msgid "Unable to parse {path}: {error}"
 msgstr "Imposible analizar sintácticamente a {path}: {error}"

@@ -31,7 +31,7 @@ use Sys::Virt;
 
 use Sys::VirtV2V;
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::MetadataReader;
+use Sys::VirtV2V::Connection;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
@@ -239,8 +239,8 @@ if (!defined($datadir)) {
     }
 }
 
-# Get an appropriate MetadataReader
-my $mdr = Sys::VirtV2V::MetadataReader->instantiate($input, {}, $vmm, @ARGV);
+# Get an appropriate Connection
+my $mdr = Sys::VirtV2V::Connection->instantiate($input, {}, $vmm, @ARGV);
 if(!defined($mdr)) {
     print STDERR user_message(__x("{input} is not a valid input format",
                                   input => $input));
