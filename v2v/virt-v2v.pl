@@ -265,7 +265,6 @@ sub get_guestfs_handle
     $g->set_selinux(1);
 
     $g->launch ();
-    $g->wait_ready ();
 
     return $g;
 }
