@@ -1,0 +1,346 @@
+# translation of virt-v2v.master.virt-v2v.po to Telugu
+# Copyright (C) YEAR Red Hat Inc.
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Krishna Babu K <kkrothap@redhat.com>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: virt-v2v.master.virt-v2v\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"POT-Creation-Date: 2009-11-09 13:32+0000\n"
+"PO-Revision-Date: 2010-01-28 17:09+0530\n"
+"Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
+"Language-Team: Telugu <en@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n\n"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:152
+#, perl-brace-format
+msgid "WARNING: unable to access {path}."
+msgstr "WARNING: {path}ను యాక్సెస్ చేయలేదు."
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:173
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"బదిలీకరణ iso సృష్టించుటలో విఫలమైంది. ఆదేశపు అవుట్పుట్:\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
+msgid "/etc/selinux/config does not exist"
+msgstr "/etc/selinux/config లేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
+msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+msgstr "/etc/syslinux/config నందు SELINUXTYPE కనబడలేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
+#, perl-brace-format
+msgid "Unable to find an SELinux policy file matching {path}: {error}"
+msgstr "{path}ను సరిపోలు SELinux విధాన ఫైలును కనుగొనలేక పోయింది: {error}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
+msgid "Unable to load an SELinux policy"
+msgstr "SELinux విధానాన్ని లోడు చేయలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
+#, perl-brace-format
+msgid "WARNING: unable to configure SELinux: {error})"
+msgstr "హెచ్చరిక: SELinuxను ఆకృతీకరించలేక పోయింది: {error}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
+msgid "Unable to find any valid modprobe configuration"
+msgstr "ఎటువంటి విలువైన modprobe ఆకృతీకరణ కనుగొనలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
+msgid "Unable to find a default kernel"
+msgstr "అప్రమేయ కెర్నల్‌ను కనుగొనలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
+#, perl-brace-format
+msgid "{filename} doesn't contain a valid kernel"
+msgstr "{filename} చెల్లునటువంటి కెర్నల్‌ను కలిగిలేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
+msgid "Unable to determine a kernel architecture for this guest"
+msgstr "ఈ గెస్టు కొరకు కెర్నల్ ఆకృతిని నిర్ధారించలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
+#, perl-brace-format
+msgid "Found dependency loop installing {label}: {path}"
+msgstr "{label} సంస్థాపించుటలో ఆధారభూత లూప్ కనుగొనబడింది: {path}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
+#, perl-brace-format
+msgid "No {object} given matching {label}"
+msgstr "ఇవ్వబడిన యే {object} కూడా {label} సరిపోలుటలేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
+msgid "file"
+msgstr "ఫైలు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
+msgid "alias"
+msgstr "మారుపేరు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
+msgid "dependencies"
+msgstr "అధారాలు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
+#, perl-brace-format
+msgid "No mapping found for block device {device}"
+msgstr "బ్లాక్ పరికరము {device} కొరకు యే మాపింగ్ కనబడలేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
+#, perl-brace-format
+msgid "Didn't find a grub entry for kernel version {version}"
+msgstr "కెర్నల్ వర్షన్ {version} కొరకు grub ప్రవేశాన్ని కనుగొనలేదు"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
+#, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+msgstr "హెచ్చరిక: కెర్నల్ వర్షన్ {version} అనునది grub నందు initrd ప్రవేశాన్ని కలిగిలేదు"
+
+#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "/etc/rc.local తెరువలేక పోయింది: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "{name} virtio డ్రైవర్లతో ఆకృతీకరించబడింది"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} virtio డ్రైవర్లు లేకుండా ఆకృతీకరించబడింది"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
+#, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr "హెచ్చరిక: {module} ను యెలా నవీకరించాలో తెలియదు, ఏది {modulename} మాడ్యూల్ లోడుచేస్తుంది."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
+"Unable to continue."
+msgstr ""
+"ఎటువంటి బుట్ చేయదగు కెర్నల్సు సంస్థాపించబడలేదు, మరియు ఆకృతీకరణనందు యెటువంటి "
+"పునఃస్థాపన తెలుపబడలేదు.\n"
+"కొనసాగించుట సాధ్యపడదు."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
+#, perl-brace-format
+msgid ""
+"WARNING: No replacement found for {xpath} in domain XML. The node was "
+"removed."
+msgstr "హెచ్చరిక: XML డొమైన్ నందు {xpath} కొరకు యెటువంటి పునఃస్థాపన కనుగొనబడలేదు. నోడ్ తీసివేయబడింది."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "అనుసంధానించబడిన హైపర్విజర్ {arch} kvm గెస్టును మద్దతించదు"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
+#, perl-brace-format
+msgid "The connected hypervisor does not support a machine type of {machine}."
+msgstr "అనుసంధానించబడిన హైపర్విజర్ మిషన్ రకమైన {machine}కు మద్దతీయదు."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "అనుసంధానించబడిన హైపర్విజర్ {feature} సౌలభ్యాన్ని మద్దతించదు."
+
+#: ../lib/Sys/VirtV2V/Converter.pm:96
+msgid "Unable to find a module to configure this guest"
+msgstr "ఈ గెస్టును ఆకృతీకరించుటకు మాడ్యూల్‌ను కనుగొనలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "హెచ్చరిక: {modulename} వొంటరి ఫైలునామాన్ని మాత్రమే తీసుకొంటుంది."
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
+#, perl-brace-format
+msgid "Guest {name} must be shutdown first"
+msgstr "గెస్టు {name} తప్పక ముందుగా మూసివేయబడాలి"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "{name} చెల్లునటువంటి గెస్టు నామము కాదు"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr "హెచ్చరిక: తెలియని ఆకృతీకరణ {directive} డైరెక్టివ్ {name} విభాగమునందు."
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:143
+#, perl-brace-format
+msgid "You must specify a filename when using {modulename}"
+msgstr "{modulename} వుపయోగించునప్పుడు మీరు తప్పక ఫైలునామాన్ని తెలుపవలెను"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:167
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "{path} తెరుచుటకు విఫలమైంది: {error}"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:180
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "{path} పార్శ్ చేయలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:202
+msgid "--commit and --rollback options are mutually exclusive"
+msgstr "--commit మరియు --rollback ఐచ్చికాలు పరస్పర విరుద్దాలు"
+
+#: ../snapshot/v2v-snapshot.pl:211 ../v2v/virt-v2v.pl:188
+msgid "no guest argument given"
+msgstr "ఎటువంటి గెస్టు ఆర్గుమెంట్ యివ్వబడలేదు"
+
+#: ../snapshot/v2v-snapshot.pl:221
+#, perl-brace-format
+msgid "{input} is not a valid input format"
+msgstr "{input} అనునది చెల్లునటువంటి యిన్పుట్ ఫార్మాట్ కాదు"
+
+#: ../snapshot/v2v-snapshot.pl:255
+msgid "No domain has been created."
+msgstr "ఎటువంటి డొమైన్ సృష్టించబడలేదు."
+
+#: ../snapshot/v2v-snapshot.pl:267
+#, perl-brace-format
+msgid "Unable to open {file}: {error}"
+msgstr "{file} తెరువలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:277 ../snapshot/v2v-snapshot.pl:313
+#, perl-brace-format
+msgid "Error closing {file}: {error}"
+msgstr "{file} మూయలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:281 ../snapshot/v2v-snapshot.pl:309
+#, perl-brace-format
+msgid "Wrote output to {file}"
+msgstr "అవుట్పుట్ {file}కు వ్రాసినది"
+
+#: ../snapshot/v2v-snapshot.pl:299
+#, perl-brace-format
+msgid "Unable to create guest: {error}"
+msgstr "గెస్టును సృష్టించలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:301
+msgid "Consider using the --outputxml option"
+msgstr "--outputxml ఐచ్చికము వుపయోగించుము"
+
+#: ../snapshot/v2v-snapshot.pl:349
+#, perl-brace-format
+msgid "Unable to create v2v-snapshot storage pool: {error}"
+msgstr "v2v-snapshot నిల్వ పూల్‌ను సృష్టించలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:367
+#, perl-brace-format
+msgid "Unable to start v2v-snapshot storage pool: {error}"
+msgstr "v2v-snapshot నిల్వ పూల్‌ను ప్రారంభించలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:377
+msgid "v2v-snapshot storage pool is temporarily unavailable"
+msgstr "v2v-snapshot నిల్వ పూల్ తాత్కాలికంగా అందుబాటులో లేదు"
+
+#: ../snapshot/v2v-snapshot.pl:405
+#, perl-brace-format
+msgid "Unable to find {path} in the v2v-snapshot storage pool."
+msgstr "v2v-snapshot నిల్వపూల్ నందు {path} కనుగొనలేక పోయింది."
+
+#: ../snapshot/v2v-snapshot.pl:460
+#, perl-brace-format
+msgid "Skipping device {target} as it doesn't have a backing store"
+msgstr "బ్యాకింగ్ నిల్వ లేని కారణంగా పరికర {target} వదిలివేయుచున్నది"
+
+#: ../snapshot/v2v-snapshot.pl:517
+#, perl-brace-format
+msgid ""
+"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+"Command output was:\n"
+"{output}"
+msgstr ""
+"స్నాప్‌షాట్ '{path}'ను బ్యాకింగ్ నిల్వ '{backingstore}'కు కమిట్ చేయుటలో విఫలమైంది.\n"
+"ఆదేశ అవుట్పుట్ యిలావుంది:\n"
+"{output}"
+
+#: ../snapshot/v2v-snapshot.pl:550
+#, perl-brace-format
+msgid ""
+"A snapshot already exists for {guest}. You must commit it or roll it back "
+"back before creating a new snapshot."
+msgstr ""
+"{guest} కొరకు వొక స్నాప్‌షాక్ యిప్పటికే వుంది. కొత్త స్నాప్‌షాట్‌ను సృష్టించుటకు ముందుగా మీరు దానిని "
+"కమిట్ చేయాలి లేదా వెనుకకు వుంచాలి."
+
+#: ../snapshot/v2v-snapshot.pl:559
+#, perl-brace-format
+msgid "Unable to write to {path}: {error}"
+msgstr "{path} వ్రాయుట సాధ్యంకాదు: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:565
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "{path} మూసివేయుటలో దోషము: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:597
+#, perl-brace-format
+msgid "Unable to create storage volume: {error}"
+msgstr "నిల్వ వాల్యూమ్ సృష్టించుట సాధ్యంకాదు: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:630
+#, perl-brace-format
+msgid "Refusing to rollback guest {name} without backed-up xml"
+msgstr "backed-up xml లేకుండా rollback గెస్టు {name} తిరస్కరిస్తోంది"
+
+#: ../snapshot/v2v-snapshot.pl:657
+#, perl-brace-format
+msgid "{path} is not a snapshot volume"
+msgstr "{path} స్నాప్‌షాట్ వాల్యూమ్ కాదు"
+
+#: ../snapshot/v2v-snapshot.pl:663
+#, perl-brace-format
+msgid "Failed to delete {file}: {error}"
+msgstr "{file} తొలగించుటకు విఫలమైంది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:675
+#, perl-brace-format
+msgid "Unable to delete backup xml file {file}: {error}"
+msgstr "బ్యాకప్ xml ఫైలు {file} తొలగించలేక పోయింది: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:737
+#, perl-brace-format
+msgid "invalid source element: {element}"
+msgstr "చెల్లని మూలపు మూలకం: {element}"
+
+#: ../v2v/virt-v2v.pl:202
+#, perl-brace-format
+msgid "Unable to parse {file}: {error}"
+msgstr "{file}ను పార్శ్ చేయలేక పోయింది: {error}"
+
+#: ../v2v/virt-v2v.pl:213
+#, perl-brace-format
+msgid "{input} is not a valid metadata format"
+msgstr "{input} అనునది చెల్లునటువంటి మెటాడాటా ఫార్మాట్ కాదు"
+
+#: ../v2v/virt-v2v.pl:303
+msgid "no root device found in this operating system image"
+msgstr "ఈ ఆపరేటింగి సిస్టమ్ ప్రతిబింబమునందు ఏ root పరికరము కనబడలేదు"
+
+#: ../v2v/virt-v2v.pl:309
+msgid "multiboot operating systems are not supported by virt-v2v"
+msgstr "virt-v2v చేత multiboot ఆపరేటింగ్ సిస్టమ్సు మద్దతించబడవు"
+
