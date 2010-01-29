@@ -12,6 +12,7 @@ lib/Sys/VirtV2V/Connection.pm
 lib/Sys/VirtV2V/Connection/LibVirt.pm
 lib/Sys/VirtV2V/Connection/LibVirtXML.pm
 lib/Sys/VirtV2V/UserMessage.pm
+lib/Sys/VirtV2V/Transfer/ESX.pm
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml

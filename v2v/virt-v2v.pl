@@ -33,7 +33,8 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
 use Sys::VirtV2V;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::Converter;
-use Sys::VirtV2V::Connection;
+use Sys::VirtV2V::Connection::LibVirt;
+use Sys::VirtV2V::Connection::LibVirtXML;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
@@ -133,12 +134,20 @@ Guest argument is the path to an XML file describing a libvirt domain.
 
 =cut
 
-my $input_uri;
+my $input_uri = "qemu:///system";
 
 =item B<-ic URI>
 
 Specifies the connection to use when using the libvirt input method. If omitted,
-then we connect to the default libvirt hypervisor.
+this defaults to qemu:///system.
+
+=cut
+
+my $input_transport;
+
+=item B<-it method>
+
+Species the transport method used to obtain raw storage from the source guest.
 
 =cut
 
@@ -151,9 +160,18 @@ ommitted, this defaults to qemu:///system.
 
 =cut
 
+my $output_pool;
+
+=item B<-op pool>
+
+Specifies the pool which will be used to create new storage for the converted
+guest.
+
+=cut
+
 my $config_file;
 
-=item B<-f file>, B<--config file>
+=item B<-f file>
 
 Load the virt-v2v configuration from I<file>. There is no default.
 
@@ -189,10 +207,9 @@ GetOptions ("help|?"      => sub {
             "i=s"         => \$input_method,
             "ic=s"        => \$input_uri,
             "oc=s"        => \$output_uri,
+            "op=s"        => \$output_pool,
             "f|config=s"  => \$config_file
 ) or pod2usage(2);
-
-pod2usage(user_message(__"no guest argument given")) if @ARGV == 0;
 
 # Read the config file if one was given
 my $config = {};
@@ -208,44 +225,95 @@ if(defined($config_file)) {
     }
 }
 
+# Connect to target libvirt
+my $vmm = Sys::Virt->new(
+    auth => 1,
+    uri => $output_uri
+);
+
 # Get an appropriate Connection
-my $mdr = Sys::VirtV2V::Connection->instantiate($input_method, $input_uri,
-                                                    $config, @ARGV);
-if(!defined($mdr)) {
-    print STDERR user_message __x("{input} is not a valid input method",
-                                  input => $input_method);
+my $conn;
+eval {
+    if ($input_method eq "libvirtxml") {
+        my $path = shift(@ARGV) or
+            pod2usage({ -message => user_message(__"You must specify a filename"),
+                        -exitval => 1 });
+
+        # Warn if we were given more than 1 argument
+        if(scalar(@_) > 0) {
+            print STDERR user_message
+                (__x("WARNING: {modulename} only takes a single filename.",
+                     modulename => 'libvirtxml'));
+        }
+
+        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($config, $path);
+    }
+
+    elsif ($input_method eq "libvirt") {
+        my $name = shift(@ARGV) or
+            pod2usage({ -message => user_message(__"You must specify a guest"),
+                        -exitval => 1 });
+
+        # Get a handle to the output pool if one is defined
+        my $pool;
+        if (defined($output_pool)) {
+            eval {
+                $pool = $vmm->get_storage_pool_by_name($output_pool);
+            };
+
+            if ($@) {
+                print STDERR user_message
+                    (__x("Output pool {poolname} is not a valid local ".
+                         "storage pool",
+                         poolname => $output_pool));
+                exit(1);
+            }
+        }
+
+        $conn = Sys::VirtV2V::Connection::LibVirt->new($input_uri, $name,
+                                                       $pool);
+
+        # Warn if we were given more than 1 argument
+        if(scalar(@_) > 0) {
+            print STDERR user_message
+                (__x("WARNING: {modulename} only takes a single domain name.",
+                     modulename => 'libvirt'));
+        }
+    }
+
+    else {
+        print STDERR user_message __x("{input} is not a valid input method",
+                                      input => $input_method);
+        exit(1);
+    }
+};
+if ($@) {
+    print STDERR $@;
     exit(1);
 }
 
-# Check Connection is properly initialised
-exit 1 unless($mdr->is_configured());
-
 # Configure GuestOS ([files] and [deps] sections)
 Sys::VirtV2V::GuestOS->configure($config);
+
 
 ###############################################################################
 ## Start of processing
 
 # Get a libvirt configuration for the guest
-my $dom = $mdr->get_dom();
+my $dom = $conn->get_dom();
 exit(1) unless(defined($dom));
 
-# Get a list of the guest's storage devices
-my @devices = get_guest_devices($dom);
+# Get a list of the guest's transfered storage devices
+my @storage = $conn->get_local_storage();
 
-# Open a libguestfs handle on the guest's devices
-my $g = get_guestfs_handle(@devices);
+# Open a libguestfs handle on the guest's storage devices
+my $g = get_guestfs_handle(@storage);
 
 # Inspect the guest
 my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
 my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
-
-# Connect to target libvirt
-my @vmm_params = (auth => 1);
-push(@vmm_params, uri => $output_uri) if(defined($output_uri));
-my $vmm = Sys::Virt->new(@vmm_params);
 
 # Modify the guest and its metadata for the target hypervisor
 Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
@@ -255,15 +323,14 @@ $g->sync();
 
 $vmm->define_domain($dom->toString());
 
+exit(0);
 
 ###############################################################################
 ## Helper functions
 
 sub get_guestfs_handle
 {
-    my @params = \@_; # Initialise parameters with list of devices
-
-    my $g = open_guest(@params, rw => 1);
+    my $g = open_guest(\@_, rw => 1);
 
     # Mount the transfer iso if GuestOS needs it
     my $transferiso = Sys::VirtV2V::GuestOS->get_transfer_iso();
@@ -326,27 +393,6 @@ sub inspect_guest
     inspect_in_detail ($g, $os);
 
     return $os;
-}
-
-sub get_guest_devices
-{
-    my $dom = shift;
-
-    my @devices;
-    foreach my $source ($dom->findnodes('/domain/devices/disk/source')) {
-        my $attrs = $source->getAttributes();
-
-        # Get either dev or file, whichever is defined
-        my $attr = $attrs->getNamedItem("dev");
-        $attr = $attrs->getNamedItem("file") if(!defined($attr));
-
-        defined($attr) or die("source element has neither dev nor file: ".
-                              $source.toString());
-
-        push(@devices, $attr->getValue());
-    }
-
-    return @devices;
 }
 
 =head1 PREPARING TO RUN VIRT-V2V

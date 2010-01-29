@@ -20,10 +20,17 @@ package Sys::VirtV2V::Connection::LibVirt;
 use strict;
 use warnings;
 
+use Sys::VirtV2V::Connection;
+our @ISA = ("Sys::VirtV2V::Connection");
+
+use Net::Netrc;
+use URI;
 use XML::DOM;
 
 use Sys::Virt;
 
+use Sys::VirtV2V;
+use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -36,107 +43,133 @@ Sys::VirtV2V::Connection::LibVirt - Read libvirt metadata from libvirtd
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection;
+ use Sys::VirtV2V::Connection::LibVirt;
 
- $reader = Sys::VirtV2V::Connection->instantiate
-    ("libvirt", "xen+ssh://xenserver.example.com/", $config, @args);
- $dom = $reader->get_dom();
+ $conn = Sys::VirtV2V::Connection::LibVirt->new
+    ("xen+ssh://xenserver.example.com/", $name, $pool);
+ $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection::LibVirt is a backend for
+Sys::VirtV2V::Connection::LibVirt is an implementation of
 Sys::VirtV2V::Connection which reads a guest's libvirt XML directly from a
 libvirt connection.
 
 =head1 METHODS
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for a detailed
-description of its exported methods.
-
 =over
+
+=item new(uri, name, pool)
+
+Create a new Sys::VirtV2V::Connection::LibVirt. Domain I<name> will be
+downloaded from I<uri>. Remote storage will be copied to a new volume, which
+will be create in <pool>.
 
 =cut
 
-use constant NAME => "libvirt";
-
-sub _new
+sub new
 {
     my $class = shift;
 
-    my ($uri, $config, @args) = @_;
+    my ($uri, $name, $pool) = @_;
 
     my $self = {};
 
     bless($self, $class);
 
-    my @vmm_params = (auth => 1);
-    push(@vmm_params, url => $uri) if defined($uri);
-    my $vmm = Sys::Virt->new(@vmm_params);
+    $self->{uri} = URI->new($uri);
+    $self->{name} = $name;
 
-    $self->{vmm} = $vmm;
-    $self->_handle_args(@args);
+    # Parse uri authority for hostname and username
+    $self->{uri}->authority() =~ /^(?:([^:]*)(?::([^@]*))?@)?(.*)$/
+        or die(user_message(__x("Unable to parse URI authority: {auth}",
+                                auth => $self->{uri}->authority())));
+
+    my $username = $self->{username} = $1;
+    my $hostname = $self->{hostname} = $3;
+
+    print STDERR user_message(__("WARNING: Specifying a password in the ".
+                                 "connection URI is not supported. It has ".
+                                 "been ignored.")) if (defined($2));
+
+    # Look for credentials in .netrc if the URI contains a hostname
+    if (defined($hostname)) {
+        if (defined($username)) {
+            my $mach = Net::Netrc->lookup($hostname, $username);
+            $self->{password} = $mach->password if (defined($mach));
+        }
+
+        else {
+            my $mach = Net::Netrc->lookup($hostname);
+
+            if (defined($mach)) {
+                $self->{username} = $mach->login;
+                $self->{password} = $mach->password;
+            }
+        }
+    }
+
+    my $sourcevmm;
+    eval {
+        $sourcevmm = Sys::Virt->new(
+            uri => $uri,
+            readonly => 1,
+            auth => 1,
+            credlist => [
+                Sys::Virt::CRED_AUTHNAME,
+                Sys::Virt::CRED_PASSPHRASE
+            ],
+            callback => sub {
+                my $creds = shift;
+
+                foreach my $cred (@$creds) {
+                    if ($cred->{type} == Sys::Virt::CRED_AUTHNAME) {
+                        $cred->{result} = $self->{username};
+                    }
+
+                    elsif ($cred->{type} == Sys::Virt::CRED_PASSPHRASE) {
+                        $cred->{result} = $self->{password};
+                    }
+
+                    else { die($cred->{type}, "\n"); }
+                }
+            }
+        );
+    };
+    die(user_message(__x("Failed to connect to {uri}: {error}",
+                         uri => $uri,
+                         error => $@->stringify()))) if ($@);
+
+    $self->{sourcevmm} = $sourcevmm;
+
+    $self->_check_shutdown();
+
+    $self->_get_dom();
+
+    my $transfer;
+    if ($self->{uri}->scheme eq "esx") {
+        $transfer = "Sys::VirtV2V::Transfer::ESX";
+    }
+
+    $self->_storage_iterate($transfer, $pool);
 
     return $self;
 }
 
-sub _handle_args
-{
-    my $self = shift;
-
-    # The first argument is the name of a libvirt domain
-    $self->{name} = shift;
-
-    # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
-        print STDERR user_message
-            (__x("WARNING: {modulename} only takes a single domain name.",
-                 modulename => NAME));
-    }
-}
-
-=item Sys::VirtV2V::Connection::LibVirtXML->get_name()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub get_name
-{
-    my $class = shift;
-
-    return NAME;
-}
-
-=item is_configured()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub is_configured
+sub _check_shutdown
 {
     my $self = shift;
 
     my $vmm = $self->{vmm};
-    my $name = $self->{name};
-
-    # Check the given domain exists
-    my $domain = _get_domain($vmm, $name);
-
-    # Don't continue if it isn't
-    return 0 unless(defined($domain));
+    my $domain = $self->_get_domain();
 
     # Check the domain is shutdown
-    unless ($domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTOFF) {
-        print STDERR user_message
-            (__x("Guest {name} is currently {state}. ".
-                 "It must be shut down first.",
-                 state => _state_string($domain->get_info()->{state}),
-                 name => $name));
-        return 0;
-    }
-
-    return 1;
+    die(user_message(__x("Guest {name} is currently {state}. It must be ".
+                         "shut down first.",
+                         state => _state_string($domain->get_info()->{state}),
+                         name => $self->{name})))
+        unless ($domain->get_info()->{state} ==
+                Sys::Virt::Domain::STATE_SHUTOFF);
 }
 
 sub _state_string
@@ -164,30 +197,30 @@ sub _state_string
 
 sub _get_domain
 {
-    my ($vmm, $name) = @_;
+    my $self = shift;
+
+    return $self->{domain} if (defined($self->{domain}));
+
+    my $vmm = $self->{sourcevmm};
+    my $name = $self->{name};
 
     # Lookup the domain
     my $domain;
     eval {
         $domain = $vmm->get_domain_by_name($name);
     };
+    die($@) if ($@);
 
-    # Warn and exit if we didn't find it
-    unless($domain) {
-        print STDERR user_message
-            (__x("{name} isn't a valid guest name", name => $name));
-    }
+    # Check we found it
+    die(user_message(__x("{name} isn't a valid guest name", name => $name)))
+        unless($domain);
+
+    $self->{domain} = $domain;
 
     return $domain;
 }
 
-=item get_dom()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub get_dom
+sub _get_dom
 {
     my $self = shift;
 
@@ -195,13 +228,15 @@ sub get_dom
     my $name = $self->{name};
 
     # Lookup the domain
-    my $domain = _get_domain($vmm, $name);
+    my $domain = $self->_get_domain();
 
     # Warn and exit if we didn't find it
     return undef unless(defined($domain));
 
     my $xml = $domain->get_xml_description();
-    return new XML::DOM::Parser->parse($xml);
+
+    my $dom = new XML::DOM::Parser->parse($xml);
+    $self->{dom} = $dom;
 }
 
 =back

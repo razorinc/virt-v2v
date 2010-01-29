@@ -20,100 +20,52 @@ package Sys::VirtV2V::Connection;
 use strict;
 use warnings;
 
-use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::VirtV2V::Connection'],
-                      require => 1;
+use Sys::Virt;
 
-use Carp;
+use Locale::TextDomain 'virt-v2v';
+
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Connection - Read a variety of guest metadata formats
+Sys::VirtV2V::Connection - Obtain domain metadata
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection;
+ use Sys::VirtV2V::Connection::LibVirt;
 
- $reader = Sys::VirtV2V::Connection->instantiate("libvirtxml", $uri,
-                                                     $config, @args);
- exit 1 unless($mdr->is_configured());
- $dom = $reader->get_dom();
+ $conn = Sys::VirtV2V::Connection::LibVirt->new($uri, $name, $pool);
+ $dom = $conn->get_dom();
+ @storage = $conn->get_local_storage();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection reads the metadata of a, possibly foreign,
-guest. It provides the DOM representation of an equivalent libvirt XML
-representation.
+Sys::VirtV2V::Connection describes a connection to a, possibly remote, source of
+guest metadata and storage. It is a virtual superclass and can't be instantiated
+directly. Use one of the subclasses:
 
-Sys::VirtV2V::Connection is an interface to various backends, each of
-which implement a consistent API. Sys::VirtV2V::Connection itself only
-implements methods to access backends.
+ Sys::VirtV2V::Connection::LibVirt
+ Sys::VirtV2V::Connection::LibVirtXML
 
 =head1 METHODS
 
 =over
 
-=item instantiate(name, $uri, $config, @args)
+=item get_local_storage
 
-=over
-
-=item name
-
-The name of the module to instantiate.
-
-=item uri
-
-A URI describing the target connection.
-
-=item config
-
-A parsed virt-v2v configuration file.
-
-=item args
-
-Backend-specific arguments describing where its data is located.
-
-=back
-
-Instantiate a backend instance with the given name.
+Return a list of the domain's storage devices. The returned list contains local
+paths.
 
 =cut
 
-sub instantiate
+sub get_local_storage
 {
-    my $class = shift;
+    my $self = shift;
 
-    my ($name, $uri, $config, @args) = @_;
-
-    defined($name) or carp("instantiate called without name argument");
-    defined($uri)  or carp("instantiate called without uri argument");
-    defined($config) or carp("instantiate called without config argument");
-
-    foreach my $module ($class->modules()) {
-        if($module->get_name() eq $name) {
-            return $module->_new($uri, $config->{$name}, @args);
-        }
-    }
-
-    return undef;
+    return @{$self->{storage}};
 }
-
-=back
-
-=head1 BACKEND INTERFACE
-
-=over
-
-=item CLASS->get_name()
-
-Return the module's name.
-
-=item is_configured()
-
-Return 1 if the module has been suffiently configured to proceed.
-Return 0 and display an error message otherwise.
 
 =item get_dom()
 
@@ -122,11 +74,111 @@ the input.
 
 Returns undef and displays an error if there was an error
 
+=cut
+
+sub get_dom
+{
+    my $self = shift;
+
+    return $self->{dom};
+}
+
+
+# Iterate over returned storage. Transfer it and update DOM as necessary. To be
+# called by subclasses.
+sub _storage_iterate
+{
+    my $self = shift;
+
+    my ($transfer, $pool) = @_;
+
+    my $dom = $self->get_dom();
+
+    # Create a hash of guest devices to their paths
+    my @storage;
+    foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
+        my ($source_e) = $disk->findnodes('source');
+
+        my ($source) = $source_e->findnodes('@file | @dev');
+        defined($source) or die("source element has neither dev nor file: \n".
+                                $dom.toString());
+
+        my ($target) = $disk->findnodes('target/@dev');
+        defined($target) or die("disk does not have a target device: \n".
+                                $dom.toString());
+
+        # If the disk is a floppy or a cdrom, blank its source
+        my $device = $disk->getAttribute('device');
+        if ($device eq 'floppy' || $device eq 'cdrom') {
+            $source_e->setAttribute($source->getName(), '');
+        }
+
+        else {
+            my $path = $source->getValue();
+
+            if (defined($transfer)) {
+                # Die if transfer required and no output pool
+                die (user_message(__"No output pool was specified"))
+                    unless (defined($pool));
+
+                # Fetch the remote storage
+                my $vol = $transfer->transfer($self, $path, $pool);
+
+                # Parse the XML description of the returned volume
+                my $voldom =
+                    new XML::DOM::Parser->parse($vol->get_xml_description());
+
+                # Find any existing driver element.
+                my ($driver) = $disk->findnodes('driver');
+
+                # Create a new driver element if none exists
+                unless (defined($driver)) {
+                    $driver =
+                        $disk->getOwnerDocument()->createElement("driver");
+                    $disk->appendChild($driver);
+                }
+                $driver->setAttribute('name', 'qemu');
+
+                # Get the volume format for passing to the qemu driver
+                my ($format) =
+                    $voldom->findnodes('/volume/target/format/@type');
+
+                $format = $format->getValue() if (defined($format));
+
+                # Auto-detect if no format is specified explicitly
+                $format ||= 'auto';
+
+                $driver->setAttribute('type', $format);
+
+                # Remove the @file or @dev attribute before adding a new one
+                $source_e->removeAttributeNode($source);
+
+                $path = $vol->get_path();
+
+                # Set @file or @dev as appropriate
+                if ($vol->get_info()->{type} ==
+                    Sys::Virt::StorageVol::TYPE_FILE)
+                {
+                    $disk->setAttribute('type', 'file');
+                    $source_e->setAttribute('file', $path);
+                } else {
+                    $disk->setAttribute('type', 'block');
+                    $source_e->setAttribute('dev', $path);
+                }
+            }
+
+            push(@storage, $path);
+        }
+    }
+
+    $self->{storage} = \@storage;
+}
+
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 

@@ -20,6 +20,8 @@ package Sys::VirtV2V::Connection::LibVirtXML;
 use strict;
 use warnings;
 
+our @ISA = ("Sys::VirtV2V::Connection");
+
 use XML::DOM;
 use XML::DOM::XPath;
 
@@ -35,34 +37,33 @@ Sys::VirtV2V::Connection::LibVirtXML - Read libvirt XML from a file
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection;
+ use Sys::VirtV2V::Connection::LibVirtXML;
 
- $reader = Sys::VirtV2V::Connection->instantiate("libvirtxml", undef,
-                                                     $config, @args);
- $dom = $reader->get_dom();
+ $conn = Sys::VirtV2V::Connection::LibVirtXML->new($config, $path);
+ $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection::LibVirtXML is a backend for
+Sys::VirtV2V::Connection::LibVirtXML is an implementation of
 Sys::VirtV2V::Connection which reads libvirt XML guest descriptions from a
 file.
 
 =head1 METHODS
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for a detailed
-description of its exported methods.
-
 =over
+
+=item new(config, path)
+
+Create a new LibVirtXML connection. Configuration for transforming the metadata
+is taken from I<config>, and the metadata itself is read from I<path>.
 
 =cut
 
-use constant NAME => "libvirtxml";
-
-sub _new
+sub new
 {
     my $class = shift;
 
-    my ($uri, $config, @args) = @_;
+    my ($config, $path) = @_;
 
     my %obj = ();
     my $self = \%obj;
@@ -87,77 +88,22 @@ sub _new
             }
 
             else {
-                print STDERR user_message
-                    (__x("WARNING: unknown configuration directive ".
-                         "{directive} in {name} section.",
-                         directive => $directive, name => NAME));
-                $self->{invalidconfig} = 1;
+                die(__x("WARNING: unknown configuration directive ".
+                        "{directive} in {name} section.",
+                        directive => $directive, name => 'libvirtxml'));
             }
         }
     }
 
-    $self->_handle_args(@args);
+    $self->_get_dom($path);
+
+    # No transfer methods defined yet
+    $self->_storage_iterate(undef, undef);
 
     return $self;
 }
 
-sub _handle_args
-{
-    my $self = shift;
-
-    # The first argument is the libvirt xml file's path
-    $self->{path} = shift;
-
-    # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
-        print STDERR user_message
-            (__x("WARNING: {modulename} only takes a single filename.",
-                 modulename => NAME));
-    }
-}
-
-=item Sys::VirtV2V::Connection::LibVirtXML->get_name()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub get_name
-{
-    my $class = shift;
-
-    return NAME;
-}
-
-=item is_configured()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub is_configured
-{
-    my $self = shift;
-
-    if(!defined($self->{path})) {
-        print STDERR user_message
-            (__x("You must specify a filename when using {modulename}",
-                 modulename => NAME));
-        return 0;
-    }
-
-    return 0 if(exists($self->{invalidconfig}));
-
-    return 1;
-}
-
-=item get_dom()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::Connection> for details.
-
-=cut
-
-sub get_dom
+sub _get_dom
 {
     my $self = shift;
 
@@ -212,7 +158,7 @@ sub get_dom
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 
@@ -220,7 +166,6 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection(3)>,
 L<virt-v2v(1)>,
 L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
