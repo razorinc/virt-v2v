@@ -142,7 +142,7 @@ sub convert
         unless (defined($guestcaps));
 
     # Convert the metadata
-    _configure_metadata($vmm, $dom, $desc, $guestcaps);
+    _convert_metadata($vmm, $dom, $desc, $guestcaps);
 
     my ($name) = $dom->findnodes('/domain/name/text()');
     $name = $name->getNodeValue();
@@ -156,7 +156,7 @@ sub convert
     }
 }
 
-sub _configure_metadata
+sub _convert_metadata
 {
     my ($vmm, $dom, $desc, $guestcaps) = @_;
 
