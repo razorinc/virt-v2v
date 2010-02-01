@@ -282,28 +282,58 @@ sub _configure_capabilities
         }
     }
 
-    # Check that /domain/features are listed in capabilities
-    # Get a list of supported features
-    my %features;
-    foreach my $feature ($guestcap->findnodes('features/*')) {
-        $features{$feature->getNodeName()} = 1;
-    }
+    # Get the domain features node
+    my ($domfeatures) = $dom->findnodes('/domain/features');
 
-    foreach my $feature ($dom->findnodes('/domain/features/*')) {
-        my $name = $feature->getNodeName();
-
-        if (!exists($features{$name})) {
-            print STDERR user_message
-                (__x("The connected hypervisor does not support ".
-                     "feature {feature}", feature => $name));
-            $feature->getParentNode()->removeChild($feature);
+    # Check existing features are supported by the hypervisor
+    if (defined($domfeatures)) {
+        # Check that /domain/features are listed in capabilities
+        # Get a list of supported features
+        my %features;
+        foreach my $feature ($guestcap->findnodes('features/*')) {
+            $features{$feature->getNodeName()} = 1;
         }
 
-        if ($name eq 'acpi' && !$guestcaps->{acpi}) {
-            print STDERR user_message
-                (__"The target guest does not support acpi under KVM. ACPI ".
-                   "will be disabled.");
-            $feature->getParentNode()->removeChild($feature);
+        foreach my $feature ($domfeatures->findnodes('*')) {
+            my $name = $feature->getNodeName();
+
+            if (!exists($features{$name})) {
+                print STDERR user_message
+                    (__x("The connected hypervisor does not support ".
+                         "feature {feature}", feature => $name));
+                $feature->getParentNode()->removeChild($feature);
+            }
+
+            if ($name eq 'acpi' && !$guestcaps->{acpi}) {
+                print STDERR user_message
+                   (__"The target guest does not support acpi under KVM. ACPI ".
+                      "will be disabled.");
+                $feature->getParentNode()->removeChild($feature);
+            }
+        }
+    }
+
+    # Add a features element if there isn't one already
+    else {
+        $domfeatures = $dom->createElement('features');
+        my ($root) = $dom->findnodes('/domain');
+        $root->appendChild($domfeatures);
+    }
+
+    # Add acpi support if the guest supports it
+    if ($guestcaps->{acpi}) {
+        $domfeatures->appendChild($dom->createElement('acpi'));
+    }
+
+    # Add apic and pae if they're supported by the hypervisor and not already
+    # there
+    foreach my $feature ('apic', 'pae') {
+        my ($d) = $domfeatures->findnodes($feature);
+        next if (defined($d));
+
+        my ($c) = $guestcap->findnodes("features/$feature");
+        if (defined($c)) {
+            $domfeatures->appendChild($dom->createElement($feature));
         }
     }
 }
