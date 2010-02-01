@@ -186,17 +186,6 @@ sub _convert_metadata
     _configure_os($dom, $default_dom, $arch);
 }
 
-sub _unconfigure_hvs
-{
-    my ($dom, $default_dom) = @_;
-    die("unconfigure_hvs called without dom argument")
-        unless defined($dom);
-    die("unconfigure_hvs called without default_dom argument")
-        unless defined($default_dom);
-
-    _unconfigure_xen_metadata($dom, $default_dom);
-}
-
 sub _configure_os
 {
     my ($dom, $default_dom, $arch) = @_;
@@ -399,32 +388,20 @@ sub _configure_drivers
     }
 }
 
-sub _replace_with_default_metadata
+sub _unconfigure_hvs
 {
-    my ($node, $xpath, $default_dom) = @_;
+    my ($dom, $default_dom) = @_;
+    die("unconfigure_hvs called without dom argument")
+        unless defined($dom);
+    die("unconfigure_hvs called without default_dom argument")
+        unless defined($default_dom);
 
-    # Look for a replacement in the defaults
-    my ($default) = $default_dom->findnodes($xpath);
-    if(defined($default)) {
-        if($node->isa('XML::DOM::Attr')) {
-            $node->setNodeValue($default->getNodeValue());
-        } else {
-            my $replacement = $default->cloneNode(1);
-            $replacement->setOwnerDocument($node->getOwnerDocument());
-
-            $node->getParentNode()->replaceChild($replacement, $node);
-        }
+    # Remove emulator if it is defined
+    foreach my $emulator ($dom->findnodes('/domain/devices/emulator')) {
+        $emulator->getParent()->removeChild($emulator);
     }
 
-    else {
-        # Warn if no replacement was found
-        print STDERR user_message
-            (__x("WARNING: No replacement found for {xpath} in ".
-                 "domain XML. The node was removed.",
-                 xpath => $xpath));
-
-        $node->getParentNode()->removeChild($node);
-    }
+    _unconfigure_xen_metadata($dom, $default_dom);
 }
 
 sub _unconfigure_xen_metadata
@@ -433,23 +410,6 @@ sub _unconfigure_xen_metadata
 
     # The list of target xen-specific nodes is mostly taken from inspection of
     # domain.rng
-
-    # Nodes which should be replaced with a default if they are present
-    foreach my $hv_node (
-        [ '/domain/@type', 'xen' ],
-        [ '/domain/devices/input/@bus', 'xen' ]
-    ) {
-        my $xpath = $hv_node->[0];
-        my $pattern = $hv_node->[1];
-
-        foreach my $node ($dom->findnodes($xpath)) {
-            if(defined($pattern)) {
-                next unless($node->getNodeValue() =~ m{$pattern});
-            }
-
-            _replace_with_default_metadata($node, $xpath, $default_dom);
-        }
-    }
 
     # Remove machine if it has a xen-specific value
     # We could replace it with the generic 'pc', but 'pc' is a moving target
@@ -463,11 +423,6 @@ sub _unconfigure_xen_metadata
         }
     }
 
-    # Remove emulator if it is defined
-    foreach my $emulator ($dom->findnodes('/domain/devices/emulator')) {
-        $emulator->getParent()->removeChild($emulator);
-    }
-
     # Remove the script element if its path attribute is 'vif-bridge'
     foreach my $script ($dom->findnodes('/domain/devices/interface/script[@path = "vif-bridge"]'))
     {
@@ -475,6 +430,8 @@ sub _unconfigure_xen_metadata
     }
 
     # Other Xen related metadata is handled separately
+    # /domain/@type
+    # /domain/devices/input/@bus = xen
     # /domain/devices/disk/target/@bus = 'xen'
     # /domain/os/loader = 'xen'
     # /domain/bootloader
