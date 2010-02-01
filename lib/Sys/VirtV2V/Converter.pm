@@ -67,8 +67,12 @@ use constant KVM_XML_VIRTIO => "
     <interface type='network'>
       <model type='virtio'/>
     </interface>
+    <input type='tablet' bus='usb'/>
     <input type='mouse' bus='ps2'/>
     <graphics type='vnc' port='-1' listen='127.0.0.1'/>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+    </video>
   </devices>
 </domain>
 ";
@@ -86,8 +90,12 @@ use constant KVM_XML_NOVIRTIO => "
     <interface type='network'>
       <model type='e1000'/>
     </interface>
+    <input type='tablet' bus='usb'/>
     <input type='mouse' bus='ps2'/>
     <graphics type='vnc' port='-1' listen='127.0.0.1'/>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+    </video>
   </devices>
 </domain>
 ";
@@ -179,8 +187,11 @@ sub _convert_metadata
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
 
-    # Configure network and block drivers in the guest
+    # Configure network and block drivers
     _configure_drivers($dom, $virtio);
+
+    # Ensure guest has a standard set of default devices
+    _configure_default_devices($dom, $default_dom);
 
     # Add a default os section if none exists
     _configure_os($dom, $default_dom, $arch);
@@ -216,6 +227,27 @@ sub _configure_os
     # Set type/@arch unless it's already set
     my $arch_attr = $type->getAttributes()->getNamedItem('arch');
     $type->setAttribute('arch', $arch) unless(defined($arch_attr));
+}
+
+sub _configure_default_devices
+{
+    my ($dom, $default_dom) = @_;
+
+    my ($devices) = $dom->findnodes('/domain/devices');
+
+    # Remove any existing input, graphics or video devices
+    foreach my $input ($devices->findnodes('input | video | graphics')) {
+        $devices->removeChild($input);
+    }
+
+    my ($input_devices) = $default_dom->findnodes('/domain/devices');
+
+    # Add new default devices from default XML
+    foreach my $input ($input_devices->findnodes('input | video | graphics')) {
+        my $new = $input->cloneNode(1);
+        $new->setOwnerDocument($devices->getOwnerDocument());
+        $devices->appendChild($new);
+    }
 }
 
 sub _configure_capabilities
