@@ -1,0 +1,350 @@
+# translation of virt-v2v.master.virt-v2v.or.po to Oriya
+# Copyright (C) YEAR Red Hat Inc.
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Manoj Kumar Giri <mgiri@redhat.com>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: virt-v2v.master.virt-v2v.or\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"POT-Creation-Date: 2009-11-09 13:32+0000\n"
+"PO-Revision-Date: 2010-02-01 15:17+0530\n"
+"Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
+"Language-Team: Oriya <oriya-it@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n!=1);\n\n"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:152
+#, perl-brace-format
+msgid "WARNING: unable to access {path}."
+msgstr "WARNING: ଅଭିଗମ୍ୟ କରିବାରେ ଅସମର୍ଥ {path}."
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:173
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
+msgid "/etc/selinux/config does not exist"
+msgstr "/etc/selinux/config ଅବସ୍ଥିତ ନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
+msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+msgstr "SELINUXTYPE କୁ /etc/syslinux/config ରେ ଖୋଜିପାଇଲା ନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
+#, perl-brace-format
+msgid "Unable to find an SELinux policy file matching {path}: {error}"
+msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀ ଫାଇଲ ମେଳକକୁ ଖଓଜି ପାଇଲା ନାହିଁ {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
+msgid "Unable to load an SELinux policy"
+msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀକୁ ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
+#, perl-brace-format
+msgid "WARNING: unable to configure SELinux: {error})"
+msgstr "WARNING: SELinux ବିନ୍ୟାସ କରିବାରେ ଅସମର୍ଥ: {error})"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
+msgid "Unable to find any valid modprobe configuration"
+msgstr "କୌଣସି ବୈଧ modprobe ସଂରଚନାକୁ ଖୋଜି ପାଇବାରେ ଅସମର୍ଥ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
+msgid "Unable to find a default kernel"
+msgstr "ଗୋଟିଏ ପୂର୍ବନିର୍ଦ୍ଧାରିତ କର୍ଣ୍ଣଲକୁ ଖୋଜିପାଇବାରେ ଅସମର୍ଥ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
+#, perl-brace-format
+msgid "{filename} doesn't contain a valid kernel"
+msgstr "{filename} କୌଣସି ବୈଧ କର୍ଣ୍ଣଲ ଧାରଣ କରିନଥାଏ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
+msgid "Unable to determine a kernel architecture for this guest"
+msgstr "ଏହି ଅତିଥି ପାଇଁ ଗୋଟିଏ କର୍ଣ୍ଣଲ ସଂରଚନାକୁ ନିର୍ଦ୍ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
+#, perl-brace-format
+msgid "Found dependency loop installing {label}: {path}"
+msgstr "ନିର୍ଭୋରକ ଲୁପ ସ୍ଥାପନ ମିଳିଛି {label}: {path}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
+#, perl-brace-format
+msgid "No {object} given matching {label}"
+msgstr "କୌଣସି {object} ମେଳକ {label} ପ୍ରଦାନ କରିନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
+msgid "file"
+msgstr "ଫାଇଲ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
+msgid "alias"
+msgstr "ଉପନାମ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
+msgid "dependencies"
+msgstr "ନିର୍ଭୋରକ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
+#, perl-brace-format
+msgid "No mapping found for block device {device}"
+msgstr "ବ୍ଲକ ଉପକରଣ {device} ପାଇଁ କୌଣସି ମ୍ୟାପିଙ୍ଗ ମିଳିନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
+#, perl-brace-format
+msgid "Didn't find a grub entry for kernel version {version}"
+msgstr "କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ କୌଣସି grub ଭରଣ ଖୋଜି ପାଇଲା ନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
+#, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+msgstr "WARNING: କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ grub ରେ କୌଣସି initrd ଭରଣ ନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "/etc/rc.local କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "{name} କୁ virtio ଡ୍ରାଇଭରମାନଙ୍କ ସହିତ ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} କୁ virtio ଡ୍ରାଇଭର ବିନା ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
+#, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr ""
+"WARNING: {module} କୁ କିପରି ଅଦ୍ୟତନ କରାଯିବ ତାହା ଜଣାନାହିଁ, ଯାହାକି {modulename} ଏକକାଂଶକୁ "
+"ଧାରଣ କରିଥାଏ।"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
+"Unable to continue."
+msgstr ""
+"କୌଣସି ବୁଟ ଯୋଗ୍ୟ କର୍ଣ୍ଣଲ ସ୍ଥାପିତ ହୋଇନାହିଁ, ଏବଂ କୌଣସି ରକ୍ଷଣାବେକ୍ଷଣକୁ ବିନ୍ୟାସରେ ଉଲ୍ଲେଖ "
+"କରାଯାଇନାହିଁ।\n"
+"ଅଗ୍ରସର ହେବାରେ ଅସମର୍ଥ।"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
+#, perl-brace-format
+msgid ""
+"WARNING: No replacement found for {xpath} in domain XML. The node was "
+"removed."
+msgstr ""
+"WARNING: {xpath} ପଥ ପାଇଁ ଡମେନ XML ରେ କୌଣସି ରକ୍ଷଣାବେକ୍ଷଣ ମିଳିଲା ନାହିଁ। ନୋଡଟିକୁ "
+"କଢ଼ାସରିଛି।"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର କୌଣସି {arch} kvm ଅତିଥିକୁ ସମର୍ଥନ କରେନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
+#, perl-brace-format
+msgid "The connected hypervisor does not support a machine type of {machine}."
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ଯନ୍ତ୍ର ପ୍ରକାର {machine} କୁ ସମର୍ଥନ କରେନାହିଁ।"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ବିଶେଷତା {feature} କୁ ସମର୍ଥନ କରେନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:96
+msgid "Unable to find a module to configure this guest"
+msgstr "ଏହି ଅତିଥିକୁ ବିନ୍ୟାସ କରିବା ପାଇଁ କୌଣସି ଏକକାଂଶ ପାଇବାରେ ଅସମର୍ଥ"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:113
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "WARNING: {modulename} କେବଳ ଗୋଟିଏ ଫାଇଲନାମ ନେଇଥାଏ।"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:125
+#, perl-brace-format
+msgid "Guest {name} must be shutdown first"
+msgstr "ଅତିଥି {name} କୁ ନିଶ୍ଚିତଭାବରେ ପ୍ରଥମେ ବନ୍ଦ କରିବା ଉଚିତ"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirt.pm:145
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "{name} ଟି ଗୋଟିଏ ବୈଧ ଅତିଥି ନାମନୁହଁ"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:90
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr "WARNING: ଅଜଣା ବିନ୍ୟାସ ଡିରେକ୍ଟିଭ {directive} {name} ବିଭାଗରେ।"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:143
+#, perl-brace-format
+msgid "You must specify a filename when using {modulename}"
+msgstr "{modulename} କୁ ବ୍ୟବହାର କରିବା ସମୟରେ ଆପଣଙ୍କୁ ଗୋଟିଏ ବୈଧ ଫାଇଲନାମ ଉଲ୍ଲେଖ କରିବା ଉଚିତ"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:167
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
+
+#: ../lib/Sys/VirtV2V/MetadataReader/LibVirtXML.pm:180
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:202
+msgid "--commit and --rollback options are mutually exclusive"
+msgstr "--commit ଏବଂ --rollback ବିକଳ୍ପଗୁଡ଼ିକୁ ହସ୍ତକୃତ ଭାବରେ ଉଦ୍ଧୃତ"
+
+#: ../snapshot/v2v-snapshot.pl:211 ../v2v/virt-v2v.pl:188
+msgid "no guest argument given"
+msgstr "କୌଣସି ଅତିଥି ସ୍ୱତନ୍ତ୍ରଚର ପ୍ରଦାନ କରାଯାଇନାହିଁ"
+
+#: ../snapshot/v2v-snapshot.pl:221
+#, perl-brace-format
+msgid "{input} is not a valid input format"
+msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
+
+#: ../snapshot/v2v-snapshot.pl:255
+msgid "No domain has been created."
+msgstr "କୌଣସି ଡମେନ ନିର୍ମାଣ ହୋଇନାହିଁ।"
+
+#: ../snapshot/v2v-snapshot.pl:267
+#, perl-brace-format
+msgid "Unable to open {file}: {error}"
+msgstr "{file} କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:277 ../snapshot/v2v-snapshot.pl:313
+#, perl-brace-format
+msgid "Error closing {file}: {error}"
+msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:281 ../snapshot/v2v-snapshot.pl:309
+#, perl-brace-format
+msgid "Wrote output to {file}"
+msgstr "ଫଳାଫଳକୁ {file} ରେ ଲେଖିଛି"
+
+#: ../snapshot/v2v-snapshot.pl:299
+#, perl-brace-format
+msgid "Unable to create guest: {error}"
+msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:301
+msgid "Consider using the --outputxml option"
+msgstr "--outputxml ବିକଳ୍ପକୁ ବ୍ୟବହାର କରି ଧାରଣ କରନ୍ତୁ"
+
+#: ../snapshot/v2v-snapshot.pl:349
+#, perl-brace-format
+msgid "Unable to create v2v-snapshot storage pool: {error}"
+msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:367
+#, perl-brace-format
+msgid "Unable to start v2v-snapshot storage pool: {error}"
+msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲକୁ ଆରମ୍ଭ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:377
+msgid "v2v-snapshot storage pool is temporarily unavailable"
+msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲଟି ଅସ୍ଥାୟୀ ଭାବରେ ଉପଲବ୍ଧ ନାହିଁ"
+
+#: ../snapshot/v2v-snapshot.pl:405
+#, perl-brace-format
+msgid "Unable to find {path} in the v2v-snapshot storage pool."
+msgstr "{path} କୁ v2v-snapshot ସଂରକ୍ଷଣ ପୁଲରେ ଖୋଜିବାରେ ଅସମର୍ଥ।"
+
+#: ../snapshot/v2v-snapshot.pl:460
+#, perl-brace-format
+msgid "Skipping device {target} as it doesn't have a backing store"
+msgstr "ଉପକରଣ {target} କୁ ଏଡ଼ାଇଦେଉଛି ଯେପରିକି ଏଥିରେ ନକଲ ସଂରକ୍ଷଣ ସୁବିଧା ନାହିଁ"
+
+#: ../snapshot/v2v-snapshot.pl:517
+#, perl-brace-format
+msgid ""
+"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+"Command output was:\n"
+"{output}"
+msgstr ""
+"ସ୍ନାପସର୍ଟ '{path}' କୁ ନକଲ ସଂରକ୍ଷଣରେ ଦାଖଲ କରିବାରେ ବିଫଳ '{backingstore}'.\n"
+"ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
+"{output}"
+
+#: ../snapshot/v2v-snapshot.pl:550
+#, perl-brace-format
+msgid ""
+"A snapshot already exists for {guest}. You must commit it or roll it back "
+"back before creating a new snapshot."
+msgstr ""
+"{guest} ପାଇଁ ଗୋଟିଏ ସ୍ନାପସର୍ଟ ପୂର୍ବରୁ ଅବସ୍ଥିତ ଅଛି। ଆପଣଙ୍କୁ ଏହାକୁ ଦାଖଲ କରିବାକୁ ହେବ ଅଥବା ଗୋଟିଏ "
+"ନୂତନ ସ୍ନାପସର୍ଟ ନିର୍ମାଣ କରିବା ପୂର୍ବରୁ ଏହାକୁ ଫେରାଇ ଦେବା ଉଚିତ।"
+
+#: ../snapshot/v2v-snapshot.pl:559
+#, perl-brace-format
+msgid "Unable to write to {path}: {error}"
+msgstr "{path} କୁ ଲେଖିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:565
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:597
+#, perl-brace-format
+msgid "Unable to create storage volume: {error}"
+msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:630
+#, perl-brace-format
+msgid "Refusing to rollback guest {name} without backed-up xml"
+msgstr "ଅତିଥି {name} କୁ ବିନା ନକଲ ସଂରକ୍ଷଣ xml ରେ ଫେରାଇବା ପାଇଁ ବାରଣ କରିଅଛି"
+
+#: ../snapshot/v2v-snapshot.pl:657
+#, perl-brace-format
+msgid "{path} is not a snapshot volume"
+msgstr "{path} ଟି ଗୋଟିଏ ସ୍ନାପସର୍ଟ ଭଲ୍ୟୁମ"
+
+#: ../snapshot/v2v-snapshot.pl:663
+#, perl-brace-format
+msgid "Failed to delete {file}: {error}"
+msgstr "{file} କୁ ଅପସାରଣ କରିବାରେ ବିଫଳ: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:675
+#, perl-brace-format
+msgid "Unable to delete backup xml file {file}: {error}"
+msgstr "ନକଲ ସଂରକ୍ଷଣ xml ଫାଇଲକୁ ଅପସାରଣ କରିବାରେ ଅସମର୍ଥ {file}: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:737
+#, perl-brace-format
+msgid "invalid source element: {element}"
+msgstr "ଅବୈଧ ଉତ୍ସ ଉପାଦାନ: {element}"
+
+#: ../v2v/virt-v2v.pl:202
+#, perl-brace-format
+msgid "Unable to parse {file}: {error}"
+msgstr "{file} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../v2v/virt-v2v.pl:213
+#, perl-brace-format
+msgid "{input} is not a valid metadata format"
+msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ଅଧିତଥ୍ୟ ଶୈଳୀ ନୁହଁ"
+
+#: ../v2v/virt-v2v.pl:303
+msgid "no root device found in this operating system image"
+msgstr "ଏହି ପ୍ରଚାଳନ ତନ୍ତ୍ର ପ୍ରତିଛବିରେ କୌଣସି ରୁଟ ଉପକରଣ ମିଳିଲା ନାହିଁ"
+
+#: ../v2v/virt-v2v.pl:309
+msgid "multiboot operating systems are not supported by virt-v2v"
+msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ virt-v2v ଦ୍ୱାରା ସମର୍ଥିତ ନୁହଁ"
+
