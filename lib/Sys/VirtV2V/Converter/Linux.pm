@@ -386,17 +386,13 @@ sub _unconfigure_hv
     my ($guestos, $desc) = @_;
 
     _unconfigure_xen($guestos, $desc);
+    _unconfigure_vmware($guestos, $desc);
 }
 
 # Unconfigure Xen specific guest modifications
 sub _unconfigure_xen
 {
     my ($guestos, $desc) = @_;
-
-    carp("unconfigure called without guestos argument")
-        unless defined($guestos);
-    carp("unconfigure called without desc argument")
-        unless defined($desc);
 
     my $found_kmod = 0;
 
@@ -458,6 +454,21 @@ sub _unconfigure_xen
             }
 
             $g->write_file('/etc/rc.local', join("\n", @rc_local)."\n", $size);
+        }
+    }
+}
+
+# Unconfigure VMware specific guest modifications
+sub _unconfigure_vmware
+{
+    my ($guestos, $desc) = @_;
+
+    # Uninstall VMwareTools
+    foreach my $app (@{$desc->{apps}}) {
+        my $name = $app->{name};
+
+        if ($name eq "VMwareTools") {
+            $guestos->remove_application($name);
         }
     }
 }
