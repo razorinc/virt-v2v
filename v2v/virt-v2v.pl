@@ -212,17 +212,21 @@ GetOptions ("help|?"      => sub {
 ) or pod2usage(2);
 
 # Read the config file if one was given
-my $config = {};
+my $config;
 if(defined($config_file)) {
-    $config = Config::Tiny->read($config_file);
+    # Check we can access the config file
+    die(user_message(__x("Config file {path} doesn't exist",
+                         path => $config_file))) unless (-e $config_file);
 
-    # Check we were able to read it
-    if(!defined($config)) {
-        print STDERR user_message(__x("Unable to parse {file}: {error}",
-                                      file => $config_file,
-                                      error => Config::Tiny->errstr));
-        exit(1);
-    }
+    die(user_message(__x("Don't have permissions to read {path}",
+                         path => $config_file))) unless (-r $config_file);
+
+    eval {
+        $config = new XML::DOM::Parser->parsefile($config_file);
+    };
+
+    die(user_message(__x("Unable to parse config file {path}: {error}",
+                         path => $config_file, error => $@))) if ($@);
 }
 
 # Connect to target libvirt
@@ -246,7 +250,7 @@ eval {
                      modulename => 'libvirtxml'));
         }
 
-        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($config, $path);
+        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path);
     }
 
     elsif ($input_method eq "libvirt") {
@@ -293,7 +297,8 @@ if ($@) {
 }
 
 # Configure GuestOS ([files] and [deps] sections)
-Sys::VirtV2V::GuestOS->configure($config);
+# Need to fix GuestOS's usage of config for installing applications
+Sys::VirtV2V::GuestOS->configure({});
 
 
 ###############################################################################
@@ -316,7 +321,7 @@ my $os = inspect_guest($g);
 my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
+Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
 
 $g->umount_all();
 $g->sync();

@@ -39,7 +39,7 @@ Sys::VirtV2V::Connection::LibVirtXML - Read libvirt XML from a file
 
  use Sys::VirtV2V::Connection::LibVirtXML;
 
- $conn = Sys::VirtV2V::Connection::LibVirtXML->new($config, $path);
+ $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path);
  $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
@@ -52,10 +52,9 @@ file.
 
 =over
 
-=item new(config, path)
+=item new(path)
 
-Create a new LibVirtXML connection. Configuration for transforming the metadata
-is taken from I<config>, and the metadata itself is read from I<path>.
+Create a new LibVirtXML connection. The metadata itself is read from I<path>.
 
 =cut
 
@@ -63,37 +62,12 @@ sub new
 {
     my $class = shift;
 
-    my ($config, $path) = @_;
+    my ($path) = @_;
 
     my %obj = ();
     my $self = \%obj;
 
     bless($self, $class);
-
-    if(defined($config)) {
-        my %bridges;
-        my %networks;
-
-        $self->{bridges} = \%bridges;
-        $self->{networks} = \%networks;
-
-        # Split bridges and networks into separate hashes
-        foreach my $directive (keys(%$config)) {
-            if($directive =~ /^bridge\.(.*)$/) {
-                $bridges{$1} = $config->{$directive};
-            }
-
-            elsif($directive =~ /^network\.(.*)$/) {
-                $networks{$1} = $config->{$directive};
-            }
-
-            else {
-                die(__x("WARNING: unknown configuration directive ".
-                        "{directive} in {name} section.",
-                        directive => $directive, name => 'libvirtxml'));
-            }
-        }
-    }
 
     $self->_get_dom($path);
 
@@ -109,12 +83,9 @@ sub _get_dom
 
     # Open the input file
     my $xml; # Implicitly closed on function exit
-    if(!open($xml, '<', $self->{path})) {
-        print STDERR user_message
-            (__x("Failed to open {path}: {error}",
-                 path => $self->{path}, error => $!));
-        return undef;
-    }
+    open($xml, '<', $self->{path})
+        or die(user_message(__x("Failed to open {path}: {error}",
+                                path => $self->{path}, error => $!)));
 
     # Parse the input file
     my $parser = new XML::DOM::Parser;
@@ -122,34 +93,8 @@ sub _get_dom
     eval { $dom = $parser->parse ($xml); };
 
     # Display any parse errors
-    if ($@) {
-        print STDERR user_message
-            (__x("Unable to parse {path}: {error}",
-                 path => $self->{path}, error => $@));
-        return undef;
-    }
-
-    # Rewrite bridge names
-    foreach my $bridge
-        ($dom->findnodes("/domain/devices/interface[\@type='bridge']/".
-                         "source/\@bridge"))
-    {
-        my $name = $bridge->getNodeValue();
-        if(exists($self->{bridges}->{$name})) {
-            $bridge->setNodeValue($self->{bridges}->{$name});
-        }
-    }
-
-    # Rewrite network names
-    foreach my $network
-        ($dom->findnodes("/domain/devices/interface[\@type='network']/".
-                         "source/\@network"))
-    {
-        my $name = $network->getNodeValue();
-        if(exists($self->{networks}->{$name})) {
-            $network->setNodeValue($self->{networks}->{$name});
-        }
-    }
+    die(user_message(__x("Unable to parse {path}: {error}",
+                         path => $self->{path}, error => $@))) if ($@);
 
     return $dom;
 }

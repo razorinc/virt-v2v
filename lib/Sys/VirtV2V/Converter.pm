@@ -130,9 +130,10 @@ sub convert
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $dom, $desc) = @_;
+    my ($vmm, $guestos, $config, $dom, $desc) = @_;
     carp("convert called without vmm argument") unless defined($vmm);
     carp("convert called without guestos argument") unless defined($guestos);
+    carp("convert called without config argument") unless defined($config);
     carp("convert called without dom argument") unless defined($dom);
     carp("convert called without desc argument") unless defined($desc);
 
@@ -148,6 +149,9 @@ sub convert
 
     die(user_message(__"Unable to find a module to convert this guest"))
         unless (defined($guestcaps));
+
+    # Map network names from config
+    _map_networks($dom, $config);
 
     # Convert the metadata
     _convert_metadata($vmm, $dom, $desc, $guestcaps);
@@ -467,6 +471,81 @@ sub _unconfigure_xen_metadata
     # /domain/os/loader = 'xen'
     # /domain/bootloader
     # /domain/bootloader_args
+}
+
+sub _map_networks
+{
+    my ($dom, $config) = @_;
+
+    # Iterate over interfaces
+    foreach my $if ($dom->findnodes('/domain/devices/interface'))
+    {
+        my $type = $if->getAttribute('type');
+
+        my $name;
+        if ($type eq 'bridge') {
+            ($name) = $if->findnodes('source/@bridge');
+        } elsif ($type eq 'network') {
+            ($name) = $if->findnodes('source/@network');
+        } else {
+            print STDERR user_message (__x("Unknown interface type {type} in ".
+                                           "domain XML: {domain}",
+                                           type => $type,
+                                           domain => $dom->toString()));
+            exit(1);
+        }
+
+        _update_interface($if, $name, $type, $config);
+    }
+}
+
+sub _update_interface
+{
+    my ($if, $oldname, $oldtype, $config) = @_;
+
+    my $oldnameval = $oldname->getValue();
+    my ($mapping) = $config->findnodes
+        ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldnameval']".
+         "/network");
+
+    unless (defined($mapping)) {
+        print STDERR user_message(__x("No mapping found for '{type}' ".
+                                      "interface: {name}",
+                                      type => $oldtype,
+                                      name => $oldnameval));
+        next;
+    }
+
+    my $newtype = $mapping->getAttributeNode('type');
+    $newtype &&= $newtype->getValue();
+    my $newname = $mapping->getAttributeNode('name');
+    $newname &&= $newname->getValue();
+
+    # Check type and name are defined for the mapping
+    unless (defined($newtype) && defined($newname)) {
+        print STDERR user_message(__x("WARNING: Invalid network ".
+                                      "mapping in config: {config}",
+                                      config => $mapping->toString()));
+        return;
+    }
+
+    # Check type is something we recognise
+    unless ($newtype eq 'network' || $newtype eq 'bridge') {
+        print STDERR user_message(__x("WARNING: Unknown interface type ".
+                                      "{type} in network mapping: {config}",
+                                      type => $newtype,
+                                      config => $mapping->toString()));
+    }
+
+    my ($source) = $if->findnodes('source');
+
+    # Replace @bridge or @network in the source element with the correct mapped
+    # attribute name and value
+    $source->removeAttributeNode($oldname);
+    $source->setAttribute($newtype, $newname);
+
+    # Update the type of the interface
+    $if->setAttribute('type', $newtype);
 }
 
 =back

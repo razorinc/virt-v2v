@@ -8,162 +8,244 @@ virt-v2v.conf - configuration file for virt-v2v
 
 C<virt-v2v.conf> describes:
 
+=over
+
+=item *
+
+how to map virtual network interface connections when importing them from
+another environment.
+
 =item *
 
 software which can be installed by virt-v2v during the conversion process.
 
-=item *
+=back
 
-how to rename networks and bridges when importing them from another environment.
+=head1 FORMAT
 
-=head1 EXAMPLE
+The configuration file is an XML document whose root element is
+E<lt>virt-v2vE<gt>.
 
-The following is an example virt-v2v configuration file which is sufficient to
-convert RHEL 5 guests to run on KVM with virtio drivers enabled:
+=head2 Mapping network interface connections
 
- [files]
- rhel.5.i686.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.1.el5.i686.rpm
- rhel.5.x86_64.kernel=/var/lib/virt-v2v/kernel-2.6.18-128.4.1.el5.x86_64.
+When importing a guest from a different machine and/or hypervisor, it is likely
+that the name of the virtual interface its network devices were connected to
+will change. For example, a typical Xen guest will be connected to a bridge
+device called xenbrN. This bridge is created by Xen and will not exist locally
+by default.
 
-This section specifies i686 and x86_64 RHEL 5 kernel packages.
-
- # The RHEL 5.3 kernel conflicts with older versions of ecryptfs-utils
- rhel.5.i386.ecryptfs-utils=/var/lib/virt-v2v/ecryptfs-utils-56-8.el5.i38
-
- # The following userspace packages are required on RHEL 5 prior to RHEL
- # 5.3 to suport virtio
- rhel.5.i386.lvm2=/var/lib/virt-v2v/lvm2-2.02.40-6.el5.i386.rpm
- rhel.5.i386.device-mapper=/var/lib/virt-v2v/device-mapper-1.02.28-2.el5.
- rhel.5.i386.device-mapper-event=/var/lib/virt-v2v/device-mapper-event-1.
-
-This section specifies some additional userspace packages for i386 RHEL 5. See
-below for how these can be used.
-
- [deps]
- # Only update userspace on RHEL 5 prior to RHEL 5.3
- rhel.5.2.kernel=ecryptfs-utils lvm2
- rhel.5.1.kernel=ecryptfs-utils lvm2
- rhel.5.0.kernel=ecryptfs-utils lvm2
-
-This section specifies that when installing C<kernel> on RHEL 5.0, RHEL 5.1 or
-RHEL 5.2, virt-v2v must also install C<ecryptfs-utils> and C<lvm2>.
-
- # RPM version dependencies
- rhel.5.lvm2=device-mapper
- rhel.5.device-mapper=device-mapper-event
-
-Dependencies can be specified to any depth. The above specifies that C<lvm2>
-depends on C<device-mapper>, which in turn depends on C<device-mapper-event>.
-
- [aliases]
- # Install a regular kernel in place of a xen kernel
- rhel.5.kernel-xen=kernel
-
-The above section specifies that if virt-v2v is looking for a kernel called
-C<kernel-xen> on RHEL 5 it should instead look for a label called C<kernel>.
-
- [libvirtxml]
- bridge.xenbr1=virbr0
-
-The above section specifies that if a guest connects to a bridge on the host
-called C<xenbr1>, the converted guest should instead connect to a bridge called
-C<virbr0>.
-
-=head1 INSTALLING FILES
-
-Because different guests may need different files to be installed to satisfy a
-given requirement, files are installed by I<label> rather than by file name.
-Labels are specified in the [files] section of the virt-v2v configuration file.
-
-When choosing which file to install, the requested label name will be considered
-along with 4 aspects of the guest:
+virt-v2v can change these on import to connect to an appropriate local
+interface. The mapping is specified by the E<lt>networkE<gt> element, which
+is a child of the root element. The configuration can specify any number of
+E<lt>networkE<gt> elements. E<lt>networkE<gt> has 2 attributes:
 
 =over
 
-=item distro
+=item type
 
-The distribution name discovered by L<Sys::Guestfs::Lib>, e.g. 'rhel'.
+type is either 'bridge', which specifies a bridge to a local interface, or
+'network', which specifies a locally managed virtual network. For Xen and ESX
+guests the source type will typically be 'bridge'.
 
-=item major
+=item name
 
-The major version number of the distribution.
-
-=item minor
-
-The minor version number of the distribution.
-
-=item arch
-
-The required architecture of the file to be installed.
+name specifies the name of the given network or bridge.
 
 =back
 
-GuestOS will search for a matching label in the following order:
+The mapping is specified by a nested E<lt>networkE<gt> element.
 
-1. distro.major.minor.arch.label
-2. distro.major.minor.label
-3. distro.major.arch.label
-4. distro.major.label
-5. distro.arch.label
-6. distro.label
+The following example specifies that a guest interface which bridges to 'xenbr1'
+should be change to connect to the local managed network called 'default':
 
-So, if the guest is RHEL 5.3 x86_64 and the given label is 'udev', you can
-specify any of the following:
+ <network type='bridge' name='xenbr1'>
+   <network type='network' name='default'/>
+ </network>
 
- [files]
- rhel.5.3.x86_64.udev=<udev rpm>
- rhel.5.3.udev=<udev rpm>
- rhel.5.x86_64.udev=<udev rpm>
- rhel.5.udev=<udev rpm>
- rhel.x86_64.udev=<udev rpm>
- rhel.udev=<udev rpm>
+=head2 Specifying software to be installed
 
-Which I<should> be specified depends on the applicability of the target file. In
-this case it would be I<rhel.5.x86_64.udev>.
+virt-v2v may have to install software in a guest during the conversion process
+to ensure it boots. An example is replacing a Xen paravirtualised kernel with a
+normal kernel. This software will be specific to the guest operating system.
 
-=head1 INSTALLING DEPENDENCIES
+Software to be installed is specified in the E<lt>appE<gt> element, which is a
+child of the root element. The configuration can specify any number of
+E<lt>appE<gt> elements. E<lt>appE<gt> can have 5 attributes:
 
-virt-v2v requires that all necessary files are made available before it is
-invoked. This includes dependencies of new files which are to be installed into
-a guest. Dependencies must be specified manually in the [deps] section of the
-virt-v2v configuration file.
+=over
 
-Dependencies are defined on labels, and specify new labels. Labels are resolved
-as described in L</INSTALLING FILES>.
+=item name
 
-So, for example, to specify that when installing a new kernel on RHEL 5.2 x86_64
-you also need to install new versions of ecryptfs-utils and lvm2, add the
-following:
+The symbolic name of the software virt-v2v is looking for. name is a mandatory
+attribute.
 
- [deps]
- rhel.5.2.kernel="ecryptfs-utils lvm2"
+=item os
 
-This will cause GuestOS to first resolve both labels ecryptfs-utils and lvm2 for
-the current guest, then check that the requested package is both installed, and
-at the same or a greater version number that the given package. If this is not
-the case the package will be installed or upgraded.
+The name of the guest operating system, as returned by libguestfs.
 
-Dependencies can be specified recursively to any depth.
+=item major
 
-=head1 ALIASES
+The major version name of the guest operating system, as returned by
+libguestfs.
 
-Aliases can be used to specify that when a particular label has been requested,
-a different label should be used instead. Aliases are specified in the [aliases]
-section of the virt-v2v configuration file.
+=item minor
 
-For example to specify that when looking for a replacement for 'kernel-xenU' on
-RHEL 4, 'kernel' should be used instead, add the following:
+The minor version name of the guest operating system, as returned by libguestfs.
 
- [aliases]
- rhel.4.kernel-xenU=kernel
+=item arch
 
-Aliases are resolved as described in L</INSTALLING FILES>. Thus a label can have
-different aliases in different contexts. An alias will be used both when
-installing a file, and when resolving its dependencies.
+The guest architecture, as returned by libguestfs.
+
+=back
+
+virt-v2v requests a file from the configuration by its symbolic name, searching
+based on its additional attributes.  If an attribute is missing from the
+E<lt>appE<gt> element, it will match any value. If multiple E<lt>appE<gt>
+elements would match a given search, virt-v2v will choose the most specific
+match. Specifically, it searches in the following order:
+
+=over
+
+=item *
+
+os, major, minor, arch
+
+=item *
+
+os, major, minor
+
+=item *
+
+os, major, arch
+
+=item *
+
+os, major
+
+=item *
+
+os
+
+=back
+
+If virt-v2v doesn't find a matching E<lt>appE<gt>, it will quit with an error
+describing what it was looking for.
+
+The E<lt>appE<gt> element must contain a E<lt>pathE<gt> element, which specifies
+the path to the software. It may also contain any number of E<lt>depE<gt>
+elements, which specify the paths to dependencies of the application.
+
+virt-v2v will attempt to install dependencies first. A dependency will only be
+installed if it is not already installed, or the installed version is older than
+the specified version.
+
+Paths given in both the E<lt>pathE<gt> and E<lt>depE<gt> must be absolute,
+unless there is a top level E<lt>path-rootE<gt> element. If it exists, all
+E<lt>pathE<gt> and E<lt>depE<gt> elements will be relative to
+E<lt>path-rootE<gt>.
+
+virt-v2v passes software to the guest by creating an iso image and passing it to
+the guest as a cd-rom drive. The path to this iso image must be specified in a
+top level E<lt>iso-pathE<gt> element.
+
+The following example specifies the location of 'kernel' for RHEL 5, all minor
+versions, on i686:
+
+ <path-root>/var/lib/virt-v2v/software</path-root>
+ <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
+
+ <app os='rhel' major='5' arch='i686' name='kernel'>
+   <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
+   <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
+   <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
+   <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
+   <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+ </app>
+
+The kernel can be found at
+/var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 4
+dependencies, which will be installed if they are not present, or are too old.
+All dependency paths are also relative to /var/lib/virt-v2v/software. virt-v2v
+will create a transfer iso image containing all paths and dependencies at
+/var/lib/virt-v2v/transfer.iso.
+
+=head1 EXAMPLE
+
+The following example is the default example configuration file included in the
+virt-v2v distribution. The majority of the file specifies the locations of
+replacement FV kernels for RHEL 4 and RHEL 5. These will be required when
+converting Xen guests which use a PV kernel.
+
+It also specifies that guests using a bridge called either 'xenbr1' (the Xen
+default) or 'VM Network' (the VMware ESX default) should be mapped to the local
+managed network called 'default'.
+
+ <virt-v2v>
+   <path-root>/var/lib/virt-v2v/software</path-root>
+   <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
+
+   <!-- RHEL 5
+        All of these RPMS are from RHEL 5.3, which was the first version of RHEL
+        5 to support VirtIO -->
+   <app os='rhel' major='5' arch='i686' name='kernel'>
+     <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
+     <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
+     <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
+     <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
+     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+   </app>
+   <app os='rhel' major='5' arch='i686' name='kernel-PAE'>
+     <path>rhel/5/kernel-PAE-2.6.18-128.el5.i686.rpm</path>
+     <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
+     <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
+     <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
+     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+   </app>
+   <app os='rhel' major='5' arch='x86_64' name='kernel'>
+     <path>rhel/5/kernel-2.6.18-128.el5.x86_64.rpm</path>
+     <dep>rhel/5/ecryptfs-utils-56-8.el5.x86_64.rpm</dep>
+     <dep>rhel/5/lvm2-2.02.40-6.el5.x86_64.rpm</dep>
+     <dep>rhel/5/device-mapper-1.02.28-2.el5.x86_64.rpm</dep>
+     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.x86_64.rpm</dep>
+   </app>
+
+   <!-- RHEL 4
+        All of these RPMs are from RHEL 4.8, which was the first version of RHEL
+        4 to support VirtIO -->
+   <app os='rhel' major='4' arch='i686' name='kernel'>
+     <path>rhel/4/kernel-2.6.9-89.EL.i686.rpm</path>
+   </app>
+   <app os='rhel' major='4' arch='i686' name='kernel-smp'>
+     <path>rhel/4/kernel-smp-2.6.9-89.EL.i686.rpm</path>
+   </app>
+   <app os='rhel' major='4' arch='i686' name='kernel-hugemem'>
+     <path>rhel/4/kernel-hugemem-2.6.9-89.EL.i686.rpm</path>
+   </app>
+   <app os='rhel' major='4' arch='x86_64' name='kernel'>
+     <path>rhel/4/kernel-2.6.9-89.EL.x86_64.rpm</path>
+   </app>
+   <app os='rhel' major='4' arch='x86_64' name='kernel-smp'>
+     <path>rhel/4/kernel-smp-2.6.9-89.EL.x86_64.rpm</path>
+   </app>
+   <app os='rhel' major='4' arch='x86_64' name='kernel-largesmp'>
+     <path>rhel/4/kernel-largesmp-2.6.9-89.EL.x86_64.rpm</path>
+   </app>
+
+   <!-- Networks -->
+   <!-- The default Xen bridge name -->
+   <network type='bridge' name='xenbr1'>
+     <network type='network' name='default'/>
+   </network>
+
+   <!-- The default ESX bridge name -->
+   <network type='bridge' name='VM Network'>
+     <network type='network' name='default'/>
+   </network>
+ </virt-v2v>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 SEE ALSO
 
