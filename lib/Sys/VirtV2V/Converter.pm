@@ -138,7 +138,7 @@ sub convert
         }
     }
 
-    die(__"Unable to find a module to convert this guest")
+    die(user_message(__"Unable to find a module to convert this guest"))
         unless (defined($guestcaps));
 
     # Convert the metadata
