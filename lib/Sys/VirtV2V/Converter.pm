@@ -224,9 +224,8 @@ sub _configure_os
         $os->appendChild($type);
     }
 
-    # Set type/@arch unless it's already set
-    my $arch_attr = $type->getAttributes()->getNamedItem('arch');
-    $type->setAttribute('arch', $arch) unless(defined($arch_attr));
+    # Set type/@arch based on the detected OS architecture
+    $type->setAttribute('arch', $arch) if (defined($arch));
 }
 
 sub _configure_default_devices
