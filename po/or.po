@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.virt-v2v.or\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-02-04 11:23+0000\n"
+"POT-Creation-Date: 2010-02-22 12:34+0000\n"
 "PO-Revision-Date: 2010-02-01 15:17+0530\n"
 "Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
 "Language-Team: Oriya <oriya-it@googlegroups.com>\n"
@@ -73,26 +73,21 @@ msgstr ""
 msgid "{name} isn't a valid guest name"
 msgstr "{name} ଟି ଗୋଟିଏ ବୈଧ ଅତିଥି ନାମନୁହଁ"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:91
-#, perl-brace-format
-msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr "WARNING: ଅଜଣା ବିନ୍ୟାସ ଡିରେକ୍ଟିଭ {directive} {name} ବିଭାଗରେ।"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:114
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:87
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:127
-#, perl-brace-format
-msgid "Unable to parse {path}: {error}"
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:94
+#, fuzzy, perl-brace-format
+msgid "Unable to parse domain from file {path}: {error}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:121
+#: ../lib/Sys/VirtV2V/Connection.pm:139
 msgid "No output pool was specified"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:207
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
@@ -101,7 +96,7 @@ msgstr ""
 "WARNING: {module} କୁ କିପରି ଅଦ୍ୟତନ କରାଯିବ ତାହା ଜଣାନାହିଁ, ଯାହାକି {modulename} ଏକକାଂଶକୁ "
 "ଧାରଣ କରିଥାଏ।"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:295
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:268
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -111,134 +106,157 @@ msgstr ""
 "କରାଯାଇନାହିଁ।\n"
 "ଅଗ୍ରସର ହେବାରେ ଅସମର୍ଥ।"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:441
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:408
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "/etc/rc.local କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:141
+#: ../lib/Sys/VirtV2V/Converter.pm:158
 #, fuzzy
 msgid "Unable to find a module to convert this guest"
 msgstr "ଏହି ଅତିଥିକୁ ବିନ୍ୟାସ କରିବା ପାଇଁ କୌଣସି ଏକକାଂଶ ପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:152
+#: ../lib/Sys/VirtV2V/Converter.pm:172
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} କୁ virtio ଡ୍ରାଇଭରମାନଙ୍କ ସହିତ ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:155
+#: ../lib/Sys/VirtV2V/Converter.pm:175
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} କୁ virtio ଡ୍ରାଇଭର ବିନା ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:233
+#: ../lib/Sys/VirtV2V/Converter.pm:279
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର କୌଣସି {arch} kvm ଅତିଥିକୁ ସମର୍ଥନ କରେନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:264
+#: ../lib/Sys/VirtV2V/Converter.pm:310
 #, fuzzy, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ଯନ୍ତ୍ର ପ୍ରକାର {machine} କୁ ସମର୍ଥନ କରେନାହିଁ।"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:291
+#: ../lib/Sys/VirtV2V/Converter.pm:337
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ବିଶେଷତା {feature} କୁ ସମର୍ଥନ କରେନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:298
+#: ../lib/Sys/VirtV2V/Converter.pm:344
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS.pm:152
-#, perl-brace-format
-msgid "WARNING: unable to access {path}."
-msgstr "WARNING: ଅଭିଗମ୍ୟ କରିବାରେ ଅସମର୍ଥ {path}."
-
-#: ../lib/Sys/VirtV2V/GuestOS.pm:173
+#: ../lib/Sys/VirtV2V/Converter.pm:408
 #, perl-brace-format
 msgid ""
-"Failed to create transfer iso. Command output was:\n"
-"{output}"
+"Previously detected drive {drive} is no longer present in domain XML: {xml}"
 msgstr ""
-"ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
-"{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
+#: ../lib/Sys/VirtV2V/Converter.pm:440
+#, perl-brace-format
+msgid ""
+"WARNING: Only 4 CDROM drives are supported. The following CDROM drives have "
+"been removed: {list}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter.pm:550
+#, perl-brace-format
+msgid "Unknown interface type {type} in domain XML: {domain}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter.pm:571
+#, fuzzy, perl-brace-format
+msgid "No mapping found for '{type}' interface: {name}"
+msgstr "ବ୍ଲକ ଉପକରଣ {device} ପାଇଁ କୌଣସି ମ୍ୟାପିଙ୍ଗ ମିଳିନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:585
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping in config: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter.pm:593
+#, perl-brace-format
+msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:176
+msgid "Didn't detect OS distribution"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:184
+#, perl-brace-format
+msgid "No config specified. No app match for {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:210
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:215
+#, perl-brace-format
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:117
 msgid "/etc/selinux/config does not exist"
 msgstr "/etc/selinux/config ଅବସ୍ଥିତ ନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:129
 msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
 msgstr "SELINUXTYPE କୁ /etc/syslinux/config ରେ ଖୋଜିପାଇଲା ନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:140
 #, perl-brace-format
 msgid "Unable to find an SELinux policy file matching {path}: {error}"
 msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀ ଫାଇଲ ମେଳକକୁ ଖଓଜି ପାଇଲା ନାହିଁ {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:162
 msgid "Unable to load an SELinux policy"
 msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀକୁ ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:181
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:167
 #, perl-brace-format
 msgid "WARNING: unable to configure SELinux: {error})"
 msgstr "WARNING: SELinux ବିନ୍ୟାସ କରିବାରେ ଅସମର୍ଥ: {error})"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:222
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:208
 msgid "Unable to find any valid modprobe configuration"
 msgstr "କୌଣସି ବୈଧ modprobe ସଂରଚନାକୁ ଖୋଜି ପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:449
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:442
 msgid "Unable to find a default kernel"
 msgstr "ଗୋଟିଏ ପୂର୍ବନିର୍ଦ୍ଧାରିତ କର୍ଣ୍ଣଲକୁ ଖୋଜିପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:500
-#, perl-brace-format
-msgid "{filename} doesn't contain a valid kernel"
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:574
+#, fuzzy, perl-brace-format
+msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} କୌଣସି ବୈଧ କର୍ଣ୍ଣଲ ଧାରଣ କରିନଥାଏ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:554
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:628
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "ଏହି ଅତିଥି ପାଇଁ ଗୋଟିଏ କର୍ଣ୍ଣଲ ସଂରଚନାକୁ ନିର୍ଦ୍ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
-#, perl-brace-format
-msgid "Found dependency loop installing {label}: {path}"
-msgstr "ନିର୍ଭୋରକ ଲୁପ ସ୍ଥାପନ ମିଳିଛି {label}: {path}"
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:741
+#, fuzzy, perl-brace-format
+msgid "Error running {command}: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
-#, perl-brace-format
-msgid "No {object} given matching {label}"
-msgstr "କୌଣସି {object} ମେଳକ {label} ପ୍ରଦାନ କରିନାହିଁ"
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:999
+msgid ""
+"WARNING: Unable to determine whether sdX devices in /etc/fstab refer to IDE "
+"or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be "
+"incorrect after conversion if guest uses libata."
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:872
-msgid "file"
-msgstr "ଫାଇଲ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:890
-msgid "alias"
-msgstr "ଉପନାମ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:908
-msgid "dependencies"
-msgstr "ନିର୍ଭୋରକ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
-#, perl-brace-format
-msgid "No mapping found for block device {device}"
-msgstr "ବ୍ଲକ ଉପକରଣ {device} ପାଇଁ କୌଣସି ମ୍ୟାପିଙ୍ଗ ମିଳିନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1124
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
 msgstr "କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ କୌଣସି grub ଭରଣ ଖୋଜି ପାଇଲା ନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1129
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "WARNING: କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ grub ରେ କୌଣସି initrd ଭରଣ ନାହିଁ"
@@ -254,48 +272,58 @@ msgstr ""
 msgid "Unexpected error accessing storage pool: "
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:158
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:155
+#, fuzzy, perl-brace-format
+msgid "Error closing volume handle: {error}"
+msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
+#, perl-brace-format
+msgid "Didn't receive full volume. Received {received} of {total} bytes."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:165
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:189
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
 #, fuzzy, perl-brace-format
 msgid "Error writing to {path}: {error}"
 msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:220
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:232
 #, fuzzy, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:226
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
 #, fuzzy, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
 msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:242
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:254
 msgid "Server response didn't include an SSL subject"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:246
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:258
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:252
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:264
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:305
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:317
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -451,51 +479,114 @@ msgstr "ଅବୈଧ ଉତ୍ସ ଉପାଦାନ: {element}"
 msgid "Unable to create xml storage directory {dir}: {error}"
 msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../v2v/virt-v2v.pl:203
+#: ../v2v/virt-v2v.pl:160
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:221
+#: ../v2v/virt-v2v.pl:175
 #, perl-brace-format
-msgid "Unable to parse {file}: {error}"
-msgstr "{file} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+msgid "Config file {path} doesn't exist"
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:239
+#: ../v2v/virt-v2v.pl:178
+#, perl-brace-format
+msgid "Don't have permissions to read {path}"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:185
+#, fuzzy, perl-brace-format
+msgid "Unable to parse config file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../v2v/virt-v2v.pl:200
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "{modulename} କୁ ବ୍ୟବହାର କରିବା ସମୟରେ ଆପଣଙ୍କୁ ଗୋଟିଏ ବୈଧ ଫାଇଲନାମ ଉଲ୍ଲେଖ କରିବା ଉଚିତ"
 
-#: ../v2v/virt-v2v.pl:245
+#: ../v2v/virt-v2v.pl:206
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "WARNING: {modulename} କେବଳ ଗୋଟିଏ ଫାଇଲନାମ ନେଇଥାଏ।"
 
-#: ../v2v/virt-v2v.pl:254
+#: ../v2v/virt-v2v.pl:215
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:266
+#: ../v2v/virt-v2v.pl:227
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid local storage pool"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:279
+#: ../v2v/virt-v2v.pl:240
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "WARNING: {modulename} କେବଳ ଗୋଟିଏ ଫାଇଲନାମ ନେଇଥାଏ।"
 
-#: ../v2v/virt-v2v.pl:285
+#: ../v2v/virt-v2v.pl:246
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
 
-#: ../v2v/virt-v2v.pl:376
+#: ../v2v/virt-v2v.pl:334
+#, perl-brace-format
+msgid "Unable to access {path} referenced in the config file"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:348
+msgid "<iso-path> must be specified in the configuration file"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:355
+#, fuzzy, perl-brace-format
+msgid "Unable to stat iso file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../v2v/virt-v2v.pl:359
+#, fuzzy, perl-brace-format
+msgid "Unable to stat config file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../v2v/virt-v2v.pl:373
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
+"{output}"
+
+#: ../v2v/virt-v2v.pl:431
 msgid "no root device found in this operating system image"
 msgstr "ଏହି ପ୍ରଚାଳନ ତନ୍ତ୍ର ପ୍ରତିଛବିରେ କୌଣସି ରୁଟ ଉପକରଣ ମିଳିଲା ନାହିଁ"
 
-#: ../v2v/virt-v2v.pl:382
+#: ../v2v/virt-v2v.pl:437
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ virt-v2v ଦ୍ୱାରା ସମର୍ଥିତ ନୁହଁ"
+
+#~ msgid ""
+#~ "WARNING: unknown configuration directive {directive} in {name} section."
+#~ msgstr "WARNING: ଅଜଣା ବିନ୍ୟାସ ଡିରେକ୍ଟିଭ {directive} {name} ବିଭାଗରେ।"
+
+#~ msgid "WARNING: unable to access {path}."
+#~ msgstr "WARNING: ଅଭିଗମ୍ୟ କରିବାରେ ଅସମର୍ଥ {path}."
+
+#~ msgid "Found dependency loop installing {label}: {path}"
+#~ msgstr "ନିର୍ଭୋରକ ଲୁପ ସ୍ଥାପନ ମିଳିଛି {label}: {path}"
+
+#~ msgid "No {object} given matching {label}"
+#~ msgstr "କୌଣସି {object} ମେଳକ {label} ପ୍ରଦାନ କରିନାହିଁ"
+
+#~ msgid "file"
+#~ msgstr "ଫାଇଲ"
+
+#~ msgid "alias"
+#~ msgstr "ଉପନାମ"
+
+#~ msgid "dependencies"
+#~ msgstr "ନିର୍ଭୋରକ"
+
+#~ msgid "Unable to parse {file}: {error}"
+#~ msgstr "{file} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
 #~ msgid ""
 #~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
