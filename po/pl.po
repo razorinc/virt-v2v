@@ -6,62 +6,63 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-04 11:23+0000\n"
-"PO-Revision-Date: 2009-11-09 16:58+0100\n"
+"PO-Revision-Date: 2010-02-04 19:20+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <fedora-trans-pl@redhat.com>\n"
+"Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
-msgstr "Nie można przetworzyć {path}: {error}"
+msgstr "Nie można przetworzyć upoważnienia adresu URI: {auth}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
 msgstr ""
+"OSTRZEŻENIE: podanie hasła w adresie URI połączenia nie jest obsługiwane. "
+"Zostanie zignorowane."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
-msgstr "Usunięcie {uri} nie powiodło się: {error}"
+msgstr "Połączenie z {uri} nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
-msgstr "Gość {name} musi najpierw zostać wyłączony"
+msgstr "Gość {name} jest obecnie {state}. Musi zostać najpierw wyłączony."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
-#, fuzzy
 msgid "idle"
-msgstr "plik"
+msgstr "bezczynny"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
 msgid "running"
-msgstr ""
+msgstr "uruchomiony"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
 msgid "blocked"
-msgstr ""
+msgstr "zablokowany"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
 msgid "paused"
-msgstr ""
+msgstr "wstrzymany"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
 msgid "shutting down"
-msgstr ""
+msgstr "wyłączany"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
 msgid "shut down"
-msgstr ""
+msgstr "wyłączony"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
 msgid "crashed"
-msgstr ""
+msgstr "zawieszony"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
 #, perl-brace-format
@@ -86,7 +87,7 @@ msgstr "Nie można przetworzyć {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:121
 msgid "No output pool was specified"
-msgstr ""
+msgstr "Nie podano puli wyjściowej"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:207
 #, perl-brace-format
@@ -113,9 +114,8 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:141
-#, fuzzy
 msgid "Unable to find a module to convert this guest"
-msgstr "Nie można odnaleźć modułu do skonfigurowania tego gościa"
+msgstr "Nie można odnaleźć modułu do przekonwertowania tego gościa"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:152
 #, perl-brace-format
@@ -133,11 +133,13 @@ msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:264
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
-msgstr "Połączony nadzorca nie obsługuje typu komputera {machine}."
+msgstr ""
+"Połączony nadzorca nie obsługuje typu komputera {machine}. Zostanie "
+"ustawiony na domyślny."
 
 #: ../lib/Sys/VirtV2V/Converter.pm:291
 #, perl-brace-format
@@ -147,7 +149,7 @@ msgstr "Połączony nadzorca nie obsługuje funkcji {feature}"
 #: ../lib/Sys/VirtV2V/Converter.pm:298
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr ""
+msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
@@ -247,10 +249,14 @@ msgid ""
 "WARNING: storage volume {name} already exists in the target pool. NOT "
 "fetching it again. Delete the volume and retry to download again."
 msgstr ""
+"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w puli docelowej. "
+"NIE zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
+"pobrania."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 msgid "Unexpected error accessing storage pool: "
 msgstr ""
+"Nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci masowej: "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:158
 #, perl-brace-format
@@ -258,40 +264,44 @@ msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
+"Błąd uwierzytelnienia podczas łączenia się z {server}. Użyto danych "
+"uwierzytelniających dla {username} z pliku .netrc."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:165
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
-msgstr "Otwarcie {path} nie powiodło się: {error}"
+msgstr "Połączenie się z serwerem ESX nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:189
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error writing to {path}: {error}"
-msgstr "Błąd podczas zamykania {path}: {error}"
+msgstr "Błąd podczas zapisywania do {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:220
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to create storage volume: {error}"
-msgstr "Nie można utworzyć woluminu pamięci masowej: {error}"
+msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:226
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "Błąd podczas zamykania {path}: {error}"
+msgstr ""
+"Błąd podczas otwierania woluminu pamięci masowej {path} do zapisywania: "
+"{error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:242
 msgid "Server response didn't include an SSL subject"
-msgstr ""
+msgstr "Odpowiedź serwera nie zawiera tematu SSL"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:246
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
-msgstr ""
+msgstr "Temat certyfikatu SSL nie zawiera wspólnej nazwy: {subject}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:252
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
-msgstr ""
+msgstr "Serwer {server} zaprezentował certyfikat SSL dla {commonname}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:305
 #, perl-brace-format
@@ -299,11 +309,13 @@ msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
 msgstr ""
+"Wymagane jest uwierzytelnienie, aby połączyć się z {server}, a nie "
+"odnaleziono danych uwierzytelniających w pliku .netrc."
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
 msgid "{identifier}: {message}\n"
-msgstr ""
+msgstr "{identifier}: {message}\n"
 
 #: ../snapshot/v2v-snapshot.pl:194
 msgid "--commit and --rollback options are mutually exclusive"
@@ -315,12 +327,12 @@ msgstr "nie podano parametrów gościa"
 
 #: ../snapshot/v2v-snapshot.pl:219
 msgid "Unable to get home directory for current user"
-msgstr ""
+msgstr "Nie można uzyskać katalogu domowego dla bieżącego użytkownika"
 
 #: ../snapshot/v2v-snapshot.pl:233
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create data directory {dir}: {error}"
-msgstr "Nie można utworzyć gościa: {error}"
+msgstr "Nie można utworzyć katalogu danych {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:245
 #, perl-brace-format
@@ -356,9 +368,9 @@ msgid "Consider using the --outputxml option"
 msgstr "Proszę rozważyć użycie opcji --outputxml"
 
 #: ../snapshot/v2v-snapshot.pl:364
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create snapshot directory {dir}: {error}"
-msgstr "Nie można utworzyć puli pamięci masowej v2v-snapshot: {error}"
+msgstr "Nie można utworzyć katalogu migawki {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:385
 #, perl-brace-format
@@ -447,13 +459,13 @@ msgid "invalid source element: {element}"
 msgstr "nieprawidłowy element źródłowy: {element}"
 
 #: ../snapshot/v2v-snapshot.pl:829
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create xml storage directory {dir}: {error}"
-msgstr "Nie można utworzyć woluminu pamięci masowej: {error}"
+msgstr "Nie można utworzyć katalogu {dir} pamięci masowej XML: {error}"
 
 #: ../v2v/virt-v2v.pl:203
 msgid "Use -ic or -oc to specify an input or an output connection"
-msgstr ""
+msgstr "Należy użyć -ic lub -oc, aby podać połączenie wejściowe lub wyjściowe"
 
 #: ../v2v/virt-v2v.pl:221
 #, perl-brace-format
@@ -461,9 +473,8 @@ msgid "Unable to parse {file}: {error}"
 msgstr "Nie można przetworzyć {file}: {error}"
 
 #: ../v2v/virt-v2v.pl:239
-#, fuzzy
 msgid "You must specify a filename"
-msgstr "Należy podać nazwę pliku podczas używania {modulename}"
+msgstr "Należy podać nazwę pliku"
 
 #: ../v2v/virt-v2v.pl:245
 #, perl-brace-format
@@ -472,22 +483,23 @@ msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
 
 #: ../v2v/virt-v2v.pl:254
 msgid "You must specify a guest"
-msgstr ""
+msgstr "Należy podać gościa"
 
 #: ../v2v/virt-v2v.pl:266
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid local storage pool"
 msgstr ""
+"Pula wyjściowa {poolname} nie jest prawidłową lokalną pulą pamięci masowej"
 
 #: ../v2v/virt-v2v.pl:279
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
-msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
+msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę domeny."
 
 #: ../v2v/virt-v2v.pl:285
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{input} is not a valid input method"
-msgstr "{input} nie jest prawidłowym formatem wejściowym"
+msgstr "{input} nie jest prawidłową metodą wprowadzania"
 
 #: ../v2v/virt-v2v.pl:376
 msgid "no root device found in this operating system image"
@@ -496,13 +508,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:382
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid ""
-#~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
-#~ "removed."
-#~ msgstr ""
-#~ "OSTRZEŻENIE: nie odnaleziono zamiennika dla {xpath} w domenie XML. Węzeł "
-#~ "został usunięty."
-
-#~ msgid "{input} is not a valid metadata format"
-#~ msgstr "{input} nie jest prawidłowym formatem metadanych"
