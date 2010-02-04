@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2009-11-09 13:32+0000\n"
+"POT-Creation-Date: 2010-02-04 11:23+0000\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -17,6 +17,138 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#, fuzzy, perl-brace-format
+msgid "Unable to parse URI authority: {auth}"
+msgstr "无法解析 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
+msgid ""
+"WARNING: Specifying a password in the connection URI is not supported. It "
+"has been ignored."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
+#, fuzzy, perl-brace-format
+msgid "Failed to connect to {uri}: {error}"
+msgstr "删除 {uri} 失败：{error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
+#, fuzzy, perl-brace-format
+msgid "Guest {name} is currently {state}. It must be shut down first."
+msgstr "必须首先关闭客户端 {name}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
+#, fuzzy
+msgid "idle"
+msgstr "文件"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
+msgid "running"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
+msgid "blocked"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
+msgid "paused"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
+msgid "shutting down"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
+msgid "shut down"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+msgid "crashed"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "{name} 不是有效客户端名"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:91
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr "警告：{name} 部分的未知配置指令 {directive}。"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:114
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "打开 {path} 失败：{error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:127
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "无法解析 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Connection.pm:121
+msgid "No output pool was specified"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:207
+#, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr "警告：不知道如何更新 {module}，它可载入 {modulename} 模块。"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:295
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
+"Unable to continue."
+msgstr ""
+"未安装可引导内核，且在配置中没有指定替换内核。\n"
+"无法继续。"
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:441
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "无法打开 /etc/rc.local：{error}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:141
+#, fuzzy
+msgid "Unable to find a module to convert this guest"
+msgstr "无法找到配置这个客户端的模块"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:152
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "virtio 驱动程序配置的 {name}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:155
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "非 virtio 驱动程序配置的 {name}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:233
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "连接的管理程序不支持 {arch} kvm 客户端"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:264
+#, fuzzy, perl-brace-format
+msgid ""
+"The connected hypervisor does not support a machine type of {machine}. It "
+"will be set to the current default."
+msgstr "连接的管理程序不支持机器类型 {machine}。"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:291
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "连接的管理程序不支持特性 {feature}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:298
+msgid ""
+"The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
@@ -108,166 +240,150 @@ msgstr "没有找到内核版本 {version} 的 grub 条目"
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
 
-#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
-#, perl-brace-format
-msgid "Unable to open /etc/rc.local: {error}"
-msgstr "无法打开 /etc/rc.local：{error}"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
-#, perl-brace-format
-msgid "{name} configured with virtio drivers"
-msgstr "virtio 驱动程序配置的 {name}"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
-#, perl-brace-format
-msgid "{name} configured without virtio drivers"
-msgstr "非 virtio 驱动程序配置的 {name}"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
-"module."
-msgstr "警告：不知道如何更新 {module}，它可载入 {modulename} 模块。"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
-msgid ""
-"No bootable kernels installed, and no replacement specified in "
-"configuration.\n"
-"Unable to continue."
+"WARNING: storage volume {name} already exists in the target pool. NOT "
+"fetching it again. Delete the volume and retry to download again."
 msgstr ""
-"未安装可引导内核，且在配置中没有指定替换内核。"
-"\n"
-"无法继续。"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
+msgid "Unexpected error accessing storage pool: "
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:158
 #, perl-brace-format
 msgid ""
-"WARNING: No replacement found for {xpath} in domain XML. The node was "
-"removed."
-msgstr "警告：在域 XML 中没有找到用于 {xpath} 的替换。节点被删除。"
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr "连接的管理程序不支持 {arch} kvm 客户端"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
-#, perl-brace-format
-msgid "The connected hypervisor does not support a machine type of {machine}."
-msgstr "连接的管理程序不支持机器类型 {machine}。"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}"
-msgstr "连接的管理程序不支持特性 {feature}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:96
-msgid "Unable to find a module to configure this guest"
-msgstr "无法找到配置这个客户端的模块"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:113
-#, perl-brace-format
-msgid "WARNING: {modulename} only takes a single filename."
-msgstr "警告：{modulename} 只使用单一文件名。"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:125
-#, perl-brace-format
-msgid "Guest {name} must be shutdown first"
-msgstr "必须首先关闭客户端 {name}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:145
-#, perl-brace-format
-msgid "{name} isn't a valid guest name"
-msgstr "{name} 不是有效客户端名"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:90
-#, perl-brace-format
-msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr "警告：{name} 部分的未知配置指令 {directive}。"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:143
-#, perl-brace-format
-msgid "You must specify a filename when using {modulename}"
-msgstr "使用 {modulename} 时必须指定文件名"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:167
-#, perl-brace-format
-msgid "Failed to open {path}: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:165
+#, fuzzy, perl-brace-format
+msgid "Failed to connect to ESX server: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:180
-#, perl-brace-format
-msgid "Unable to parse {path}: {error}"
-msgstr "无法解析 {path}：{error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:189
+#, fuzzy, perl-brace-format
+msgid "Error writing to {path}: {error}"
+msgstr "关闭 {path} 出错：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:202
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:220
+#, fuzzy, perl-brace-format
+msgid "Failed to create storage volume: {error}"
+msgstr "无法创建存储卷：{error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:226
+#, fuzzy, perl-brace-format
+msgid "Error opening storage volume {path} for writing: {error}"
+msgstr "关闭 {path} 出错：{error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:242
+msgid "Server response didn't include an SSL subject"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:246
+#, perl-brace-format
+msgid "SSL Certification Subject doesn't contain a common name: {subject}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:252
+#, perl-brace-format
+msgid "Server {server} presented an SSL certificate for {commonname}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:305
+#, perl-brace-format
+msgid ""
+"Authentication is required to connect to {server} and no credentials were "
+"found in .netrc."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/UserMessage.pm:88
+#, perl-brace-format
+msgid "{identifier}: {message}\n"
+msgstr ""
+
+#: ../snapshot/v2v-snapshot.pl:194
 msgid "--commit and --rollback options are mutually exclusive"
 msgstr "--commit 和 --rollback 选项互相排斥"
 
-#: ../snapshot/v2v-snapshot.pl:211 ../v2v/virt-v2v.pl:188
+#: ../snapshot/v2v-snapshot.pl:203
 msgid "no guest argument given"
 msgstr "没有给出客户端参数"
 
-#: ../snapshot/v2v-snapshot.pl:221
+#: ../snapshot/v2v-snapshot.pl:219
+msgid "Unable to get home directory for current user"
+msgstr ""
+
+#: ../snapshot/v2v-snapshot.pl:233
+#, fuzzy, perl-brace-format
+msgid "Unable to create data directory {dir}: {error}"
+msgstr "无法创建客户端：{error}"
+
+#: ../snapshot/v2v-snapshot.pl:245
 #, perl-brace-format
 msgid "{input} is not a valid input format"
 msgstr "{input} 不是有效输入格式"
 
-#: ../snapshot/v2v-snapshot.pl:255
+#: ../snapshot/v2v-snapshot.pl:279
 msgid "No domain has been created."
 msgstr "未生成域。"
 
-#: ../snapshot/v2v-snapshot.pl:267
+#: ../snapshot/v2v-snapshot.pl:291
 #, perl-brace-format
 msgid "Unable to open {file}: {error}"
 msgstr "无法打开文件 {file}：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:277 ../snapshot/v2v-snapshot.pl:313
+#: ../snapshot/v2v-snapshot.pl:301 ../snapshot/v2v-snapshot.pl:337
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
 msgstr "关闭 {file} 出错：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:281 ../snapshot/v2v-snapshot.pl:309
+#: ../snapshot/v2v-snapshot.pl:305 ../snapshot/v2v-snapshot.pl:333
 #, perl-brace-format
 msgid "Wrote output to {file}"
 msgstr "将输出写入 {file}"
 
-#: ../snapshot/v2v-snapshot.pl:299
+#: ../snapshot/v2v-snapshot.pl:323
 #, perl-brace-format
 msgid "Unable to create guest: {error}"
 msgstr "无法创建客户端：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:301
+#: ../snapshot/v2v-snapshot.pl:325
 msgid "Consider using the --outputxml option"
 msgstr "考虑使用 --outputxml 选项"
 
-#: ../snapshot/v2v-snapshot.pl:349
+#: ../snapshot/v2v-snapshot.pl:364
+#, fuzzy, perl-brace-format
+msgid "Unable to create snapshot directory {dir}: {error}"
+msgstr "无法创建 v2v 快照存储池：{error}"
+
+#: ../snapshot/v2v-snapshot.pl:385
 #, perl-brace-format
 msgid "Unable to create v2v-snapshot storage pool: {error}"
 msgstr "无法创建 v2v 快照存储池：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:367
+#: ../snapshot/v2v-snapshot.pl:403
 #, perl-brace-format
 msgid "Unable to start v2v-snapshot storage pool: {error}"
 msgstr "无法启动 v2v 快照存储池：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:377
+#: ../snapshot/v2v-snapshot.pl:413
 msgid "v2v-snapshot storage pool is temporarily unavailable"
 msgstr "v2v 快照存储池暂时不可用"
 
-#: ../snapshot/v2v-snapshot.pl:405
+#: ../snapshot/v2v-snapshot.pl:441
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
 msgstr "无法在 v2v 快照存储池中找到 {path}"
 
-#: ../snapshot/v2v-snapshot.pl:460
+#: ../snapshot/v2v-snapshot.pl:496
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
 msgstr "跳过设备 {target} 因为它没有备份存储"
 
-#: ../snapshot/v2v-snapshot.pl:517
+#: ../snapshot/v2v-snapshot.pl:555
 #, perl-brace-format
 msgid ""
 "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
@@ -278,68 +394,108 @@ msgstr ""
 "命令输出为：\n"
 "{output}"
 
-#: ../snapshot/v2v-snapshot.pl:550
+#: ../snapshot/v2v-snapshot.pl:588
 #, perl-brace-format
 msgid ""
 "A snapshot already exists for {guest}. You must commit it or roll it back "
 "back before creating a new snapshot."
 msgstr "{guest} 已经有快照存在。您必须在创建新快照前提交它或者返回。"
 
-#: ../snapshot/v2v-snapshot.pl:559
+#: ../snapshot/v2v-snapshot.pl:603
 #, perl-brace-format
 msgid "Unable to write to {path}: {error}"
 msgstr "无法写入 {path}：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:565
+#: ../snapshot/v2v-snapshot.pl:610
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:597
+#: ../snapshot/v2v-snapshot.pl:642
 #, perl-brace-format
 msgid "Unable to create storage volume: {error}"
 msgstr "无法创建存储卷：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:630
+#: ../snapshot/v2v-snapshot.pl:695
 #, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
 msgstr "拒绝在没有备份 xml 的情况下返回客户端 {name}"
 
-#: ../snapshot/v2v-snapshot.pl:657
+#: ../snapshot/v2v-snapshot.pl:722
 #, perl-brace-format
 msgid "{path} is not a snapshot volume"
 msgstr "{path} 不是快照卷"
 
-#: ../snapshot/v2v-snapshot.pl:663
+#: ../snapshot/v2v-snapshot.pl:728
 #, perl-brace-format
 msgid "Failed to delete {file}: {error}"
 msgstr "删除 {file} 失败：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:675
+#: ../snapshot/v2v-snapshot.pl:740
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
 msgstr "无法删除备份 xml 文件 {file}：{error}"
 
-#: ../snapshot/v2v-snapshot.pl:737
+#: ../snapshot/v2v-snapshot.pl:802
 #, perl-brace-format
 msgid "invalid source element: {element}"
 msgstr "无效源元素：{element}"
 
-#: ../v2v/virt-v2v.pl:202
+#: ../snapshot/v2v-snapshot.pl:829
+#, fuzzy, perl-brace-format
+msgid "Unable to create xml storage directory {dir}: {error}"
+msgstr "无法创建存储卷：{error}"
+
+#: ../v2v/virt-v2v.pl:203
+msgid "Use -ic or -oc to specify an input or an output connection"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:221
 #, perl-brace-format
 msgid "Unable to parse {file}: {error}"
 msgstr "无法解析文件 {file}：{error}"
 
-#: ../v2v/virt-v2v.pl:213
-#, perl-brace-format
-msgid "{input} is not a valid metadata format"
-msgstr "{input} 不是有效元数据格式"
+#: ../v2v/virt-v2v.pl:239
+#, fuzzy
+msgid "You must specify a filename"
+msgstr "使用 {modulename} 时必须指定文件名"
 
-#: ../v2v/virt-v2v.pl:303
+#: ../v2v/virt-v2v.pl:245
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "警告：{modulename} 只使用单一文件名。"
+
+#: ../v2v/virt-v2v.pl:254
+msgid "You must specify a guest"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:266
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid local storage pool"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:279
+#, fuzzy, perl-brace-format
+msgid "WARNING: {modulename} only takes a single domain name."
+msgstr "警告：{modulename} 只使用单一文件名。"
+
+#: ../v2v/virt-v2v.pl:285
+#, fuzzy, perl-brace-format
+msgid "{input} is not a valid input method"
+msgstr "{input} 不是有效输入格式"
+
+#: ../v2v/virt-v2v.pl:376
 msgid "no root device found in this operating system image"
 msgstr "在这个操作系统映像中没有找到 root 设备"
 
-#: ../v2v/virt-v2v.pl:309
+#: ../v2v/virt-v2v.pl:382
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v 不支持多重引导操作系统"
 
+#~ msgid ""
+#~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
+#~ "removed."
+#~ msgstr "警告：在域 XML 中没有找到用于 {xpath} 的替换。节点被删除。"
+
+#~ msgid "{input} is not a valid metadata format"
+#~ msgstr "{input} 不是有效元数据格式"

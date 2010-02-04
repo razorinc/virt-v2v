@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2009-11-09 13:32+0000\n"
+"POT-Creation-Date: 2010-02-04 11:23+0000\n"
 "PO-Revision-Date: 2009-10-05 17:05+1100\n"
 "Last-Translator: Valentin Kazimirov <v.kazimirov@mail.ru>\n"
 "Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
@@ -17,6 +17,140 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#, fuzzy, perl-brace-format
+msgid "Unable to parse URI authority: {auth}"
+msgstr "Не удалось разобрать {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
+msgid ""
+"WARNING: Specifying a password in the connection URI is not supported. It "
+"has been ignored."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
+#, fuzzy, perl-brace-format
+msgid "Failed to connect to {uri}: {error}"
+msgstr "Не удалось удалить {uri}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
+#, perl-brace-format
+msgid "Guest {name} is currently {state}. It must be shut down first."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
+#, fuzzy
+msgid "idle"
+msgstr "файл"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
+msgid "running"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
+msgid "blocked"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
+msgid "paused"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
+msgid "shutting down"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
+msgid "shut down"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+msgid "crashed"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
+#, perl-brace-format
+msgid "{name} isn't a valid guest name"
+msgstr "Недопустимое имя гостя: {name}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:91
+#, perl-brace-format
+msgid "WARNING: unknown configuration directive {directive} in {name} section."
+msgstr "ВНИМАНИЕ: Неизвестная директива настройки {directive} в секции {name}."
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:114
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "Не удалось открыть {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:127
+#, perl-brace-format
+msgid "Unable to parse {path}: {error}"
+msgstr "Не удалось разобрать {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection.pm:121
+msgid "No output pool was specified"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:207
+#, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr ""
+"ВНИМАНИЕ: Неизвестно, как обновить {module}, который загружает модуль "
+"{modulename}."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:295
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
+"Unable to continue."
+msgstr ""
+"Не установлено загрузочное ядро и в настройках не определена замена.\n"
+"Продолжение невозможно."
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:441
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "Не удалось открыть /etc/rc.local: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:141
+#, fuzzy
+msgid "Unable to find a module to convert this guest"
+msgstr "Не найден модуль для настройки этого гостя"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:152
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "{name} настроен с драйверами virtio"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:155
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} настроен без драйверов virtio"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:233
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "Подключенный гипервизор не поддерживает KVM-гостей {arch}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:264
+#, fuzzy, perl-brace-format
+msgid ""
+"The connected hypervisor does not support a machine type of {machine}. It "
+"will be set to the current default."
+msgstr "Подключенный гипервизор не поддерживает тип машин {machine}."
+
+#: ../lib/Sys/VirtV2V/Converter.pm:291
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "Подключенный гипервизор не поддерживает возможность {feature}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:298
+msgid ""
+"The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
@@ -108,168 +242,151 @@ msgstr "В grub не найдена запись для версии ядра {v
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для версии ядра {version}"
 
-#: ../lib/Sys/VirtV2V/HVSource/Xen/Linux.pm:235
-#, perl-brace-format
-msgid "Unable to open /etc/rc.local: {error}"
-msgstr "Не удалось открыть /etc/rc.local: {error}"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:154
-#, perl-brace-format
-msgid "{name} configured with virtio drivers"
-msgstr "{name} настроен с драйверами virtio"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:157
-#, perl-brace-format
-msgid "{name} configured without virtio drivers"
-msgstr "{name} настроен без драйверов virtio"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:255
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
-"module."
+"WARNING: storage volume {name} already exists in the target pool. NOT "
+"fetching it again. Delete the volume and retry to download again."
 msgstr ""
-"ВНИМАНИЕ: Неизвестно, как обновить {module}, который загружает модуль "
-"{modulename}."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:340
-msgid ""
-"No bootable kernels installed, and no replacement specified in "
-"configuration.\n"
-"Unable to continue."
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
+msgid "Unexpected error accessing storage pool: "
 msgstr ""
-"Не установлено загрузочное ядро и в настройках не определена замена.\n"
-"Продолжение невозможно."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:469
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:158
 #, perl-brace-format
 msgid ""
-"WARNING: No replacement found for {xpath} in domain XML. The node was "
-"removed."
-msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удалён."
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:520
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr "Подключенный гипервизор не поддерживает KVM-гостей {arch}"
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:551
-#, perl-brace-format
-msgid "The connected hypervisor does not support a machine type of {machine}."
-msgstr "Подключенный гипервизор не поддерживает тип машин {machine}."
-
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:570
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}"
-msgstr "Подключенный гипервизор не поддерживает возможность {feature}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:96
-msgid "Unable to find a module to configure this guest"
-msgstr "Не найден модуль для настройки этого гостя"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:113
-#, perl-brace-format
-msgid "WARNING: {modulename} only takes a single filename."
-msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:125
-#, perl-brace-format
-msgid "Guest {name} must be shutdown first"
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:145
-#, perl-brace-format
-msgid "{name} isn't a valid guest name"
-msgstr "Недопустимое имя гостя: {name}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:90
-#, perl-brace-format
-msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr "ВНИМАНИЕ: Неизвестная директива настройки {directive} в секции {name}."
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:143
-#, perl-brace-format
-msgid "You must specify a filename when using {modulename}"
-msgstr "Необходимо указать имя файла при использовании {modulename}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:167
-#, perl-brace-format
-msgid "Failed to open {path}: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:165
+#, fuzzy, perl-brace-format
+msgid "Failed to connect to ESX server: {error}"
 msgstr "Не удалось открыть {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:180
-#, perl-brace-format
-msgid "Unable to parse {path}: {error}"
-msgstr "Не удалось разобрать {path}: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:189
+#, fuzzy, perl-brace-format
+msgid "Error writing to {path}: {error}"
+msgstr "Ошибка при попытке закрыть {path}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:202
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:220
+#, fuzzy, perl-brace-format
+msgid "Failed to create storage volume: {error}"
+msgstr "Не удалось создать том хранилища: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:226
+#, fuzzy, perl-brace-format
+msgid "Error opening storage volume {path} for writing: {error}"
+msgstr "Ошибка при попытке закрыть {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:242
+msgid "Server response didn't include an SSL subject"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:246
+#, perl-brace-format
+msgid "SSL Certification Subject doesn't contain a common name: {subject}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:252
+#, perl-brace-format
+msgid "Server {server} presented an SSL certificate for {commonname}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:305
+#, perl-brace-format
+msgid ""
+"Authentication is required to connect to {server} and no credentials were "
+"found in .netrc."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/UserMessage.pm:88
+#, perl-brace-format
+msgid "{identifier}: {message}\n"
+msgstr ""
+
+#: ../snapshot/v2v-snapshot.pl:194
 msgid "--commit and --rollback options are mutually exclusive"
 msgstr "--commit и --rollback являются взаимоисключающими параметрами"
 
-#: ../snapshot/v2v-snapshot.pl:211 ../v2v/virt-v2v.pl:188
+#: ../snapshot/v2v-snapshot.pl:203
 msgid "no guest argument given"
 msgstr "Не задан аргумент гостя"
 
-#: ../snapshot/v2v-snapshot.pl:221
+#: ../snapshot/v2v-snapshot.pl:219
+msgid "Unable to get home directory for current user"
+msgstr ""
+
+#: ../snapshot/v2v-snapshot.pl:233
+#, fuzzy, perl-brace-format
+msgid "Unable to create data directory {dir}: {error}"
+msgstr "Не удалось создать гостя: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:245
 #, perl-brace-format
 msgid "{input} is not a valid input format"
 msgstr "Недопустимый входной формат: {input}"
 
-#: ../snapshot/v2v-snapshot.pl:255
+#: ../snapshot/v2v-snapshot.pl:279
 msgid "No domain has been created."
 msgstr "Домен не был создан."
 
-#: ../snapshot/v2v-snapshot.pl:267
+#: ../snapshot/v2v-snapshot.pl:291
 #, perl-brace-format
 msgid "Unable to open {file}: {error}"
 msgstr "Не удалось открыть {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:277 ../snapshot/v2v-snapshot.pl:313
+#: ../snapshot/v2v-snapshot.pl:301 ../snapshot/v2v-snapshot.pl:337
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
 msgstr "Ошибка при попытке закрыть {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:281 ../snapshot/v2v-snapshot.pl:309
+#: ../snapshot/v2v-snapshot.pl:305 ../snapshot/v2v-snapshot.pl:333
 #, perl-brace-format
 msgid "Wrote output to {file}"
 msgstr "Вывод сохранён в {file}"
 
-#: ../snapshot/v2v-snapshot.pl:299
+#: ../snapshot/v2v-snapshot.pl:323
 #, perl-brace-format
 msgid "Unable to create guest: {error}"
 msgstr "Не удалось создать гостя: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:301
+#: ../snapshot/v2v-snapshot.pl:325
 msgid "Consider using the --outputxml option"
 msgstr "Попробуйте использовать опцию --outputxml"
 
-#: ../snapshot/v2v-snapshot.pl:349
+#: ../snapshot/v2v-snapshot.pl:364
+#, fuzzy, perl-brace-format
+msgid "Unable to create snapshot directory {dir}: {error}"
+msgstr "Не удалось создать пул хранилища v2v-snapshot: {error}"
+
+#: ../snapshot/v2v-snapshot.pl:385
 #, perl-brace-format
 msgid "Unable to create v2v-snapshot storage pool: {error}"
 msgstr "Не удалось создать пул хранилища v2v-snapshot: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:367
+#: ../snapshot/v2v-snapshot.pl:403
 #, perl-brace-format
 msgid "Unable to start v2v-snapshot storage pool: {error}"
 msgstr "Не удалось запустить пул хранилища v2v-snapshot: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:377
+#: ../snapshot/v2v-snapshot.pl:413
 msgid "v2v-snapshot storage pool is temporarily unavailable"
 msgstr "Пул хранилища v2v-snapshot временно недоступен"
 
-#: ../snapshot/v2v-snapshot.pl:405
+#: ../snapshot/v2v-snapshot.pl:441
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
 msgstr "Невозможной найти в {path} пул хранилища v2v-snapshot."
 
-#: ../snapshot/v2v-snapshot.pl:460
+#: ../snapshot/v2v-snapshot.pl:496
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
 msgstr ""
 "Пропускается устройство {target}, так как оно не имеет резервного хранилища"
 
-#: ../snapshot/v2v-snapshot.pl:517
+#: ../snapshot/v2v-snapshot.pl:555
 #, perl-brace-format
 msgid ""
 "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
@@ -281,7 +398,7 @@ msgstr ""
 "Вывод команды:\n"
 "{output}"
 
-#: ../snapshot/v2v-snapshot.pl:550
+#: ../snapshot/v2v-snapshot.pl:588
 #, perl-brace-format
 msgid ""
 "A snapshot already exists for {guest}. You must commit it or roll it back "
@@ -290,60 +407,101 @@ msgstr ""
 "Снимок системы уже существует для {guest}. Необходимо его сохранить или "
 "выполнить откат прежде чем создать новый снимок."
 
-#: ../snapshot/v2v-snapshot.pl:559
+#: ../snapshot/v2v-snapshot.pl:603
 #, perl-brace-format
 msgid "Unable to write to {path}: {error}"
 msgstr "Не удалось выполнить запись в {path}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:565
+#: ../snapshot/v2v-snapshot.pl:610
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
 msgstr "Ошибка при попытке закрыть {path}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:597
+#: ../snapshot/v2v-snapshot.pl:642
 #, perl-brace-format
 msgid "Unable to create storage volume: {error}"
 msgstr "Не удалось создать том хранилища: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:630
+#: ../snapshot/v2v-snapshot.pl:695
 #, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
 msgstr "Отказ выполнения отката гостя {name} без резервного XML"
 
-#: ../snapshot/v2v-snapshot.pl:657
+#: ../snapshot/v2v-snapshot.pl:722
 #, perl-brace-format
 msgid "{path} is not a snapshot volume"
 msgstr "{path} не является томом снимков"
 
-#: ../snapshot/v2v-snapshot.pl:663
+#: ../snapshot/v2v-snapshot.pl:728
 #, perl-brace-format
 msgid "Failed to delete {file}: {error}"
 msgstr "Не удалось удалить {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:675
+#: ../snapshot/v2v-snapshot.pl:740
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
 msgstr "Не удалось удалить резервный XML-файл {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:737
+#: ../snapshot/v2v-snapshot.pl:802
 #, perl-brace-format
 msgid "invalid source element: {element}"
 msgstr "Недопустимый исходный элемент: {element}"
 
-#: ../v2v/virt-v2v.pl:202
+#: ../snapshot/v2v-snapshot.pl:829
+#, fuzzy, perl-brace-format
+msgid "Unable to create xml storage directory {dir}: {error}"
+msgstr "Не удалось создать том хранилища: {error}"
+
+#: ../v2v/virt-v2v.pl:203
+msgid "Use -ic or -oc to specify an input or an output connection"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:221
 #, perl-brace-format
 msgid "Unable to parse {file}: {error}"
 msgstr "Не удалось разобрать {file}: {error}"
 
-#: ../v2v/virt-v2v.pl:213
-#, perl-brace-format
-msgid "{input} is not a valid metadata format"
-msgstr "Недопустимый формат метаданных: {input}"
+#: ../v2v/virt-v2v.pl:239
+#, fuzzy
+msgid "You must specify a filename"
+msgstr "Необходимо указать имя файла при использовании {modulename}"
 
-#: ../v2v/virt-v2v.pl:303
+#: ../v2v/virt-v2v.pl:245
+#, perl-brace-format
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
+
+#: ../v2v/virt-v2v.pl:254
+msgid "You must specify a guest"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:266
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid local storage pool"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:279
+#, fuzzy, perl-brace-format
+msgid "WARNING: {modulename} only takes a single domain name."
+msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
+
+#: ../v2v/virt-v2v.pl:285
+#, fuzzy, perl-brace-format
+msgid "{input} is not a valid input method"
+msgstr "Недопустимый входной формат: {input}"
+
+#: ../v2v/virt-v2v.pl:376
 msgid "no root device found in this operating system image"
 msgstr "Не найдено корневое устройство для этого образа операционной системы"
 
-#: ../v2v/virt-v2v.pl:309
+#: ../v2v/virt-v2v.pl:382
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v не поддерживает многозагрузочные операционные системы"
+
+#~ msgid ""
+#~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
+#~ "removed."
+#~ msgstr "ВНИМАНИЕ: Не найдена замена {xpath} в XML домена. Узел был удалён."
+
+#~ msgid "{input} is not a valid metadata format"
+#~ msgstr "Недопустимый формат метаданных: {input}"
