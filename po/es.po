@@ -1,73 +1,70 @@
-# translation of virt-v2v.master.es(4).po to Spanish
 # Fedora Spanish Translation of virt-v2v.
 # This file is distributed under the same license as the virt-v2v package.
 #
-#
-# Héctor Daniel Cabrera <h.daniel.cabrera@gmail.com>, 2009.
 # Gladys Guerrero  <gguerrer@redhat.com>, 2009.
+# Héctor Daniel Cabrera <logan@fedoraproject.org>, 2009, 2010.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.es(4)\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-04 11:23+0000\n"
-"PO-Revision-Date: 2009-11-12 14:53+1000\n"
-"Last-Translator: Gladys Guerrero  <gguerrer@redhat.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2010-02-05 10:47-0300\n"
+"Last-Translator: Héctor Daniel Cabrera <logan@fedoraproject.org>\n"
+"Language-Team: Spanish <fedora-trans-es@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Spanish\n"
 "X-Generator: KBabel 1.11.4\n"
+"X-Poedit-Country: ARGENTINA\n"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
-msgstr "Imposible analizar sintácticamente a {path}: {error}"
+msgstr "Imposible analizar la autoridad de URI: {auth}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
-msgid ""
-"WARNING: Specifying a password in the connection URI is not supported. It "
-"has been ignored."
-msgstr ""
+msgid "WARNING: Specifying a password in the connection URI is not supported. It has been ignored."
+msgstr "AVISO: No existe soporte para indicar una contraseña en la conexión URI. Ha sido ignorada."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
-msgstr "Falló al borrar {uri}: {error}"
+msgstr "Falló al conectarse con {uri}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
-msgstr "Huésped {name} se debe apagar primero"
+msgstr "El huésped {name} se encuentra actualmente {state}. Debe apagarse primero."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
-#, fuzzy
 msgid "idle"
-msgstr "archivo"
+msgstr "inactivo"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
 msgid "running"
-msgstr ""
+msgstr "ejecutándose"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
 msgid "blocked"
-msgstr ""
+msgstr "bloqueada"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
 msgid "paused"
-msgstr ""
+msgstr "pausada"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
 msgid "shutting down"
-msgstr ""
+msgstr "apagando"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
 msgid "shut down"
-msgstr ""
+msgstr "apagada"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
 msgid "crashed"
-msgstr ""
+msgstr "caída"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
 #, perl-brace-format
@@ -77,9 +74,7 @@ msgstr "{name} no es un nombre de huésped válido"
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:91
 #, perl-brace-format
 msgid "WARNING: unknown configuration directive {directive} in {name} section."
-msgstr ""
-"ADVERTENCIA: directiva {directive} de configuración desconocida en la "
-"sección {name}. "
+msgstr "ADVERTENCIA: directiva {directive} de configuración desconocida en la sección {name}. "
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:114
 #, perl-brace-format
@@ -93,25 +88,19 @@ msgstr "Imposible analizar sintácticamente a {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:121
 msgid "No output pool was specified"
-msgstr ""
+msgstr "No se ha específicado un grupo de salida"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:207
 #, perl-brace-format
-msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
-"module."
-msgstr ""
-"ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el "
-"módulo {modulename}. "
+msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
+msgstr "ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el módulo {modulename}. "
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:295
 msgid ""
-"No bootable kernels installed, and no replacement specified in "
-"configuration.\n"
+"No bootable kernels installed, and no replacement specified in configuration.\n"
 "Unable to continue."
 msgstr ""
-"No se han instalado kernels de inicio, y no se ha especificado ningún "
-"remplazo en la configuración.\n"
+"No se han instalado kernels de inicio, y no se ha especificado ningún remplazo en la configuración.\n"
 "No es posible continuar."
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:441
@@ -120,9 +109,8 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "No es posible abrir /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:141
-#, fuzzy
 msgid "Unable to find a module to convert this guest"
-msgstr "No es posible encontrar un módulo para configurar este huésped"
+msgstr "No es posible encontrar un módulo para convertir a este huésped"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:152
 #, perl-brace-format
@@ -140,12 +128,9 @@ msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:264
-#, fuzzy, perl-brace-format
-msgid ""
-"The connected hypervisor does not support a machine type of {machine}. It "
-"will be set to the current default."
-msgstr ""
-"El hipervisor conectado no tiene soporte para una máquina del tipo {machine}."
+#, perl-brace-format
+msgid "The connected hypervisor does not support a machine type of {machine}. It will be set to the current default."
+msgstr "El hipervisor conectado no tiene soporte para una máquina del tipo {machine}. Será definido con las configuraciones predeterminadas."
 
 #: ../lib/Sys/VirtV2V/Converter.pm:291
 #, perl-brace-format
@@ -153,9 +138,8 @@ msgid "The connected hypervisor does not support feature {feature}"
 msgstr "El hipervisor conectado no soporta la característica {feature}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:298
-msgid ""
-"The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr ""
+msgid "The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr "El huésped elegido no tiene soporte acpi bajo KVM. ACPI será deshabilitado."
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:152
 #, perl-brace-format
@@ -182,9 +166,7 @@ msgstr "No se pudo encontrar SELINUXTYPE en /etc/syslinux/config"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:154
 #, perl-brace-format
 msgid "Unable to find an SELinux policy file matching {path}: {error}"
-msgstr ""
-"No se pudo encontrar un archivo de políticas SELinux que concuerde con "
-"{path}: {error}"
+msgstr "No se pudo encontrar un archivo de políticas SELinux que concuerde con {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:176
 msgid "Unable to load an SELinux policy"
@@ -215,8 +197,7 @@ msgstr "No es posible determinar una arquitectura de kernel para este huésped"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:637
 #, perl-brace-format
 msgid "Found dependency loop installing {label}: {path}"
-msgstr ""
-"Se ha encontrado dependencia circular durante la instalación {label}: {path} "
+msgstr "Se ha encontrado dependencia circular durante la instalación {label}: {path} "
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:855
 #, perl-brace-format
@@ -238,86 +219,75 @@ msgstr "dependencias"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:982
 #, perl-brace-format
 msgid "No mapping found for block device {device}"
-msgstr ""
-"No se ha encontrado una asignación para el dispositivo de bloque {device}"
+msgstr "No se ha encontrado una asignación para el dispositivo de bloque {device}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1043
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
-msgstr ""
-"No se ha encontrado una entrada en el GRUB para la versión del kernel "
-"{version}"
+msgstr "No se ha encontrado una entrada en el GRUB para la versión del kernel {version}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1048
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
-msgstr ""
-"ADVERTENCIA: La versión del kernel {version} no posee una entrada de initrd "
-"en el GRUB"
+msgstr "ADVERTENCIA: La versión del kernel {version} no posee una entrada de initrd en el GRUB"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
 #, perl-brace-format
-msgid ""
-"WARNING: storage volume {name} already exists in the target pool. NOT "
-"fetching it again. Delete the volume and retry to download again."
-msgstr ""
+msgid "WARNING: storage volume {name} already exists in the target pool. NOT fetching it again. Delete the volume and retry to download again."
+msgstr "AVISO: ya existe un volúmen de almacenamiento {name} en el grupo elegido. NO será capturado nuevamente. Elimine este volumen e intente realizar una nueva descarga. "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 msgid "Unexpected error accessing storage pool: "
-msgstr ""
+msgstr "error inesperado al tratar de acceder al grupo de almacenamiento:"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:158
 #, perl-brace-format
-msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
-msgstr ""
+msgid "Authentication error connecting to {server}. Used credentials for {username} from .netrc."
+msgstr "Error de autenticación al intentar conectarse con {server}. Las credenciales utilizadas para {username} provienen de .netrc."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:165
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
-msgstr "Falló al abrir {path}: {error}"
+msgstr "Falló al conectarse con el servidor ESX: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:189
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error writing to {path}: {error}"
-msgstr "Error al cerrar {path}: {error}"
+msgstr "Error escribiendo en {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:220
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to create storage volume: {error}"
-msgstr "Imposible crear el volumen de almacenamiento: {error}"
+msgstr "Falló al crear el volumen de almacenamiento: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:226
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "Error al cerrar {path}: {error}"
+msgstr "Error al abrir el volumen de almacenamiento {path} para escritura: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:242
 msgid "Server response didn't include an SSL subject"
-msgstr ""
+msgstr "La respuesta del servidor no ha incluido un sujeto SSL"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:246
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
-msgstr ""
+msgstr "La certificación de sujeto SSL no contiene un nombre común: {subject}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:252
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
-msgstr ""
+msgstr "El servidor {server} ha presentado un certificado SSL para {commonname}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:305
 #, perl-brace-format
-msgid ""
-"Authentication is required to connect to {server} and no credentials were "
-"found in .netrc."
-msgstr ""
+msgid "Authentication is required to connect to {server} and no credentials were found in .netrc."
+msgstr "Es necesaria una autenticación para conectarse con {server} y no se ha encontrado ninguna credencial en .netrc."
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
 msgid "{identifier}: {message}\n"
-msgstr ""
+msgstr "{identifier}: {message}\n"
 
 #: ../snapshot/v2v-snapshot.pl:194
 msgid "--commit and --rollback options are mutually exclusive"
@@ -329,12 +299,12 @@ msgstr "no se ha dado ningún argumento de huésped"
 
 #: ../snapshot/v2v-snapshot.pl:219
 msgid "Unable to get home directory for current user"
-msgstr ""
+msgstr "No es posible acceder al directorio personal del usuario actual"
 
 #: ../snapshot/v2v-snapshot.pl:233
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create data directory {dir}: {error}"
-msgstr "Imposible crear el invitado: {error}"
+msgstr "No es posible crear directorio de datos {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:245
 #, perl-brace-format
@@ -350,12 +320,14 @@ msgstr "Ningún dominio fue creado."
 msgid "Unable to open {file}: {error}"
 msgstr "Imposible abrir {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:301 ../snapshot/v2v-snapshot.pl:337
+#: ../snapshot/v2v-snapshot.pl:301
+#: ../snapshot/v2v-snapshot.pl:337
 #, perl-brace-format
 msgid "Error closing {file}: {error}"
 msgstr "Error al cerrar {file}: {error}"
 
-#: ../snapshot/v2v-snapshot.pl:305 ../snapshot/v2v-snapshot.pl:333
+#: ../snapshot/v2v-snapshot.pl:305
+#: ../snapshot/v2v-snapshot.pl:333
 #, perl-brace-format
 msgid "Wrote output to {file}"
 msgstr "Se escribió la salida en {file}"
@@ -370,16 +342,14 @@ msgid "Consider using the --outputxml option"
 msgstr "Considere la utilización de la opción --outputxml"
 
 #: ../snapshot/v2v-snapshot.pl:364
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create snapshot directory {dir}: {error}"
-msgstr ""
-"No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
+msgstr "No es posible crear un directorio de capturas {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:385
 #, perl-brace-format
 msgid "Unable to create v2v-snapshot storage pool: {error}"
-msgstr ""
-"No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
+msgstr "No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:403
 #, perl-brace-format
@@ -388,20 +358,17 @@ msgstr "No es posible iniciar el grupo de almacenamiento v2v-snapshot: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:413
 msgid "v2v-snapshot storage pool is temporarily unavailable"
-msgstr ""
-"El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
+msgstr "El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
 
 #: ../snapshot/v2v-snapshot.pl:441
 #, perl-brace-format
 msgid "Unable to find {path} in the v2v-snapshot storage pool."
-msgstr ""
-"No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
+msgstr "No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
 
 #: ../snapshot/v2v-snapshot.pl:496
 #, perl-brace-format
 msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr ""
-"Ignorando el dispositivo {target} porque no posee un depósito de reserva"
+msgstr "Ignorando el dispositivo {target} porque no posee un depósito de reserva"
 
 #: ../snapshot/v2v-snapshot.pl:555
 #, perl-brace-format
@@ -410,19 +377,14 @@ msgid ""
 "Command output was:\n"
 "{output}"
 msgstr ""
-"Falló al enviar instantánea '{path}' al depósito de reserva "
-"'{backingstore}'.\n"
+"Falló al enviar instantánea '{path}' al depósito de reserva '{backingstore}'.\n"
 "El comando de salida fue:\n"
 "{output}"
 
 #: ../snapshot/v2v-snapshot.pl:588
 #, perl-brace-format
-msgid ""
-"A snapshot already exists for {guest}. You must commit it or roll it back "
-"back before creating a new snapshot."
-msgstr ""
-"Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien "
-"deshacerla antes de crear una nueva."
+msgid "A snapshot already exists for {guest}. You must commit it or roll it back back before creating a new snapshot."
+msgstr "Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien deshacerla antes de crear una nueva."
 
 #: ../snapshot/v2v-snapshot.pl:603
 #, perl-brace-format
@@ -442,9 +404,7 @@ msgstr "Imposible crear el volumen de almacenamiento: {error}"
 #: ../snapshot/v2v-snapshot.pl:695
 #, perl-brace-format
 msgid "Refusing to rollback guest {name} without backed-up xml"
-msgstr ""
-"Se niega a restaurar el huésped {name} sin haber hecho una copia de "
-"seguridad del archivo xml"
+msgstr "Se niega a restaurar el huésped {name} sin haber hecho una copia de seguridad del archivo xml"
 
 #: ../snapshot/v2v-snapshot.pl:722
 #, perl-brace-format
@@ -459,8 +419,7 @@ msgstr "Falló al borrar {file}: {error}"
 #: ../snapshot/v2v-snapshot.pl:740
 #, perl-brace-format
 msgid "Unable to delete backup xml file {file}: {error}"
-msgstr ""
-"No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
+msgstr "No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
 
 #: ../snapshot/v2v-snapshot.pl:802
 #, perl-brace-format
@@ -468,13 +427,13 @@ msgid "invalid source element: {element}"
 msgstr "elemento fuente inválido: {element}"
 
 #: ../snapshot/v2v-snapshot.pl:829
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create xml storage directory {dir}: {error}"
-msgstr "Imposible crear el volumen de almacenamiento: {error}"
+msgstr "No es posible crear un directorio de almacenamiento xml {dir}: {error}"
 
 #: ../v2v/virt-v2v.pl:203
 msgid "Use -ic or -oc to specify an input or an output connection"
-msgstr ""
+msgstr "Utilice -ic o -oc para especificar una conexión de entrada o de salida"
 
 #: ../v2v/virt-v2v.pl:221
 #, perl-brace-format
@@ -482,9 +441,8 @@ msgid "Unable to parse {file}: {error}"
 msgstr "No se pudo analizar sintácticamente a {file}: {error}"
 
 #: ../v2v/virt-v2v.pl:239
-#, fuzzy
 msgid "You must specify a filename"
-msgstr "Debe especificar un nombre de archivo cuando utilice {modulename}"
+msgstr "Debe especificar un nombre de archivo"
 
 #: ../v2v/virt-v2v.pl:245
 #, perl-brace-format
@@ -493,34 +451,30 @@ msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
 
 #: ../v2v/virt-v2v.pl:254
 msgid "You must specify a guest"
-msgstr ""
+msgstr "Debe especificar un huésped"
 
 #: ../v2v/virt-v2v.pl:266
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid local storage pool"
-msgstr ""
+msgstr "El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
 
 #: ../v2v/virt-v2v.pl:279
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
-msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
+msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de dominio."
 
 #: ../v2v/virt-v2v.pl:285
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{input} is not a valid input method"
-msgstr "{input} no es un formato de entrada válido"
+msgstr "{input} no es un método de entrada válido"
 
 #: ../v2v/virt-v2v.pl:376
 msgid "no root device found in this operating system image"
-msgstr ""
-"no se ha encontrado un dispositivo raíz en la imagen de este sistema "
-"operativo"
+msgstr "no se ha encontrado un dispositivo raíz en la imagen de este sistema operativo"
 
 #: ../v2v/virt-v2v.pl:382
 msgid "multiboot operating systems are not supported by virt-v2v"
-msgstr ""
-"con virt-v2v, no existe soporte para inicializar múltiples sistemas "
-"operativos"
+msgstr "con virt-v2v, no existe soporte para inicializar múltiples sistemas operativos"
 
 #~ msgid ""
 #~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
@@ -528,6 +482,6 @@ msgstr ""
 #~ msgstr ""
 #~ "ADVERTENCIA: No se ha encontrado un reemplazo para {xpath} en el dominio "
 #~ "XML. El nodo ha sido eliminado."
-
 #~ msgid "{input} is not a valid metadata format"
 #~ msgstr "{input} no tiene un formato de metadatos válido"
+
