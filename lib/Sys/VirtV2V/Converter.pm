@@ -436,6 +436,13 @@ sub _unconfigure_hvs
         $emulator->getParent()->removeChild($emulator);
     }
 
+    # Remove any disk driver element other than 'qemu'
+    foreach my $driver
+        ($dom->findnodes('/domain/devices/disk/driver[@name != \'qemu\']'))
+    {
+        $driver->getParentNode()->removeChild($driver);
+    }
+
     _unconfigure_xen_metadata($dom, $default_dom);
 }
 
