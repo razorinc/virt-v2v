@@ -332,9 +332,8 @@ sub get_guestfs_handle
 {
     my $g = open_guest(\@_, rw => 1);
 
-    # Mount the transfer iso if GuestOS needs it
-    my $transferiso = Sys::VirtV2V::GuestOS->get_transfer_iso();
-    $g->add_cdrom($transferiso) if(defined($transferiso));
+    # Add the transfer iso if there is one
+    $g->add_drive($transferiso) if(defined($transferiso));
 
     # Enable selinux in the guest
     $g->set_selinux(1);
