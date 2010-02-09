@@ -312,7 +312,10 @@ exit(1) unless(defined($dom));
 my @storage = $conn->get_local_storage();
 
 # Open a libguestfs handle on the guest's storage devices
-my $g = get_guestfs_handle(@storage);
+my $g = get_guestfs_handle(\@storage, $transferiso);
+
+$SIG{'INT'} = \&close_guest_handle;
+$SIG{'QUIT'} = \&close_guest_handle;
 
 # Inspect the guest
 my $os = inspect_guest($g);
@@ -323,15 +326,25 @@ my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
 # Modify the guest and its metadata for the target hypervisor
 Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
 
-$g->umount_all();
-$g->sync();
-
 $vmm->define_domain($dom->toString());
 
 exit(0);
 
+# We should always attempt to shut down the guest gracefully
+END {
+    close_guest_handle();
+}
+
 ###############################################################################
 ## Helper functions
+
+sub close_guest_handle
+{
+    if (defined($g)) {
+        $g->umount_all();
+        $g->sync();
+    }
+}
 
 sub get_guestfs_handle
 {
@@ -342,6 +355,9 @@ sub get_guestfs_handle
 
     # Enable selinux in the guest
     $g->set_selinux(1);
+
+    # Enable autosync to defend against data corruption on unclean shutdown
+    $g->set_autosync(1);
 
     $g->launch ();
 
