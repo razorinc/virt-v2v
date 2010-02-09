@@ -64,8 +64,8 @@ sub new
 
     my ($path) = @_;
 
-    my %obj = ();
-    my $self = \%obj;
+    my $self = {};
+    $self->{path} = $path;
 
     bless($self, $class);
 
@@ -88,15 +88,11 @@ sub _get_dom
                                 path => $self->{path}, error => $!)));
 
     # Parse the input file
-    my $parser = new XML::DOM::Parser;
-    my $dom;
-    eval { $dom = $parser->parse ($xml); };
+    eval { $self->{dom} = new XML::DOM::Parser->parse ($xml); };
 
     # Display any parse errors
-    die(user_message(__x("Unable to parse {path}: {error}",
+    die(user_message(__x("Unable to parse domain from file {path}: {error}",
                          path => $self->{path}, error => $@))) if ($@);
-
-    return $dom;
 }
 
 =back
