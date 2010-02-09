@@ -17,8 +17,12 @@
 
 package Sys::VirtV2V::GuestOS::RedHat;
 
+our @ISA = ('Sys::VirtV2V::GuestOS');
+
 use strict;
 use warnings;
+
+use File::Spec;
 
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 use Sys::VirtV2V::UserMessage qw(user_message);
@@ -65,7 +69,7 @@ sub can_handle
     return ($desc->{os} eq 'linux') && ($desc->{package_format} eq 'rpm');
 }
 
-=item Sys::VirtV2V::GuestOS::RedHat->new(g, desc, files, deps, aliases)
+=item Sys::VirtV2V::GuestOS::RedHat->new(self)
 
 See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
 
@@ -75,27 +79,9 @@ sub new
 {
     my $class = shift;
 
-    my $self = {};
-
-    # Guest handle
-    my $g = $self->{g} = shift;
-    carp("new called without guest handle") unless defined($g);
-
-    # Guest description
-    $self->{desc} = shift;
-    carp("new called without guest description") unless defined($self->{desc});
-
-    # Guest file map
-    $self->{files} = shift;
-    carp("new called without files description") unless defined($self->{files});
-
-    # Guest dependency map
-    $self->{deps} = shift;
-    carp("new called without dependencies") unless defined($self->{deps});
-
-    # Guest alias map
-    $self->{aliases} = shift;
-    carp("new called without aliases") unless defined($self->{aliases});
+    # Self object
+    my $self = shift;
+    carp("new called without self object") unless defined($self);
 
     bless($self, $class);
 
@@ -475,32 +461,113 @@ sub add_kernel
 
     my ($kernel_pkg, $kernel_arch) = $self->_discover_kernel();
 
-    # Install the kernel's dependencies
-    $self->_install_rpms(1, $self->_resolve_deps($kernel_pkg));
+    # If the guest is using a Xen PV kernel, choose an appropriate normal kernel
+    # replacement
+    if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
+        my $desc = $self->{desc};
 
-    my $filename;
+        # Make an informed choice about a replacement kernel for distros we know
+        # about
+
+        # RHEL 5
+        if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
+            if ($kernel_arch eq 'i686') {
+                # XXX: This assumes that PAE will be available in the
+                # hypervisor. While this is almost certainly true, it's
+                # theoretically possible that it isn't. The information we need
+                # is available in the capabilities XML.
+                # If PAE isn't available, we should choose 'kernel'.
+                $kernel_pkg = 'kernel-PAE';
+            }
+
+            # There's only 1 kernel package on RHEL 5 x86_64
+            else {
+                $kernel_pkg = 'kernel';
+            }
+        }
+
+        # RHEL 4
+        elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+            my $ncpus = $self->get_ncpus();
+
+            if ($kernel_arch eq 'i686') {
+                # If the guest has > 10G RAM, give it a hugemem kernel
+                if ($self->get_memory_kb() > 10 * 1024 * 1024) {
+                    $kernel_pkg = 'kernel-hugemem';
+                }
+
+                # SMP kernel for guests with >1 CPU
+                elsif ($ncpus > 1) {
+                    $kernel_pkg = 'kernel-smp';
+                }
+
+                else {
+                    $kernel_pkg = 'kernel';
+                }
+            }
+
+            else {
+                if ($ncpus > 8) {
+                    $kernel_pkg = 'kernel-largesmp';
+                }
+
+                elsif ($ncpus > 1) {
+                    $kernel_pkg = 'kernel-smp';
+                }
+
+                else {
+                    $kernel_pkg = 'kernel';
+                }
+            }
+        }
+
+        # RHEL 3 didn't have a xen kernel
+
+        # XXX: Could do with a history of Fedora kernels in here
+
+        # For other distros, be conservative and just return 'kernel'
+        else {
+            $kernel_pkg = 'kernel';
+        }
+    }
+
+    my $app;
     eval {
-        # Get a matching rpm
-        $filename = $self->_match_file($kernel_pkg, $kernel_arch);
+        $app = $self->match_app($kernel_pkg, $kernel_arch);
     };
-
     # Return undef if we didn't find a kernel
+    if ($@) {
+        print STDERR $@;
+        return undef;
+    }
+
+    my $path = $app->{path};
+
+    my @install;
+    # Install any kernel dependencies which aren't already installed
+    foreach my $dep (@{$app->{deps}}) {
+        push(@install, $dep) unless($self->_is_installed($dep));
+    }
+    $self->_install_rpms(1, @install);
+
     return undef if($@);
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
     my $g = $self->{g};
-    foreach my $file ($g->command_lines(["rpm", "-qlp", $filename])) {
+    foreach my $file ($g->command_lines
+        (["rpm", "-qlp", $self->_transfer_path($path)]))
+    {
         if($file =~ m{^/boot/vmlinuz-(.*)$}) {
             $version = $1;
             last;
         }
     }
 
-    die(user_message(__x("{filename} doesn't contain a valid kernel",
-                         filename => $filename))) if(!defined($version));
+    die(user_message(__x("{path} doesn't contain a valid kernel",
+                         path => $path))) if(!defined($version));
 
-    $self->_install_rpms(0, ($filename));
+    $self->_install_rpms(0, ($path));
 
     # Make augeas reload so it'll find the new kernel
     $g->aug_load();
@@ -508,7 +575,7 @@ sub add_kernel
     return $version;
 }
 
-# Inspect the guest description to work out what kernel should be installed.
+# Inspect the guest description to work out what kernel package is in use
 # Returns ($kernel_pkg, $kernel_arch)
 sub _discover_kernel
 {
@@ -602,63 +669,21 @@ sub add_application
 
     my $user_arch = $self->{desc}->{arch};
 
-    # Get the rpm for this label
-    my $rpm = $self->_match_file($label, $user_arch);
+    my $app = $self->match_app($label, $user_arch);
 
     # Nothing to do if it's already installed
-    return if(_is_installed($rpm));
+    return if($self->_is_installed($app->{path}));
 
-    my @install = ($rpm);
+    my @install = ($app->{path});
 
-    # Add the dependencies to the install set
-    push(@install, $self->_resolve_deps($label));
+    # Add any dependencies which aren't already installed to the install set
+    foreach my $dep (@{$app->{deps}}) {
+        push(@install, $dep) unless ($self->_is_installed($dep));
+    }
 
     $self->_install_rpms(1, @install);
 }
 
-# Return a list of dependencies which must be installed before $label can be
-# installed. The list contains paths of rpm files. It does not contain the rpm
-# for $label itself. This is so _resolve_deps can be used to install kernel
-# dependencies with -U before the kernel itself is installed with -i.
-sub _resolve_deps
-{
-    my $self = shift;
-
-    my ($label, @path) = @_;
-
-    my $user_arch = $self->{desc}->{arch};
-
-    # Check for an alias for $label
-    $label = $self->_resolve_alias($label, $user_arch);
-
-    # Check that the dependency path doesn't include the given label. If it
-    # does, that's a dependency loop.
-    if(grep(/\Q$label\E/, @path) > 0) {
-        die(user_message(__x("Found dependency loop installing {label}: {path}",
-                             label => $label, path => join(' ', @path))));
-    }
-    push(@path, $label);
-
-    my $g = $self->{g};
-
-    my @depfiles = ();
-
-    # Find dependencies for $label
-    foreach my $dep ($self->_match_deps($label, $user_arch)) {
-        my $rpm = $self->_match_file($dep, $user_arch);
-
-        # Don't add the dependency if it's already installed
-        next if($self->_is_installed($rpm));
-
-        # Add the dependency
-        push(@depfiles, $rpm);
-
-        # Recursively add dependencies
-        push(@depfiles, $self->_resolve_deps($dep, @path));
-    }
-
-    return @depfiles;
-}
 
 # Return 1 if the requested rpm, or a newer version, is installed
 # Return 0 otherwise
@@ -668,6 +693,8 @@ sub _is_installed
     my ($rpm) = @_;
 
     my $g = $self->{g};
+
+    $rpm = $self->_transfer_path($rpm);
 
     # Get NEVRA for the rpm to be installed
     my $nevra = $g->command(['rpm', '-qp', '--qf',
@@ -828,94 +855,6 @@ sub get_application_owner
     die($@) if($@);
 }
 
-# Lookup a guest specific match for the given label
-sub _match
-{
-    my $self = shift;
-    my ($object, $label, $arch, $hash) = @_;
-
-    my $desc = $self->{desc};
-    my $distro = $desc->{distro};
-    my $major = $desc->{major_version};
-    my $minor = $desc->{minor_version};
-
-    if(values(%$hash) > 0) {
-        # Search for a matching entry in the file map, in descending order of
-        # specificity
-        for my $name ("$distro.$major.$minor.$arch.$label",
-                      "$distro.$major.$minor.$label",
-                      "$distro.$major.$arch.$label",
-                      "$distro.$major.$label",
-                      "$distro.$arch.$label",
-                      "$distro.$label") {
-            return $name if(defined($hash->{$name}));
-        }
-    }
-
-    die(user_message(__x("No {object} given matching {label}",
-                         object => $object,
-                         label => "$distro.$major.$minor.$arch.$label")));
-}
-
-# Return the path to an rpm for <label>.<arch>
-# Dies if no match is found
-sub _match_file
-{
-    my $self = shift;
-    my ($label, $arch) = @_;
-
-    # Check for an alias for $label
-    $label = $self->_resolve_alias($label, $arch);
-
-    my $files = $self->{files};
-
-    my $name = $self->_match(__"file", $label, $arch, $files);
-
-    # Ensure that whatever file is returned is accessible
-    $self->_ensure_transfer_mounted();
-
-    return $self->{transfer_mount}.'/'.$files->{$name};
-}
-
-# Look for an alias for this label
-sub _resolve_alias
-{
-    my $self = shift;
-    my ($label, $arch) = @_;
-
-    my $aliases = $self->{aliases};
-
-    my $alias;
-    eval {
-        $alias = $self->_match(__"alias", $label, $arch, $aliases);
-    };
-
-    return $aliases->{$alias} if(defined($alias));
-    return $label;
-}
-
-# Return a list of labels listed as dependencies of the given label.
-# Returns an empty list if no dependencies were specified.
-sub _match_deps
-{
-    my $self = shift;
-    my ($label, $arch) = @_;
-
-    my $deps = $self->{deps};
-
-    my $name;
-    eval {
-        $name = $self->_match(__"dependencies", $label, $arch, $deps);
-    };
-
-    # Return an empty list if there were no dependencies defined
-    if($@) {
-        return ();
-    } else {
-        return split(/\s+/, $deps->{$name});
-    }
-}
-
 # Install a set of rpms
 sub _install_rpms
 {
@@ -926,6 +865,9 @@ sub _install_rpms
     # Nothing to do if we got an empty set
     return if(scalar(@rpms) == 0);
 
+    # All paths are relative to the transfer mount. Need to make them absolute.
+    @rpms = map { $_ = $self->_transfer_path($_) } @rpms;
+
     my $g = $self->{g};
     eval {
         $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
@@ -933,6 +875,18 @@ sub _install_rpms
 
     # Propagate command failure
     die($@) if($@);
+}
+
+# Get full, local path of a file on the transfer mount
+sub _transfer_path
+{
+    my $self = shift;
+
+    my ($path) = @_;
+
+    $self->_ensure_transfer_mounted();
+
+    return File::Spec->catfile($self->{transfer_mount}, $path);
 }
 
 # Ensure that the transfer device is mounted. If not, mount it.

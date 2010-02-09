@@ -22,7 +22,9 @@ use strict;
 use Pod::Usage;
 use Getopt::Long;
 #use Data::Dumper;
-use Config::Tiny;
+use File::Spec;
+use File::stat;
+
 use Locale::TextDomain 'virt-v2v';
 
 use Sys::Guestfs;
@@ -31,10 +33,11 @@ use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
                          inspect_in_detail);
 
 use Sys::VirtV2V;
-use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::Converter;
 use Sys::VirtV2V::Connection::LibVirt;
 use Sys::VirtV2V::Connection::LibVirtXML;
+use Sys::VirtV2V::ExecHelper;
+use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 =encoding utf8
@@ -296,10 +299,6 @@ if ($@) {
     exit(1);
 }
 
-# Configure GuestOS ([files] and [deps] sections)
-# Need to fix GuestOS's usage of config for installing applications
-Sys::VirtV2V::GuestOS->configure({});
-
 
 ###############################################################################
 ## Start of processing
@@ -311,6 +310,9 @@ exit(1) unless(defined($dom));
 # Get a list of the guest's transfered storage devices
 my @storage = $conn->get_local_storage();
 
+# Create the transfer iso if required
+my $transferiso = get_transfer_iso($config, $config_file);
+
 # Open a libguestfs handle on the guest's storage devices
 my $g = get_guestfs_handle(\@storage, $transferiso);
 
@@ -321,7 +323,7 @@ $SIG{'QUIT'} = \&close_guest_handle;
 my $os = inspect_guest($g);
 
 # Instantiate a GuestOS instance to manipulate the guest
-my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
+my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
 # Modify the guest and its metadata for the target hypervisor
 Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
@@ -346,9 +348,85 @@ sub close_guest_handle
     }
 }
 
+sub get_transfer_iso
+{
+    my ($config, $config_file) = @_;
+
+    # Nothing to do if there's no config
+    return undef unless (defined($config));
+
+    # path-root doesn't have to be defined
+    my ($root) = $config->findnodes('/virt-v2v/path-root/text()');
+    $root = $root->getData() if (defined($root));
+
+    # Construct a list of path arguments to mkisofs from paths referenced in the
+    # config file
+    # We actually use a hash here to avoid duplicates
+    my %path_args;
+    foreach my $path ($config->findnodes('/virt-v2v/app/path/text() | '.
+                                         '/virt-v2v/app/dep/text()')) {
+        $path = $path->getData();
+
+        # Get the absolute path if iso-root was defined
+        my $abs;
+        if (defined($root)) {
+            $abs = File::Spec->catfile($root, $path);
+        } else {
+            $abs = $path;
+        }
+
+        # Check the referenced path is accessible
+        die(user_message(__x("Unable to access {path} referenced in ".
+                             "the config file",
+                             path => $path))) unless (-r $abs);
+
+        $path_args{"$path=$abs"} = 1;
+    }
+
+    # Nothing further to do if there are no paths
+    return if (keys(%path_args) == 0);
+
+    # Get the path of the transfer iso
+    my ($iso_path) = $config->findnodes('/virt-v2v/iso-path/text()');
+
+    # We need this
+    die(user_message(__"<iso-path> must be specified in the configuration ".
+                       "file")) unless (defined($iso_path));
+    $iso_path = $iso_path->getData();
+
+    # Check that the transfer iso exists, and is newer than the config file
+    if (-e $iso_path) {
+        my $iso_st = stat($iso_path)
+            or die(user_message(__x("Unable to stat iso file {path}: {error}",
+                                    path => $iso_path, error => $!)));
+
+        my $config_st = stat($config_file)
+            or die(user_message(__x("Unable to stat config file {path}: ".
+                                    "{error}",
+                                    path => $config_file, error => $!)));
+
+        # Don't need to re-create if the iso file is newer than the config file
+        return $iso_path if ($iso_st->mtime > $config_st->mtime);
+    }
+
+    # Re-create the transfer iso
+    my $eh = Sys::VirtV2V::ExecHelper->run
+        ('mkisofs', '-o', $iso_path,
+         '-r', '-J',
+         '-V', '__virt-v2v_transfer__',
+         '-graft-points', keys(%path_args));
+    die(user_message(__x("Failed to create transfer iso. ".
+                         "Command output was:\n{output}",
+                         output => $eh->output()))) unless ($eh->status() == 0);
+
+    return $iso_path;
+}
+
 sub get_guestfs_handle
 {
-    my $g = open_guest(\@_, rw => 1);
+    my ($storage, $transferiso) = @_;
+
+    my $g = open_guest($storage, rw => 1);
 
     # Add the transfer iso if there is one
     $g->add_drive($transferiso) if(defined($transferiso));

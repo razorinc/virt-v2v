@@ -43,7 +43,7 @@ Sys::VirtV2V::GuestOS - Manipulate and query a Guest OS
 
  use Sys::VirtV2V::GuestOS;
 
- $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc);
+ $guestos = Sys::VirtV2V::GuestOS->new($g, $desc, $dom, $config);
 
 =head1 DESCRIPTION
 
@@ -57,25 +57,11 @@ implements methods to access backends.
 Sys::VirtV2V::GuestOS uses L<Module::Pluggable> to automatically discover
 backends under Sys::VirtV2V::GuestOS.
 
-=cut
-
-# A map of file labels to their paths relative to the transfer device
-my %files;
-
-# A map of file labels to their dependencies
-my %deps;
-
-# A map of file labels aliases
-my %aliases;
-
-# The path (on the host) to the transfer iso
-my $transferiso;
-
 =head1 METHODS
 
 =over
 
-=item instantiate(g, desc)
+=item new(g, desc, dom, config)
 
 Instantiate a GuestOS object capable of manipulating the target OS.
 
@@ -89,123 +75,172 @@ A L<Sys::Guestfs> handle.
 
 An OS description created by L<Sys::Guestfs::Lib>.
 
+=item dom
+
+An XML::DOM object containing the guest's libvirt domain XML prior to
+conversion.
+
+=item config
+
+An XML::DOM object containing the virt-v2v configuration.
+
 =back
 
-Returns a capable Sys::VirtV2V::GuestOS backend if one is found.
+Returns a capable Sys::VirtV2V::GuestOS if one is found.
 
 Returns undef otherwise.
 
 =cut
 
-sub instantiate
+sub new
 {
     my $class = shift;
 
-    my ($g, $desc) = @_;
-    defined($g) or carp("get_instance called without g argument");
-    defined($desc) or carp("get_instance called without desc argument");
+    my ($g, $desc, $dom, $config) = @_;
+    defined($g)      or carp("instantiate called without g argument");
+    defined($desc)   or carp("instantiate called without desc argument");
+    defined($dom)    or carp("instantiate called without dom argument");
+    defined($config) or carp("instantiate called without config argument");
+
+    my $self = {};
+
+    $self->{g}      = $g;
+    $self->{desc}   = $desc;
+    $self->{dom}    = $dom;
+    $self->{config} = $config;
 
     foreach my $module ($class->modules()) {
-        return $module->new($g, $desc, \%files, \%deps, \%aliases)
-                if($module->can_handle($desc));
+        return $module->new($self)
+            if($module->can_handle($desc));
     }
 
     return undef;
 }
 
-=item configure(config)
+=item get_ncpus
 
-=over
-
-=item config
-
-The parsed virt-v2v config file, as returned by Config::Tiny.
-
-=back
-
-Read the [files], [deps] and [aliases] sections of the virt-v2v config file.
-Create the transfer iso from the contents of [files].
+Return the number of CPUS which are available to this guest
 
 =cut
 
-sub configure
+sub get_ncpus
 {
-    my $class = shift;
+    my $self = shift;
 
-    my $config = shift;
-
-    carp("configure called without config argument") unless(defined($config));
-
-    # Lookup the [files] config section
-    my $files_conf = $config->{files};
-
-    # Do nothing if there is no [files] config section
-    return unless(defined($files_conf));
-
-    # A hash, whose labels are filenames to be added to the transfer iso. We use
-    # a hash here to remove duplicates.
-    my %paths = ();
-    foreach my $label (keys(%$files_conf)) {
-        my $path = $files_conf->{$label};
-
-        unless(-f $path && -r $path) {
-            print STDERR user_message(__x("WARNING: unable to access {path}.",
-                                          path => $path));
-            next;
-        }
-
-        $paths{$path} = 1;
-
-        # As transfer directory hierarchy is flat, remove all directory
-        # components from paths
-        my (undef, undef, $filename) = File::Spec->splitpath($path);
-        $files{$label} = $filename;
-    }
-
-    # Do nothing if there are no files defined
-    return if(keys(%paths) == 0);
-
-    $transferiso = File::Temp->new(UNLINK => 1, SUFFIX => '.iso');
-    my $eh = Sys::VirtV2V::ExecHelper->run
-        ('mkisofs', '-o', $transferiso, '-r', '-J',
-         '-V', '__virt-v2v_transfer__', keys(%paths));
-    if($eh->status() != 0) {
-        print STDERR user_message(__x("Failed to create transfer iso. Command ".
-                                      "output was:\n{output}",
-                                      output => $eh->output()));
-    }
-
-    # Populate deps from the [deps] config section
-    my $deps_conf = $config->{deps};
-
-    if(defined($deps_conf)) {
-        # Copy the deps_conf hash into %deps
-        foreach my $label (keys(%$deps_conf)) {
-            $deps{$label} = $deps_conf->{$label};
-        }
-    }
-
-    # Populate aliases from the [aliases] config section
-    my $aliases_conf = $config->{aliases};
-
-    if(defined($aliases_conf)) {
-        # Copy the aliases_conf hash into %aliases
-        foreach my $label (keys(%$aliases_conf)) {
-            $aliases{$label} = $aliases_conf->{$label};
-        }
+    my ($ncpus) = $self->{dom}->findnodes('/domain/vcpu/text()');
+    if (defined($ncpus)) {
+        return $ncpus->getData();
+    } else {
+        return 1;
     }
 }
 
-=item get_transfer_iso
+=item get_memory_kb
 
-Return the path (on the host) to the transfer iso image. L</configure> must have
-been called first.
+Return the amount of memory, in KB, which is available to this guest
 
 =cut
 
-sub get_transfer_iso
+sub get_memory_kb
 {
-    return $transferiso;
+    my $self = shift;
+
+    my ($mem_kb) = $self->{dom}->findnodes('/domain/memory/text()');
+
+    return $mem_kb->getData();
+}
+
+=item match_app
+
+Return a matching app entry from the virt-v2v configuration. The entry is
+returned as a hashref containing 2 entries. I<path> contains the path to the
+application itself. I<deps> contains an arrayref containing the paths of all the
+app's listed dependencies.
+
+=cut
+
+sub match_app
+{
+    my $self = shift;
+
+    my ($name, $arch) = @_;
+
+    my $config = $self->{config};
+
+    my $desc   = $self->{desc};
+    my $distro = $desc->{distro};
+    my $major  = $desc->{major_version};
+    my $minor  = $desc->{minor_version};
+
+    # Check we've got at least a distro from OS detection
+    die(user_message(__"Didn't detect OS distribution"))
+        unless (defined($distro));
+
+    # Create a list of xpath queries against the config which look for a
+    # matching <app> config entry in descending order of specificity
+    my @queries;
+    if (defined($major)) {
+        if (defined($minor)) {
+            push(@queries, _app_query($name, $distro, $major, $minor, $arch));
+            push(@queries, _app_query($name, $distro, $major, $minor, undef));
+        }
+
+        push(@queries, _app_query($name, $distro, $major, undef, $arch));
+        push(@queries, _app_query($name, $distro, $major, undef, undef));
+    }
+
+    push(@queries, _app_query($name, $distro, undef, undef, $arch));
+    push(@queries, _app_query($name, $distro, undef, undef, undef));
+
+    # Use the results of the first query which returns a result
+    my $app;
+    foreach my $query (@queries) {
+        ($app) = $config->findnodes($query);
+        last if (defined($app));
+    }
+
+    unless (defined($app)) {
+        my $search = "distro='$distro' name='$name'";
+        $search .= " major='$major'" if (defined($major));
+        $search .= " minor='$minor'" if (defined($minor));
+        $search .= " arch='$arch'";
+
+        die(user_message(__x("No app in config matches {search}",
+                             search => $search)));
+    }
+
+    my %app;
+    my ($path) = $app->findnodes('path/text()');
+    die(user_message(__x("app entry in config doesn't contain a path: {xml}",
+                         xml => $app->toString()))) unless (defined($path));
+    $path = $path->getData();
+
+    my @deps;
+    foreach my $dep ($app->findnodes('dep/text()')) {
+        push(@deps, $dep->getData());
+    }
+
+    # Return a hash containing the application path and its dependencies
+    my %ret;
+    $ret{path} = $path;
+    $ret{deps} = \@deps;
+
+    return \%ret;
+}
+
+sub _app_query
+{
+    my ($name, $distro, $major, $minor, $arch) = @_;
+
+    my $query = "/virt-v2v/app[\@name='$name' and \@os='$distro' and ";
+    $query .= defined($major) ? "\@major='$major'" : 'not(@major)';
+    $query .= ' and ';
+    $query .= defined($minor) ? "\@minor='$minor'" : 'not(@minor)';
+    $query .= ' and ';
+    $query .= defined($arch) ? "\@arch='$arch'" : 'not(@arch)';
+    $query .= ']';
+
+    return $query;
 }
 
 =back
@@ -242,21 +277,15 @@ A L<Sys::Guestfs> handle.
 
 An OS description created by L<Sys::Guestfs::Lib>.
 
-=item files
+=item dom
 
-A hash containing 'label => filename' mappings. These mappings are consulted
-when a guest needs to install a specific application.
+A parsed XML::DOM containing the libvirt domain XML for this guest prior to any
+conversion.
 
-=item deps
+=item config
 
-A hash containing 'label => C<space separated dependency list>'. The
-dependencies are given as labels rather than specific files. This is used to
-install dependencies when installing an application in the guest.
-
-=item aliases
-
-A hack containing 'label => alias'. Aliases are given as labels rather than
-specific files. This is used to substitute packages during installation.
+A parsed XML::DOM containing the virt-v2v configuration, or undef if there is
+no config.
 
 =back
 
