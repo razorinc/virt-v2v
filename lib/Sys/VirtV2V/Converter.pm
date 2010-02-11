@@ -39,8 +39,8 @@ Sys::VirtV2V::Converter - Convert a guest to run on KVM
  use Sys::VirtV2V::GuestOS;
  use Sys::VirtV2V::Converter;
 
- my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
- Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
+ my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
+ Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
 
 =head1 DESCRIPTION
 

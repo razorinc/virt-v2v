@@ -327,7 +327,7 @@ sub transfer
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009, 2010 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 
@@ -335,8 +335,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
+L<Sys::VirtV2V::Converter(3pm)>,
 L<virt-v2v(1)>,
-L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =cut

@@ -33,7 +33,7 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat guest
+Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat based Linux guest
 
 =head1 SYNOPSIS
 
@@ -44,7 +44,7 @@ Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat guest
 =head1 DESCRIPTION
 
 Sys::VirtV2V::GuestOS::RedHat provides an interface for manipulating and
-querying a Red Hat based guest. Specifically it handles any Guest OS which
+querying a Red Hat based Linux guest. Specifically it handles any Guest OS which
 Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
 
 =head1 METHODS

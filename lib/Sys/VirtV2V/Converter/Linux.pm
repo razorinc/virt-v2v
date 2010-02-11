@@ -46,8 +46,7 @@ Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Converter::Linux convert a Linux guest to use KVM. It is an
-implementation of the Sys::VirtV2V::Converter interface.
+Sys::VirtV2V::Converter::Linux converts a Linux guest to use KVM.
 
 =head1 METHODS
 
@@ -55,7 +54,8 @@ implementation of the Sys::VirtV2V::Converter interface.
 
 =item Sys::VirtV2V::Converter::Linux->can_handle(desc)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::Converter> for details.
+Return 1 if Sys::VirtV2V::Converter::Linux can convert the guest described by
+I<desc>, 0 otherwise.
 
 =cut
 
@@ -71,7 +71,27 @@ sub can_handle
 
 =item Sys::VirtV2V::Converter::Linux->convert(vmm, guestos, dom, desc)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::Converter> for details.
+Convert a Linux guest. Assume that can_handle has previously returned 1.
+
+=over
+
+=item vmm
+
+A Sys::Virt handle to the target libvirt.
+
+=item guestos
+
+An initialised Sys::VirtV2V::GuestOS for manipulating the guest OS>.
+
+=item dom
+
+A parsed XML::DOM of the guest's libvirt domain XML prior to conversion.
+
+=item desc
+
+A description of the guest OS as returned by Sys::Guestfs::Lib.
+
+=back
 
 =cut
 
@@ -526,7 +546,7 @@ sub _supports_acpi
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 

@@ -62,8 +62,8 @@ libvirt connection.
 =item new(uri, name, pool)
 
 Create a new Sys::VirtV2V::Connection::LibVirt. Domain I<name> will be
-downloaded from I<uri>. Remote storage will be copied to a new volume, which
-will be create in <pool>.
+obtained from I<uri>. Remote storage will be copied to a new volume, which
+will be created in I<pool>.
 
 =cut
 
@@ -243,7 +243,7 @@ sub _get_dom
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 
@@ -253,7 +253,6 @@ Please see the file COPYING.LIB for the full license.
 
 L<Sys::VirtV2V::Connection(3)>,
 L<virt-v2v(1)>,
-L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =cut

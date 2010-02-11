@@ -50,9 +50,9 @@ Sys::VirtV2V::GuestOS - Manipulate and query a Guest OS
 Sys::VirtV2V::GuestOS provides a mechanism for querying and manipulating a
 specific guest operating system.
 
-Sys::VirtV2V::GuestOS is an interface to various backends, each of
-which implement a consistent API. Sys::VirtV2V::GuestOS itself only
-implements methods to access backends.
+Sys::VirtV2V::GuestOS is a virtual superclass to various backends, each of which
+implement a consistent API. The new method will actually instantiate an
+appropriate subclass.
 
 Sys::VirtV2V::GuestOS uses L<Module::Pluggable> to automatically discover
 backends under Sys::VirtV2V::GuestOS.
