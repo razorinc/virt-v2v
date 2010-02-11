@@ -44,19 +44,16 @@ sub process_script_files
     my $self = shift;
 
     # Run the regular process_script_files action
-    $self->SUPER::process_script_files()
-        or return 1;
+    $self->SUPER::process_script_files();
 
     foreach my $script (<blib/script/*>) {
         if($script =~ /^(.*)\.pl$/) {
             unless(rename($script, $1)) {
                 $self->log_info("rename $script to $1 failed: $1\n");
-                return 1;
+                die(); # Return isn't checked
             }
         }
     }
-
-    return 0;
 }
 
 # Also process confdoc files
@@ -85,8 +82,6 @@ sub process_confdoc_files
         $self->log_info("Manifying $pod -> $outfile\n");
         $parser->parse_from_file( $pod, $outfile );
     }
-
-    return 0;
 }
 
 # Add syntaxcheck target
