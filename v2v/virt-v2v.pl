@@ -48,67 +48,16 @@ virt-v2v - Convert a guest to use KVM
 
 =head1 SYNOPSIS
 
- virt-v2v guest-domain.xml
+ virt-v2v -f virt-v2v.conf -i libvirtxml guest-domain.xml
 
- virt-v2v -f virt-v2v.conf guest-domain.xml
-
- virt-v2v -ic qemu:///system guest-domain
+ virt-v2v -f virt-v2v.conf -ic esx://esx.server/ -op transfer guest-domain
 
 =head1 DESCRIPTION
 
-Virt-v2v converts guests from one virtualization hypervisor to
-another.  Currently it is limited in what it can convert.  See the
-table below.
-
-=begin html
-
-<table border="1" style="border-collapse: collapse">
-    <tr>
-        <th>Source</th>
-        <th>Target</th>
-    </tr>
-
-    <tr>
-        <td valign="top" style="padding: 0 0.5em 0 0.5em">
-            <p>Xen domain managed by libvirt</p>
-            <p>Guest
-                <ul>
-                    <li>PV or FV Kernel</li>
-                    <li>with or without PV drivers</li>
-                    <li>RHEL 3.x, 4.x, 5.x</li>
-                </ul>
-            </p>
-        </td>
-        <td valign="top" style="padding: 0 0.5em 0 0.5em">
-            <p>KVM domain managed by libvirt</p>
-            <p>Guest
-                <ul>
-                    <li>with virtio drivers if support by guest</li>
-                </ul>
-            </p>
-        </td>
-    </tr>
-</table>
-
-=end html
-
-=begin :man
-
- -------------------------------+----------------------------
- SOURCE                         | TARGET
- -------------------------------+----------------------------
- Xen domain managed by          | KVM domain managed by
- libvirt                        | libvirt
-                                |
- Guest:                         | Guest:
-   - PV or FV kernel            |   - with virtio drivers
-   - with or without PV drivers |     if supported by guest
-   - RHEL 3.x, 4.x, 5.x         |
-                                |
-                                |
- -------------------------------+----------------------------
-
-=end :man
+virt-v2v converts guests from a foreign hypervisor to run on KVM, managed by
+libvirt. It can currently convert Red Hat Enterprise Linux and Fedora guests
+running on Xen and VMware ESX. It will enable VirtIO drivers in the converted
+guest if possible.
 
 =head1 OPTIONS
 
@@ -120,8 +69,8 @@ my $input_method = "libvirt";
 
 =item B<-i input>
 
-Specifies how the conversion source metadata can be obtained. The default is
-C<libvirt>.  Supported options are:
+Specifies what input method to use to obtain the guest for conversion. The
+default is C<libvirt>.  Supported options are:
 
 =over
 
@@ -131,7 +80,7 @@ Guest argument is the name of a libvirt domain.
 
 =item I<libvirtxml>
 
-Guest argument is the path to an XML file describing a libvirt domain.
+Guest argument is the path to an XML file containing a libvirt domain.
 
 =back
 
@@ -151,6 +100,7 @@ my $input_transport;
 =item B<-it method>
 
 Species the transport method used to obtain raw storage from the source guest.
+This is currently only a placeholder, and does nothing.
 
 =cut
 
@@ -160,6 +110,10 @@ my $output_uri = "qemu:///system";
 
 Specifies the libvirt connection to use to create the converted guest. If
 ommitted, this defaults to qemu:///system.
+
+B<N.B.> virt-v2v must be able to write directly to storage described by this
+libvirt connection. This makes writing to a remote connection impractical at
+present.
 
 =cut
 
@@ -174,7 +128,7 @@ guest.
 
 my $config_file;
 
-=item B<-f file>
+=item B<-f file> | B<--config file>
 
 Load the virt-v2v configuration from I<file>. There is no default.
 
@@ -493,64 +447,163 @@ sub inspect_guest
     return $os;
 }
 
-=head1 PREPARING TO RUN VIRT-V2V
+=head1 PREPARING TO CONVERT A GUEST
 
-=head2 Backup the guest
+=head2 Xen guests
 
-Virt-v2v converts guests 'in-place': it will make changes to a guest directly
-without creating a backup. It is recommended that virt-v2v be run against a
-copy.
+The following steps are required before converting a Xen guest. Note that only
+local Xen guests are currently supported. These steps are not required for
+conversions from ESX, and will not be required for remote Xen guests when we
+support that.
+
+=head3 Backup the guest
+
+If converting a local guest using the libvirtxml input method, the guest will be
+converted in place: it will make changes to a guest directly without creating a
+backup. It is recommended that virt-v2v be run against a copy.
 
 The L<v2v-snapshot(1)> tool can be used to convert a guest to use a snapshot
 for storage prior to running virt-v2v against it. This snapshot can then be
 committed to the original storage after the conversion is confirmed as
 successful.
 
-The L<virt-clone(1)> tool can make a complete copy of a guest, including all its
-storage.
+=head3 Obtain domain XML for the guest domain
 
-=head2 Obtain domain XML for the guest domain
-
-Virt-v2v uses a libvirt domain description to determine the current
+virt-v2v uses a libvirt domain description to determine the current
 configuration of the guest, including the location of its storage. This should
 be obtained from the host running the guest pre-conversion by running:
 
  virsh dumpxml <domain> > <domain>.xml
 
-=head1 CONVERTING A GUEST
+This will require a reboot if the host running Xen is the same host that will
+run KVM. This is because libvirt needs to connect to a running xen hypervisor to
+obtain its metadata.
 
-In the simplest case, virt-v2v can be run as follows:
+=head2 ESX guests
 
- virt-v2v <domain>.xml
+=head3 Create a local storage pool for transferred storage
 
-where C<< <domain>.xml >> is the path to the exported guest domain's xml. This
-is the simplest form of conversion. It can only be used when the guest has an
-installed kernel which will boot on KVM, i.e. a guest with only paravirtualised
-Xen kernels installed will not work. Virtio will be configured if it is
-supported, otherwise the guest will be configured to use non-virtio drivers. See
-L</GUEST DRIVERS> for details of which drivers will be used.
+virt-v2v copies the guest storage to the local machine during import from an ESX
+server. It creates new storage in a locally defined libvirt pool. This pool can
+be defined using any libvirt tool, and can be of any type.
 
-Virt-v2v can also be configured to install new software into a guest. This might
-be necessary if the guest will not boot on KVM without modification, or if you
-want to upgrade it to support virtio during conversion. Doing this requires
-specifying a configuration file describing where to find the new software. In
-this case, virt-v2v is called as:
+The simplest way to create a new pool is with L<virt-manager(1)>. Pools can be
+defined from the Storage tab under Host Details.
 
- virt-v2v -s <virt-v2v.conf> <domain>.xml
+=head2 All guests
 
-See L<virt-v2v.conf(5)> for details of this configuration file. During the
-conversion process, if virt-v2v does not detect that the guest is capable of
-supporting virtio it will try to upgrade components to resolve this.  On Linux
-guests this will involve upgrading the kernel, and may involve upgrading
-dependent parts of userspace.
+=head3 Create local network interfaces
 
-To text boot the new guest in KVM, run:
+The local machine must have an appropriate network for the converted guest
+to connect to. This is likely to be a bridge interface. A bridge interface can
+be created using standard tools on the host.
 
- virsh start <domain>
- virt-viewer <domain>
+Since version 0.8.3, L<virt-manager(1)> can also create and manage bridges.
 
-If you have created a guest snapshot using L<v2v-snapshot(1)>, it can be
-committed or rolled back at this stage.
+=head1 CONVERTING A LOCAL XEN GUEST
+
+The following requires that the domain XML is available locally, and that the
+storage referred to in the domain XML is available locally at the same paths.
+
+To perform the conversion, run:
+
+ virt-v2v -f virt-v2v.conf -i libvirtxml <domain>.xml
+
+where C<< <domain>.xml >> is the path to the exported guest domain's xml. virt-v2v.conf should specify:
+
+=over
+
+=item *
+
+a mapping for the guest's network configuration.
+
+=item *
+
+app definitions for any required replacement kernels.
+
+=back
+
+See L<virt-v2v.conf(5)> for details.
+
+It is possible to avoid specifying replacement kernels in the virt-v2v config
+file by ensuring that the guest has an appropriate kernel installed prior to
+conversion. If your guest uses a Xen paravirtualised kernel (it would be called
+something like kernel-xen or kernel-xenU), you can install a regular kernel,
+which won't reference a hypervisor in its name, alongside it. You shouldn't
+make this newly installed kernel your default kernel because the chances are Xen
+will not boot it. virt-v2v will make it the default during conversion.
+
+=head2 CONVERTING A GUEST FROM VMWARE ESX
+
+virt-v2v can convert a guest from VMware ESX, including transferring its
+storage.
+
+B<N.B.> virt-v2v does not transfer snapshots from ESX. Only the latest flat
+storage is transferred.
+
+The guest MUST be shut down in ESX before conversion starts. virt-v2v will not
+proceed if the guest is still running. To convert the guest, run:
+
+ virt-v2v -f virt-v2v.conf -ic esx://<esx.server>/ -op <pool> <domain>
+
+where:
+
+=over
+
+=item *
+
+E<lt>esx.serverE<gt> is the hostname of the ESX server hosting the guest to be
+converted.
+
+B<N.B.> This hostname must match the hostname reported in the ESX server's SSL
+certificate, or verification will fail.
+
+=item *
+
+E<lt>poolE<gt> is the name of the local storage pool where copies of the guest's
+storage will be created.
+
+=item *
+
+E<lt>domainE<gt> is the name of the guest on the ESX server which is to be
+converted.
+
+=back
+
+virt-v2v.conf should specify a mapping for the guest's network configuration.
+See L<virt-v2v.conf(5)> for details.
+
+=head3 Authenticating to the ESX server
+
+Connecting to the ESX server will require authentication. virt-v2v supports
+password authentication when connecting to ESX. It reads passwords from
+$HOME/.netrc. The format of this file is described in L<netrc(5)>. An example
+entry is:
+
+ machine esx01.example.com login root password s3cr3t
+
+=head3 Connecting to an ESX server with an invalid certificate
+
+In non-production environments, the ESX server may have a non-valid certificate,
+for example a self-signed certificate. In this case, certificate checking can be
+explicitly disabled by adding '?no_verify=1' to the connection URI as shown
+below:
+
+ ... -ic esx://<esx.server>/?no_verify=1 ...
+
+=head1 RUNNING THE CONVERTED GUEST
+
+On successful completion, virt-v2v will create a new libvirt domain for the
+converted guest with the same name as the original guest. It can be started as
+usual using libvirt tools, for example L<virt-manager(1)>.
+
+=head1 POST-CONVERSION TASKS
+
+=head2 Guest network configuration
+
+virt-v2v cannot currently reconfigure a guest's network configuration. If the
+converted guest is not connected to the same subnet as the source, its network
+configuration may have to be updated.
 
 =head1 GUEST CONFIGURATION CHANGES
 
@@ -597,7 +650,7 @@ root device, whether it is using virtio or not.
 
 =head1 GUEST DRIVERS
 
-Virt-v2v will install the following drivers in a Linux guest:
+Virt-v2v will configure the following drivers in a Linux guest:
 
 =head2 VirtIO
 
@@ -615,11 +668,9 @@ Additionally, initrd will preload the virtio_pci driver.
 
 =head1 SEE ALSO
 
-L<v2v-snapshot(1)>
+L<virt-manager(1)>,
+L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
-
-For Windows registry parsing we require the C<reged> program
-from L<http://home.eunet.no/~pnordahl/ntpasswd/>.
 
 =head1 AUTHOR
 
@@ -629,7 +680,7 @@ Matthew Booth <mbooth@redhat.com>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
