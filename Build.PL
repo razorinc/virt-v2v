@@ -236,7 +236,7 @@ my $build = $class->new (
         resources => {
           license => "http://www.gnu.org/licenses/gpl.html",
           homepage =>  "http://people.redhat.com/mbooth/virt-v2v/",
-          repository => "http://gitorious.org/virt-v2v/virt-v2v",
+          repository => "git://git.fedorahosted.org/virt-v2v.git",
           MailingList => "http://www.redhat.com/mailman/listinfo/libguestfs",
         },
     },
