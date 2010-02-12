@@ -379,11 +379,13 @@ sub get_transfer_iso
 sub get_guestfs_handle
 {
     my ($storage, $transferiso) = @_;
+    my $interface = "ide";
 
-    my $g = open_guest($storage, rw => 1);
+    my $g = open_guest($storage, rw => 1, interface => $interface);
 
     # Add the transfer iso if there is one
-    $g->add_drive($transferiso) if(defined($transferiso));
+    $g->add_drive_ro_with_if($transferiso, $interface)
+        if(defined($transferiso));
 
     # Enable selinux in the guest
     $g->set_selinux(1);
