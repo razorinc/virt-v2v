@@ -341,7 +341,7 @@ sub _configure_boot
     if($virtio) {
         $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
     } else {
-        $guestos->prepare_bootable($kernel);
+        $guestos->prepare_bootable($kernel, "sym53c8xx");
     }
 }
 
