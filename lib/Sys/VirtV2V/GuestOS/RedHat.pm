@@ -710,8 +710,33 @@ sub _is_installed
 
     # Search installed rpms matching <name>.<arch>
     my $found = 0;
-    foreach my $installed ($g->command_lines(['rpm', '-q', '--qf',
-                           '%{EPOCH} %{VERSION} %{RELEASE}', "$name.$arch"])) {
+
+    my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
+                  "$name.$arch"];
+    my @output;
+    eval {
+        @output = $g->command_lines($rpmcmd);
+    };
+
+    if ($@) {
+        # RPM command returned non-zero. This might be because there was
+        # actually an error, or might just be because the package isn't
+        # installed.
+        # Unfortunately, rpm sent its error to stdout instead of stderr, and
+        # command_lines only gives us stderr in $@. To get round this we'll
+        # execute the command again, sending all output to stdout and ignoring
+        # failure. If the output contains 'not installed', we'll assume it's not
+        # a real error.
+        my $error = $g->sh("LANG=C '".join("' '", @$rpmcmd)."' 2>&1 ||:");
+
+        return 0 if ($error =~ /not installed/);
+
+        die(user_message(__x("Error running {command}: {error}",
+                             command => join(' ', @$rpmcmd),
+                             error => $error)));
+    }
+
+    foreach my $installed (@output) {
         $installed =~ /^(\S+)\s+(\S+)\s+(\S+)$/
             or die("Unexpected return from rpm command: $installed");
         my ($iepoch, $iversion, $irelease) = ($1, $2, $3);
