@@ -101,11 +101,11 @@ sub _storage_iterate
 
         my ($source) = $source_e->findnodes('@file | @dev');
         defined($source) or die("source element has neither dev nor file: \n".
-                                $dom.toString());
+                                $dom->toString());
 
         my ($target) = $disk->findnodes('target/@dev');
         defined($target) or die("disk does not have a target device: \n".
-                                $dom.toString());
+                                $dom->toString());
 
         # If the disk is a floppy or a cdrom, blank its source
         my $device = $disk->getAttribute('device');
