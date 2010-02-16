@@ -805,6 +805,34 @@ Additionally, initrd will preload the virtio_pci driver.
  Block          IDE
  Network        e1000
 
+=head1 BUGS
+
+To get a list of bugs against virt-v2v use this link:
+
+L<https://bugzilla.redhat.com/buglist.cgi?component=virt-v2v&product=Virtualization+Tools>
+
+To report a new bug against virt-v2v use this link:
+
+L<https://bugzilla.redhat.com/enter_bug.cgi?component=virt-v2v&product=Virtualization+Tools>
+
+When reporting a bug, please check:
+
+=over
+
+=item *
+
+That the bug hasn't been reported already.
+
+=item *
+
+That you are testing a recent version.
+
+=item *
+
+Describe the bug accurately, and give a way to reproduce it.
+
+=back
+
 =head1 SEE ALSO
 
 L<virt-manager(1)>,
