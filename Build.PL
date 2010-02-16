@@ -150,22 +150,8 @@ sub ACTION_changelog
         return 1;
     }
 
-    # Check that git is available
-    eval "use Git;";
-    if($@) {
-        $self->log_info("Git is not installed\n");
-        return 1;
-    }
-
-    # Update submodules to get git2cl
-    my $repo = Git->repository(Directory => '.');
-
-    eval {
-        $repo->command_noisy('submodule', 'update');
-    };
-
-    if($@) {
-        $self->log_info("Failed to initialise git2cl\n");
+    unless(system("git", "submodule", "update") == 0) {
+        $self->log_info("Failed to initialise git2cl: $@\n");
         return 1;
     }
 
