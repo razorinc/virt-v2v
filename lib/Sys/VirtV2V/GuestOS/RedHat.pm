@@ -866,6 +866,9 @@ sub remove_application
         $g->command(['rpm', '-e', $name]);
     };
     die($@) if($@);
+
+    # Make augeas reload in case the removal changed anything
+    $g->aug_load();
 }
 
 =item get_application_owner(file)
@@ -906,6 +909,9 @@ sub _install_rpms
 
     # Propagate command failure
     die($@) if($@);
+
+    # Reload augeas in case the rpm installation changed anything
+    $g->aug_load();
 }
 
 # Get full, local path of a file on the transfer mount
