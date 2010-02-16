@@ -261,7 +261,7 @@ sub _configure_kernel
             "virtio_net" => undef
         );
 
-        foreach my $module ($kernel->{modules}) {
+        foreach my $module (@{$kernel->{modules}}) {
             if(exists($checklist{$module})) {
                 $checklist{$module} = 1;
             }
