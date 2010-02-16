@@ -543,6 +543,8 @@ sub add_kernel
 
     my $path = $app->{path};
 
+    return undef if($self->_is_installed($path));
+
     my @install;
     # Install any kernel dependencies which aren't already installed
     foreach my $dep (@{$app->{deps}}) {
