@@ -140,6 +140,7 @@ sub get_volume
                              "{error}", error => $@->stringify())));
     }
 
+    $self->{_v2v_received} = 0;
     my $r = $self->SUPER::get($url,
                               ':content_cb' => sub { $self->handle_data(@_); },
                               ':read_size_hint' => 64 * 1024);
@@ -150,9 +151,17 @@ sub get_volume
         die($died) if (defined($died));
 
         # Close the volume file descriptor
-        close($self->{_v2v_volfh});
+        close($self->{_v2v_volfh})
+            or die(user_message(__x("Error closing volume handle: {error}",
+                                    error => $!)));
         return $self->{_v2v_vol};
     }
+
+    die(user_message(__x("Didn't receive full volume. Received {received} of ".
+                         "{total} bytes.",
+                         received => $self->{_v2v_received},
+                         total => $self->{_v2v_volsize})))
+        unless ($self->{_v2v_received} == $self->{_v2v_volsize});
 
     if ($r->code == 401) {
         die(user_message(__x("Authentication error connecting to ".
@@ -185,6 +194,8 @@ sub handle_data
 
     my $volfh = $self->{_v2v_volfh};
 
+    $self->{_v2v_received} += length($data);
+
     syswrite($volfh, $data)
         or die(user_message(__x("Error writing to {path}: {error}",
                                 path => $self->{_v2v_volpath},
@@ -205,6 +216,7 @@ sub create_volume
         unless (defined($name));
 
     my $size = $response->content_length();
+    $self->{_v2v_volsize} = $size;
 
     my $vol_xml = "
         <volume>
