@@ -293,6 +293,9 @@ sub update_kernel_module
     my $g = $self->{g};
     $augeas = $self->_check_augeas_device($augeas, $device);
 
+    # If the module has mysteriously disappeared, just add a new one
+    return $self->enable_kernel_module($device, $module) if (!defined($augeas));
+
     eval {
         $g->aug_set($augeas."/modulename", $module);
         $g->aug_save();
@@ -323,6 +326,10 @@ sub disable_kernel_module
     my $g = $self->{g};
 
     $augeas = $self->_check_augeas_device($augeas, $device);
+
+    # Nothing to do if the module has gone away
+    return if (!defined($augeas));
+
     eval {
         $g->aug_rm($augeas);
     };
@@ -388,8 +395,7 @@ sub _check_augeas_device
     # Propagate augeas errors
     die($@) if($@);
 
-    return $augeas if(defined($augeas));
-    die("Unable to find augeas path similar to $path for $device");
+    return $augeas;
 }
 
 =item get_default_kernel()
