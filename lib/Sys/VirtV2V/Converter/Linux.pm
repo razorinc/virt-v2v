@@ -133,14 +133,6 @@ sub convert
 sub _remap_block_devices
 {
     my ($guestos, $dom, $desc, $virtio) = @_;
-    die("remap_block_devices called without guestos argument")
-        unless defined($guestos);
-    die("remap_block_devices called without dom argument")
-        unless defined($dom);
-    die("remap_block_devices called without desc argument")
-        unless defined($desc);
-    die("remap_block_devices called without virtio argument")
-        unless defined($virtio);
 
     my %map = ();
 
@@ -167,12 +159,6 @@ sub _remap_block_devices
 sub _configure_kernel_modules
 {
     my ($guestos, $desc, $virtio) = @_;
-    die("configure_kernel_modules called without guestos argument")
-        unless defined($guestos);
-    die("configure_kernel_modules called without desc argument")
-        unless defined($desc);
-    die("configure_kernel_modules called without virtio argument")
-        unless defined($virtio);
 
     # Get a list of all old-hypervisor specific kernel modules which need to be
     # replaced or removed
@@ -235,10 +221,6 @@ sub _configure_kernel_modules
 sub _configure_display_driver
 {
     my ($guestos, $virtio) = @_;
-    die("configure_display_driver called without guestos argument")
-        unless defined($guestos);
-    die("configure_display_driver called without virtio argument")
-        unless defined($virtio);
 
     $guestos->update_display_driver("cirrus");
 }
@@ -246,10 +228,6 @@ sub _configure_display_driver
 sub _configure_kernel
 {
     my ($guestos, $desc) = @_;
-    die("configure_kernel called without guestos argument")
-        unless defined($guestos);
-    die("configure_kernel called without desc argument")
-        unless defined($desc);
 
     my %kernels;
 
@@ -331,12 +309,6 @@ sub _configure_kernel
 sub _configure_boot
 {
     my ($guestos, $kernel, $virtio) = @_;
-    die("configure_boot called without guestos argument")
-        unless defined($guestos);
-    die("configure_boot called without kernel argument")
-        unless defined($kernel);
-    die("configure_boot called without virtio argument")
-        unless defined($virtio);
 
     if($virtio) {
         $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
