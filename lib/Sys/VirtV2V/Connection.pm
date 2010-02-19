@@ -38,7 +38,8 @@ Sys::VirtV2V::Connection - Obtain domain metadata
 
  $conn = Sys::VirtV2V::Connection::LibVirt->new($uri, $name, $pool);
  $dom = $conn->get_dom();
- @storage = $conn->get_local_storage();
+ $storage = $conn->get_storage_paths();
+ $devices = $conn->get_storage_devices();
 
 =head1 DESCRIPTION
 
@@ -53,18 +54,33 @@ directly. Use one of the subclasses:
 
 =over
 
-=item get_local_storage
+=item get_storage_paths
 
-Return a list of the domain's storage devices. The returned list contains local
-paths.
+Return an arrayref of local paths to the guest's storage devices. This list is
+guaranteed to be in the same order as the list returned by get_storage_devices.
 
 =cut
 
-sub get_local_storage
+sub get_storage_paths
 {
     my $self = shift;
 
-    return @{$self->{storage}};
+    return $self->{paths};
+}
+
+=item get_storage_devices
+
+Return an arrayref of libvirt device names for the guest's storage prior to
+conversion. This list is guaranteed to be in the same order as the list returned
+by get_storage_paths.
+
+=cut
+
+sub get_storage_devices
+{
+    my $self = shift;
+
+    return $self->{devices};
 }
 
 =item get_dom()
@@ -94,8 +110,10 @@ sub _storage_iterate
 
     my $dom = $self->get_dom();
 
-    # Create a hash of guest devices to their paths
-    my @storage;
+    # An list of local paths to guest storage
+    my @paths;
+    # A list of libvirt target device names
+    my @devices;
     foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
         my ($source_e) = $disk->findnodes('source');
 
@@ -167,11 +185,13 @@ sub _storage_iterate
                 }
             }
 
-            push(@storage, $path);
+            push(@paths, $path);
+            push(@devices, $target->getNodeValue());
         }
     }
 
-    $self->{storage} = \@storage;
+    $self->{paths} = \@paths;
+    $self->{devices} = \@devices;
 }
 
 =back

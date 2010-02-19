@@ -945,7 +945,7 @@ sub _ensure_transfer_mounted
     $g->mount_ro($transfer, $self->{transfer_mount});
 }
 
-=item remap_block_devices(map)
+=item remap_block_devices(devices, virtio)
 
 See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
 
@@ -954,32 +954,120 @@ See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
 sub remap_block_devices
 {
     my $self = shift;
-    my ($map) = @_;
+    my ($devices, $virtio) = @_;
 
-    my $g = $self->{g};
+    my $g    = $self->{g};
+    my $desc = $self->{desc};
 
-    # Iterate over fstab. Any entries with a spec in the the map, replace them
-    # with their mapped values
-    eval {
-        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
-            my $device = $g->aug_get($spec);
+    # $devices contains an order list of devices, as named by the host. Because
+    # libvirt uses a similar naming scheme to Linux, these will mostly be the
+    # same names as used by the guest. However, if the guest is using libata,
+    # IDE drives could be renamed.
 
-            next unless($device =~ m{^/dev/((?:sd|hd|xvd)(?:[a-z]+))(\d*)});
+    # Look for IDE and SCSI devices in fstab for the guest
+    my %guestif;
+    foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+        my $device = $g->aug_get($spec);
 
-            if(defined($map->{$1})) {
-                my $target = '/dev/'.$map->{$1};
-                $target .= $2 if(defined($2));
-                $g->aug_set($spec, $target);
-            } else {
-                print STDERR user_message(__x("No mapping found for block ".
-                                              "device {device}",
-                                              device => $device));
+        next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
+        $guestif{$1} ||= {};
+        $guestif{$1}->{$1.$2} = 1;
+    }
+
+    # If fstab contains references to sdX, these could refer to IDE or SCSI
+    # devices. Need to look at the domain config for clues.
+    if (exists($guestif{sd})) {
+        # Look for IDE and SCSI devices from the domain definition
+        my %domainif;
+        foreach my $device (@$devices) {
+            foreach my $type ('hd', 'sd') {
+                if ($device =~ m{^$type([a-z]+)}) {
+                    $domainif{$type} ||= {};
+                    $domainif{$type}->{$device} = 1;
+                }
             }
         }
-    };
 
-    # Propagate augeas failure
-    die($@) if($@);
+        # If domain defines both IDE and SCSI drives, and fstab contains
+        # references on sdX, but not hdX, we don't know if the guest is using
+        # libata or not.  This means that we don't know if sdX in fstab refers
+        # to hdX or sdX in the domain. Warn and assume that libata device
+        # renaming is not in use.
+        if (exists($domainif{hd}) && exists($domainif{sd}) &&
+            !exists($guestif{hd}))
+        {
+            print STDERR user_message(__"WARNING: Unable to determine whether ".
+                                        "sdX devices in /etc/fstab refer to ".
+                                        "IDE or SCSI devices. Assuming they ".
+                                        "refer to SCSI devices. /etc/fstab ".
+                                        "may be incorrect after conversion if ".
+                                        "guest uses libata.");
+        }
+
+        # If we've got only IDE devices in the domain, and only sdX devices in
+        # fstab, the guest is renaming them.
+        elsif (exists($domainif{hd}) && !exists($domainif{sd}) &&
+               !exists($guestif{hd}))
+        {
+            my %map;
+
+            my $letter = 'a';
+            foreach my $old (sort { _drivecmp('hd', $a, $b) }
+                                  keys(%{$domainif{hd}}))
+            {
+                $map{$old} = "sd$letter";
+                $letter++;
+            }
+
+            map { $_ = $map{$_} } @$devices;
+        }
+
+        # Otherwise we leave it alone
+    }
+
+    # We now assume that $devices contains an ordered list of device names, as
+    # used by the guest. Create a map of old guest device names to new guest
+    # device names.
+    my %map;
+
+    # Everything will be converted to either vdX or sdX
+    my $prefix = $virtio ? 'vd' : 'sd';
+    my $letter = 'a';
+    foreach my $device (@$devices) {
+        $map{$device} = $prefix.$letter;
+        $letter++;
+    }
+
+    # Go through fstab again, updating bare device references
+    foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+        my $device = $g->aug_get($spec);
+
+        next unless($device =~ m{^/dev/([a-z]+)(\d*)});
+        my $name = $1;
+        my $part = $2;
+
+        next unless(exists($map{$name}));
+
+        $g->aug_set($spec, "/dev/".$map{$name}.$part);
+    }
+    $g->aug_save();
+}
+
+sub _drivecmp
+{
+    my ($prefix, $a, $b) = @_;
+
+    map {
+        $_ =~ /^$prefix([a-z]+)/ or die("drive $_ doesn't have prefix $prefix");
+        $_ = $1;
+    } ($a, $b);
+
+    return -1 if (length($a) < length($b));
+    return 1 if (length($a) > length($b));
+
+    return -1 if ($a lt $b);
+    return 0 if ($a eq $b);
+    return 1;
 }
 
 =item prepare_bootable(version [, module, module, ...])

@@ -262,13 +262,13 @@ my $dom = $conn->get_dom();
 exit(1) unless(defined($dom));
 
 # Get a list of the guest's transfered storage devices
-my @storage = $conn->get_local_storage();
+my $storage = $conn->get_storage_paths();
 
 # Create the transfer iso if required
 my $transferiso = get_transfer_iso($config, $config_file);
 
 # Open a libguestfs handle on the guest's storage devices
-my $g = get_guestfs_handle(\@storage, $transferiso);
+my $g = get_guestfs_handle($storage, $transferiso);
 
 $SIG{'INT'} = \&close_guest_handle;
 $SIG{'QUIT'} = \&close_guest_handle;
@@ -280,7 +280,8 @@ my $os = inspect_guest($g);
 my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
+Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os,
+                                 $conn->get_storage_devices());
 
 $vmm->define_domain($dom->toString());
 
@@ -393,7 +394,7 @@ sub get_guestfs_handle
     # Enable autosync to defend against data corruption on unclean shutdown
     $g->set_autosync(1);
 
-    $g->launch ();
+    $g->launch();
 
     return $g;
 }

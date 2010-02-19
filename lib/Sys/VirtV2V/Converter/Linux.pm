@@ -83,13 +83,14 @@ A Sys::Virt handle to the target libvirt.
 
 An initialised Sys::VirtV2V::GuestOS for manipulating the guest OS>.
 
-=item dom
-
-A parsed XML::DOM of the guest's libvirt domain XML prior to conversion.
-
 =item desc
 
 A description of the guest OS as returned by Sys::Guestfs::Lib.
+
+=item devices
+
+An arrayref of libvirt storage device names, in the order they will be presented
+to the guest.
 
 =back
 
@@ -99,11 +100,11 @@ sub convert
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $dom, $desc) = @_;
+    my ($vmm, $guestos, $desc, $devices) = @_;
     carp("convert called without vmm argument") unless defined($vmm);
     carp("convert called without guestos argument") unless defined($guestos);
-    carp("convert called without dom argument") unless defined($dom);
     carp("convert called without desc argument") unless defined($desc);
+    carp("convert called without devices argument") unless defined($devices);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
@@ -117,7 +118,7 @@ sub convert
 
     # Configure the rest of the system
     _configure_display_driver($guestos, $virtio);
-    _remap_block_devices($guestos, $dom, $desc, $virtio);
+    $guestos->remap_block_devices($devices, $virtio);
     _configure_kernel_modules($guestos, $desc, $virtio);
     _configure_boot($guestos, $kernel, $virtio);
 
@@ -128,32 +129,6 @@ sub convert
     $guestcaps{acpi}   = _supports_acpi($desc, $guestcaps{arch});
 
     return \%guestcaps;
-}
-
-sub _remap_block_devices
-{
-    my ($guestos, $dom, $desc, $virtio) = @_;
-
-    my %map = ();
-
-    # Prefix is vd for virtio or sd for scsi
-    my $prefix = $virtio ? 'vd' : 'sd';
-
-    # Look for devices specified in the device metadata
-    foreach my $dev ($dom->findnodes('/domain/devices/disk/target/@dev')) {
-        if($dev->getNodeValue() =~ m{^(sd|hd|xvd)([a-z]+)\d*$}) {
-            $map{"$1$2"} = "$prefix$2";
-
-            # A guest might present an IDE disk as SCSI
-            if($1 eq 'hd') {
-                $map{"sd$2"} = "$prefix$2";
-            }
-
-            $dev->setNodeValue("$prefix$2");
-        }
-    }
-
-    $guestos->remap_block_devices(\%map);
 }
 
 sub _configure_kernel_modules

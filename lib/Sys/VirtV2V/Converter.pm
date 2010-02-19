@@ -20,6 +20,8 @@ package Sys::VirtV2V::Converter;
 use strict;
 use warnings;
 
+use Carp;
+
 use Module::Pluggable sub_name => 'modules',
                       search_path => ['Sys::VirtV2V::Converter'],
                       require => 1;
@@ -40,7 +42,7 @@ Sys::VirtV2V::Converter - Convert a guest to run on KVM
  use Sys::VirtV2V::Converter;
 
  my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
- Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os);
+ Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os, $devices);
 
 =head1 DESCRIPTION
 
@@ -122,6 +124,11 @@ An XML::DOM object resulting from parsing the guests's libvirt domain XML.
 
 The OS description returned by Sys::Guestfs::Lib.
 
+=item devices
+
+An arrayref of libvirt storage device names, in the order they will be presented
+to the guest.
+
 =back
 
 =cut
@@ -130,19 +137,20 @@ sub convert
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $config, $dom, $desc) = @_;
+    my ($vmm, $guestos, $config, $dom, $desc, $devices) = @_;
     carp("convert called without vmm argument") unless defined($vmm);
     carp("convert called without guestos argument") unless defined($guestos);
     carp("convert called without config argument") unless defined($config);
     carp("convert called without dom argument") unless defined($dom);
     carp("convert called without desc argument") unless defined($desc);
+    carp("convert called without devices argument") unless defined($devices);
 
     my $guestcaps;
 
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $guestcaps = $module->convert($vmm, $guestos, $dom, $desc);
+            $guestcaps = $module->convert($vmm, $guestos, $desc, $devices);
             last;
         }
     }
@@ -154,7 +162,7 @@ sub convert
     _map_networks($dom, $config);
 
     # Convert the metadata
-    _convert_metadata($vmm, $dom, $desc, $guestcaps);
+    _convert_metadata($vmm, $dom, $desc, $devices, $guestcaps);
 
     my ($name) = $dom->findnodes('/domain/name/text()');
     $name = $name->getNodeValue();
@@ -170,7 +178,7 @@ sub convert
 
 sub _convert_metadata
 {
-    my ($vmm, $dom, $desc, $guestcaps) = @_;
+    my ($vmm, $dom, $desc, $devices, $guestcaps) = @_;
 
     my $arch   = $guestcaps->{arch};
     my $virtio = $guestcaps->{virtio};
@@ -191,8 +199,11 @@ sub _convert_metadata
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
 
-    # Configure network and block drivers
-    _configure_drivers($dom, $virtio);
+    # Update storage devices and drivers
+    _configure_storage($dom, $devices, $virtio);
+
+    # Configure network drivers
+    _configure_network($dom, $virtio);
 
     # Ensure guest has a standard set of default devices
     _configure_default_devices($dom, $default_dom);
@@ -383,24 +394,65 @@ sub _unconfigure_bootloaders
     }
 }
 
-sub _configure_drivers
+sub _configure_storage
+{
+    my ($dom, $devices, $virtio) = @_;
+
+    my $prefix = $virtio ? 'vd' : 'sd';
+
+    my $suffix = 'a';
+    foreach my $device (@$devices) {
+        my ($target) = $dom->findnodes("/domain/devices/disk[\@device='disk']/".
+                                       "target[\@dev='$device']");
+
+        die(user_message(__x("Previously detected drive {drive} is no longer ".
+                             "present in domain XML: {xml}",
+                             drive => $device,
+                             xml => $dom->toString())))
+            unless (defined($target));
+
+        $target->setAttribute('bus', $virtio ? 'virtio' : 'scsi');
+        $target->setAttribute('dev', $prefix.$suffix);
+        $suffix++; # Perl magic means 'z'++ == 'aa'
+    }
+
+    # Convert the first 4 CDROM drives to IDE, and remove the rest
+    $suffix = 'a';
+    my $i = 0;
+    my @removed = ();
+    foreach my $target
+        ($dom->findnodes("/domain/devices/disk[\@device='cdrom']/target"))
+    {
+        if ($i < 4) {
+            $target->setAttribute('bus', 'ide');
+            $target->setAttribute('dev', "hd$suffix");
+            $suffix++;
+        } else {
+            push(@removed, $target->getAttribute('dev'));
+
+            my $disk = $target->getParentNode();
+            $disk->getParentNode()->removeChild($disk);
+        }
+        $i++;
+    }
+
+    if (@removed > 0) {
+        print user_message(__x("WARNING: Only 4 CDROM drives are supported. ".
+                               "The following CDROM drives have been removed: ".
+                               "{list}",
+                               list => join(' ', @removed)));
+    }
+
+    # As we just changed and unified all their underlying controllers, device
+    # addresses are no longer relevant
+    foreach my $address ($dom->findnodes('/domain/devices/disk/address')) {
+        $address->getParentNode()->removeChild($address);
+    }
+}
+
+sub _configure_network
 {
     my ($dom, $virtio) = @_;
-
-    # Convert disks
-    # N.B. <disk> is required to have a <target> element
-
-    # Convert alternate bus specifications
-    foreach my $bus ($dom->findnodes('/domain/devices/disk/target/@bus')) {
-        $bus->setNodeValue($virtio ? 'virtio' : 'scsi');
-    }
-
-    # Add an explicit bus specification to targets without one
-    foreach my $target
-        ($dom->findnodes('/domain/devices/disk/target[not(@bus)]'))
-    {
-        $target->setAttribute('bus', $virtio ? 'virtio' : 'scsi');
-    }
 
     # Convert network adapters
     # N.B. <interface> is not required to have a <model> element, but <model>
