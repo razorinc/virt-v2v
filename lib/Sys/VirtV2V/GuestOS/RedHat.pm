@@ -265,7 +265,8 @@ sub enable_kernel_module
     eval {
         $g->aug_set("/files/".$self->{modules}."/alias[last()+1]", $device);
         $g->aug_set("/files/".$self->{modules}."/alias[last()]/modulename",
-                    $module)
+                    $module);
+        $g->aug_save();
     };
 
     # Propagate augeas errors
@@ -1025,6 +1026,7 @@ sub prepare_bootable
                 last;
             }
         }
+        $g->aug_save();
     };
 
     # Propagate augeas failure
