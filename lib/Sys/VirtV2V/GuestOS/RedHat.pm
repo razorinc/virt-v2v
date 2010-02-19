@@ -558,8 +558,6 @@ sub add_kernel
     }
     $self->_install_rpms(1, @install);
 
-    return undef if($@);
-
     # Inspect the rpm to work out what kernel version it contains
     my $version;
     my $g = $self->{g};
