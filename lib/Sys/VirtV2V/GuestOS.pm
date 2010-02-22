@@ -100,7 +100,7 @@ sub new
     defined($g)      or carp("instantiate called without g argument");
     defined($desc)   or carp("instantiate called without desc argument");
     defined($dom)    or carp("instantiate called without dom argument");
-    defined($config) or carp("instantiate called without config argument");
+    # config will be undefined if no config was specified
 
     my $self = {};
 
@@ -176,6 +176,14 @@ sub match_app
     die(user_message(__"Didn't detect OS distribution"))
         unless (defined($distro));
 
+    my $search = "distro='$distro' name='$name'";
+    $search .= " major='$major'" if (defined($major));
+    $search .= " minor='$minor'" if (defined($minor));
+    $search .= " arch='$arch'";
+
+    die(user_message(__x("No config specified. No app match for {search}",
+                         search => $search))) unless (defined($config));
+
     # Create a list of xpath queries against the config which look for a
     # matching <app> config entry in descending order of specificity
     my @queries;
@@ -199,15 +207,8 @@ sub match_app
         last if (defined($app));
     }
 
-    unless (defined($app)) {
-        my $search = "distro='$distro' name='$name'";
-        $search .= " major='$major'" if (defined($major));
-        $search .= " minor='$minor'" if (defined($minor));
-        $search .= " arch='$arch'";
-
-        die(user_message(__x("No app in config matches {search}",
-                             search => $search)));
-    }
+    die(user_message(__x("No app in config matches {search}",
+                         search => $search))) unless (defined($app));
 
     my %app;
     my ($path) = $app->findnodes('path/text()');

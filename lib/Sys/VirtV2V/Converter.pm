@@ -140,7 +140,7 @@ sub convert
     my ($vmm, $guestos, $config, $dom, $desc, $devices) = @_;
     carp("convert called without vmm argument") unless defined($vmm);
     carp("convert called without guestos argument") unless defined($guestos);
-    carp("convert called without config argument") unless defined($config);
+    # config will be undefined if no config was specified
     carp("convert called without dom argument") unless defined($dom);
     carp("convert called without desc argument") unless defined($desc);
     carp("convert called without devices argument") unless defined($devices);
@@ -159,7 +159,7 @@ sub convert
         unless (defined($guestcaps));
 
     # Map network names from config
-    _map_networks($dom, $config);
+    _map_networks($dom, $config) if (defined($config));
 
     # Convert the metadata
     _convert_metadata($vmm, $dom, $desc, $devices, $guestcaps);
