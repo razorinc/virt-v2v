@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-22 12:34+0000\n"
-"PO-Revision-Date: 2010-02-04 19:20+0100\n"
+"PO-Revision-Date: 2010-02-22 00:43+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -75,9 +75,9 @@ msgid "Failed to open {path}: {error}"
 msgstr "Otwarcie {path} nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:94
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
-msgstr "Nie można przetworzyć {path}: {error}"
+msgstr "Nie można przetworzyć domeny z pliku {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:139
 msgid "No output pool was specified"
@@ -150,6 +150,8 @@ msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
 msgid ""
 "Previously detected drive {drive} is no longer present in domain XML: {xml}"
 msgstr ""
+"Poprzednio wykryty napęd {drive} nie jest już obecny w pliku XML domeny: "
+"{xml}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:440
 #, perl-brace-format
@@ -157,45 +159,48 @@ msgid ""
 "WARNING: Only 4 CDROM drives are supported. The following CDROM drives have "
 "been removed: {list}"
 msgstr ""
+"OSTRZEŻENIE: obsługiwane są tylko cztery napędy CD-ROM. Następujące napędy "
+"CD-ROM zostały usunięte: {list}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:550
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
-msgstr ""
+msgstr "Nieznany typ interfejsu {type} w pliku XML domeny: {domain}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:571
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "No mapping found for '{type}' interface: {name}"
-msgstr "Nie znaleziono mapowania dla urządzenia blokowego {device}"
+msgstr "Nie odnaleziono mapowania dla interfejsu \"{type}\": {name}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:585
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
-msgstr ""
+msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci w konfiguracji: {config}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:593
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
+"OSTRZEŻENIE: nieznany typ interfejsu {type} w mapowaniu sieciowym: {config}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:176
 msgid "Didn't detect OS distribution"
-msgstr ""
+msgstr "Nie wykryto dystrybucji systemu operacyjnego"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:184
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
-msgstr ""
+msgstr "Nie podano konfiguracji. Brak aplikacji pasującej do {search}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:210
 #, perl-brace-format
 msgid "No app in config matches {search}"
-msgstr ""
+msgstr "Brak aplikacji w konfiguracji pasującej do {search}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:215
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
-msgstr ""
+msgstr "wpis aplikacji w konfiguracji nie zawiera ścieżki: {xml}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:117
 msgid "/etc/selinux/config does not exist"
@@ -229,18 +234,18 @@ msgid "Unable to find a default kernel"
 msgstr "Nie można odnaleźć domyślnego jądra"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:574
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
-msgstr "{filename} nie zawiera prawidłowego jądra"
+msgstr "{path} nie zawiera prawidłowego jądra"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:628
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:741
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error running {command}: {error}"
-msgstr "Błąd podczas zamykania {path}: {error}"
+msgstr "Błąd podczas wykonywania {command}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:999
 msgid ""
@@ -248,6 +253,10 @@ msgid ""
 "or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be "
 "incorrect after conversion if guest uses libata."
 msgstr ""
+"OSTRZEŻENIE: nie można określić, czy urządzenia sdX w pliku /etc/fstab "
+"odnoszą się do urządzeń IDE czy SCSI. Przyjmowanie urządzeń SCSI. Plik "
+"/etc/fstab może być niepoprawny po konwersji, jeśli gość używa biblioteki "
+"libata."
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1124
 #, perl-brace-format
@@ -276,14 +285,14 @@ msgstr ""
 "Nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci masowej: "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:155
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error closing volume handle: {error}"
-msgstr "Błąd podczas zamykania {file}: {error}"
+msgstr "Błąd podczas zamykania obsługi woluminu: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
-msgstr ""
+msgstr "Nie odebrano pełnego woluminu. Odebrano {received} z {total} bajtów."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
@@ -497,17 +506,17 @@ msgstr "Należy użyć -ic lub -oc, aby podać połączenie wejściowe lub wyjś
 #: ../v2v/virt-v2v.pl:175
 #, perl-brace-format
 msgid "Config file {path} doesn't exist"
-msgstr ""
+msgstr "Plik konfiguracji {path} nie istnieje"
 
 #: ../v2v/virt-v2v.pl:178
 #, perl-brace-format
 msgid "Don't have permissions to read {path}"
-msgstr ""
+msgstr "Brak uprawnień do odczytania {path}"
 
 #: ../v2v/virt-v2v.pl:185
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse config file {path}: {error}"
-msgstr "Nie można przetworzyć {path}: {error}"
+msgstr "Nie można przetworzyć pliku konfiguracji {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:200
 msgid "You must specify a filename"
@@ -541,21 +550,21 @@ msgstr "{input} nie jest prawidłową metodą wprowadzania"
 #: ../v2v/virt-v2v.pl:334
 #, perl-brace-format
 msgid "Unable to access {path} referenced in the config file"
-msgstr ""
+msgstr "Nie można uzyskać dostępu do {path} wspomnianego w pliku konfiguracji"
 
 #: ../v2v/virt-v2v.pl:348
 msgid "<iso-path> must be specified in the configuration file"
-msgstr ""
+msgstr "<ścieżka-do-pliku-ISO> musi zostać podana w pliku konfiguracji"
 
 #: ../v2v/virt-v2v.pl:355
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to stat iso file {path}: {error}"
-msgstr "Nie można przetworzyć {path}: {error}"
+msgstr "Nie można wykonać stat na pliku ISO {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:359
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to stat config file {path}: {error}"
-msgstr "Nie można przetworzyć {path}: {error}"
+msgstr "Nie można wykonać stat na pliku konfiguracji {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:373
 #, perl-brace-format
@@ -573,29 +582,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:437
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid ""
-#~ "WARNING: unknown configuration directive {directive} in {name} section."
-#~ msgstr ""
-#~ "OSTRZEŻENIE: nieznana dyrektywa konfiguracji {directive} w sekcji {name}."
-
-#~ msgid "WARNING: unable to access {path}."
-#~ msgstr "OSTRZEŻENIE: nie można uzyskać dostępu do {path}."
-
-#~ msgid "Found dependency loop installing {label}: {path}"
-#~ msgstr "Odnaleziono pętlę zależności podczas instalowania {label}: {path}"
-
-#~ msgid "No {object} given matching {label}"
-#~ msgstr "Żaden podany {object} nie pasuje do {label}"
-
-#~ msgid "file"
-#~ msgstr "plik"
-
-#~ msgid "alias"
-#~ msgstr "alias"
-
-#~ msgid "dependencies"
-#~ msgstr "zależności"
-
-#~ msgid "Unable to parse {file}: {error}"
-#~ msgstr "Nie można przetworzyć {file}: {error}"
