@@ -20,7 +20,7 @@ package Sys::VirtV2V;
 use strict;
 use warnings;
 
-$Sys::VirtV2V::VERSION = "0.3.2";
+$Sys::VirtV2V::VERSION = "0.4.0";
 
 =pod
 
