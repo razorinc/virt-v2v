@@ -68,25 +68,17 @@ sub run
     my $self = {};
     bless($self, $class);
 
-    $self->{output} = File::Temp->new();
-    $self->{status} = $self->_run(@command);
-
-    return $self;
-}
-
-sub _run
-{
-    my $self = shift;
-    my @command = @_;
-
-    my $output = $self->{output};
-
     my $null;
     open($null, '<', '/dev/null') or die("Failed to open /dev/null: $!");
 
+    my $output = File::Temp->new();
     my $pid = open3($null, $output, $output, @command);
     waitpid($pid, 0);
+
     $self->{status} = $? >> 8;
+    $self->{output} = $output;
+
+    return $self;
 }
 
 =item status
