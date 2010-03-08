@@ -20,7 +20,7 @@ package Sys::VirtV2V::ExecHelper;
 use strict;
 use warnings;
 
-use File::Temp;
+use File::Temp qw(:POSIX);
 use IPC::Open3;
 use POSIX ":sys_wait_h";
 
@@ -71,7 +71,7 @@ sub run
     my $null;
     open($null, '<', '/dev/null') or die("Failed to open /dev/null: $!");
 
-    my $output = File::Temp->new();
+    my $output = tmpfile();
     my $pid = open3($null, $output, $output, @command);
     waitpid($pid, 0);
 
