@@ -405,15 +405,12 @@ sub inspect_guest
 {
     my $g = shift;
 
-    my $use_windows_registry;
-
     # List of possible filesystems.
     my @partitions = get_partitions ($g);
 
     # Now query each one to build up a picture of what's in it.
     my %fses =
-        inspect_all_partitions ($g, \@partitions,
-                                use_windows_registry => $use_windows_registry);
+        inspect_all_partitions ($g, \@partitions);
 
     #print "fses -----------\n";
     #print Dumper(\%fses);
