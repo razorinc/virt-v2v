@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-22 12:34+0000\n"
-"PO-Revision-Date: 2010-03-13 15:03+0300\n"
+"PO-Revision-Date: 2010-03-13 21:44+0300\n"
 "Last-Translator: Valentin Kazimirov <v.kazimirov@mail.ru>\n"
 "Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -270,27 +270,27 @@ msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для версии ядра {version}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists in the target pool. NOT "
 "fetching it again. Delete the volume and retry to download again."
 msgstr ""
-"ВНИМАНИЕ: том устройства хранения {name} уже существует в целевом пуле. NOT "
-"fetching it again. Delete the volume and retry to download again."
+"ВНИМАНИЕ: том хранилища {name} уже существует в целевом пуле. НЕ извлекается "
+"еще раз. Удалите том и попробуйте загрузить снова."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 msgid "Unexpected error accessing storage pool: "
-msgstr ""
+msgstr "Неожиданная ошибка при попытке доступа к пулу хранилища: "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:155
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error closing volume handle: {error}"
-msgstr "Ошибка при попытке закрыть {file}: {error}"
+msgstr "Ошибка при попытке закрыть дескриптор тома: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
-msgstr ""
+msgstr "Получен не весь том. Получено {received} из {total} байт."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
@@ -298,30 +298,32 @@ msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
+"Ошибка проверки прав доступа при подключении к {server}. Используются "
+"учетные данные для {username} из .netrc."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
-msgstr "Не удалось открыть {path}: {error}"
+msgstr "Не удалось подключиться к ESX-серверу: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error writing to {path}: {error}"
-msgstr "Ошибка при попытке закрыть {path}: {error}"
+msgstr "Ошибка при записи в {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:232
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr "Не удалось создать том хранилища: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "Ошибка при попытке закрыть {path}: {error}"
+msgstr "Ошибка при попытке открыть том хранилища {path} для записи: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:254
 msgid "Server response didn't include an SSL subject"
-msgstr ""
+msgstr "Ответ сервера не содержит информации о владельце SSL"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:258
 #, perl-brace-format
