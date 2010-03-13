@@ -3,14 +3,14 @@
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Valentin Kazimirov <v.kazimirov@mail.ru>, 2009.
 # Yulia Poyarkova <yulia.poyarkova@redhat.com>, 2009.
+# Valentin Kazimirov <v.kazimirov@mail.ru>, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-22 12:34+0000\n"
-"PO-Revision-Date: 2009-10-05 17:05+1100\n"
+"PO-Revision-Date: 2010-03-13 15:03+0300\n"
 "Last-Translator: Valentin Kazimirov <v.kazimirov@mail.ru>\n"
 "Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
 "MIME-Version: 1.0\n"
@@ -19,59 +19,60 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
-msgstr "Не удалось разобрать {path}: {error}"
+msgstr "Не удалось разобрать полномочия URI: {auth}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
 msgstr ""
+"ВНИМАНИЕ: Задание пароля в URI подключения не поддерживается. "
+"Проигнорировано."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
-msgstr "Не удалось удалить {uri}: {error}"
+msgstr "Не удалось подключиться к {uri}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
-msgstr ""
+msgstr "Гостевая система {name} сейчас {state}. Ее сначала нужно закрыть."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
-#, fuzzy
 msgid "idle"
-msgstr "файл"
+msgstr "бездействует"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
 msgid "running"
-msgstr ""
+msgstr "работает"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
 msgid "blocked"
-msgstr ""
+msgstr "заблокирована"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
 msgid "paused"
-msgstr ""
+msgstr "приостановлена"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
 msgid "shutting down"
-msgstr ""
+msgstr "закрывается"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
 msgid "shut down"
-msgstr ""
+msgstr "завершение работы"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
 msgid "crashed"
-msgstr ""
+msgstr "в состоянии сбоя"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
-msgstr "Недопустимое имя гостя: {name}"
+msgstr "Недопустимое имя гостевой системы: {name}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:87
 #, perl-brace-format
@@ -79,13 +80,13 @@ msgid "Failed to open {path}: {error}"
 msgstr "Не удалось открыть {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:94
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
-msgstr "Не удалось разобрать {path}: {error}"
+msgstr "Не удалось извлечь домен из файла {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:139
 msgid "No output pool was specified"
-msgstr ""
+msgstr "Не указаны пулы вывода"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
@@ -111,9 +112,8 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Не удалось открыть /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:158
-#, fuzzy
 msgid "Unable to find a module to convert this guest"
-msgstr "Не найден модуль для настройки этого гостя"
+msgstr "Не удалось найти модуль для настройки этой гостевой системы"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:172
 #, perl-brace-format
@@ -131,11 +131,13 @@ msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "Подключенный гипервизор не поддерживает KVM-гостей {arch}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:310
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
-msgstr "Подключенный гипервизор не поддерживает тип машин {machine}."
+msgstr ""
+"Подключенный гипервизор не поддерживает тип машин {machine}. Будет "
+"установлен текущий тип по умолчанию."
 
 #: ../lib/Sys/VirtV2V/Converter.pm:337
 #, perl-brace-format
@@ -145,13 +147,14 @@ msgstr "Подключенный гипервизор не поддержива�
 #: ../lib/Sys/VirtV2V/Converter.pm:344
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr ""
+msgstr "Цель на поддерживает acpi под KVM. ACPI будет отключен."
 
 #: ../lib/Sys/VirtV2V/Converter.pm:408
 #, perl-brace-format
 msgid ""
 "Previously detected drive {drive} is no longer present in domain XML: {xml}"
 msgstr ""
+"Ранее обнаруженный привод {drive} больше не присутствует в домене XML: {xml}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:440
 #, perl-brace-format
@@ -159,45 +162,47 @@ msgid ""
 "WARNING: Only 4 CDROM drives are supported. The following CDROM drives have "
 "been removed: {list}"
 msgstr ""
+"ВНИМАНИЕ: Поддерживается только 4 привода CDROM. Следующие приводы CDROM "
+"были удалены: {list}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:550
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
-msgstr ""
+msgstr "Неизвестный тип интерфейса {type} в домене XML: {domain}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:571
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "No mapping found for '{type}' interface: {name}"
-msgstr "Не найдено сопоставление для блочного устройства {device}"
+msgstr "Не найдена топология для интерфейса «{type}»: {name}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:585
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
-msgstr ""
+msgstr "ВНИМАНИЕ: Неверная топология сети в конфигурации: {config}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:593
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
-msgstr ""
+msgstr "ВНИМАНИЕ: Неверный тип интерфейса {type} в топологии сети: {config}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:176
 msgid "Didn't detect OS distribution"
-msgstr ""
+msgstr "Не обнаружен дистрибутив ОС"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:184
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
-msgstr ""
+msgstr "Не задана конфигурация. Нет приложений, соответствующих {search}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:210
 #, perl-brace-format
 msgid "No app in config matches {search}"
-msgstr ""
+msgstr "В конфигурации нет приложений, соответствующих {search}"
 
 #: ../lib/Sys/VirtV2V/GuestOS.pm:215
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
-msgstr ""
+msgstr "запись для приложения в конфигурации не содержит пути: {xml}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:117
 msgid "/etc/selinux/config does not exist"
@@ -230,18 +235,18 @@ msgid "Unable to find a default kernel"
 msgstr "Не найдено ядро по умолчанию"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:574
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
-msgstr "{filename} не содержит корректное ядро"
+msgstr "{path} не содержит корректное ядро"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:628
 msgid "Unable to determine a kernel architecture for this guest"
-msgstr "Не удалось определить архитектуру ядра для данного гостя"
+msgstr "Не удалось определить архитектуру ядра для данной гостевой системы"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:741
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error running {command}: {error}"
-msgstr "Ошибка при попытке закрыть {path}: {error}"
+msgstr "Ошибка при работе {command}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:999
 msgid ""
@@ -249,6 +254,10 @@ msgid ""
 "or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be "
 "incorrect after conversion if guest uses libata."
 msgstr ""
+"ВНИМАНИЕ: Не удается определить, на какие устройства ссылаются sdX-"
+"устройства в /etc/fstab - на IDE или SCSI. Предполагается, что они ссылаются "
+"на SCSI-устройства. /etc/fstab может быть неправильным после преобразования, "
+"если в гостевой системе используется libata."
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1124
 #, perl-brace-format
@@ -261,11 +270,13 @@ msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для версии ядра {version}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
-#, perl-brace-format
+#, fuzzy, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists in the target pool. NOT "
 "fetching it again. Delete the volume and retry to download again."
 msgstr ""
+"ВНИМАНИЕ: том устройства хранения {name} уже существует в целевом пуле. NOT "
+"fetching it again. Delete the volume and retry to download again."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 msgid "Unexpected error accessing storage pool: "
