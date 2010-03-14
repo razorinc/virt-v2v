@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-02-22 12:34+0000\n"
-"PO-Revision-Date: 2010-03-13 21:44+0300\n"
-"Last-Translator: Valentin Kazimirov <v.kazimirov@mail.ru>\n"
+"PO-Revision-Date: 2010-03-14 20:21+0300\n"
+"Last-Translator: Igor Gorbounov <igor.gorbounov@gmail.com>\n"
 "Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -323,17 +323,17 @@ msgstr "Ошибка при попытке открыть том хранили�
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:254
 msgid "Server response didn't include an SSL subject"
-msgstr "Ответ сервера не содержит информации о владельце SSL"
+msgstr "Ответ сервера не содержит темы SSL"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:258
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
-msgstr ""
+msgstr "В теме сертификации SSL не содержится общего имени: {subject}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:264
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
-msgstr ""
+msgstr "Сервер {server} представил SSL-сертификат для {commonname}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:317
 #, perl-brace-format
@@ -341,11 +341,13 @@ msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
 msgstr ""
+"Требуется проверка подлинности для подключения к {server}, а в .netrc не "
+"обнаружено учетных записей."
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
 msgid "{identifier}: {message}\n"
-msgstr ""
+msgstr "{identifier}: {message}\n"
 
 #: ../snapshot/v2v-snapshot.pl:194
 msgid "--commit and --rollback options are mutually exclusive"
@@ -357,12 +359,12 @@ msgstr "Не задан аргумент гостя"
 
 #: ../snapshot/v2v-snapshot.pl:219
 msgid "Unable to get home directory for current user"
-msgstr ""
+msgstr "Не удается получить домашний каталог для текущего пользователя"
 
 #: ../snapshot/v2v-snapshot.pl:233
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create data directory {dir}: {error}"
-msgstr "Не удалось создать гостя: {error}"
+msgstr "Не удалось создать каталог данных {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:245
 #, perl-brace-format
@@ -398,9 +400,9 @@ msgid "Consider using the --outputxml option"
 msgstr "Попробуйте использовать опцию --outputxml"
 
 #: ../snapshot/v2v-snapshot.pl:364
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create snapshot directory {dir}: {error}"
-msgstr "Не удалось создать пул хранилища v2v-snapshot: {error}"
+msgstr "Не удалось создать каталог для снимков {dir}: {error}"
 
 #: ../snapshot/v2v-snapshot.pl:385
 #, perl-brace-format
@@ -489,33 +491,32 @@ msgid "invalid source element: {element}"
 msgstr "Недопустимый исходный элемент: {element}"
 
 #: ../snapshot/v2v-snapshot.pl:829
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to create xml storage directory {dir}: {error}"
-msgstr "Не удалось создать том хранилища: {error}"
+msgstr "Не удается создать том xml-хранилища {dir}: {error}"
 
 #: ../v2v/virt-v2v.pl:160
 msgid "Use -ic or -oc to specify an input or an output connection"
-msgstr ""
+msgstr "Используйте -ic или -oc для задания входного или выходного подключения"
 
 #: ../v2v/virt-v2v.pl:175
 #, perl-brace-format
 msgid "Config file {path} doesn't exist"
-msgstr ""
+msgstr "Не существует файл конфигурации {path}"
 
 #: ../v2v/virt-v2v.pl:178
 #, perl-brace-format
 msgid "Don't have permissions to read {path}"
-msgstr ""
+msgstr "Нет разрешения на чтение {path}"
 
 #: ../v2v/virt-v2v.pl:185
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to parse config file {path}: {error}"
-msgstr "Не удалось разобрать {path}: {error}"
+msgstr "Не удалось разобрать файл конфигурации {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:200
-#, fuzzy
 msgid "You must specify a filename"
-msgstr "Необходимо указать имя файла при использовании {modulename}"
+msgstr "Необходимо указать имя файла"
 
 #: ../v2v/virt-v2v.pl:206
 #, perl-brace-format
@@ -524,41 +525,41 @@ msgstr "ВНИМАНИЕ: {modulename} может принимать тольк�
 
 #: ../v2v/virt-v2v.pl:215
 msgid "You must specify a guest"
-msgstr ""
+msgstr "Необходимо указать гостевую систему"
 
 #: ../v2v/virt-v2v.pl:227
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid local storage pool"
-msgstr ""
+msgstr "Пул выхода {poolname} не является правильным локальным пулом хранения"
 
 #: ../v2v/virt-v2v.pl:240
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
-msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
+msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя домена."
 
 #: ../v2v/virt-v2v.pl:246
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{input} is not a valid input method"
-msgstr "Недопустимый входной формат: {input}"
+msgstr "Недопустимый метод ввода: {input}"
 
 #: ../v2v/virt-v2v.pl:334
 #, perl-brace-format
 msgid "Unable to access {path} referenced in the config file"
-msgstr ""
+msgstr "Не удается получить доступ к {path}, указанному в файле конфигурации"
 
 #: ../v2v/virt-v2v.pl:348
 msgid "<iso-path> must be specified in the configuration file"
-msgstr ""
+msgstr "<iso-path> должен быть указан в файле конфигурации"
 
 #: ../v2v/virt-v2v.pl:355
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to stat iso file {path}: {error}"
-msgstr "Не удалось разобрать {path}: {error}"
+msgstr "Не удалось получить статус iso-файла {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:359
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to stat config file {path}: {error}"
-msgstr "Не удалось разобрать {path}: {error}"
+msgstr "Не удалось получить статус файла конфигурации {path}: {error}"
 
 #: ../v2v/virt-v2v.pl:373
 #, perl-brace-format
