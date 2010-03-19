@@ -150,7 +150,7 @@ sub convert
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $guestcaps = $module->convert($vmm, $guestos, $desc, $devices);
+            $guestcaps = $module->convert($guestos, $desc, $devices);
             last;
         }
     }

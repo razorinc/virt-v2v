@@ -69,15 +69,11 @@ sub can_handle
     return ($desc->{os} eq 'linux');
 }
 
-=item Sys::VirtV2V::Converter::Linux->convert(vmm, guestos, dom, desc)
+=item Sys::VirtV2V::Converter::Linux->convert(guestos, dom, desc)
 
 Convert a Linux guest. Assume that can_handle has previously returned 1.
 
 =over
-
-=item vmm
-
-A Sys::Virt handle to the target libvirt.
 
 =item guestos
 
@@ -100,8 +96,7 @@ sub convert
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $desc, $devices) = @_;
-    carp("convert called without vmm argument") unless defined($vmm);
+    my ($guestos, $desc, $devices) = @_;
     carp("convert called without guestos argument") unless defined($guestos);
     carp("convert called without desc argument") unless defined($desc);
     carp("convert called without devices argument") unless defined($devices);
