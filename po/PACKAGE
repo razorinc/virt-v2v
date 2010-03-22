@@ -9,6 +9,7 @@ LINGUAS = \
     pl \
     ru \
     te \
+    uk \
     zh_CN
 
 # Textdomain for our package.
