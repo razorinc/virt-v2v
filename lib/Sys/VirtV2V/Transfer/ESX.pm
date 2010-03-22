@@ -53,7 +53,7 @@ our %handles;
 sub new {
     my $class = shift;
 
-    my ($server, $username, $password, $pool, $verify) = @_;
+    my ($server, $username, $password, $target, $noverify) = @_;
 
     my $self = $class->SUPER::new(
         agent => 'virt-v2v/'.$Sys::VirtV2V::VERSION,
@@ -65,7 +65,7 @@ sub new {
         my ($response, $self, $h) = @_;
 
         if ($response->is_success) {
-            $self->verify_certificate($response) if ($verify);
+            $self->verify_certificate($response) unless ($noverify);
             $self->create_volume($response);
         }
     });
@@ -75,14 +75,14 @@ sub new {
     $self->{_v2v_username} = $username;
     $self->{_v2v_password} = $password;
 
-    if ($verify) {
+    if ($noverify) {
+        # Unset HTTPS_CA_DIR if it is already set
+        delete($ENV{HTTPS_CA_DIR});
+    } else {
         # Leave HTTPS_CA_DIR alone if it is already set
         # Setting HTTPS_CA_DIR to the empty string results in it using the
         # compiled-in default paths
         $ENV{HTTPS_CA_DIR} = "" unless (exists($ENV{HTTPS_CA_DIR}));
-    } else {
-        # Unset HTTPS_CA_DIR if it is already set
-        delete($ENV{HTTPS_CA_DIR});
     }
 
     die("Invalid configuration of Net::HTTPS")
@@ -330,7 +330,8 @@ sub transfer
     my $ua = Sys::VirtV2V::Transfer::ESX::UA->new($conn->{hostname},
                                                   $username,
                                                   $password,
-                                                  $pool);
+                                                  $pool,
+                                                  $noverify);
 
     return $ua->get_volume($path);
 }
