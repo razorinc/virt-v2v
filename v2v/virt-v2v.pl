@@ -36,6 +36,7 @@ use Sys::VirtV2V;
 use Sys::VirtV2V::Converter;
 use Sys::VirtV2V::Connection::LibVirt;
 use Sys::VirtV2V::Connection::LibVirtXML;
+use Sys::VirtV2V::Target::LibVirt;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
@@ -99,8 +100,26 @@ my $input_transport;
 
 =item B<-it method>
 
-Species the transport method used to obtain raw storage from the source guest.
+Specifies the transport method used to obtain raw storage from the source guest.
 This is currently only a placeholder, and does nothing.
+
+=cut
+
+my $output_method = "libvirt";
+
+=item B<-o method>
+
+Specifies the output method. Supported output methods are:
+
+=over
+
+=item libvirt
+
+Create a libvirt guest. See the I<-oc> and I<-op> options.
+
+=back
+
+If no output type is specified, it defaults to libvirt.
 
 =cut
 
@@ -186,11 +205,13 @@ if(defined($config_file)) {
                          path => $config_file, error => $@))) if ($@);
 }
 
-# Connect to target libvirt
-my $vmm = Sys::Virt->new(
-    auth => 1,
-    uri => $output_uri
-);
+my $target;
+if ($output_method eq "libvirt") {
+    $target = new Sys::VirtV2V::Target::LibVirt($output_uri, $output_pool);
+} else {
+    die(user_message(__x("{output} is not a valid output method",
+                         output => $output_method)));
+}
 
 # Get an appropriate Connection
 my $conn;
@@ -215,24 +236,8 @@ eval {
             pod2usage({ -message => user_message(__"You must specify a guest"),
                         -exitval => 1 });
 
-        # Get a handle to the output pool if one is defined
-        my $pool;
-        if (defined($output_pool)) {
-            eval {
-                $pool = $vmm->get_storage_pool_by_name($output_pool);
-            };
-
-            if ($@) {
-                print STDERR user_message
-                    (__x("Output pool {poolname} is not a valid local ".
-                         "storage pool",
-                         poolname => $output_pool));
-                exit(1);
-            }
-        }
-
         $conn = Sys::VirtV2V::Connection::LibVirt->new($input_uri, $name,
-                                                       $pool);
+                                                       $target);
 
         # Warn if we were given more than 1 argument
         if(scalar(@_) > 0) {
@@ -280,10 +285,20 @@ my $os = inspect_guest($g);
 my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
 # Modify the guest and its metadata for the target hypervisor
-Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os,
-                                 $conn->get_storage_devices());
+my $guestcaps = Sys::VirtV2V::Converter->convert($guestos, $config, $dom, $os,
+                                                 $conn->get_storage_devices());
 
-$vmm->define_domain($dom->toString());
+$target->create_guest($dom, $guestcaps);
+
+my ($name) = $dom->findnodes('/domain/name/text()');
+$name = $name->getNodeValue();
+if($guestcaps->{virtio}) {
+    print user_message
+        (__x("{name} configured with virtio drivers", name => $name));
+} else {
+    print user_message
+        (__x("{name} configured without virtio drivers", name => $name));
+}
 
 exit(0);
 

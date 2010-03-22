@@ -71,7 +71,7 @@ sub new {
     });
 
     $self->{_v2v_server}   = $server;
-    $self->{_v2v_pool}     = $pool;
+    $self->{_v2v_target}   = $target;
     $self->{_v2v_username} = $username;
     $self->{_v2v_password} = $password;
 
@@ -113,31 +113,19 @@ sub get_volume
     $url->query_form(dcPath => "ha-datacenter", dsName => $datastore);
 
     # Replace / with _ so the vmdk name can be used as a volume name
-    $self->{_v2v_volname} = $vmdk;
-    $self->{_v2v_volname} =~ s,/,_,g;
+    my $volname = $vmdk;
+    $volname =~ s,/,_,g;
+    $self->{_v2v_volname} = $volname;
 
-    # Check to see if this volume already exists
-    eval {
-        my $pool = $self->{_v2v_pool};
-        $self->{_v2v_vol} = $pool->get_volume_by_name($self->{_v2v_volname});
-    };
-
-    # The above command should generate VIR_ERR_NO_STORAGE_VOL because the
-    # volume doesn't exist
-    unless($@ && $@->code == Sys::Virt::Error::ERR_NO_STORAGE_VOL) {
-        unless ($@) {
-            print STDERR user_message(__x("WARNING: storage volume {name} ".
-                                          "already exists in the target ".
-                                          "pool. NOT fetching it again. ".
-                                          "Delete the volume and retry to ".
-                                          "download again.",
-                                          name => $self->{_v2v_volname}));
-            return $self->{_v2v_vol};
-        }
-
-        # We got an error, but not the one we expected
-        die(user_message(__x("Unexpected error accessing storage pool: ",
-                             "{error}", error => $@->stringify())));
+    my $target = $self->{_v2v_target};
+    if ($target->volume_exists($volname)) {
+        print STDERR user_message(__x("WARNING: storage volume {name} ".
+                                      "already exists in the target ".
+                                      "pool. NOT fetching it again. ".
+                                      "Delete the volume and retry to ".
+                                      "download again.",
+                                      name => $volname));
+        return $target->get_volume($volname);
     }
 
     $self->{_v2v_received} = 0;
@@ -150,11 +138,9 @@ sub get_volume
         my $died = $r->header('X-Died');
         die($died) if (defined($died));
 
-        # Close the volume file descriptor
-        close($self->{_v2v_volfh})
-            or die(user_message(__x("Error closing volume handle: {error}",
-                                    error => $!)));
-        return $self->{_v2v_vol};
+        my $vol = $self->{_v2v_vol};
+        $vol->close();
+        return $vol;
     }
 
     die(user_message(__x("Didn't receive full volume. Received {received} of ".
@@ -192,14 +178,8 @@ sub handle_data
 
     my ($data, $response) = @_;
 
-    my $volfh = $self->{_v2v_volfh};
-
     $self->{_v2v_received} += length($data);
-
-    syswrite($volfh, $data)
-        or die(user_message(__x("Error writing to {path}: {error}",
-                                path => $self->{_v2v_volpath},
-                                error => $!)));
+    $self->{_v2v_vol}->write($data);
 }
 
 sub create_volume
@@ -208,9 +188,8 @@ sub create_volume
 
     my ($response) = @_;
 
-    my $pool = $self->{_v2v_pool};
+    my $target = $self->{_v2v_target};
 
-    # Create a volume in the target storage pool of the correct size
     my $name = $self->{_v2v_volname};
     die("create_volume called, but _v2v_volname is not set")
         unless (defined($name));
@@ -218,27 +197,9 @@ sub create_volume
     my $size = $response->content_length();
     $self->{_v2v_volsize} = $size;
 
-    my $vol_xml = "
-        <volume>
-            <name>$name</name>
-            <capacity>$size</capacity>
-        </volume>
-    ";
-
-    my $volume;
-    eval {
-        $volume = $pool->create_volume($vol_xml);
-    };
-    die(user_message(__x("Failed to create storage volume: {error}",
-                         error => $@->stringify()))) if ($@);
-    $self->{_v2v_vol} = $volume;
-
-    # Open the volume for writing
-    open(my $volfh, '>', $volume->get_path())
-        or die(user_message(__x("Error opening storage volume {path} ".
-                                "for writing: {error}", error => $!)));
-
-    $self->{_v2v_volfh} = $volfh;
+    my $vol = $target->create_volume($name, $size);
+    $vol->open();
+    $self->{_v2v_vol} = $vol;
 }
 
 sub verify_certificate
@@ -285,7 +246,7 @@ Sys::VirtV2V::Transfer::ESX - Transfer guest storage from an ESX server
 
  use Sys::VirtV2V::Transfer::ESX;
 
- $vol = Sys::VirtV2V::Transfer::ESX->transfer($conn, $path, $pool);
+ $vol = Sys::VirtV2V::Transfer::ESX->transfer($conn, $path, $target);
 
 =head1 DESCRIPTION
 
@@ -295,10 +256,10 @@ Sys::VirtV2V::Transfer::ESX retrieves guest storage devices from an ESX server.
 
 =over
 
-=item transfer(conn, path, pool)
+=item transfer(conn, path, target)
 
 Transfer <path> from a remote ESX server. Server and authentication details will
-be taken from <conn>. Storage will be copied to a new volume created in <pool>.
+be taken from <conn>. Storage will be created using <target>.
 
 =cut
 
@@ -306,7 +267,7 @@ sub transfer
 {
     my $class = shift;
 
-    my ($conn, $path, $pool) = @_;
+    my ($conn, $path, $target) = @_;
 
     my $uri      = $conn->{uri};
     my $username = $conn->{username};
@@ -330,7 +291,7 @@ sub transfer
     my $ua = Sys::VirtV2V::Transfer::ESX::UA->new($conn->{hostname},
                                                   $username,
                                                   $password,
-                                                  $pool,
+                                                  $target,
                                                   $noverify);
 
     return $ua->get_volume($path);

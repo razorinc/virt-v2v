@@ -7,6 +7,7 @@
 ../lib/Sys/VirtV2V/GuestOS.pm
 ../lib/Sys/VirtV2V/GuestOS/RedHat.pm
 ../lib/Sys/VirtV2V.pm
+../lib/Sys/VirtV2V/Target/LibVirt.pm
 ../lib/Sys/VirtV2V/Transfer/ESX.pm
 ../lib/Sys/VirtV2V/UserMessage.pm
 ../snapshot/v2v-snapshot.pl

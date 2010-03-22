@@ -42,7 +42,7 @@ Sys::VirtV2V::Converter - Convert a guest to run on KVM
  use Sys::VirtV2V::Converter;
 
  my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
- Sys::VirtV2V::Converter->convert($vmm, $guestos, $config, $dom, $os, $devices);
+ Sys::VirtV2V::Converter->convert($guestos, $config, $dom, $os, $devices);
 
 =head1 DESCRIPTION
 
@@ -102,15 +102,11 @@ use constant KVM_XML_NOVIRTIO => "
 </domain>
 ";
 
-=item Sys::VirtV2V::Converter->convert(vmm, guestos, dom, desc)
+=item Sys::VirtV2V::Converter->convert(guestos, dom, desc)
 
 Instantiate an appropriate backend and call convert on it.
 
 =over
-
-=item vmm
-
-A Sys::Virt connection.
 
 =item guestos
 
@@ -137,8 +133,7 @@ sub convert
 {
     my $class = shift;
 
-    my ($vmm, $guestos, $config, $dom, $desc, $devices) = @_;
-    carp("convert called without vmm argument") unless defined($vmm);
+    my ($guestos, $config, $dom, $desc, $devices) = @_;
     carp("convert called without guestos argument") unless defined($guestos);
     # config will be undefined if no config was specified
     carp("convert called without dom argument") unless defined($dom);
@@ -162,23 +157,14 @@ sub convert
     _map_networks($dom, $config) if (defined($config));
 
     # Convert the metadata
-    _convert_metadata($vmm, $dom, $desc, $devices, $guestcaps);
+    _convert_metadata($dom, $desc, $devices, $guestcaps);
 
-    my ($name) = $dom->findnodes('/domain/name/text()');
-    $name = $name->getNodeValue();
-
-    if($guestcaps->{virtio}) {
-        print user_message
-            (__x("{name} configured with virtio drivers", name => $name));
-    } else {
-        print user_message
-            (__x("{name} configured without virtio drivers", name => $name));
-    }
+    return $guestcaps;
 }
 
 sub _convert_metadata
 {
-    my ($vmm, $dom, $desc, $devices, $guestcaps) = @_;
+    my ($dom, $desc, $devices, $guestcaps) = @_;
 
     my $arch   = $guestcaps->{arch};
     my $virtio = $guestcaps->{virtio};
@@ -192,9 +178,6 @@ sub _convert_metadata
 
     # Replace source hypervisor metadata with KVM defaults
     _unconfigure_hvs($dom, $default_dom);
-
-    # Configure guest according to local hypervisor's capabilities
-    _configure_capabilities($dom, $vmm, $guestcaps);
 
     # Remove any configuration related to a PV kernel bootloader
     _unconfigure_bootloaders($dom);
@@ -261,115 +244,6 @@ sub _configure_default_devices
         my $new = $input->cloneNode(1);
         $new->setOwnerDocument($devices->getOwnerDocument());
         $devices->appendChild($new);
-    }
-}
-
-sub _configure_capabilities
-{
-    my ($dom, $vmm, $guestcaps) = @_;
-
-    # Parse the capabilities of the connected libvirt
-    my $caps = new XML::DOM::Parser->parse($vmm->get_capabilities());
-
-    my $arch = $guestcaps->{arch};
-
-    (my $guestcap) = $caps->findnodes
-        ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
-
-    die(__x("The connected hypervisor does not support a {arch} kvm guest",
-        arch => $arch)) unless(defined($guestcap));
-
-    # Ensure that /domain/@type = 'kvm'
-    my ($type) = $dom->findnodes('/domain/@type');
-    $type->setNodeValue('kvm');
-
-    # Set /domain/os/type to the value taken from capabilities
-    my ($os_type) = $dom->findnodes('/domain/os/type/text()');
-    if(defined($os_type)) {
-        my ($caps_os_type) = $guestcap->findnodes('os_type/text()');
-        $os_type->setNodeValue($caps_os_type->getNodeValue());
-    }
-
-    # Check that /domain/os/type/@machine, if set, is listed in capabilities
-    my ($machine) = $dom->findnodes('/domain/os/type/@machine');
-    if(defined($machine)) {
-        my @machine_caps = $guestcap->findnodes
-            ("arch[\@name='$arch']/machine/text()");
-
-        my $found = 0;
-        foreach my $machine_cap (@machine_caps) {
-            if($machine eq $machine_cap) {
-                $found = 1;
-                last;
-            }
-        }
-
-        # If the machine isn't listed as a capability, warn and remove it
-        if(!$found) {
-            print STDERR user_message
-                (__x("The connected hypervisor does not support a ".
-                     "machine type of {machine}. It will be set to the ".
-                     "current default.",
-                     machine => $machine->getValue()));
-
-            my ($type) = $dom->findnodes('/domain/os/type');
-            $type->getAttributes()->removeNamedItem('machine');
-        }
-    }
-
-    # Get the domain features node
-    my ($domfeatures) = $dom->findnodes('/domain/features');
-
-    # Check existing features are supported by the hypervisor
-    if (defined($domfeatures)) {
-        # Check that /domain/features are listed in capabilities
-        # Get a list of supported features
-        my %features;
-        foreach my $feature ($guestcap->findnodes('features/*')) {
-            $features{$feature->getNodeName()} = 1;
-        }
-
-        foreach my $feature ($domfeatures->findnodes('*')) {
-            my $name = $feature->getNodeName();
-
-            if (!exists($features{$name})) {
-                print STDERR user_message
-                    (__x("The connected hypervisor does not support ".
-                         "feature {feature}", feature => $name));
-                $feature->getParentNode()->removeChild($feature);
-            }
-
-            if ($name eq 'acpi' && !$guestcaps->{acpi}) {
-                print STDERR user_message
-                   (__"The target guest does not support acpi under KVM. ACPI ".
-                      "will be disabled.");
-                $feature->getParentNode()->removeChild($feature);
-            }
-        }
-    }
-
-    # Add a features element if there isn't one already
-    else {
-        $domfeatures = $dom->createElement('features');
-        my ($root) = $dom->findnodes('/domain');
-        $root->appendChild($domfeatures);
-    }
-
-    # Add acpi support if the guest supports it
-    if ($guestcaps->{acpi}) {
-        $domfeatures->appendChild($dom->createElement('acpi'));
-    }
-
-    # Add apic and pae if they're supported by the hypervisor and not already
-    # there
-    foreach my $feature ('apic', 'pae') {
-        my ($d) = $domfeatures->findnodes($feature);
-        next if (defined($d));
-
-        my ($c) = $guestcap->findnodes("features/$feature");
-        if (defined($c)) {
-            $domfeatures->appendChild($dom->createElement($feature));
-        }
     }
 }
 

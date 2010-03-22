@@ -36,7 +36,7 @@ Sys::VirtV2V::Connection - Obtain domain metadata
 
  use Sys::VirtV2V::Connection::LibVirt;
 
- $conn = Sys::VirtV2V::Connection::LibVirt->new($uri, $name, $pool);
+ $conn = Sys::VirtV2V::Connection::LibVirt->new($uri, $name, $target);
  $dom = $conn->get_dom();
  $storage = $conn->get_storage_paths();
  $devices = $conn->get_storage_devices();
@@ -106,7 +106,7 @@ sub _storage_iterate
 {
     my $self = shift;
 
-    my ($transfer, $pool) = @_;
+    my ($transfer, $target) = @_;
 
     my $dom = $self->get_dom();
 
@@ -121,8 +121,8 @@ sub _storage_iterate
         defined($source) or die("source element has neither dev nor file: \n".
                                 $dom->toString());
 
-        my ($target) = $disk->findnodes('target/@dev');
-        defined($target) or die("disk does not have a target device: \n".
+        my ($dev) = $disk->findnodes('target/@dev');
+        defined($dev) or die("disk does not have a target device: \n".
                                 $dom->toString());
 
         # If the disk is a floppy or a cdrom, blank its source
@@ -135,16 +135,15 @@ sub _storage_iterate
             my $path = $source->getValue();
 
             if (defined($transfer)) {
-                # Die if transfer required and no output pool
-                die (user_message(__"No output pool was specified"))
-                    unless (defined($pool));
+                # Die if transfer required and no output target
+                die (user_message(__"No output target was specified"))
+                    unless (defined($target));
 
                 # Fetch the remote storage
-                my $vol = $transfer->transfer($self, $path, $pool);
+                my $vol = $transfer->transfer($self, $path, $target);
 
-                # Parse the XML description of the returned volume
-                my $voldom =
-                    new XML::DOM::Parser->parse($vol->get_xml_description());
+                # Export the new path
+                $path = $vol->get_path();
 
                 # Find any existing driver element.
                 my ($driver) = $disk->findnodes('driver');
@@ -156,37 +155,24 @@ sub _storage_iterate
                     $disk->appendChild($driver);
                 }
                 $driver->setAttribute('name', 'qemu');
-
-                # Get the volume format for passing to the qemu driver
-                my ($format) =
-                    $voldom->findnodes('/volume/target/format/@type');
-
-                $format = $format->getValue() if (defined($format));
-
-                # Auto-detect if no format is specified explicitly
-                $format ||= 'auto';
-
-                $driver->setAttribute('type', $format);
+                $driver->setAttribute('type', $vol->get_format());
 
                 # Remove the @file or @dev attribute before adding a new one
                 $source_e->removeAttributeNode($source);
 
-                $path = $vol->get_path();
-
                 # Set @file or @dev as appropriate
-                if ($vol->get_info()->{type} ==
-                    Sys::Virt::StorageVol::TYPE_FILE)
+                if ($vol->is_block())
                 {
-                    $disk->setAttribute('type', 'file');
-                    $source_e->setAttribute('file', $path);
-                } else {
                     $disk->setAttribute('type', 'block');
                     $source_e->setAttribute('dev', $path);
+                } else {
+                    $disk->setAttribute('type', 'file');
+                    $source_e->setAttribute('file', $path);
                 }
             }
 
             push(@paths, $path);
-            push(@devices, $target->getNodeValue());
+            push(@devices, $dev->getNodeValue());
         }
     }
 
