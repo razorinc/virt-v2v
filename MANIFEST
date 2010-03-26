@@ -13,6 +13,7 @@ lib/Sys/VirtV2V/Connection/LibVirt.pm
 lib/Sys/VirtV2V/Connection/LibVirtXML.pm
 lib/Sys/VirtV2V/UserMessage.pm
 lib/Sys/VirtV2V/Target/LibVirt.pm
+lib/Sys/VirtV2V/Target/RHEV.pm
 lib/Sys/VirtV2V/Transfer/ESX.pm
 MANIFEST			This list of files
 MANIFEST.SKIP

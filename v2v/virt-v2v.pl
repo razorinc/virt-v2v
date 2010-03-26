@@ -37,6 +37,7 @@ use Sys::VirtV2V::Converter;
 use Sys::VirtV2V::Connection::LibVirt;
 use Sys::VirtV2V::Connection::LibVirtXML;
 use Sys::VirtV2V::Target::LibVirt;
+use Sys::VirtV2V::Target::RHEV;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
@@ -145,6 +146,21 @@ guest.
 
 =cut
 
+my $output_storage_domain;
+
+=item B<-osd domain>
+
+Specifies the NFS path to a RHEV Export storage domain. Note that the storage
+domain must have been previously initialised by RHEV.
+
+The domain must be in the format <host>:<path>, eg:
+
+ rhev-storage.example.com:/rhev/export
+
+The nfs export must be mountable and writable by the machine running virt-v2v.
+
+=cut
+
 my $config_file;
 
 =item B<-f file> | B<--config file>
@@ -182,8 +198,10 @@ GetOptions ("help|?"      => sub {
             },
             "i=s"         => \$input_method,
             "ic=s"        => \$input_uri,
+            "o=s"         => \$output_method,
             "oc=s"        => \$output_uri,
             "op=s"        => \$output_pool,
+            "osd=s"       => \$output_storage_domain,
             "f|config=s"  => \$config_file
 ) or pod2usage(2);
 
@@ -208,7 +226,18 @@ if(defined($config_file)) {
 my $target;
 if ($output_method eq "libvirt") {
     $target = new Sys::VirtV2V::Target::LibVirt($output_uri, $output_pool);
-} else {
+}
+
+elsif ($output_method eq "rhev") {
+    pod2usage({ -message => __("You must specify an output storage domain ".
+                               "when using the rhev output method"),
+                -exitval => 1 })
+        unless (defined($output_storage_domain));
+
+    $target = new Sys::VirtV2V::Target::RHEV($output_storage_domain);
+}
+
+else {
     die(user_message(__x("{output} is not a valid output method",
                          output => $output_method)));
 }
@@ -272,8 +301,18 @@ my $storage = $conn->get_storage_paths();
 # Create the transfer iso if required
 my $transferiso = get_transfer_iso($config, $config_file);
 
+if ($output_method eq 'rhev') {
+    $) = "36 36";
+    $> = "36";
+}
+
 # Open a libguestfs handle on the guest's storage devices
 my $g = get_guestfs_handle($storage, $transferiso);
+
+if ($output_method eq 'rhev') {
+    $) = "0";
+    $> = "0";
+}
 
 $SIG{'INT'} = \&close_guest_handle;
 $SIG{'QUIT'} = \&close_guest_handle;
@@ -284,9 +323,11 @@ my $os = inspect_guest($g);
 # Instantiate a GuestOS instance to manipulate the guest
 my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
-# Modify the guest and its metadata for the target hypervisor
+# Modify the guest and its metadata
 my $guestcaps = Sys::VirtV2V::Converter->convert($guestos, $config, $dom, $os,
                                                  $conn->get_storage_devices());
+
+close_guest_handle();
 
 $target->create_guest($dom, $guestcaps);
 
@@ -315,6 +356,11 @@ sub close_guest_handle
     if (defined($g)) {
         $g->umount_all();
         $g->sync();
+
+        # Note that this undef is what actually causes the underlying handle to
+        # be closed. This is required to allow the RHEV target's temporary mount
+        # directory to be unmounted and deleted prior to exit.
+        $g = undef;
     }
 }
 
