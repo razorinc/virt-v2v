@@ -21,7 +21,6 @@ use strict;
 
 use Pod::Usage;
 use Getopt::Long;
-#use Data::Dumper;
 use File::Spec;
 use File::stat;
 
@@ -50,16 +49,19 @@ virt-v2v - Convert a guest to use KVM
 
 =head1 SYNOPSIS
 
- virt-v2v -f virt-v2v.conf -i libvirtxml guest-domain.xml
+ virt-v2v -f virt-v2v.conf -i libvirtxml -op transfer guest-domain.xml
 
- virt-v2v -f virt-v2v.conf -ic esx://esx.server/ -op transfer guest-domain
+ virt-v2v -f virt-v2v.conf -ic esx://esx.server/ -op transfer esx_guest
+
+ virt-v2v -f virt-v2v.conf -ic esx://esx.server/ \
+          -o rhev -osd rhev.nfs.storage:/export_domain guest esx_guest
 
 =head1 DESCRIPTION
 
 virt-v2v converts guests from a foreign hypervisor to run on KVM, managed by
-libvirt. It can currently convert Red Hat Enterprise Linux and Fedora guests
-running on Xen and VMware ESX. It will enable VirtIO drivers in the converted
-guest if possible.
+libvirt or Red Hat Enterprise Virtualisation (RHEV) version 2.2 or later. It can
+currently convert Red Hat Enterprise Linux and Fedora guests running on Xen and
+VMware ESX. It will enable VirtIO drivers in the converted guest if possible.
 
 =head1 OPTIONS
 
@@ -116,7 +118,13 @@ Specifies the output method. Supported output methods are:
 
 =item libvirt
 
-Create a libvirt guest. See the I<-oc> and I<-op> options.
+Create a libvirt guest. See the I<-oc> and I<-op> options. I<-op> must be
+specified for the libvirt output method.
+
+=item rhev
+
+Create a guest on a RHEV 'Export' storage domain, which can later be imported
+into RHEV using the UI. I<-osd> must be specified for the rhev output method.
 
 =back
 
@@ -478,13 +486,7 @@ sub inspect_guest
     my %fses =
         inspect_all_partitions ($g, \@partitions);
 
-    #print "fses -----------\n";
-    #print Dumper(\%fses);
-
     my $oses = inspect_operating_systems ($g, \%fses);
-
-    #print "oses -----------\n";
-    #print Dumper($oses);
 
     # Only work on single-root operating systems.
     my $root_dev;
@@ -522,17 +524,6 @@ local Xen guests are currently supported. These steps are not required for
 conversions from ESX, and will not be required for remote Xen guests when we
 support that.
 
-=head3 Backup the guest
-
-If converting a local guest using the libvirtxml input method, the guest will be
-converted in place: it will make changes to a guest directly without creating a
-backup. It is recommended that virt-v2v be run against a copy.
-
-The L<v2v-snapshot(1)> tool can be used to convert a guest to use a snapshot
-for storage prior to running virt-v2v against it. This snapshot can then be
-committed to the original storage after the conversion is confirmed as
-successful.
-
 =head3 Obtain domain XML for the guest domain
 
 virt-v2v uses a libvirt domain description to determine the current
@@ -545,18 +536,17 @@ This will require a reboot if the host running Xen is the same host that will
 run KVM. This is because libvirt needs to connect to a running xen hypervisor to
 obtain its metadata.
 
-=head2 ESX guests
+=head2 Converting to run on libvirt/KVM
 
 =head3 Create a local storage pool for transferred storage
 
-virt-v2v copies the guest storage to the local machine during import from an ESX
-server. It creates new storage in a locally defined libvirt pool. This pool can
-be defined using any libvirt tool, and can be of any type.
+virt-v2v copies the guest storage to the local machine during import. When
+converting to run on libvirt, it creates new storage in a locally defined
+libvirt pool. This pool can be defined using any libvirt tool, and can be of any
+type.
 
 The simplest way to create a new pool is with L<virt-manager(1)>. Pools can be
 defined from the Storage tab under Host Details.
-
-=head2 All guests
 
 =head3 Create local network interfaces
 
@@ -566,6 +556,20 @@ be created using standard tools on the host.
 
 Since version 0.8.3, L<virt-manager(1)> can also create and manage bridges.
 
+=head2 Converting to run on RHEV
+
+=head3 Create an NFS export domain
+
+virt-v2v can convert guests to run on RHEV 2.2 or later. It does this by writing
+the converted guest directly to an 'Export' NFS storage domain. The guest can
+later be imported into a RHEV Data Center through the UI.
+
+In RHEV 2.2, a new Export storage domain is created by clicking on 'New Domain'
+in the Storage tab. Ensure that the Domain function is 'Export' and the Storage
+type is 'NFS'. See the RHEV documentation for details. The NFS storage domain must be mountable by the machine running virt-v2v.
+
+B<N.B.> When exporting to RHEV, virt-v2v must run as root.
+
 =head1 CONVERTING A LOCAL XEN GUEST
 
 The following requires that the domain XML is available locally, and that the
@@ -573,9 +577,11 @@ storage referred to in the domain XML is available locally at the same paths.
 
 To perform the conversion, run:
 
- virt-v2v -f virt-v2v.conf -i libvirtxml <domain>.xml
+ virt-v2v -f virt-v2v.conf -i libvirtxml -op <pool> <domain>.xml
 
-where C<< <domain>.xml >> is the path to the exported guest domain's xml. virt-v2v.conf should specify:
+where C<< <domain>.xml >> is the path to the exported guest domain's xml, and
+C<< <pool> >> is the local storage pool where copies of the guest's disks will
+be created. virt-v2v.conf should specify:
 
 =over
 
@@ -595,9 +601,9 @@ It is possible to avoid specifying replacement kernels in the virt-v2v config
 file by ensuring that the guest has an appropriate kernel installed prior to
 conversion. If your guest uses a Xen paravirtualised kernel (it would be called
 something like kernel-xen or kernel-xenU), you can install a regular kernel,
-which won't reference a hypervisor in its name, alongside it. You shouldn't
-make this newly installed kernel your default kernel because the chances are Xen
-will not boot it. virt-v2v will make it the default during conversion.
+which won't reference a hypervisor in its name, alongside it. You shouldn't make
+this newly installed kernel your default kernel because Xen may not boot it.
+virt-v2v will make it the default during conversion.
 
 =head2 CONVERTING A GUEST FROM VMWARE ESX
 
@@ -650,18 +656,77 @@ entry is:
 
 =head3 Connecting to an ESX server with an invalid certificate
 
-In non-production environments, the ESX server may have a non-valid certificate,
+In non-production environments, the ESX server may have an invalid certificate,
 for example a self-signed certificate. In this case, certificate checking can be
 explicitly disabled by adding '?no_verify=1' to the connection URI as shown
 below:
 
  ... -ic esx://<esx.server>/?no_verify=1 ...
 
+=head1 EXPORTING A GUEST TO RHEV
+
+virt-v2v can export to RHEV any guest that it can convert. This includes:
+
+=over
+
+=item *
+
+Local Xen guests
+
+=item *
+
+ESX guests
+
+=item *
+
+Local libvirt/KVM guests
+
+=back
+
+To export to RHEV, specify:
+
+ ... -o rhev -osd <export_sd> ...
+
+on the command line in place of I<-op> as in the following examples:
+
+=over
+
+=item Exporting a local Xen guest to RHEV
+
+virt-v2v -f virt-v2v.conf -i libvirtxml -o rhev -osd <export_sd> <domain>.xml
+
+=item Export a VMWare ESX guest to RHEV
+
+virt-v2v -f virt-v2v.conf -ic esx://<esx.server>/ -o rhev -osd <export_sd> <domain>
+
+=item Export a local libvirt/KVM guest to RHEV
+
+virt-v2v -f virt-v2v.conf -o rhev -osd <export_sd> <domain>
+
+=back
+
+Ensure that I<virt-v2v.conf> contains a correct network mapping for your target
+RHEV configuration.
+
 =head1 RUNNING THE CONVERTED GUEST
+
+=head2 Libvirt output method
 
 On successful completion, virt-v2v will create a new libvirt domain for the
 converted guest with the same name as the original guest. It can be started as
 usual using libvirt tools, for example L<virt-manager(1)>.
+
+=head2 RHEV output method
+
+On successful completion virt-v2v will have written the new guest to the export
+storage domain, but it will not yet be ready to run. It must be imported into
+RHEV using the UI before it can be used.
+
+In RHEV 2.2 this is done from the Storage tab. Select the export domain the
+guest was written to. A pane will appear underneath the storage domain list
+displaying several tabs, one of which is 'VM Import'. The converted guest will
+be listed here. Select the appropriate guest an click 'Import'. See the RHEV
+documentation for additional details.
 
 =head1 POST-CONVERSION TASKS
 
@@ -729,13 +794,12 @@ Additionally, initrd will preload the virtio_pci driver.
 =head2 Non-VirtIO
 
  X display      cirrus
- Block          sym53c8xx (scsi)
+ Block          IDE
  Network        e1000
 
 =head1 SEE ALSO
 
 L<virt-manager(1)>,
-L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =head1 AUTHOR
