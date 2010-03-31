@@ -30,7 +30,6 @@ use XML::DOM;
 use Sys::Virt;
 
 use Sys::VirtV2V;
-use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -46,7 +45,7 @@ Sys::VirtV2V::Connection::LibVirt - Read libvirt metadata from libvirtd
  use Sys::VirtV2V::Connection::LibVirt;
 
  $conn = Sys::VirtV2V::Connection::LibVirt->new
-    ("xen+ssh://xenserver.example.com/", $name, $pool);
+    ("xen+ssh://xenserver.example.com/", $name, $target);
  $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
@@ -59,11 +58,10 @@ libvirt connection.
 
 =over
 
-=item new(uri, name, pool)
+=item new(uri, name, target)
 
 Create a new Sys::VirtV2V::Connection::LibVirt. Domain I<name> will be
-obtained from I<uri>. Remote storage will be copied to a new volume, which
-will be created in I<pool>.
+obtained from I<uri>. Remote storage will be create on I<target>.
 
 =cut
 
@@ -71,7 +69,7 @@ sub new
 {
     my $class = shift;
 
-    my ($uri, $name, $pool) = @_;
+    my ($uri, $name, $target) = @_;
 
     my $self = {};
 
@@ -151,7 +149,13 @@ sub new
         $transfer = "Sys::VirtV2V::Transfer::ESX";
     }
 
-    $self->_storage_iterate($transfer, $pool);
+    # Default to LocalCopy
+    # XXX: Need transfer methods for remote libvirt connections, e.g. scp
+    else {
+        $transfer = "Sys::VirtV2V::Transfer::LocalCopy";
+    }
+
+    $self->_storage_iterate($transfer, $target);
 
     return $self;
 }

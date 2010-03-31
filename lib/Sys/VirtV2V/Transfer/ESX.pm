@@ -120,10 +120,9 @@ sub get_volume
     my $target = $self->{_v2v_target};
     if ($target->volume_exists($volname)) {
         print STDERR user_message(__x("WARNING: storage volume {name} ".
-                                      "already exists in the target ".
-                                      "pool. NOT fetching it again. ".
-                                      "Delete the volume and retry to ".
-                                      "download again.",
+                                      "already exists on the target. NOT ".
+                                      "fetching it again. Delete the volume ".
+                                      "and retry to download again.",
                                       name => $volname));
         return $target->get_volume($volname);
     }

@@ -22,9 +22,11 @@ use warnings;
 
 use Sys::Virt;
 
-use Locale::TextDomain 'virt-v2v';
-
+use Sys::VirtV2V::Transfer::ESX;
+use Sys::VirtV2V::Transfer::LocalCopy;
 use Sys::VirtV2V::UserMessage qw(user_message);
+
+use Locale::TextDomain 'virt-v2v';
 
 =pod
 
@@ -134,41 +136,39 @@ sub _storage_iterate
         else {
             my $path = $source->getValue();
 
-            if (defined($transfer)) {
-                # Die if transfer required and no output target
-                die (user_message(__"No output target was specified"))
-                    unless (defined($target));
+            # Die if transfer required and no output target
+            die (user_message(__"No output target was specified"))
+                unless (defined($target));
 
-                # Fetch the remote storage
-                my $vol = $transfer->transfer($self, $path, $target);
+            # Fetch the remote storage
+            my $vol = $transfer->transfer($self, $path, $target);
 
-                # Export the new path
-                $path = $vol->get_path();
+            # Export the new path
+            $path = $vol->get_path();
 
-                # Find any existing driver element.
-                my ($driver) = $disk->findnodes('driver');
+            # Find any existing driver element.
+            my ($driver) = $disk->findnodes('driver');
 
-                # Create a new driver element if none exists
-                unless (defined($driver)) {
-                    $driver =
-                        $disk->getOwnerDocument()->createElement("driver");
-                    $disk->appendChild($driver);
-                }
-                $driver->setAttribute('name', 'qemu');
-                $driver->setAttribute('type', $vol->get_format());
+            # Create a new driver element if none exists
+            unless (defined($driver)) {
+                $driver =
+                    $disk->getOwnerDocument()->createElement("driver");
+                $disk->appendChild($driver);
+            }
+            $driver->setAttribute('name', 'qemu');
+            $driver->setAttribute('type', $vol->get_format());
 
-                # Remove the @file or @dev attribute before adding a new one
-                $source_e->removeAttributeNode($source);
+            # Remove the @file or @dev attribute before adding a new one
+            $source_e->removeAttributeNode($source);
 
-                # Set @file or @dev as appropriate
-                if ($vol->is_block())
-                {
-                    $disk->setAttribute('type', 'block');
-                    $source_e->setAttribute('dev', $path);
-                } else {
-                    $disk->setAttribute('type', 'file');
-                    $source_e->setAttribute('file', $path);
-                }
+            # Set @file or @dev as appropriate
+            if ($vol->is_block())
+            {
+                $disk->setAttribute('type', 'block');
+                $source_e->setAttribute('dev', $path);
+            } else {
+                $disk->setAttribute('type', 'file');
+                $source_e->setAttribute('file', $path);
             }
 
             push(@paths, $path);

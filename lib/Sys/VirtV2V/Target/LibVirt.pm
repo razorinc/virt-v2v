@@ -186,16 +186,14 @@ sub new
 
     $self->{vmm} = Sys::Virt->new(auth => 1, uri => $uri);
 
-    if (defined($poolname)) {
-        eval {
-            $self->{pool} = $self->{vmm}->get_storage_pool_by_name($poolname);
-        };
+    eval {
+        $self->{pool} = $self->{vmm}->get_storage_pool_by_name($poolname);
+    };
 
-        if ($@) {
-            die(user_message(__x("Output pool {poolname} is not a valid ".
-                                 "storage pool",
-                                 poolname => $poolname)));
-        }
+    if ($@) {
+        die(user_message(__x("Output pool {poolname} is not a valid ".
+                             "storage pool",
+                             poolname => $poolname)));
     }
 
     return $self;

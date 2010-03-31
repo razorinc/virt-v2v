@@ -225,6 +225,11 @@ if(defined($config_file)) {
 
 my $target;
 if ($output_method eq "libvirt") {
+    pod2usage({ -message => __("You must specify an output storage pool ".
+                               "when using the libvirt output method"),
+                -exitval => 1 })
+        unless (defined($output_pool));
+
     $target = new Sys::VirtV2V::Target::LibVirt($output_uri, $output_pool);
 }
 
@@ -257,7 +262,7 @@ eval {
                      modulename => 'libvirtxml'));
         }
 
-        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path);
+        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path, $target);
     }
 
     elsif ($input_method eq "libvirt") {

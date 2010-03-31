@@ -39,7 +39,7 @@ Sys::VirtV2V::Connection::LibVirtXML - Read libvirt XML from a file
 
  use Sys::VirtV2V::Connection::LibVirtXML;
 
- $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path);
+ $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path, $target);
  $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
@@ -52,9 +52,10 @@ file.
 
 =over
 
-=item new(path)
+=item new(path, target)
 
 Create a new LibVirtXML connection. The metadata itself is read from I<path>.
+Storage will be copied to I<target>.
 
 =cut
 
@@ -62,7 +63,7 @@ sub new
 {
     my $class = shift;
 
-    my ($path) = @_;
+    my ($path, $target) = @_;
 
     my $self = {};
     $self->{path} = $path;
@@ -71,8 +72,8 @@ sub new
 
     $self->_get_dom($path);
 
-    # No transfer methods defined yet
-    $self->_storage_iterate(undef, undef);
+    # Only support LocalCopy for libvirtxml
+    $self->_storage_iterate("Sys::VirtV2V::Transfer::LocalCopy", $target);
 
     return $self;
 }
