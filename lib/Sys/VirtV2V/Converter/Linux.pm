@@ -142,7 +142,7 @@ sub _configure_kernel_modules
 
     # Make a note of whether we've added scsi_hostadapter
     # We need this on RHEL 4/virtio because mkinitrd can't detect root on
-    # virtio. For simplicity we always ensure this is set.
+    # virtio. For simplicity we always ensure this is set for virtio disks.
     my $scsi_hostadapter = 0;
 
     foreach my $module (keys(%$modules)) {
@@ -164,17 +164,22 @@ sub _configure_kernel_modules
                 $hvs_modules{$module} = 1;
             }
 
-            $guestos->update_kernel_module($module,
-                                          $virtio ? "virtio_blk" : "sym53c8xx");
+            if ($virtio) {
+                $guestos->update_kernel_module($module, 'virtio_blk');
+                $scsi_hostadapter = 1;
+            }
 
-            $scsi_hostadapter = 1;
+            # IDE doesn't need scsi_hostadapter
+            else {
+                $guestos->disable_kernel_module($module);
+            }
         }
     }
 
     # Add an explicit scsi_hostadapter if it wasn't there before
-    $guestos->enable_kernel_module('scsi_hostadapter',
-                                $virtio ? "virtio_blk" : "sym53c8xx")
-        unless($scsi_hostadapter);
+    if ($virtio && !$scsi_hostadapter) {
+        $guestos->enable_kernel_module('scsi_hostadapter', 'virtio_blk');
+    }
 
     # Warn if any old-HV specific kernel modules weren't updated
     foreach my $module (keys(%hvs_modules)) {

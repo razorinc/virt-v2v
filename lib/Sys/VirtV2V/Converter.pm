@@ -87,7 +87,7 @@ use constant KVM_XML_NOVIRTIO => "
   </os>
   <devices>
     <disk device='disk'>
-      <target bus='scsi'/>
+      <target bus='ide'/>
     </disk>
     <interface type='network'>
       <model type='e1000'/>
@@ -268,51 +268,65 @@ sub _unconfigure_bootloaders
     }
 }
 
+sub _suffixcmp
+{
+    my ($a, $b) = @_;
+
+    return 1 if (length($a) > length($b));
+    return -1 if (length($a) < length($b));
+
+    return 1 if ($a gt $b);
+    return -1 if ($a lt $b);
+    return 0;
+}
+
 sub _configure_storage
 {
     my ($dom, $devices, $virtio) = @_;
 
-    my $prefix = $virtio ? 'vd' : 'sd';
+    my $prefix = $virtio ? 'vd' : 'hd';
+
+    my @removed = ();
 
     my $suffix = 'a';
     foreach my $device (@$devices) {
         my ($target) = $dom->findnodes("/domain/devices/disk[\@device='disk']/".
                                        "target[\@dev='$device']");
 
-        die(user_message(__x("Previously detected drive {drive} is no longer ".
-                             "present in domain XML: {xml}",
-                             drive => $device,
-                             xml => $dom->toString())))
+        die("Previously detected drive $device is no longer present in domain ".
+            "XML: ".$dom->toString())
             unless (defined($target));
 
-        $target->setAttribute('bus', $virtio ? 'virtio' : 'scsi');
-        $target->setAttribute('dev', $prefix.$suffix);
-        $suffix++; # Perl magic means 'z'++ == 'aa'
+        # Don't add more than 4 IDE disks
+        if (!$virtio && _suffixcmp($suffix, 'd') > 0) {
+            push(@removed, "$device(disk)");
+        } else {
+            $target->setAttribute('bus', $virtio ? 'virtio' : 'ide');
+            $target->setAttribute('dev', $prefix.$suffix);
+            $suffix++; # Perl magic means 'z'++ == 'aa'
+        }
     }
 
-    # Convert the first 4 CDROM drives to IDE, and remove the rest
-    $suffix = 'a';
-    my $i = 0;
-    my @removed = ();
+    # Convert CD-ROM devices to IDE.
+    $suffix = 'a' if ($virtio);
     foreach my $target
         ($dom->findnodes("/domain/devices/disk[\@device='cdrom']/target"))
     {
-        if ($i < 4) {
+        if (_suffixcmp($suffix, 'd') <= 0) {
             $target->setAttribute('bus', 'ide');
             $target->setAttribute('dev', "hd$suffix");
             $suffix++;
         } else {
-            push(@removed, $target->getAttribute('dev'));
+            push(@removed, $target->getAttribute('dev')."(cdrom)");
 
             my $disk = $target->getParentNode();
             $disk->getParentNode()->removeChild($disk);
         }
-        $i++;
     }
 
     if (@removed > 0) {
-        print user_message(__x("WARNING: Only 4 CDROM drives are supported. ".
-                               "The following CDROM drives have been removed: ".
+        print user_message(__x("WARNING: Only 4 IDE devices are supported. ".
+                               "The following drives have been removed: ".
                                "{list}",
                                list => join(' ', @removed)));
     }

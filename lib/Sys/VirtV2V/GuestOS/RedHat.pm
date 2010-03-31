@@ -964,54 +964,52 @@ sub remap_block_devices
     # same names as used by the guest. However, if the guest is using libata,
     # IDE drives could be renamed.
 
-    # Look for IDE and SCSI devices in fstab for the guest
-    my %guestif;
-    foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
-        my $device = $g->aug_get($spec);
+    # Modern distros use libata, and IDE devices are presented as sdX
+    my $libata = 1;
 
-        next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
-        $guestif{$1} ||= {};
-        $guestif{$1}->{$1.$2} = 1;
+    # RHEL 2, 3 and 4 didn't use libata
+    # RHEL 5 does use libata, but udev rules call IDE devices hdX anyway
+    if ($desc->{distro} eq 'rhel') {
+        if ($desc->{major_version} eq '2' ||
+            $desc->{major_version} eq '3' ||
+            $desc->{major_version} eq '4' ||
+            $desc->{major_version} eq '5')
+        {
+            $libata = 0;
+        }
     }
+    # Fedora has used libata since FC7, which is long out of support. We assume
+    # that all Fedora distributions in use use libata.
 
-    # If fstab contains references to sdX, these could refer to IDE or SCSI
-    # devices. Need to look at the domain config for clues.
-    if (exists($guestif{sd})) {
-        # Look for IDE and SCSI devices from the domain definition
-        my %domainif;
-        foreach my $device (@$devices) {
-            foreach my $type ('hd', 'sd') {
-                if ($device =~ m{^$type([a-z]+)}) {
-                    $domainif{$type} ||= {};
-                    $domainif{$type}->{$device} = 1;
+    if ($libata) {
+        # Look for IDE and SCSI devices in fstab for the guest
+        my %guestif;
+        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+            my $device = $g->aug_get($spec);
+
+            next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
+            $guestif{$1} ||= {};
+            $guestif{$1}->{$1.$2} = 1;
+        }
+
+        # If fstab contains references to sdX, these could refer to IDE or SCSI
+        # devices. We may need to update them.
+        if (exists($guestif{sd})) {
+            # Look for IDE and SCSI devices from the domain definition
+            my %domainif;
+            foreach my $device (@$devices) {
+                foreach my $type ('hd', 'sd') {
+                    if ($device =~ m{^$type([a-z]+)}) {
+                        $domainif{$type} ||= {};
+                        $domainif{$type}->{$device} = 1;
+                    }
                 }
             }
-        }
 
-        # If domain defines both IDE and SCSI drives, and fstab contains
-        # references on sdX, but not hdX, we don't know if the guest is using
-        # libata or not.  This means that we don't know if sdX in fstab refers
-        # to hdX or sdX in the domain. Warn and assume that libata device
-        # renaming is not in use.
-        if (exists($domainif{hd}) && exists($domainif{sd}) &&
-            !exists($guestif{hd}))
-        {
-            print STDERR user_message(__"WARNING: Unable to determine whether ".
-                                        "sdX devices in /etc/fstab refer to ".
-                                        "IDE or SCSI devices. Assuming they ".
-                                        "refer to SCSI devices. /etc/fstab ".
-                                        "may be incorrect after conversion if ".
-                                        "guest uses libata.");
-        }
-
-        # If we've got only IDE devices in the domain, and only sdX devices in
-        # fstab, the guest is renaming them.
-        elsif (exists($domainif{hd}) && !exists($domainif{sd}) &&
-               !exists($guestif{hd}))
-        {
             my %map;
 
             my $letter = 'a';
+            # IDE drives are presented first
             foreach my $old (sort { _drivecmp('hd', $a, $b) }
                                   keys(%{$domainif{hd}}))
             {
@@ -1019,10 +1017,16 @@ sub remap_block_devices
                 $letter++;
             }
 
+            # Followed by SCSI drives
+            foreach my $old (sort { _drivecmp('sd', $a, $b) }
+                                  keys(%{$domainif{sd}}))
+            {
+                $map{$old} = "sd$letter";
+                $letter++;
+            }
+
             map { $_ = $map{$_} } @$devices;
         }
-
-        # Otherwise we leave it alone
     }
 
     # We now assume that $devices contains an ordered list of device names, as
@@ -1030,8 +1034,16 @@ sub remap_block_devices
     # device names.
     my %map;
 
-    # Everything will be converted to either vdX or sdX
-    my $prefix = $virtio ? 'vd' : 'sd';
+    # Everything will be converted to either vdX, sdX or hdX
+    my $prefix;
+    if ($virtio) {
+        $prefix = 'vd';
+    } elsif ($libata) {
+        $prefix = 'sd';
+    } else {
+        $prefix = 'hd'
+    }
+
     my $letter = 'a';
     foreach my $device (@$devices) {
         $map{$device} = $prefix.$letter;
