@@ -32,8 +32,6 @@ po/uk.po
 po/virt-v2v.pot
 po/zh_CN.po
 README-NLS
-snapshot/run-snapshot-locally
-snapshot/v2v-snapshot.pl
 t/001-pod.t
 t/002-pod-coverage.t
 t/003-syntax.t

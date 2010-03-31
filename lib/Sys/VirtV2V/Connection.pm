@@ -195,7 +195,6 @@ Please see the file COPYING.LIB for the full license.
 L<Sys::VirtV2V::Connection::LibVirt(3pm)>,
 L<Sys::VirtV2V::Connection::LibVirtXML(3pm)>,
 L<virt-v2v(1)>,
-L<v2v-snapshot(1)>,
 L<http://libguestfs.org/>.
 
 =cut

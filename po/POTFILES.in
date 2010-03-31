@@ -10,5 +10,4 @@
 ../lib/Sys/VirtV2V/Target/LibVirt.pm
 ../lib/Sys/VirtV2V/Transfer/ESX.pm
 ../lib/Sys/VirtV2V/UserMessage.pm
-../snapshot/v2v-snapshot.pl
 ../v2v/virt-v2v.pl
