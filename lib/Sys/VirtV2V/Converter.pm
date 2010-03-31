@@ -572,7 +572,7 @@ sub _update_interface
                                       "interface: {name}",
                                       type => $oldtype,
                                       name => $oldnameval));
-        next;
+        return;
     }
 
     my $newtype = $mapping->getAttributeNode('type');
