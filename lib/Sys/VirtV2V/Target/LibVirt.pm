@@ -252,14 +252,17 @@ sub volume_exists
 
     # The above command will generate VIR_ERR_NO_STORAGE_VOL if the
     # volume doesn't exist
-    if ($@ && $@->code == Sys::Virt::Error::ERR_NO_STORAGE_VOL) {
-        return 0;
-    }
-
     if ($@) {
-        # We got an error, but not the one we expected
-        die(user_message(__x("Unexpected error accessing storage pool: ",
-                             "{error}", error => $@->stringify())));
+        # Warn if we got any other error
+        if ($@->code != Sys::Virt::Error::ERR_NO_STORAGE_VOL) {
+            print STDERR user_message(__x("WARNING: Unexpected error ".
+                                          "accessing storage pool {name}: ".
+                                          "{error}",
+                                          name => $name,
+                                          error => $@->stringify()));
+        }
+
+        return 0;
     }
 
     return 1;
