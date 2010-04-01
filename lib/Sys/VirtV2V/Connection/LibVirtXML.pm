@@ -20,14 +20,15 @@ package Sys::VirtV2V::Connection::LibVirtXML;
 use strict;
 use warnings;
 
-our @ISA = ("Sys::VirtV2V::Connection");
-
 use XML::DOM;
 use XML::DOM::XPath;
 
+use Sys::VirtV2V::Connection;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::Connection::LibVirtXML::ISA = qw(Sys::VirtV2V::Connection);
 
 =pod
 

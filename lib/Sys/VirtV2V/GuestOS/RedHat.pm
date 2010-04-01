@@ -17,17 +17,18 @@
 
 package Sys::VirtV2V::GuestOS::RedHat;
 
-our @ISA = ('Sys::VirtV2V::GuestOS');
-
 use strict;
 use warnings;
 
 use File::Spec;
 
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
+use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::GuestOS::RedHat::ISA = qw(Sys::VirtV2V::GuestOS);
 
 =pod
 

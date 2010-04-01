@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use Sys::VirtV2V::Connection;
-our @ISA = ("Sys::VirtV2V::Connection");
 
 use Net::Netrc;
 use URI;
@@ -33,6 +32,8 @@ use Sys::VirtV2V;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::Connection::LibVirt::ISA = qw(Sys::VirtV2V::Connection);
 
 =pod
 

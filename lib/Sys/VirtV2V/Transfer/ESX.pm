@@ -46,7 +46,7 @@ BEGIN {
 }
 
 use LWP::UserAgent;
-our @ISA = ("LWP::UserAgent");
+@Sys::VirtV2V::Transfer::ESX::UA::ISA = qw(LWP::UserAgent);
 
 our %handles;
 
