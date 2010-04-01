@@ -20,6 +20,8 @@ use warnings;
 
 package Sys::VirtV2V::Target::LibVirt::Vol;
 
+use Sys::VirtV2V::UserMessage qw(user_message);
+
 sub _new
 {
     my $class = shift;
@@ -136,6 +138,8 @@ sub close
 }
 
 package Sys::VirtV2V::Target::LibVirt;
+
+use Sys::VirtV2V::UserMessage qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
