@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-02-22 12:34+0000\n"
+"POT-Creation-Date: 2010-04-01 19:34+0100\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -18,73 +18,73 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
 #, fuzzy, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:90
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:138
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "删除 {uri} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:172
 #, fuzzy, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "必须首先关闭客户端 {name}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:185
 #, fuzzy
 msgid "idle"
 msgstr "文件"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:187
 msgid "running"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
 msgid "blocked"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
 msgid "paused"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
 msgid "shutting down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
 msgid "shut down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
 msgid "crashed"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:220
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} 不是有效客户端名"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:87
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:89
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:94
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:96
 #, fuzzy, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:139
-msgid "No output pool was specified"
+#: ../lib/Sys/VirtV2V/Connection.pm:140
+msgid "No output target was specified"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
@@ -108,72 +108,34 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "无法打开 /etc/rc.local：{error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:158
+#: ../lib/Sys/VirtV2V/Converter.pm:153
 #, fuzzy
 msgid "Unable to find a module to convert this guest"
 msgstr "无法找到配置这个客户端的模块"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:172
+#: ../lib/Sys/VirtV2V/Converter.pm:328
 #, perl-brace-format
-msgid "{name} configured with virtio drivers"
-msgstr "virtio 驱动程序配置的 {name}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:175
-#, perl-brace-format
-msgid "{name} configured without virtio drivers"
-msgstr "非 virtio 驱动程序配置的 {name}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:279
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr "连接的管理程序不支持 {arch} kvm 客户端"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:310
-#, fuzzy, perl-brace-format
 msgid ""
-"The connected hypervisor does not support a machine type of {machine}. It "
-"will be set to the current default."
-msgstr "连接的管理程序不支持机器类型 {machine}。"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:337
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}"
-msgstr "连接的管理程序不支持特性 {feature}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:344
-msgid ""
-"The target guest does not support acpi under KVM. ACPI will be disabled."
+"WARNING: Only 4 IDE devices are supported. The following drives have been "
+"removed: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:408
-#, perl-brace-format
-msgid ""
-"Previously detected drive {drive} is no longer present in domain XML: {xml}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:440
-#, perl-brace-format
-msgid ""
-"WARNING: Only 4 CDROM drives are supported. The following CDROM drives have "
-"been removed: {list}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:550
+#: ../lib/Sys/VirtV2V/Converter.pm:438
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:571
+#: ../lib/Sys/VirtV2V/Converter.pm:459
 #, fuzzy, perl-brace-format
 msgid "No mapping found for '{type}' interface: {name}"
 msgstr "没有找到块设备 {device} 映射"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:585
+#: ../lib/Sys/VirtV2V/Converter.pm:473
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:593
+#: ../lib/Sys/VirtV2V/Converter.pm:481
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -197,130 +159,134 @@ msgstr ""
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:117
-msgid "/etc/selinux/config does not exist"
-msgstr "/etc/selinux/config 不存在"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:129
-msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-msgstr "没有找到 SELINUXTYPE 在 /etc/syslinux/config"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:140
-#, perl-brace-format
-msgid "Unable to find an SELinux policy file matching {path}: {error}"
-msgstr "无法找到 SELinux策略 文件匹配 {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:162
-msgid "Unable to load an SELinux policy"
-msgstr "无法载入 SELinux 策略"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:167
-#, perl-brace-format
-msgid "WARNING: unable to configure SELinux: {error})"
-msgstr "警告：无法配置 SELinux：{error}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:208
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:145
 msgid "Unable to find any valid modprobe configuration"
 msgstr "无法找到任何有效 modprobe 配置"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:442
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:379
 msgid "Unable to find a default kernel"
 msgstr "无法找到默认内核"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:574
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:511
 #, fuzzy, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} 不包含有效内核"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:628
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:565
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "无法为这个客户端确定内核构架"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:741
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:678
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:999
-msgid ""
-"WARNING: Unable to determine whether sdX devices in /etc/fstab refer to IDE "
-"or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be "
-"incorrect after conversion if guest uses libata."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1124
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1073
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
 msgstr "没有找到内核版本 {version} 的 grub 条目"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1129
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
-#, perl-brace-format
-msgid ""
-"WARNING: storage volume {name} already exists in the target pool. NOT "
-"fetching it again. Delete the volume and retry to download again."
-msgstr ""
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:54
+#, fuzzy, perl-brace-format
+msgid "Failed to create storage volume: {error}"
+msgstr "无法创建存储卷：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
-msgid "Unexpected error accessing storage pool: "
-msgstr ""
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
+#, fuzzy, perl-brace-format
+msgid "Failed to get storage volume: {error}"
+msgstr "无法创建存储卷：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:155
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
+#, fuzzy, perl-brace-format
+msgid "Error opening storage volume {path} for writing: {error}"
+msgstr "关闭 {path} 出错：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:124
+#, fuzzy, perl-brace-format
+msgid "Error writing to {path}: {error}"
+msgstr "关闭 {path} 出错：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:134
 #, fuzzy, perl-brace-format
 msgid "Error closing volume handle: {error}"
 msgstr "关闭 {file} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
+#, perl-brace-format
+msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "连接的管理程序不支持 {arch} kvm 客户端"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:347
+#, fuzzy, perl-brace-format
+msgid ""
+"The connected hypervisor does not support a machine type of {machine}. It "
+"will be set to the current default."
+msgstr "连接的管理程序不支持机器类型 {machine}。"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:373
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "连接的管理程序不支持特性 {feature}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:380
+msgid ""
+"The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT fetching it "
+"again. Delete the volume and retry to download again."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
-#, fuzzy, perl-brace-format
-msgid "Error writing to {path}: {error}"
-msgstr "关闭 {path} 出错：{error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:232
-#, fuzzy, perl-brace-format
-msgid "Failed to create storage volume: {error}"
-msgstr "无法创建存储卷：{error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
-#, fuzzy, perl-brace-format
-msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "关闭 {path} 出错：{error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:254
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
 msgid "Server response didn't include an SSL subject"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:258
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:264
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:317
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -332,216 +298,94 @@ msgstr ""
 msgid "{identifier}: {message}\n"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:194
-msgid "--commit and --rollback options are mutually exclusive"
-msgstr "--commit 和 --rollback 选项互相排斥"
-
-#: ../snapshot/v2v-snapshot.pl:203
-msgid "no guest argument given"
-msgstr "没有给出客户端参数"
-
-#: ../snapshot/v2v-snapshot.pl:219
-msgid "Unable to get home directory for current user"
-msgstr ""
-
-#: ../snapshot/v2v-snapshot.pl:233
-#, fuzzy, perl-brace-format
-msgid "Unable to create data directory {dir}: {error}"
-msgstr "无法创建客户端：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:245
-#, perl-brace-format
-msgid "{input} is not a valid input format"
-msgstr "{input} 不是有效输入格式"
-
-#: ../snapshot/v2v-snapshot.pl:279
-msgid "No domain has been created."
-msgstr "未生成域。"
-
-#: ../snapshot/v2v-snapshot.pl:291
-#, perl-brace-format
-msgid "Unable to open {file}: {error}"
-msgstr "无法打开文件 {file}：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:301 ../snapshot/v2v-snapshot.pl:337
-#, perl-brace-format
-msgid "Error closing {file}: {error}"
-msgstr "关闭 {file} 出错：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:305 ../snapshot/v2v-snapshot.pl:333
-#, perl-brace-format
-msgid "Wrote output to {file}"
-msgstr "将输出写入 {file}"
-
-#: ../snapshot/v2v-snapshot.pl:323
-#, perl-brace-format
-msgid "Unable to create guest: {error}"
-msgstr "无法创建客户端：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:325
-msgid "Consider using the --outputxml option"
-msgstr "考虑使用 --outputxml 选项"
-
-#: ../snapshot/v2v-snapshot.pl:364
-#, fuzzy, perl-brace-format
-msgid "Unable to create snapshot directory {dir}: {error}"
-msgstr "无法创建 v2v 快照存储池：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:385
-#, perl-brace-format
-msgid "Unable to create v2v-snapshot storage pool: {error}"
-msgstr "无法创建 v2v 快照存储池：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:403
-#, perl-brace-format
-msgid "Unable to start v2v-snapshot storage pool: {error}"
-msgstr "无法启动 v2v 快照存储池：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:413
-msgid "v2v-snapshot storage pool is temporarily unavailable"
-msgstr "v2v 快照存储池暂时不可用"
-
-#: ../snapshot/v2v-snapshot.pl:441
-#, perl-brace-format
-msgid "Unable to find {path} in the v2v-snapshot storage pool."
-msgstr "无法在 v2v 快照存储池中找到 {path}"
-
-#: ../snapshot/v2v-snapshot.pl:496
-#, perl-brace-format
-msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr "跳过设备 {target} 因为它没有备份存储"
-
-#: ../snapshot/v2v-snapshot.pl:555
-#, perl-brace-format
-msgid ""
-"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
-"Command output was:\n"
-"{output}"
-msgstr ""
-"向备份存储 '{backingstore}' 提交快照 '{path}' 失败。\n"
-"命令输出为：\n"
-"{output}"
-
-#: ../snapshot/v2v-snapshot.pl:588
-#, perl-brace-format
-msgid ""
-"A snapshot already exists for {guest}. You must commit it or roll it back "
-"back before creating a new snapshot."
-msgstr "{guest} 已经有快照存在。您必须在创建新快照前提交它或者返回。"
-
-#: ../snapshot/v2v-snapshot.pl:603
-#, perl-brace-format
-msgid "Unable to write to {path}: {error}"
-msgstr "无法写入 {path}：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:610
-#, perl-brace-format
-msgid "Error closing {path}: {error}"
-msgstr "关闭 {path} 出错：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:642
-#, perl-brace-format
-msgid "Unable to create storage volume: {error}"
-msgstr "无法创建存储卷：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:695
-#, perl-brace-format
-msgid "Refusing to rollback guest {name} without backed-up xml"
-msgstr "拒绝在没有备份 xml 的情况下返回客户端 {name}"
-
-#: ../snapshot/v2v-snapshot.pl:722
-#, perl-brace-format
-msgid "{path} is not a snapshot volume"
-msgstr "{path} 不是快照卷"
-
-#: ../snapshot/v2v-snapshot.pl:728
-#, perl-brace-format
-msgid "Failed to delete {file}: {error}"
-msgstr "删除 {file} 失败：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:740
-#, perl-brace-format
-msgid "Unable to delete backup xml file {file}: {error}"
-msgstr "无法删除备份 xml 文件 {file}：{error}"
-
-#: ../snapshot/v2v-snapshot.pl:802
-#, perl-brace-format
-msgid "invalid source element: {element}"
-msgstr "无效源元素：{element}"
-
-#: ../snapshot/v2v-snapshot.pl:829
-#, fuzzy, perl-brace-format
-msgid "Unable to create xml storage directory {dir}: {error}"
-msgstr "无法创建存储卷：{error}"
-
-#: ../v2v/virt-v2v.pl:160
+#: ../v2v/virt-v2v.pl:203
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:175
+#: ../v2v/virt-v2v.pl:220
 #, perl-brace-format
 msgid "Config file {path} doesn't exist"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:178
+#: ../v2v/virt-v2v.pl:223
 #, perl-brace-format
 msgid "Don't have permissions to read {path}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:185
+#: ../v2v/virt-v2v.pl:230
 #, fuzzy, perl-brace-format
 msgid "Unable to parse config file {path}: {error}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../v2v/virt-v2v.pl:200
+#: ../v2v/virt-v2v.pl:236
+msgid ""
+"You must specify an output storage pool when using the libvirt output method"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:245
+msgid ""
+"You must specify an output storage domain when using the rhev output method"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:254
+#, fuzzy, perl-brace-format
+msgid "{output} is not a valid output method"
+msgstr "{input} 不是有效输入格式"
+
+#: ../v2v/virt-v2v.pl:263
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "使用 {modulename} 时必须指定文件名"
 
-#: ../v2v/virt-v2v.pl:206
+#: ../v2v/virt-v2v.pl:269
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "警告：{modulename} 只使用单一文件名。"
 
-#: ../v2v/virt-v2v.pl:215
+#: ../v2v/virt-v2v.pl:278
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:227
-#, perl-brace-format
-msgid "Output pool {poolname} is not a valid local storage pool"
-msgstr ""
-
-#: ../v2v/virt-v2v.pl:240
+#: ../v2v/virt-v2v.pl:287
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "警告：{modulename} 只使用单一文件名。"
 
-#: ../v2v/virt-v2v.pl:246
+#: ../v2v/virt-v2v.pl:293
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} 不是有效输入格式"
 
-#: ../v2v/virt-v2v.pl:334
+#: ../v2v/virt-v2v.pl:351
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "virtio 驱动程序配置的 {name}"
+
+#: ../v2v/virt-v2v.pl:354
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "非 virtio 驱动程序配置的 {name}"
+
+#: ../v2v/virt-v2v.pl:408
 #, perl-brace-format
 msgid "Unable to access {path} referenced in the config file"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:348
+#: ../v2v/virt-v2v.pl:422
 msgid "<iso-path> must be specified in the configuration file"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:355
+#: ../v2v/virt-v2v.pl:429
 #, fuzzy, perl-brace-format
 msgid "Unable to stat iso file {path}: {error}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../v2v/virt-v2v.pl:359
+#: ../v2v/virt-v2v.pl:433
 #, fuzzy, perl-brace-format
 msgid "Unable to stat config file {path}: {error}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../v2v/virt-v2v.pl:373
+#: ../v2v/virt-v2v.pl:447
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -550,13 +394,120 @@ msgstr ""
 "无法创建传输标准。 命令的输出是：\n"
 "{output}"
 
-#: ../v2v/virt-v2v.pl:431
+#: ../v2v/virt-v2v.pl:493
 msgid "no root device found in this operating system image"
 msgstr "在这个操作系统映像中没有找到 root 设备"
 
-#: ../v2v/virt-v2v.pl:437
+#: ../v2v/virt-v2v.pl:499
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v 不支持多重引导操作系统"
+
+#~ msgid "/etc/selinux/config does not exist"
+#~ msgstr "/etc/selinux/config 不存在"
+
+#~ msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+#~ msgstr "没有找到 SELINUXTYPE 在 /etc/syslinux/config"
+
+#~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
+#~ msgstr "无法找到 SELinux策略 文件匹配 {path}: {error}"
+
+#~ msgid "Unable to load an SELinux policy"
+#~ msgstr "无法载入 SELinux 策略"
+
+#~ msgid "WARNING: unable to configure SELinux: {error})"
+#~ msgstr "警告：无法配置 SELinux：{error}"
+
+#~ msgid "--commit and --rollback options are mutually exclusive"
+#~ msgstr "--commit 和 --rollback 选项互相排斥"
+
+#~ msgid "no guest argument given"
+#~ msgstr "没有给出客户端参数"
+
+#, fuzzy
+#~ msgid "Unable to create data directory {dir}: {error}"
+#~ msgstr "无法创建客户端：{error}"
+
+#~ msgid "{input} is not a valid input format"
+#~ msgstr "{input} 不是有效输入格式"
+
+#~ msgid "No domain has been created."
+#~ msgstr "未生成域。"
+
+#~ msgid "Unable to open {file}: {error}"
+#~ msgstr "无法打开文件 {file}：{error}"
+
+#~ msgid "Error closing {file}: {error}"
+#~ msgstr "关闭 {file} 出错：{error}"
+
+#~ msgid "Wrote output to {file}"
+#~ msgstr "将输出写入 {file}"
+
+#~ msgid "Unable to create guest: {error}"
+#~ msgstr "无法创建客户端：{error}"
+
+#~ msgid "Consider using the --outputxml option"
+#~ msgstr "考虑使用 --outputxml 选项"
+
+#, fuzzy
+#~ msgid "Unable to create snapshot directory {dir}: {error}"
+#~ msgstr "无法创建 v2v 快照存储池：{error}"
+
+#~ msgid "Unable to create v2v-snapshot storage pool: {error}"
+#~ msgstr "无法创建 v2v 快照存储池：{error}"
+
+#~ msgid "Unable to start v2v-snapshot storage pool: {error}"
+#~ msgstr "无法启动 v2v 快照存储池：{error}"
+
+#~ msgid "v2v-snapshot storage pool is temporarily unavailable"
+#~ msgstr "v2v 快照存储池暂时不可用"
+
+#~ msgid "Unable to find {path} in the v2v-snapshot storage pool."
+#~ msgstr "无法在 v2v 快照存储池中找到 {path}"
+
+#~ msgid "Skipping device {target} as it doesn't have a backing store"
+#~ msgstr "跳过设备 {target} 因为它没有备份存储"
+
+#~ msgid ""
+#~ "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+#~ "Command output was:\n"
+#~ "{output}"
+#~ msgstr ""
+#~ "向备份存储 '{backingstore}' 提交快照 '{path}' 失败。\n"
+#~ "命令输出为：\n"
+#~ "{output}"
+
+#~ msgid ""
+#~ "A snapshot already exists for {guest}. You must commit it or roll it back "
+#~ "back before creating a new snapshot."
+#~ msgstr "{guest} 已经有快照存在。您必须在创建新快照前提交它或者返回。"
+
+#~ msgid "Unable to write to {path}: {error}"
+#~ msgstr "无法写入 {path}：{error}"
+
+#~ msgid "Error closing {path}: {error}"
+#~ msgstr "关闭 {path} 出错：{error}"
+
+#~ msgid "Unable to create storage volume: {error}"
+#~ msgstr "无法创建存储卷：{error}"
+
+#~ msgid "Refusing to rollback guest {name} without backed-up xml"
+#~ msgstr "拒绝在没有备份 xml 的情况下返回客户端 {name}"
+
+#~ msgid "{path} is not a snapshot volume"
+#~ msgstr "{path} 不是快照卷"
+
+#~ msgid "Failed to delete {file}: {error}"
+#~ msgstr "删除 {file} 失败：{error}"
+
+#~ msgid "Unable to delete backup xml file {file}: {error}"
+#~ msgstr "无法删除备份 xml 文件 {file}：{error}"
+
+#~ msgid "invalid source element: {element}"
+#~ msgstr "无效源元素：{element}"
+
+#, fuzzy
+#~ msgid "Unable to create xml storage directory {dir}: {error}"
+#~ msgstr "无法创建存储卷：{error}"
 
 #~ msgid ""
 #~ "WARNING: unknown configuration directive {directive} in {name} section."

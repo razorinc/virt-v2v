@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.virt-v2v.or\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-02-22 12:34+0000\n"
+"POT-Creation-Date: 2010-04-01 19:34+0100\n"
 "PO-Revision-Date: 2010-02-01 15:17+0530\n"
 "Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
 "Language-Team: Oriya <oriya-it@googlegroups.com>\n"
@@ -18,73 +18,73 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n!=1);\n"
 "\n"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:85
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
 #, fuzzy, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:91
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:90
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:139
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:138
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "{file} କୁ ଅପସାରଣ କରିବାରେ ବିଫଳ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:167
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:172
 #, fuzzy, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "ଅତିଥି {name} କୁ ନିଶ୍ଚିତଭାବରେ ପ୍ରଥମେ ବନ୍ଦ କରିବା ଉଚିତ"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:180
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:185
 #, fuzzy
 msgid "idle"
 msgstr "ଫାଇଲ"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:182
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:187
 msgid "running"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:184
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
 msgid "blocked"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:186
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
 msgid "paused"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
 msgid "shutting down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
 msgid "shut down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
 msgid "crashed"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:215
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:220
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} ଟି ଗୋଟିଏ ବୈଧ ଅତିଥି ନାମନୁହଁ"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:87
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:89
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:94
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:96
 #, fuzzy, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:139
-msgid "No output pool was specified"
+#: ../lib/Sys/VirtV2V/Connection.pm:140
+msgid "No output target was specified"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
@@ -111,72 +111,34 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "/etc/rc.local କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:158
+#: ../lib/Sys/VirtV2V/Converter.pm:153
 #, fuzzy
 msgid "Unable to find a module to convert this guest"
 msgstr "ଏହି ଅତିଥିକୁ ବିନ୍ୟାସ କରିବା ପାଇଁ କୌଣସି ଏକକାଂଶ ପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:172
+#: ../lib/Sys/VirtV2V/Converter.pm:328
 #, perl-brace-format
-msgid "{name} configured with virtio drivers"
-msgstr "{name} କୁ virtio ଡ୍ରାଇଭରମାନଙ୍କ ସହିତ ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:175
-#, perl-brace-format
-msgid "{name} configured without virtio drivers"
-msgstr "{name} କୁ virtio ଡ୍ରାଇଭର ବିନା ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:279
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest"
-msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର କୌଣସି {arch} kvm ଅତିଥିକୁ ସମର୍ଥନ କରେନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:310
-#, fuzzy, perl-brace-format
 msgid ""
-"The connected hypervisor does not support a machine type of {machine}. It "
-"will be set to the current default."
-msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ଯନ୍ତ୍ର ପ୍ରକାର {machine} କୁ ସମର୍ଥନ କରେନାହିଁ।"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:337
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}"
-msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ବିଶେଷତା {feature} କୁ ସମର୍ଥନ କରେନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:344
-msgid ""
-"The target guest does not support acpi under KVM. ACPI will be disabled."
+"WARNING: Only 4 IDE devices are supported. The following drives have been "
+"removed: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:408
-#, perl-brace-format
-msgid ""
-"Previously detected drive {drive} is no longer present in domain XML: {xml}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:440
-#, perl-brace-format
-msgid ""
-"WARNING: Only 4 CDROM drives are supported. The following CDROM drives have "
-"been removed: {list}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:550
+#: ../lib/Sys/VirtV2V/Converter.pm:438
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:571
+#: ../lib/Sys/VirtV2V/Converter.pm:459
 #, fuzzy, perl-brace-format
 msgid "No mapping found for '{type}' interface: {name}"
 msgstr "ବ୍ଲକ ଉପକରଣ {device} ପାଇଁ କୌଣସି ମ୍ୟାପିଙ୍ଗ ମିଳିନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:585
+#: ../lib/Sys/VirtV2V/Converter.pm:473
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:593
+#: ../lib/Sys/VirtV2V/Converter.pm:481
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -200,130 +162,134 @@ msgstr ""
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:117
-msgid "/etc/selinux/config does not exist"
-msgstr "/etc/selinux/config ଅବସ୍ଥିତ ନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:129
-msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-msgstr "SELINUXTYPE କୁ /etc/syslinux/config ରେ ଖୋଜିପାଇଲା ନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:140
-#, perl-brace-format
-msgid "Unable to find an SELinux policy file matching {path}: {error}"
-msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀ ଫାଇଲ ମେଳକକୁ ଖଓଜି ପାଇଲା ନାହିଁ {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:162
-msgid "Unable to load an SELinux policy"
-msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀକୁ ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:167
-#, perl-brace-format
-msgid "WARNING: unable to configure SELinux: {error})"
-msgstr "WARNING: SELinux ବିନ୍ୟାସ କରିବାରେ ଅସମର୍ଥ: {error})"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:208
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:145
 msgid "Unable to find any valid modprobe configuration"
 msgstr "କୌଣସି ବୈଧ modprobe ସଂରଚନାକୁ ଖୋଜି ପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:442
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:379
 msgid "Unable to find a default kernel"
 msgstr "ଗୋଟିଏ ପୂର୍ବନିର୍ଦ୍ଧାରିତ କର୍ଣ୍ଣଲକୁ ଖୋଜିପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:574
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:511
 #, fuzzy, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} କୌଣସି ବୈଧ କର୍ଣ୍ଣଲ ଧାରଣ କରିନଥାଏ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:628
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:565
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "ଏହି ଅତିଥି ପାଇଁ ଗୋଟିଏ କର୍ଣ୍ଣଲ ସଂରଚନାକୁ ନିର୍ଦ୍ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:741
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:678
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:999
-msgid ""
-"WARNING: Unable to determine whether sdX devices in /etc/fstab refer to IDE "
-"or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be "
-"incorrect after conversion if guest uses libata."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1124
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1073
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
 msgstr "କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ କୌଣସି grub ଭରଣ ଖୋଜି ପାଇଲା ନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1129
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "WARNING: କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ grub ରେ କୌଣସି initrd ଭରଣ ନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:129
-#, perl-brace-format
-msgid ""
-"WARNING: storage volume {name} already exists in the target pool. NOT "
-"fetching it again. Delete the volume and retry to download again."
-msgstr ""
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:54
+#, fuzzy, perl-brace-format
+msgid "Failed to create storage volume: {error}"
+msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
-msgid "Unexpected error accessing storage pool: "
-msgstr ""
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
+#, fuzzy, perl-brace-format
+msgid "Failed to get storage volume: {error}"
+msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:155
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
+#, fuzzy, perl-brace-format
+msgid "Error opening storage volume {path} for writing: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:124
+#, fuzzy, perl-brace-format
+msgid "Error writing to {path}: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:134
 #, fuzzy, perl-brace-format
 msgid "Error closing volume handle: {error}"
 msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
+#, perl-brace-format
+msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
+#, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest"
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର କୌଣସି {arch} kvm ଅତିଥିକୁ ସମର୍ଥନ କରେନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:347
+#, fuzzy, perl-brace-format
+msgid ""
+"The connected hypervisor does not support a machine type of {machine}. It "
+"will be set to the current default."
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ଯନ୍ତ୍ର ପ୍ରକାର {machine} କୁ ସମର୍ଥନ କରେନାହିଁ।"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:373
+#, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}"
+msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ବିଶେଷତା {feature} କୁ ସମର୍ଥନ କରେନାହିଁ"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:380
+msgid ""
+"The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT fetching it "
+"again. Delete the volume and retry to download again."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
-#, fuzzy, perl-brace-format
-msgid "Error writing to {path}: {error}"
-msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:232
-#, fuzzy, perl-brace-format
-msgid "Failed to create storage volume: {error}"
-msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
-#, fuzzy, perl-brace-format
-msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:254
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
 msgid "Server response didn't include an SSL subject"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:258
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:264
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:317
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -335,218 +301,94 @@ msgstr ""
 msgid "{identifier}: {message}\n"
 msgstr ""
 
-#: ../snapshot/v2v-snapshot.pl:194
-msgid "--commit and --rollback options are mutually exclusive"
-msgstr "--commit ଏବଂ --rollback ବିକଳ୍ପଗୁଡ଼ିକୁ ହସ୍ତକୃତ ଭାବରେ ଉଦ୍ଧୃତ"
-
-#: ../snapshot/v2v-snapshot.pl:203
-msgid "no guest argument given"
-msgstr "କୌଣସି ଅତିଥି ସ୍ୱତନ୍ତ୍ରଚର ପ୍ରଦାନ କରାଯାଇନାହିଁ"
-
-#: ../snapshot/v2v-snapshot.pl:219
-msgid "Unable to get home directory for current user"
-msgstr ""
-
-#: ../snapshot/v2v-snapshot.pl:233
-#, fuzzy, perl-brace-format
-msgid "Unable to create data directory {dir}: {error}"
-msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:245
-#, perl-brace-format
-msgid "{input} is not a valid input format"
-msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
-
-#: ../snapshot/v2v-snapshot.pl:279
-msgid "No domain has been created."
-msgstr "କୌଣସି ଡମେନ ନିର୍ମାଣ ହୋଇନାହିଁ।"
-
-#: ../snapshot/v2v-snapshot.pl:291
-#, perl-brace-format
-msgid "Unable to open {file}: {error}"
-msgstr "{file} କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:301 ../snapshot/v2v-snapshot.pl:337
-#, perl-brace-format
-msgid "Error closing {file}: {error}"
-msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:305 ../snapshot/v2v-snapshot.pl:333
-#, perl-brace-format
-msgid "Wrote output to {file}"
-msgstr "ଫଳାଫଳକୁ {file} ରେ ଲେଖିଛି"
-
-#: ../snapshot/v2v-snapshot.pl:323
-#, perl-brace-format
-msgid "Unable to create guest: {error}"
-msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:325
-msgid "Consider using the --outputxml option"
-msgstr "--outputxml ବିକଳ୍ପକୁ ବ୍ୟବହାର କରି ଧାରଣ କରନ୍ତୁ"
-
-#: ../snapshot/v2v-snapshot.pl:364
-#, fuzzy, perl-brace-format
-msgid "Unable to create snapshot directory {dir}: {error}"
-msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:385
-#, perl-brace-format
-msgid "Unable to create v2v-snapshot storage pool: {error}"
-msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:403
-#, perl-brace-format
-msgid "Unable to start v2v-snapshot storage pool: {error}"
-msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲକୁ ଆରମ୍ଭ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:413
-msgid "v2v-snapshot storage pool is temporarily unavailable"
-msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲଟି ଅସ୍ଥାୟୀ ଭାବରେ ଉପଲବ୍ଧ ନାହିଁ"
-
-#: ../snapshot/v2v-snapshot.pl:441
-#, perl-brace-format
-msgid "Unable to find {path} in the v2v-snapshot storage pool."
-msgstr "{path} କୁ v2v-snapshot ସଂରକ୍ଷଣ ପୁଲରେ ଖୋଜିବାରେ ଅସମର୍ଥ।"
-
-#: ../snapshot/v2v-snapshot.pl:496
-#, perl-brace-format
-msgid "Skipping device {target} as it doesn't have a backing store"
-msgstr "ଉପକରଣ {target} କୁ ଏଡ଼ାଇଦେଉଛି ଯେପରିକି ଏଥିରେ ନକଲ ସଂରକ୍ଷଣ ସୁବିଧା ନାହିଁ"
-
-#: ../snapshot/v2v-snapshot.pl:555
-#, perl-brace-format
-msgid ""
-"Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
-"Command output was:\n"
-"{output}"
-msgstr ""
-"ସ୍ନାପସର୍ଟ '{path}' କୁ ନକଲ ସଂରକ୍ଷଣରେ ଦାଖଲ କରିବାରେ ବିଫଳ '{backingstore}'.\n"
-"ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
-"{output}"
-
-#: ../snapshot/v2v-snapshot.pl:588
-#, perl-brace-format
-msgid ""
-"A snapshot already exists for {guest}. You must commit it or roll it back "
-"back before creating a new snapshot."
-msgstr ""
-"{guest} ପାଇଁ ଗୋଟିଏ ସ୍ନାପସର୍ଟ ପୂର୍ବରୁ ଅବସ୍ଥିତ ଅଛି। ଆପଣଙ୍କୁ ଏହାକୁ ଦାଖଲ କରିବାକୁ ହେବ ଅଥବା ଗୋଟିଏ "
-"ନୂତନ ସ୍ନାପସର୍ଟ ନିର୍ମାଣ କରିବା ପୂର୍ବରୁ ଏହାକୁ ଫେରାଇ ଦେବା ଉଚିତ।"
-
-#: ../snapshot/v2v-snapshot.pl:603
-#, perl-brace-format
-msgid "Unable to write to {path}: {error}"
-msgstr "{path} କୁ ଲେଖିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:610
-#, perl-brace-format
-msgid "Error closing {path}: {error}"
-msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:642
-#, perl-brace-format
-msgid "Unable to create storage volume: {error}"
-msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:695
-#, perl-brace-format
-msgid "Refusing to rollback guest {name} without backed-up xml"
-msgstr "ଅତିଥି {name} କୁ ବିନା ନକଲ ସଂରକ୍ଷଣ xml ରେ ଫେରାଇବା ପାଇଁ ବାରଣ କରିଅଛି"
-
-#: ../snapshot/v2v-snapshot.pl:722
-#, perl-brace-format
-msgid "{path} is not a snapshot volume"
-msgstr "{path} ଟି ଗୋଟିଏ ସ୍ନାପସର୍ଟ ଭଲ୍ୟୁମ"
-
-#: ../snapshot/v2v-snapshot.pl:728
-#, perl-brace-format
-msgid "Failed to delete {file}: {error}"
-msgstr "{file} କୁ ଅପସାରଣ କରିବାରେ ବିଫଳ: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:740
-#, perl-brace-format
-msgid "Unable to delete backup xml file {file}: {error}"
-msgstr "ନକଲ ସଂରକ୍ଷଣ xml ଫାଇଲକୁ ଅପସାରଣ କରିବାରେ ଅସମର୍ଥ {file}: {error}"
-
-#: ../snapshot/v2v-snapshot.pl:802
-#, perl-brace-format
-msgid "invalid source element: {element}"
-msgstr "ଅବୈଧ ଉତ୍ସ ଉପାଦାନ: {element}"
-
-#: ../snapshot/v2v-snapshot.pl:829
-#, fuzzy, perl-brace-format
-msgid "Unable to create xml storage directory {dir}: {error}"
-msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#: ../v2v/virt-v2v.pl:160
+#: ../v2v/virt-v2v.pl:203
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:175
+#: ../v2v/virt-v2v.pl:220
 #, perl-brace-format
 msgid "Config file {path} doesn't exist"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:178
+#: ../v2v/virt-v2v.pl:223
 #, perl-brace-format
 msgid "Don't have permissions to read {path}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:185
+#: ../v2v/virt-v2v.pl:230
 #, fuzzy, perl-brace-format
 msgid "Unable to parse config file {path}: {error}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../v2v/virt-v2v.pl:200
+#: ../v2v/virt-v2v.pl:236
+msgid ""
+"You must specify an output storage pool when using the libvirt output method"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:245
+msgid ""
+"You must specify an output storage domain when using the rhev output method"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:254
+#, fuzzy, perl-brace-format
+msgid "{output} is not a valid output method"
+msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
+
+#: ../v2v/virt-v2v.pl:263
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "{modulename} କୁ ବ୍ୟବହାର କରିବା ସମୟରେ ଆପଣଙ୍କୁ ଗୋଟିଏ ବୈଧ ଫାଇଲନାମ ଉଲ୍ଲେଖ କରିବା ଉଚିତ"
 
-#: ../v2v/virt-v2v.pl:206
+#: ../v2v/virt-v2v.pl:269
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "WARNING: {modulename} କେବଳ ଗୋଟିଏ ଫାଇଲନାମ ନେଇଥାଏ।"
 
-#: ../v2v/virt-v2v.pl:215
+#: ../v2v/virt-v2v.pl:278
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:227
-#, perl-brace-format
-msgid "Output pool {poolname} is not a valid local storage pool"
-msgstr ""
-
-#: ../v2v/virt-v2v.pl:240
+#: ../v2v/virt-v2v.pl:287
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "WARNING: {modulename} କେବଳ ଗୋଟିଏ ଫାଇଲନାମ ନେଇଥାଏ।"
 
-#: ../v2v/virt-v2v.pl:246
+#: ../v2v/virt-v2v.pl:293
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
 
-#: ../v2v/virt-v2v.pl:334
+#: ../v2v/virt-v2v.pl:351
+#, perl-brace-format
+msgid "{name} configured with virtio drivers"
+msgstr "{name} କୁ virtio ଡ୍ରାଇଭରମାନଙ୍କ ସହିତ ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
+
+#: ../v2v/virt-v2v.pl:354
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} କୁ virtio ଡ୍ରାଇଭର ବିନା ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
+
+#: ../v2v/virt-v2v.pl:408
 #, perl-brace-format
 msgid "Unable to access {path} referenced in the config file"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:348
+#: ../v2v/virt-v2v.pl:422
 msgid "<iso-path> must be specified in the configuration file"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:355
+#: ../v2v/virt-v2v.pl:429
 #, fuzzy, perl-brace-format
 msgid "Unable to stat iso file {path}: {error}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../v2v/virt-v2v.pl:359
+#: ../v2v/virt-v2v.pl:433
 #, fuzzy, perl-brace-format
 msgid "Unable to stat config file {path}: {error}"
 msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../v2v/virt-v2v.pl:373
+#: ../v2v/virt-v2v.pl:447
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -555,13 +397,122 @@ msgstr ""
 "ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
 "{output}"
 
-#: ../v2v/virt-v2v.pl:431
+#: ../v2v/virt-v2v.pl:493
 msgid "no root device found in this operating system image"
 msgstr "ଏହି ପ୍ରଚାଳନ ତନ୍ତ୍ର ପ୍ରତିଛବିରେ କୌଣସି ରୁଟ ଉପକରଣ ମିଳିଲା ନାହିଁ"
 
-#: ../v2v/virt-v2v.pl:437
+#: ../v2v/virt-v2v.pl:499
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ virt-v2v ଦ୍ୱାରା ସମର୍ଥିତ ନୁହଁ"
+
+#~ msgid "/etc/selinux/config does not exist"
+#~ msgstr "/etc/selinux/config ଅବସ୍ଥିତ ନାହିଁ"
+
+#~ msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
+#~ msgstr "SELINUXTYPE କୁ /etc/syslinux/config ରେ ଖୋଜିପାଇଲା ନାହିଁ"
+
+#~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
+#~ msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀ ଫାଇଲ ମେଳକକୁ ଖଓଜି ପାଇଲା ନାହିଁ {path}: {error}"
+
+#~ msgid "Unable to load an SELinux policy"
+#~ msgstr "ଗୋଟିଏ SELinux ନିୟମାବଳୀକୁ ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
+
+#~ msgid "WARNING: unable to configure SELinux: {error})"
+#~ msgstr "WARNING: SELinux ବିନ୍ୟାସ କରିବାରେ ଅସମର୍ଥ: {error})"
+
+#~ msgid "--commit and --rollback options are mutually exclusive"
+#~ msgstr "--commit ଏବଂ --rollback ବିକଳ୍ପଗୁଡ଼ିକୁ ହସ୍ତକୃତ ଭାବରେ ଉଦ୍ଧୃତ"
+
+#~ msgid "no guest argument given"
+#~ msgstr "କୌଣସି ଅତିଥି ସ୍ୱତନ୍ତ୍ରଚର ପ୍ରଦାନ କରାଯାଇନାହିଁ"
+
+#, fuzzy
+#~ msgid "Unable to create data directory {dir}: {error}"
+#~ msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "{input} is not a valid input format"
+#~ msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
+
+#~ msgid "No domain has been created."
+#~ msgstr "କୌଣସି ଡମେନ ନିର୍ମାଣ ହୋଇନାହିଁ।"
+
+#~ msgid "Unable to open {file}: {error}"
+#~ msgstr "{file} କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Error closing {file}: {error}"
+#~ msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#~ msgid "Wrote output to {file}"
+#~ msgstr "ଫଳାଫଳକୁ {file} ରେ ଲେଖିଛି"
+
+#~ msgid "Unable to create guest: {error}"
+#~ msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Consider using the --outputxml option"
+#~ msgstr "--outputxml ବିକଳ୍ପକୁ ବ୍ୟବହାର କରି ଧାରଣ କରନ୍ତୁ"
+
+#, fuzzy
+#~ msgid "Unable to create snapshot directory {dir}: {error}"
+#~ msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Unable to create v2v-snapshot storage pool: {error}"
+#~ msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Unable to start v2v-snapshot storage pool: {error}"
+#~ msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲକୁ ଆରମ୍ଭ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "v2v-snapshot storage pool is temporarily unavailable"
+#~ msgstr "v2v-snapshot ସଂରକ୍ଷଣ ପୁଲଟି ଅସ୍ଥାୟୀ ଭାବରେ ଉପଲବ୍ଧ ନାହିଁ"
+
+#~ msgid "Unable to find {path} in the v2v-snapshot storage pool."
+#~ msgstr "{path} କୁ v2v-snapshot ସଂରକ୍ଷଣ ପୁଲରେ ଖୋଜିବାରେ ଅସମର୍ଥ।"
+
+#~ msgid "Skipping device {target} as it doesn't have a backing store"
+#~ msgstr "ଉପକରଣ {target} କୁ ଏଡ଼ାଇଦେଉଛି ଯେପରିକି ଏଥିରେ ନକଲ ସଂରକ୍ଷଣ ସୁବିଧା ନାହିଁ"
+
+#~ msgid ""
+#~ "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
+#~ "Command output was:\n"
+#~ "{output}"
+#~ msgstr ""
+#~ "ସ୍ନାପସର୍ଟ '{path}' କୁ ନକଲ ସଂରକ୍ଷଣରେ ଦାଖଲ କରିବାରେ ବିଫଳ '{backingstore}'.\n"
+#~ "ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
+#~ "{output}"
+
+#~ msgid ""
+#~ "A snapshot already exists for {guest}. You must commit it or roll it back "
+#~ "back before creating a new snapshot."
+#~ msgstr ""
+#~ "{guest} ପାଇଁ ଗୋଟିଏ ସ୍ନାପସର୍ଟ ପୂର୍ବରୁ ଅବସ୍ଥିତ ଅଛି। ଆପଣଙ୍କୁ ଏହାକୁ ଦାଖଲ କରିବାକୁ ହେବ ଅଥବା "
+#~ "ଗୋଟିଏ ନୂତନ ସ୍ନାପସର୍ଟ ନିର୍ମାଣ କରିବା ପୂର୍ବରୁ ଏହାକୁ ଫେରାଇ ଦେବା ଉଚିତ।"
+
+#~ msgid "Unable to write to {path}: {error}"
+#~ msgstr "{path} କୁ ଲେଖିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Error closing {path}: {error}"
+#~ msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#~ msgid "Unable to create storage volume: {error}"
+#~ msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#~ msgid "Refusing to rollback guest {name} without backed-up xml"
+#~ msgstr "ଅତିଥି {name} କୁ ବିନା ନକଲ ସଂରକ୍ଷଣ xml ରେ ଫେରାଇବା ପାଇଁ ବାରଣ କରିଅଛି"
+
+#~ msgid "{path} is not a snapshot volume"
+#~ msgstr "{path} ଟି ଗୋଟିଏ ସ୍ନାପସର୍ଟ ଭଲ୍ୟୁମ"
+
+#~ msgid "Failed to delete {file}: {error}"
+#~ msgstr "{file} କୁ ଅପସାରଣ କରିବାରେ ବିଫଳ: {error}"
+
+#~ msgid "Unable to delete backup xml file {file}: {error}"
+#~ msgstr "ନକଲ ସଂରକ୍ଷଣ xml ଫାଇଲକୁ ଅପସାରଣ କରିବାରେ ଅସମର୍ଥ {file}: {error}"
+
+#~ msgid "invalid source element: {element}"
+#~ msgstr "ଅବୈଧ ଉତ୍ସ ଉପାଦାନ: {element}"
+
+#, fuzzy
+#~ msgid "Unable to create xml storage directory {dir}: {error}"
+#~ msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
 
 #~ msgid ""
 #~ "WARNING: unknown configuration directive {directive} in {name} section."
