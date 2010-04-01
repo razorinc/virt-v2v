@@ -92,83 +92,19 @@ sub new
     return $self;
 }
 
-# Attempt to the guest's default SELinux policy
+# Handle SELinux for the guest
 sub _init_selinux
 {
     my $self = shift;
 
     my $g = $self->{g};
 
-    # Only possible if SELinux is enabled in the appliance
-    return if(!$g->get_selinux());
-
     # Assume SELinux isn't in use if load_policy isn't available
     return if(!$g->exists('/usr/sbin/load_policy'));
 
-    # Try just running 'load_policy'. This won't work on older distros.
-    eval {
-        $g->command(['/usr/sbin/load_policy']);
-    };
-
-    # If that didn't work, try running load_policy <policy file>
-    if($@) {
-        eval {
-            my $policy;
-
-            die(user_message(__"/etc/selinux/config does not exist"))
-                unless($g->exists('/etc/selinux/config'));
-
-            # Parse out the SELinux policy in use
-            my $selinux_conf = $g->cat('/etc/selinux/config');
-            foreach my $line (split(/\n/, $selinux_conf)) {
-                if($line =~ /^SELINUXTYPE=(.*)$/) {
-                    $policy = $1;
-                    last;
-                }
-            }
-
-            die(user_message(__"Didn't find SELINUXTYPE in ".
-                               "/etc/syslinux/config"))
-                unless(defined($policy));
-
-            # Find files in the policy directory called policy.*
-            my @paths;
-            eval {
-                @paths = $g->glob_expand("/etc/selinux/$policy/policy/policy.*");
-            };
-
-            die(user_message
-                (__x("Unable to find an SELinux policy file matching {path}: ".
-                     "{error}",
-                     path => "/etc/selinux/$policy/policy/policy.*",
-                     error => $!))) if($@);
-
-            # Check that the policy ends with a number
-            my $success = 0;
-            foreach my $path (@paths) {
-                if($path =~ /\.\d+$/) {
-                    # Try loading it if it looks right
-                    eval {
-                        $g->command(['/usr/sbin/load_policy', $path]);
-                    };
-
-                    # Stop if it worked
-                    unless($@) {
-                        $success = 1;
-                        last;
-                    }
-                }
-            }
-
-            die(user_message(__"Unable to load an SELinux policy"))
-                unless($success);
-        };
-
-        if($@) {
-            print STDERR user_message(__x("WARNING: unable to configure ".
-                                          "SELinux: {error})", error => $!));
-        }
-    }
+    # Actually loading the policy has proven to be problematic. We make whatever
+    # changes are necessary, and make the guest relabel on the next boot.
+    $g->touch('/.autorelabel');
 }
 
 sub _init_augeas_modprobe
@@ -1168,8 +1104,10 @@ sub prepare_bootable
         }
 
         # We explicitly modprobe ext2 here. This is required by mkinitrd on RHEL
-        # 3, and shouldn't hurt on other OSs.
-        $g->modprobe("ext2");
+        # 3, and shouldn't hurt on other OSs. We don't care if this fails.
+        eval {
+            $g->modprobe("ext2");
+        };
 
         $g->command(["/sbin/mkinitrd", @preload_args, $initrd, $version]);
     }

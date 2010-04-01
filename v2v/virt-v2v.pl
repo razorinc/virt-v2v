@@ -462,9 +462,6 @@ sub get_guestfs_handle
     $g->add_drive_ro_with_if($transferiso, $interface)
         if(defined($transferiso));
 
-    # Enable selinux in the guest
-    $g->set_selinux(1);
-
     # Enable autosync to defend against data corruption on unclean shutdown
     $g->set_autosync(1);
 
