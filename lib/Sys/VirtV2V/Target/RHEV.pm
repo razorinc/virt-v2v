@@ -697,6 +697,9 @@ sub _disks
         my ($path) = $disk->findnodes('source/@file');
         $path = $path->getNodeValue();
 
+        my ($bus) = $disk->findnodes('target/@bus');
+        $bus = $bus->getNodeValue();
+
         my $vol = Sys::VirtV2V::Target::RHEV::Vol->_get_by_path($path);
 
         die("dom contains path not written by virt-v2v: $path\n".
@@ -728,6 +731,8 @@ sub _disks
         $diske->setAttribute('ovf:volume-format', 'RAW');
         $diske->setAttribute('ovf:volume-type', 'Sparse');
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
+        # IDE = 0, SCSI = 1, VirtIO = 2
+        $diske->setAttribute('ovf:disk-interface', $bus eq 'virtio' ? 2 : 0);
 
         # Add disk to VirtualHardware
         my $item = $ovf->createElement('Item');
