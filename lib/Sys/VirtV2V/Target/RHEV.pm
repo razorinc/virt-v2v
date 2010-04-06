@@ -90,9 +90,6 @@ sub new
             setgid(36) or die("setgid failed: $!");
             setuid(36) or die("setuid failed: $!");
 
-print STDERR "EUID: $>\n";
-print STDERR "EGID: $)\n";
-
             &$sub();
         };
 
