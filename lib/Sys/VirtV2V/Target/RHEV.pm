@@ -23,15 +23,14 @@ package Sys::VirtV2V::Target::RHEV::UUIDHelper;
 sub get_uuid
 {
     my $uuidgen;
-    open($uuidgen, '<', '/proc/sys/kernel/random/uuid')
-        or die("Unable to open /proc/sys/kernel/random/uuid: $!");
+    open($uuidgen, '-|', 'uuidgen') or die("Unable to execute uuidgen: $!");
 
     my $uuid;
     while(<$uuidgen>) {
         chomp;
         $uuid = $_;
     }
-    close($uuidgen) or die("Error closing /proc/sys/kernel/random/uuid: $!");
+    close($uuidgen) or die("uuidgen returned an error");
 
     return $uuid;
 }
