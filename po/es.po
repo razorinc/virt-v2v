@@ -1,9 +1,9 @@
 # Fedora Spanish Translation of virt-v2v.
 # This file is distributed under the same license as the virt-v2v package.
-# 
+#
 # Gladys Guerrero  <gguerrer@redhat.com>, 2009.
 # Héctor Daniel Cabrera <logan@fedoraproject.org>, 2009, 2010.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.es(4)\n"
