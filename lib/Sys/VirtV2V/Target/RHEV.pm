@@ -286,29 +286,12 @@ sub open
                                     path => "$path.meta",
                                     error => $!)));
 
-        # Open the data file for writing
-        my $data;
-        open($data, '>', $path)
-            or die(__x("Unable to open {path} for writing: {error}",
-                       path => "$path",
-                       error => $!));
-
-        # Write all data received to the data file
-        my $buffer;
-
-        for(;;) {
-            my $ret = sysread(STDIN, $buffer, 64*1024);
-            die("Error in NFSHelper reading from stdin: $!")
-                unless (defined($ret));
-            last if ($ret == 0);
-
-            print $data $buffer;
-        }
-
-        close($data)
-            or die(user_message(__x("Error closing {path}: {error}",
-                                    path => "$path",
-                                    error => $!)));
+        # Write the remainder of the data using dd in 2MB chunks
+        # XXX - mbooth@redhat.com 06/04/2010 (Fedora 12 writing to RHEL 5 NFS)
+        # Use direct IO as writing a large amount of data to NFS regularly
+        # crashes my machine.  Using direct io crashes less.
+        exec('dd', 'obs='.1024*1024*2, 'oflag=direct', 'of='.$path)
+            or die("Unable to execute dd: $!");
     });
 }
 
