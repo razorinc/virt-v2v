@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-04-01 19:34+0100\n"
-"PO-Revision-Date: 2010-02-22 00:43+0100\n"
+"PO-Revision-Date: 2010-04-06 22:14+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -80,9 +80,8 @@ msgid "Unable to parse domain from file {path}: {error}"
 msgstr "Nie można przetworzyć domeny z pliku {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:140
-#, fuzzy
 msgid "No output target was specified"
-msgstr "Nie podano puli wyjściowej"
+msgstr "Nie podano docelowego wyjścia"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
@@ -113,13 +112,13 @@ msgid "Unable to find a module to convert this guest"
 msgstr "Nie można odnaleźć modułu do przekonwertowania tego gościa"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:328
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: Only 4 IDE devices are supported. The following drives have been "
 "removed: {list}"
 msgstr ""
-"OSTRZEŻENIE: obsługiwane są tylko cztery napędy CD-ROM. Następujące napędy "
-"CD-ROM zostały usunięte: {list}"
+"OSTRZEŻENIE: obsługiwane są tylko cztery napędy IDE. Następujące napędy "
+"zostały usunięte: {list}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:438
 #, perl-brace-format
@@ -200,9 +199,9 @@ msgid "Failed to create storage volume: {error}"
 msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to get storage volume: {error}"
-msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
+msgstr "Uzyskanie woluminu pamięci masowej nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
 #, perl-brace-format
@@ -222,16 +221,16 @@ msgid "Error closing volume handle: {error}"
 msgstr "Błąd podczas zamykania obsługi woluminu: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Output pool {poolname} is not a valid storage pool"
-msgstr ""
-"Pula wyjściowa {poolname} nie jest prawidłową lokalną pulą pamięci masowej"
+msgstr "Pula wyjściowa {poolname} nie jest prawidłową pulą pamięci masowej"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
-"Nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci masowej: "
+"OSTRZEŻENIE: nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci "
+"masowej {name}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
 #, perl-brace-format
@@ -258,13 +257,13 @@ msgid ""
 msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
 "again. Delete the volume and retry to download again."
 msgstr ""
-"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w puli docelowej. "
-"NIE zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
+"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
+"zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
 "pobrania."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
@@ -337,16 +336,20 @@ msgstr "Nie można przetworzyć pliku konfiguracji {path}: {error}"
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
+"Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
+"biblioteki libvirt"
 
 #: ../v2v/virt-v2v.pl:245
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
+"Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
+"rhev"
 
 #: ../v2v/virt-v2v.pl:254
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{output} is not a valid output method"
-msgstr "{input} nie jest prawidłową metodą wprowadzania"
+msgstr "{output} nie jest prawidłową metodą wyjścia"
 
 #: ../v2v/virt-v2v.pl:263
 msgid "You must specify a filename"
@@ -416,132 +419,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:499
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "/etc/selinux/config does not exist"
-#~ msgstr "/etc/selinux/config nie istnieje"
-
-#~ msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-#~ msgstr "Nie odnaleziono SELINUXTYPE w /etc/syslinux/config"
-
-#~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
-#~ msgstr ""
-#~ "Nie można odnaleźć pliku polityki SELinuksa pasującego do {path}: {error}"
-
-#~ msgid "Unable to load an SELinux policy"
-#~ msgstr "Nie można wczytać polityki SELinuksa"
-
-#~ msgid "WARNING: unable to configure SELinux: {error})"
-#~ msgstr "OSTRZEŻENIE: nie można skonfigurować SELinuksa: {error})"
-
-#~ msgid ""
-#~ "Previously detected drive {drive} is no longer present in domain XML: "
-#~ "{xml}"
-#~ msgstr ""
-#~ "Poprzednio wykryty napęd {drive} nie jest już obecny w pliku XML domeny: "
-#~ "{xml}"
-
-#~ msgid ""
-#~ "WARNING: Unable to determine whether sdX devices in /etc/fstab refer to "
-#~ "IDE or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may "
-#~ "be incorrect after conversion if guest uses libata."
-#~ msgstr ""
-#~ "OSTRZEŻENIE: nie można określić, czy urządzenia sdX w pliku /etc/fstab "
-#~ "odnoszą się do urządzeń IDE czy SCSI. Przyjmowanie urządzeń SCSI. Plik /"
-#~ "etc/fstab może być niepoprawny po konwersji, jeśli gość używa biblioteki "
-#~ "libata."
-
-#~ msgid "--commit and --rollback options are mutually exclusive"
-#~ msgstr "opcje --commit i --rollback są wzajemnie wyłączne"
-
-#~ msgid "no guest argument given"
-#~ msgstr "nie podano parametrów gościa"
-
-#~ msgid "Unable to get home directory for current user"
-#~ msgstr "Nie można uzyskać katalogu domowego dla bieżącego użytkownika"
-
-#~ msgid "Unable to create data directory {dir}: {error}"
-#~ msgstr "Nie można utworzyć katalogu danych {dir}: {error}"
-
-#~ msgid "{input} is not a valid input format"
-#~ msgstr "{input} nie jest prawidłowym formatem wejściowym"
-
-#~ msgid "No domain has been created."
-#~ msgstr "Nie utworzono żadnej domeny."
-
-#~ msgid "Unable to open {file}: {error}"
-#~ msgstr "Nie można otworzyć {file}: {error}"
-
-#~ msgid "Error closing {file}: {error}"
-#~ msgstr "Błąd podczas zamykania {file}: {error}"
-
-#~ msgid "Wrote output to {file}"
-#~ msgstr "Zapisano wyjście do {file}"
-
-#~ msgid "Unable to create guest: {error}"
-#~ msgstr "Nie można utworzyć gościa: {error}"
-
-#~ msgid "Consider using the --outputxml option"
-#~ msgstr "Proszę rozważyć użycie opcji --outputxml"
-
-#~ msgid "Unable to create snapshot directory {dir}: {error}"
-#~ msgstr "Nie można utworzyć katalogu migawki {dir}: {error}"
-
-#~ msgid "Unable to create v2v-snapshot storage pool: {error}"
-#~ msgstr "Nie można utworzyć puli pamięci masowej v2v-snapshot: {error}"
-
-#~ msgid "Unable to start v2v-snapshot storage pool: {error}"
-#~ msgstr "Nie można uruchomić puli pamięci masowej v2v-snapshot: {error}"
-
-#~ msgid "v2v-snapshot storage pool is temporarily unavailable"
-#~ msgstr "Pula pamięci masowej v2v-snapshot jest tymczasowo niedostępna"
-
-#~ msgid "Unable to find {path} in the v2v-snapshot storage pool."
-#~ msgstr "Nie można odnaleźć {path} w puli pamięci masowej v2v-snapshot."
-
-#~ msgid "Skipping device {target} as it doesn't have a backing store"
-#~ msgstr ""
-#~ "Pomijanie urządzenia {target}, ponieważ nie posiada przechowalni zaplecza"
-
-#~ msgid ""
-#~ "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
-#~ "Command output was:\n"
-#~ "{output}"
-#~ msgstr ""
-#~ "Wysłanie migawki \"{path}\" do przechowalni zaplecza \"{backingstore}\" "
-#~ "nie powiodło się.\n"
-#~ "Wyjście polecenie:\n"
-#~ "{output}"
-
-#~ msgid ""
-#~ "A snapshot already exists for {guest}. You must commit it or roll it back "
-#~ "back before creating a new snapshot."
-#~ msgstr ""
-#~ "Migawka już istnieje dla {guest}. Należy wysłać ją lub przywrócić przed "
-#~ "utworzeniem nowej."
-
-#~ msgid "Unable to write to {path}: {error}"
-#~ msgstr "Nie można zapisać do {path}: {error}"
-
-#~ msgid "Error closing {path}: {error}"
-#~ msgstr "Błąd podczas zamykania {path}: {error}"
-
-#~ msgid "Unable to create storage volume: {error}"
-#~ msgstr "Nie można utworzyć woluminu pamięci masowej: {error}"
-
-#~ msgid "Refusing to rollback guest {name} without backed-up xml"
-#~ msgstr "Odmawianie przywrócenia gościa {name} bez zapasowego pliku XML"
-
-#~ msgid "{path} is not a snapshot volume"
-#~ msgstr "{path} nie jest woluminem migawki"
-
-#~ msgid "Failed to delete {file}: {error}"
-#~ msgstr "Usunięcie {file} nie powiodło się: {error}"
-
-#~ msgid "Unable to delete backup xml file {file}: {error}"
-#~ msgstr "Nie można usunąć zapasowego pliku XML {file}: {error}"
-
-#~ msgid "invalid source element: {element}"
-#~ msgstr "nieprawidłowy element źródłowy: {element}"
-
-#~ msgid "Unable to create xml storage directory {dir}: {error}"
-#~ msgstr "Nie można utworzyć katalogu {dir} pamięci masowej XML: {error}"
