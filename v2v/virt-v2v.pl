@@ -651,6 +651,8 @@ entry is:
 
  machine esx01.example.com login root password s3cr3t
 
+B<N.B.> The permissions of .netrc MUST be set to 0600, or it will be ignored.
+
 =head3 Connecting to an ESX server with an invalid certificate
 
 In non-production environments, the ESX server may have an invalid certificate,
