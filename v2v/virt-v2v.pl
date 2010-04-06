@@ -774,6 +774,12 @@ configuration.
 virt-v2v will ensure that the initrd for the default kernel supports booting the
 root device, whether it is using virtio or not.
 
+=item SELinux
+
+virt-v2v will initiate a relabel of the guest on the next boot. This ensures
+that any changes it has made are correctly labelled according to the guest's
+local policy.
+
 =back
 
 =head1 GUEST DRIVERS
