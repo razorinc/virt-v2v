@@ -17,6 +17,7 @@
 
 package Sys::VirtV2V::Transfer::LocalCopy;
 
+use POSIX;
 use File::Spec;
 use File::stat;
 
@@ -79,7 +80,36 @@ sub transfer
                                 path => $path,
                                 error => $!)));
 
-    my $vol = $target->create_volume($name, $st->size);
+    my $size;
+
+    # If it's a block device, use the output of blockdev command
+    if (S_ISBLK($st->mode)) {
+        my $blockdev;
+        open($blockdev, '-|', 'blockdev', '--getsize64', $path)
+            or die("Unable to execute blockdev: $!");
+
+        while (<$blockdev>) {
+            if (defined($size)) {
+                my $error = "blockdev returned multiple output lines:\n$size\n";
+                $error .= $_;
+                while(<$blockdev>) {
+                    $error .= $_;
+                }
+                die($error);
+            }
+            chomp;
+            $size = $_;
+        }
+
+        close($blockdev) or die("blockdev returned an error: $size");
+    }
+
+    # Otherwise use the size of the file directly
+    else {
+        $size = $st->size;
+    }
+
+    my $vol = $target->create_volume($name, $size);
     $vol->open();
 
     for (;;) {
