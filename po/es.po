@@ -81,11 +81,6 @@ msgstr "Falló al abrir {path}: {error}"
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "Imposible analizar el dominio desde el archivo {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:140
-#, fuzzy
-msgid "No output target was specified"
-msgstr "No se ha específicado un grupo de salida"
-
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
 msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
@@ -107,11 +102,6 @@ msgstr "No es posible abrir /etc/rc.local: {error}"
 #: ../lib/Sys/VirtV2V/Converter.pm:153
 msgid "Unable to find a module to convert this guest"
 msgstr "No es posible encontrar un módulo para convertir a este huésped"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:328
-#, fuzzy, perl-brace-format
-msgid "WARNING: Only 4 IDE devices are supported. The following drives have been removed: {list}"
-msgstr "AVISO: Solo existe soporte para 4 dispositivos de CDROM. Los siguientes dispositivos de CDROM han sido eliminados: {list}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:438
 #, perl-brace-format
@@ -189,11 +179,6 @@ msgstr "ADVERTENCIA: La versión del kernel {version} no posee una entrada de in
 msgid "Failed to create storage volume: {error}"
 msgstr "Falló al crear el volumen de almacenamiento: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
-#, fuzzy, perl-brace-format
-msgid "Failed to get storage volume: {error}"
-msgstr "Falló al crear el volumen de almacenamiento: {error}"
-
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
 #, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
@@ -208,16 +193,6 @@ msgstr "Error escribiendo en {path}: {error}"
 #, perl-brace-format
 msgid "Error closing volume handle: {error}"
 msgstr "Error al cerrar el manipulador del volumen: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
-#, fuzzy, perl-brace-format
-msgid "Output pool {poolname} is not a valid storage pool"
-msgstr "El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
-#, fuzzy, perl-brace-format
-msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
-msgstr "error inesperado al tratar de acceder al grupo de almacenamiento:"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
 #, perl-brace-format
@@ -237,11 +212,6 @@ msgstr "El hipervisor conectado no soporta la característica {feature}"
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:380
 msgid "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr "El huésped elegido no tiene soporte acpi bajo KVM. ACPI será deshabilitado."
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
-#, fuzzy, perl-brace-format
-msgid "WARNING: storage volume {name} already exists on the target. NOT fetching it again. Delete the volume and retry to download again."
-msgstr "AVISO: ya existe un volúmen de almacenamiento {name} en el grupo elegido. NO será capturado nuevamente. Elimine este volumen e intente realizar una nueva descarga. "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
 #, perl-brace-format
@@ -382,6 +352,35 @@ msgstr "Debe especificar un dominio de almacenamiento de salida cuando este usan
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} no es un método de salida válido"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
+#, perl-brace-format
+msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
+msgstr "AVISO: Error inesperado al tratar de acceder al grupo de almacenamiento {name}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#, perl-brace-format
+msgid "WARNING: storage volume {name} already exists on the target. NOT fetching it again. Delete the volume and retry to download again."
+msgstr "AVISO: el volumen de almacenamiento {name} ya existe en el grupo elegido. NO será capturado nuevamente. Elimine este volumen e intente realizar una nueva descarga. "
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool"
+msgstr "El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
+
+#: ../lib/Sys/VirtV2V/Connection.pm:140
+msgid "No output target was specified"
+msgstr "No se ha especificado un grupo de salida"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:328
+#, perl-brace-format
+msgid "WARNING: Only 4 IDE devices are supported. The following drives have been removed: {list}"
+msgstr "AVISO: Solo son soportados 4 dispositivos IDE. Las siguientes unidades han sido eliminadas: {list}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
+#, perl-brace-format
+msgid "Failed to get storage volume: {error}"
+msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 
 #~ msgid "/etc/selinux/config does not exist"
 #~ msgstr "no existe el archivo /etc/selinux/config"
