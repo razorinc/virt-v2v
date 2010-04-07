@@ -20,6 +20,8 @@ use warnings;
 
 package Sys::VirtV2V::Target::LibVirt::Vol;
 
+use POSIX;
+
 use Sys::VirtV2V::UserMessage qw(user_message);
 
 sub _new
@@ -106,7 +108,9 @@ sub open
     my $self = shift;
 
     my $path = $self->get_path();
-    open(my $fd, '>', $path)
+
+    # We want to open the existing volume without truncating it
+    sysopen(my $fd, $path, O_WRONLY)
         or die(user_message(__x("Error opening storage volume {path} ".
                                 "for writing: {error}", error => $!)));
 
