@@ -712,6 +712,8 @@ sub _disks
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
         # IDE = 0, SCSI = 1, VirtIO = 2
         $diske->setAttribute('ovf:disk-interface', $bus eq 'virtio' ? 2 : 0);
+        # The libvirt QEMU driver marks all disks as bootable
+        $diske->setAttribute('ovf:boot', 'True');
 
         # Add disk to VirtualHardware
         my $item = $ovf->createElement('Item');
