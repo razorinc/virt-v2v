@@ -366,6 +366,9 @@ END {
 
 sub close_guest_handle
 {
+    # Perform GuestOS cleanup before closing the handle
+    $guestos = undef;
+
     if (defined($g)) {
         $g->umount_all();
         $g->sync();
