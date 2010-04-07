@@ -116,7 +116,8 @@ sub _storage_iterate
     my @paths;
     # A list of libvirt target device names
     my @devices;
-    foreach my $disk ($dom->findnodes('/domain/devices/disk')) {
+
+    foreach my $disk ($dom->findnodes("/domain/devices/disk[\@device='disk']")) {
         my ($source_e) = $disk->findnodes('source');
 
         my ($source) = $source_e->findnodes('@file | @dev');
@@ -125,55 +126,63 @@ sub _storage_iterate
 
         my ($dev) = $disk->findnodes('target/@dev');
         defined($dev) or die("disk does not have a target device: \n".
+                             $dom->toString());
+
+        my $path = $source->getValue();
+
+        # Die if transfer required and no output target
+        die (user_message(__"No output target was specified"))
+            unless (defined($target));
+
+        # Fetch the remote storage
+        my $vol = $transfer->transfer($self, $path, $target);
+
+        # Export the new path
+        $path = $vol->get_path();
+
+        # Find any existing driver element.
+        my ($driver) = $disk->findnodes('driver');
+
+        # Create a new driver element if none exists
+        unless (defined($driver)) {
+            $driver =
+                $disk->getOwnerDocument()->createElement("driver");
+            $disk->appendChild($driver);
+        }
+        $driver->setAttribute('name', 'qemu');
+        $driver->setAttribute('type', $vol->get_format());
+
+        # Remove the @file or @dev attribute before adding a new one
+        $source_e->removeAttributeNode($source);
+
+        # Set @file or @dev as appropriate
+        if ($vol->is_block()) {
+            $disk->setAttribute('type', 'block');
+            $source_e->setAttribute('dev', $path);
+        } else {
+            $disk->setAttribute('type', 'file');
+            $source_e->setAttribute('file', $path);
+        }
+
+        push(@paths, $path);
+        push(@devices, $dev->getNodeValue());
+    }
+
+    # Blank the source of floppies or cdroms
+    foreach my $disk ($dom->findnodes('/domain/devices/disk'.
+                                      "[\@device='floppy' or \@device='cdrom']"))
+    {
+        my ($source_e) = $disk->findnodes('source');
+
+        # Nothing to do if there's no source element
+        next unless (defined($source_e));
+
+        # Blank file or dev as appropriate
+        my ($source) = $source_e->findnodes('@file | @dev');
+        defined($source) or die("source element has neither dev nor file: \n".
                                 $dom->toString());
 
-        # If the disk is a floppy or a cdrom, blank its source
-        my $device = $disk->getAttribute('device');
-        if ($device eq 'floppy' || $device eq 'cdrom') {
-            $source_e->setAttribute($source->getName(), '');
-        }
-
-        else {
-            my $path = $source->getValue();
-
-            # Die if transfer required and no output target
-            die (user_message(__"No output target was specified"))
-                unless (defined($target));
-
-            # Fetch the remote storage
-            my $vol = $transfer->transfer($self, $path, $target);
-
-            # Export the new path
-            $path = $vol->get_path();
-
-            # Find any existing driver element.
-            my ($driver) = $disk->findnodes('driver');
-
-            # Create a new driver element if none exists
-            unless (defined($driver)) {
-                $driver =
-                    $disk->getOwnerDocument()->createElement("driver");
-                $disk->appendChild($driver);
-            }
-            $driver->setAttribute('name', 'qemu');
-            $driver->setAttribute('type', $vol->get_format());
-
-            # Remove the @file or @dev attribute before adding a new one
-            $source_e->removeAttributeNode($source);
-
-            # Set @file or @dev as appropriate
-            if ($vol->is_block())
-            {
-                $disk->setAttribute('type', 'block');
-                $source_e->setAttribute('dev', $path);
-            } else {
-                $disk->setAttribute('type', 'file');
-                $source_e->setAttribute('file', $path);
-            }
-
-            push(@paths, $path);
-            push(@devices, $dev->getNodeValue());
-        }
+        $source_e->setAttribute($source->getName(), '');
     }
 
     $self->{paths} = \@paths;
