@@ -442,57 +442,19 @@ sub _map_networks
             exit(1);
         }
 
-        _update_interface($if, $name, $type, $config);
+        my ($newname, $newtype) = $config->map_network($name->getValue(),
+                                                       $type);
+
+        my ($source) = $if->findnodes('source');
+
+        # Replace @bridge or @network in the source element with the correct
+        # mapped attribute name and value
+        $source->removeAttributeNode($name);
+        $source->setAttribute($newtype, $newname);
+
+        # Update the type of the interface
+        $if->setAttribute('type', $newtype);
     }
-}
-
-sub _update_interface
-{
-    my ($if, $oldname, $oldtype, $config) = @_;
-
-    my $oldnameval = $oldname->getValue();
-    my ($mapping) = $config->findnodes
-        ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldnameval']".
-         "/network");
-
-    unless (defined($mapping)) {
-        print STDERR user_message(__x("No mapping found for '{type}' ".
-                                      "interface: {name}",
-                                      type => $oldtype,
-                                      name => $oldnameval));
-        return;
-    }
-
-    my $newtype = $mapping->getAttributeNode('type');
-    $newtype &&= $newtype->getValue();
-    my $newname = $mapping->getAttributeNode('name');
-    $newname &&= $newname->getValue();
-
-    # Check type and name are defined for the mapping
-    unless (defined($newtype) && defined($newname)) {
-        print STDERR user_message(__x("WARNING: Invalid network ".
-                                      "mapping in config: {config}",
-                                      config => $mapping->toString()));
-        return;
-    }
-
-    # Check type is something we recognise
-    unless ($newtype eq 'network' || $newtype eq 'bridge') {
-        print STDERR user_message(__x("WARNING: Unknown interface type ".
-                                      "{type} in network mapping: {config}",
-                                      type => $newtype,
-                                      config => $mapping->toString()));
-    }
-
-    my ($source) = $if->findnodes('source');
-
-    # Replace @bridge or @network in the source element with the correct mapped
-    # attribute name and value
-    $source->removeAttributeNode($oldname);
-    $source->setAttribute($newtype, $newname);
-
-    # Update the type of the interface
-    $if->setAttribute('type', $newtype);
 }
 
 =back

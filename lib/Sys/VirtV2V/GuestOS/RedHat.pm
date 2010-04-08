@@ -475,9 +475,20 @@ sub add_kernel
         }
     }
 
-    my $app;
+    my ($app, $deps);
     eval {
-        $app = $self->match_app($kernel_pkg, $kernel_arch);
+        my $desc = $self->{desc};
+
+        my $config = $self->{config};
+        unless (defined($config)) {
+            my $search = Sys::VirtV2V::Config::get_app_search
+                            ($desc, $kernel_pkg, $kernel_arch);
+            die(user_message(__x("No config specified. No app match for ".
+                                 "{search}",
+                                 search => $search)));
+        }
+
+        ($app, $deps) = $config->match_app($desc, $kernel_pkg, $kernel_arch);
     };
     # Return undef if we didn't find a kernel
     if ($@) {
@@ -485,13 +496,11 @@ sub add_kernel
         return undef;
     }
 
-    my $path = $app->{path};
-
-    return undef if($self->_is_installed($path));
+    return undef if($self->_is_installed($app));
 
     my @install;
     # Install any kernel dependencies which aren't already installed
-    foreach my $dep (@{$app->{deps}}) {
+    foreach my $dep (@$deps) {
         push(@install, $dep) unless($self->_is_installed($dep));
     }
     $self->_install_rpms(1, @install);
@@ -500,7 +509,7 @@ sub add_kernel
     my $version;
     my $g = $self->{g};
     foreach my $file ($g->command_lines
-        (["rpm", "-qlp", $self->_transfer_path($path)]))
+        (["rpm", "-qlp", $self->_transfer_path($app)]))
     {
         if($file =~ m{^/boot/vmlinuz-(.*)$}) {
             $version = $1;
@@ -509,9 +518,9 @@ sub add_kernel
     }
 
     die(user_message(__x("{path} doesn't contain a valid kernel",
-                         path => $path))) if(!defined($version));
+                         path => $app))) if(!defined($version));
 
-    $self->_install_rpms(0, ($path));
+    $self->_install_rpms(0, ($app));
 
     # Make augeas reload so it'll find the new kernel
     $g->aug_load();
@@ -611,17 +620,26 @@ sub add_application
     my $self = shift;
     my $label = shift;
 
-    my $user_arch = $self->{desc}->{arch};
+    my $desc = $self->{desc};
+    my $user_arch = $desc->{arch};
 
-    my $app = $self->match_app($label, $user_arch);
+    my $config = $self->{config};
+    unless (defined($config)) {
+        my $search = Sys::VirtV2V::Config::get_app_search($desc, $label,
+                                                          $user_arch);
+        die(user_message(__x("No config specified. No app match for {search}",
+                             search => $search)));
+    }
+
+    my ($app, $deps) = $config->match_app($self->{desc}, $label, $user_arch);
 
     # Nothing to do if it's already installed
-    return if($self->_is_installed($app->{path}));
+    return if($self->_is_installed($app));
 
-    my @install = ($app->{path});
+    my @install = ($app);
 
     # Add any dependencies which aren't already installed to the install set
-    foreach my $dep (@{$app->{deps}}) {
+    foreach my $dep (@$deps) {
         push(@install, $dep) unless ($self->_is_installed($dep));
     }
 
