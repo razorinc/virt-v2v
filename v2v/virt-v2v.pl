@@ -96,6 +96,10 @@ my $input_uri = "qemu:///system";
 Specifies the connection to use when using the libvirt input method. If omitted,
 this defaults to qemu:///system.
 
+B<N.B.> virt-v2v can currently automatically obtain guest storage from local
+libvirt connections, ESX connections, and connections over SSH. Other types of
+connection are not supported.
+
 =cut
 
 my $input_transport;
@@ -429,14 +433,11 @@ sub inspect_guest
 
 =head1 PREPARING TO CONVERT A GUEST
 
-=head2 Xen guests
+=head2 Local Xen guests
 
-The following steps are required before converting a Xen guest. Note that only
-local Xen guests are currently supported. These steps are not required for
-conversions from ESX, and will not be required for remote Xen guests when we
-support that.
-
-=head3 Obtain domain XML for the guest domain
+B<N.B.> The following is required when converting guests on a host which used to
+run Xen, but has been updated to run KVM. It is not required when converting a
+Xen guest imported directly from a running libvirt/Xen instance.
 
 virt-v2v uses a libvirt domain description to determine the current
 configuration of the guest, including the location of its storage. This should

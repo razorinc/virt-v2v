@@ -150,6 +150,10 @@ sub new
         $transfer = "Sys::VirtV2V::Transfer::ESX";
     }
 
+    elsif ($self->{uri}->scheme =~ /\+ssh$/) {
+        $transfer = "Sys::VirtV2V::Transfer::SSH";
+    }
+
     # Default to LocalCopy
     # XXX: Need transfer methods for remote libvirt connections, e.g. scp
     else {
