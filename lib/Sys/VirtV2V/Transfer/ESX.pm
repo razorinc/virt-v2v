@@ -272,7 +272,7 @@ sub transfer
     my $username = $conn->{username};
     my $password = $conn->{password};
 
-    die("URI not defined for connection")      unless (defined($uri));
+    die("URI not defined for connection") unless (defined($uri));
 
     die(user_message(__x("Authentication is required to connect to ".
                          "{server} and no credentials were found in ".
