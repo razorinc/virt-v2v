@@ -519,6 +519,8 @@ virt-v2v will make it the default during conversion.
 
 =head2 CONVERTING A GUEST FROM VMWARE ESX
 
+B<N.B.> libvirt version 0.7.0 or greater is required to connect to ESX.
+
 virt-v2v can convert a guest from VMware ESX, including transferring its
 storage.
 
