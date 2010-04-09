@@ -444,6 +444,7 @@ sub _map_networks
 
         my ($newname, $newtype) = $config->map_network($name->getValue(),
                                                        $type);
+        next unless (defined($newname) && defined($newtype));
 
         my ($source) = $if->findnodes('source');
 
