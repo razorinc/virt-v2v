@@ -75,6 +75,7 @@ use constant KVM_XML_VIRTIO => "
     <video>
       <model type='cirrus' vram='9216' heads='1'/>
     </video>
+    <console type='pty'/>
   </devices>
 </domain>
 ";
@@ -98,6 +99,7 @@ use constant KVM_XML_NOVIRTIO => "
     <video>
       <model type='cirrus' vram='9216' heads='1'/>
     </video>
+    <console type='pty'/>
   </devices>
 </domain>
 ";
@@ -240,7 +242,8 @@ sub _configure_default_devices
     my ($input_devices) = $default_dom->findnodes('/domain/devices');
 
     # Add new default devices from default XML
-    foreach my $input ($input_devices->findnodes('input | video | graphics')) {
+    foreach my $input ($input_devices->findnodes('input | video | '.
+                                                 'graphics | console')) {
         my $new = $input->cloneNode(1);
         $new->setOwnerDocument($devices->getOwnerDocument());
         $devices->appendChild($new);

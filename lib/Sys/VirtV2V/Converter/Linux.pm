@@ -112,6 +112,7 @@ sub convert
     my $virtio = $guestos->supports_virtio($kernel);
 
     # Configure the rest of the system
+    _configure_console($g);
     _configure_display_driver($guestos, $virtio);
     $guestos->remap_block_devices($devices, $virtio);
     _configure_kernel_modules($guestos, $desc, $virtio);
@@ -191,6 +192,51 @@ sub _configure_kernel_modules
                      modulename => $modules->{$module}->{modulename}));
         }
     }
+}
+
+# We configure a console on ttyS0. Make sure existing console references use it.
+sub _configure_console
+{
+    my ($g) = @_;
+
+    # Look for gettys which use xvc0
+    foreach my $augpath ($g->aug_match("/files/etc/inittab/*/process")) {
+        my $proc = $g->aug_get($augpath);
+
+        # If the process mentions xvc0, change it to ttyS0
+        if ($proc =~ /\bxvc0\b/) {
+            $proc =~ s/\bxvc0\b/ttyS0/g;
+            $g->aug_set($augpath, $proc);
+        }
+    }
+
+    # Replace any mention of xvc0 in /etc/securetty with ttyS0
+    my $size = 0;
+    my @lines = ();
+
+    foreach my $line ($g->read_lines('/etc/securetty')) {
+        if($line eq "xvc0") {
+            $line = "ttyS0";
+        }
+
+        $size += length($line) + 1;
+        push(@lines, $line);
+    }
+
+    $g->write_file('/etc/securetty', join("\n", @lines)."\n", $size);
+
+    # Update any kernel console lines
+    foreach my $augpath
+        ($g->aug_match("/files/boot/grub/menu.lst/title/kernel/console"))
+    {
+        my $console = $g->aug_get($augpath);
+        if ($console =~ /\bxvc0\b/) {
+            $console =~ s/\bxvc0\b/ttyS0/g;
+            $g->aug_set($augpath, $console);
+        }
+    }
+
+    $g->aug_save();
 }
 
 sub _configure_display_driver
