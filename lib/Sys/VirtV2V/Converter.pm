@@ -133,7 +133,7 @@ sub convert
 {
     my $class = shift;
 
-    my ($guestos, $config, $dom, $desc, $devices) = @_;
+    my ($g, $guestos, $config, $dom, $desc, $devices) = @_;
     carp("convert called without guestos argument") unless defined($guestos);
     # config will be undefined if no config was specified
     carp("convert called without dom argument") unless defined($dom);
@@ -145,7 +145,7 @@ sub convert
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $guestcaps = $module->convert($guestos, $desc, $devices);
+            $guestcaps = $module->convert($g, $guestos, $desc, $devices);
             last;
         }
     }

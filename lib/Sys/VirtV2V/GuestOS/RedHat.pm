@@ -173,19 +173,6 @@ sub _init_augeas_modprobe
     die($@) if($@);
 }
 
-=item get_handle()
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub get_handle
-{
-    my $self = shift;
-
-    return $self->{g};
-}
-
 =item enable_kernel_module(device, module)
 
 See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.

@@ -327,7 +327,8 @@ my $os = inspect_guest($g);
 my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
 # Modify the guest and its metadata
-my $guestcaps = Sys::VirtV2V::Converter->convert($guestos, $config, $dom, $os,
+my $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
+                                                 $config, $dom, $os,
                                                  $conn->get_storage_devices());
 
 close_guest_handle();

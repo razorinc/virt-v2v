@@ -200,10 +200,6 @@ Construct a new backend object. Assumes can_handle has previously returned true.
 
 new is only intended to be called by Sys::VirtV2V::GuestOS.
 
-=item get_handle()
-
-Return the libguestfs handle used by this Sys::VirtV2V::GuestOS object.
-
 =item enable_kernel_module(device, module)
 
 =over

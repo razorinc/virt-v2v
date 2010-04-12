@@ -42,7 +42,7 @@ Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
  use Sys::VirtV2V::Converter;
 
  my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
- Sys::VirtV2V::Converter->convert($vmm, $guestos, $dom, $os);
+ Sys::VirtV2V::Converter->convert($g, $guestos, $dom, $os);
 
 =head1 DESCRIPTION
 
@@ -96,14 +96,14 @@ sub convert
 {
     my $class = shift;
 
-    my ($guestos, $desc, $devices) = @_;
+    my ($g, $guestos, $desc, $devices) = @_;
     carp("convert called without guestos argument") unless defined($guestos);
     carp("convert called without desc argument") unless defined($desc);
     carp("convert called without devices argument") unless defined($devices);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
-    _unconfigure_hv($guestos, $desc);
+    _unconfigure_hv($g, $guestos, $desc);
 
     # Get the best available kernel
     my $kernel = _configure_kernel($guestos, $desc);
@@ -350,16 +350,16 @@ sub _find_hv_kernels
 
 sub _unconfigure_hv
 {
-    my ($guestos, $desc) = @_;
+    my ($g, $guestos, $desc) = @_;
 
-    _unconfigure_xen($guestos, $desc);
+    _unconfigure_xen($g, $guestos, $desc);
     _unconfigure_vmware($guestos, $desc);
 }
 
 # Unconfigure Xen specific guest modifications
 sub _unconfigure_xen
 {
-    my ($guestos, $desc) = @_;
+    my ($g, $guestos, $desc) = @_;
 
     my $found_kmod = 0;
 
@@ -375,10 +375,6 @@ sub _unconfigure_xen
 
     # Undo related nastiness if kmod-xenpv was installed
     if($found_kmod) {
-        # What follows is custom nastiness, so we need to use the libguestfs
-        # handle directly
-        my $g = $guestos->get_handle();
-
         # kmod-xenpv modules may have been manually copied to other kernels.
         # Hunt them down and destroy them.
         foreach my $dir (grep(m{/xenpv$}, $g->find('/lib/modules'))) {
