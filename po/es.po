@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.es(4)\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-01 19:34+0100\n"
+"POT-Creation-Date: 2010-04-14 17:12+0100\n"
 "PO-Revision-Date: 2010-02-22 15:41-0300\n"
 "Last-Translator: Héctor Daniel Cabrera <logan@fedoraproject.org>\n"
 "Language-Team: Spanish <fedora-trans-es@redhat.com>\n"
@@ -25,48 +25,53 @@ msgid "Unable to parse URI authority: {auth}"
 msgstr "Imposible analizar la autoridad de URI: {auth}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:90
-msgid "WARNING: Specifying a password in the connection URI is not supported. It has been ignored."
-msgstr "AVISO: No existe soporte para indicar una contraseña en la conexión URI. Ha sido ignorada."
+msgid ""
+"WARNING: Specifying a password in the connection URI is not supported. It "
+"has been ignored."
+msgstr ""
+"AVISO: No existe soporte para indicar una contraseña en la conexión URI. Ha "
+"sido ignorada."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:138
 #, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "Falló al conectarse con {uri}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:172
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:176
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
-msgstr "El huésped {name} se encuentra actualmente {state}. Debe apagarse primero."
+msgstr ""
+"El huésped {name} se encuentra actualmente {state}. Debe apagarse primero."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:185
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
 msgid "idle"
 msgstr "inactivo"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:187
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
 msgid "running"
 msgstr "ejecutándose"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
 msgid "blocked"
 msgstr "bloqueada"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
 msgid "paused"
 msgstr "pausada"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
 msgid "shutting down"
 msgstr "apagando"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:199
 msgid "shut down"
 msgstr "apagada"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:201
 msgid "crashed"
 msgstr "caída"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:220
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:224
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} no es un nombre de huésped válido"
@@ -81,147 +86,185 @@ msgstr "Falló al abrir {path}: {error}"
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "Imposible analizar el dominio desde el archivo {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
-#, perl-brace-format
-msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
-msgstr "ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el módulo {modulename}. "
+#: ../lib/Sys/VirtV2V/Connection.pm:135
+msgid "No output target was specified"
+msgstr "No se ha especificado un grupo de salida"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:268
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
+#, perl-brace-format
 msgid ""
-"No bootable kernels installed, and no replacement specified in configuration.\n"
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"module."
+msgstr ""
+"ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el "
+"módulo {modulename}. "
+
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:314
+msgid ""
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
 "Unable to continue."
 msgstr ""
-"No se han instalado kernels de inicio, y no se ha especificado ningún remplazo en la configuración.\n"
+"No se han instalado kernels de inicio, y no se ha especificado ningún "
+"remplazo en la configuración.\n"
 "No es posible continuar."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:408
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:450
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "No es posible abrir /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:153
+#: ../lib/Sys/VirtV2V/Converter.pm:155
 msgid "Unable to find a module to convert this guest"
 msgstr "No es posible encontrar un módulo para convertir a este huésped"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:438
+#: ../lib/Sys/VirtV2V/Converter.pm:331
+#, perl-brace-format
+msgid ""
+"WARNING: Only 4 IDE devices are supported. The following drives have been "
+"removed: {list}"
+msgstr ""
+"AVISO: Solo son soportados 4 dispositivos IDE. Las siguientes unidades han "
+"sido eliminadas: {list}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:441
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr "Tipo de interfaz {type} desconocido en el dominio XML: {domain} "
-
-#: ../lib/Sys/VirtV2V/Converter.pm:459
-#, perl-brace-format
-msgid "No mapping found for '{type}' interface: {name}"
-msgstr "No se ha encontrado un mapeo para  la inetrfaz '{type}': {name}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:473
-#, perl-brace-format
-msgid "WARNING: Invalid network mapping in config: {config}"
-msgstr "AVISO: Mapeo de red inválido en configuración: {config}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:481
-#, perl-brace-format
-msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
-msgstr "AVISO: Tipo de interfaz {type} desconocido en mapeo de red: {config} "
-
-#: ../lib/Sys/VirtV2V/GuestOS.pm:176
-msgid "Didn't detect OS distribution"
-msgstr "No se ha detectado la distribución del SO"
-
-#: ../lib/Sys/VirtV2V/GuestOS.pm:184
-#, perl-brace-format
-msgid "No config specified. No app match for {search}"
-msgstr "No se ha especificado una configuración. No existe una aplicación coincidente con {search}"
-
-#: ../lib/Sys/VirtV2V/GuestOS.pm:210
-#, perl-brace-format
-msgid "No app in config matches {search}"
-msgstr "No existe una aplicación en la configuración que coincida con {search}"
-
-#: ../lib/Sys/VirtV2V/GuestOS.pm:215
-#, perl-brace-format
-msgid "app entry in config doesn't contain a path: {xml}"
-msgstr "la entrada de la aplicación en la configuración no contiene una ruta: {xml}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:145
 msgid "Unable to find any valid modprobe configuration"
 msgstr "No es posible encontrar ninguna configuración modprobe que sea válida"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:379
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:366
 msgid "Unable to find a default kernel"
 msgstr "Imposible encontrar un kernel predeterminado"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:511
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:617
+#, perl-brace-format
+msgid "No config specified. No app match for {search}"
+msgstr ""
+"No se ha especificado una configuración. No existe una aplicación "
+"coincidente con {search}"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:507
 #, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{path} no contiene un kernel válido"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:565
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:561
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "No es posible determinar una arquitectura de kernel para este huésped"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:678
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:683
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Error al ejecutar {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1073
-#, perl-brace-format
-msgid "Didn't find a grub entry for kernel version {version}"
-msgstr "No se ha encontrado una entrada en el GRUB para la versión del kernel {version}"
-
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
 #, perl-brace-format
-msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
-msgstr "ADVERTENCIA: La versión del kernel {version} no posee una entrada de initrd en el GRUB"
+msgid "Didn't find a grub entry for kernel version {version}"
+msgstr ""
+"No se ha encontrado una entrada en el GRUB para la versión del kernel "
+"{version}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:54
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1083
+#, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+msgstr ""
+"ADVERTENCIA: La versión del kernel {version} no posee una entrada de initrd "
+"en el GRUB"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:56
 #, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr "Falló al crear el volumen de almacenamiento: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:71
+#, perl-brace-format
+msgid "Failed to get storage volume: {error}"
+msgstr "Falló al obtener el volumen de almacenamiento: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:114
 #, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
-msgstr "Error al abrir el volumen de almacenamiento {path} para escritura: {error}"
+msgstr ""
+"Error al abrir el volumen de almacenamiento {path} para escritura: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:124
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:128
 #, perl-brace-format
 msgid "Error writing to {path}: {error}"
 msgstr "Error escribiendo en {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:134
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:138
 #, perl-brace-format
 msgid "Error closing volume handle: {error}"
 msgstr "Error al cerrar el manipulador del volumen: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:202
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool"
+msgstr ""
+"El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:262
+#, perl-brace-format
+msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
+msgstr ""
+"AVISO: Error inesperado al tratar de acceder al grupo de almacenamiento "
+"{name}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:320
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:347
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
 #, perl-brace-format
-msgid "The connected hypervisor does not support a machine type of {machine}. It will be set to the current default."
-msgstr "El hipervisor conectado no tiene soporte para una máquina del tipo {machine}. Será definido con las configuraciones predeterminadas."
+msgid ""
+"The connected hypervisor does not support a machine type of {machine}. It "
+"will be set to the current default."
+msgstr ""
+"El hipervisor conectado no tiene soporte para una máquina del tipo "
+"{machine}. Será definido con las configuraciones predeterminadas."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:373
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:377
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "El hipervisor conectado no soporta la característica {feature}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:380
-msgid "The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr "El huésped elegido no tiene soporte acpi bajo KVM. ACPI será deshabilitado."
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:384
+msgid ""
+"The target guest does not support acpi under KVM. ACPI will be disabled."
+msgstr ""
+"El huésped elegido no tiene soporte acpi bajo KVM. ACPI será deshabilitado."
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT fetching it "
+"again. Delete the volume and retry to download again."
+msgstr ""
+"AVISO: el volumen de almacenamiento {name} ya existe en el grupo elegido. NO "
+"será capturado nuevamente. Elimine este volumen e intente realizar una nueva "
+"descarga. "
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
-msgstr "No se ha recibido la totalidad del volumen. Se han recibido {received} de {total} bytes."
+msgstr ""
+"No se ha recibido la totalidad del volumen. Se han recibido {received} de "
+"{total} bytes."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
 #, perl-brace-format
-msgid "Authentication error connecting to {server}. Used credentials for {username} from .netrc."
-msgstr "Error de autenticación al intentar conectarse con {server}. Las credenciales utilizadas para {username} provienen de .netrc."
+msgid ""
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
+msgstr ""
+"Error de autenticación al intentar conectarse con {server}. Las credenciales "
+"utilizadas para {username} provienen de .netrc."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
 #, perl-brace-format
@@ -240,147 +283,143 @@ msgstr "La certificación de sujeto SSL no contiene un nombre común: {subject}"
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
-msgstr "El servidor {server} ha presentado un certificado SSL para {commonname}"
+msgstr ""
+"El servidor {server} ha presentado un certificado SSL para {commonname}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
 #, perl-brace-format
-msgid "Authentication is required to connect to {server} and no credentials were found in .netrc."
-msgstr "Es necesaria una autenticación para conectarse con {server} y no se ha encontrado ninguna credencial en .netrc."
+msgid ""
+"Authentication is required to connect to {server} and no credentials were "
+"found in .netrc."
+msgstr ""
+"Es necesaria una autenticación para conectarse con {server} y no se ha "
+"encontrado ninguna credencial en .netrc."
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
 msgid "{identifier}: {message}\n"
 msgstr "{identifier}: {message}\n"
 
-#: ../v2v/virt-v2v.pl:203
+#: ../v2v/virt-v2v.pl:206
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Utilice -ic o -oc para especificar una conexión de entrada o de salida"
 
-#: ../v2v/virt-v2v.pl:220
-#, perl-brace-format
-msgid "Config file {path} doesn't exist"
-msgstr "No existe el archivo de configuración {path}"
-
-#: ../v2v/virt-v2v.pl:223
-#, perl-brace-format
-msgid "Don't have permissions to read {path}"
-msgstr "No se poseen permisos para leer {path}"
-
-#: ../v2v/virt-v2v.pl:230
-#, perl-brace-format
-msgid "Unable to parse config file {path}: {error}"
-msgstr "Imposible analizar el archivo de configuración {path}: {error}"
-
-#: ../v2v/virt-v2v.pl:263
-msgid "You must specify a filename"
-msgstr "Debe especificar un nombre de archivo"
-
-#: ../v2v/virt-v2v.pl:269
-#, perl-brace-format
-msgid "WARNING: {modulename} only takes a single filename."
-msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
-
-#: ../v2v/virt-v2v.pl:278
-msgid "You must specify a guest"
-msgstr "Debe especificar un huésped"
-
-#: ../v2v/virt-v2v.pl:287
-#, perl-brace-format
-msgid "WARNING: {modulename} only takes a single domain name."
-msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de dominio."
-
-#: ../v2v/virt-v2v.pl:293
-#, perl-brace-format
-msgid "{input} is not a valid input method"
-msgstr "{input} no es un método de entrada válido"
-
-#: ../v2v/virt-v2v.pl:351
-#, perl-brace-format
-msgid "{name} configured with virtio drivers"
-msgstr "{name} configurado con controladores virtio"
-
-#: ../v2v/virt-v2v.pl:354
-#, perl-brace-format
-msgid "{name} configured without virtio drivers"
-msgstr "{name} configurado sin controladores virtio"
-
-#: ../v2v/virt-v2v.pl:408
-#, perl-brace-format
-msgid "Unable to access {path} referenced in the config file"
-msgstr "No es posible acceder a {path} que está referenciado en el archivo de configuración "
-
-#: ../v2v/virt-v2v.pl:422
-msgid "<iso-path> must be specified in the configuration file"
-msgstr "<iso-path> debe especificarse en el archivo de configuración"
-
-#: ../v2v/virt-v2v.pl:429
-#, perl-brace-format
-msgid "Unable to stat iso file {path}: {error}"
-msgstr "Imposible conocer el estado del archivo iso {path}: {error}"
-
-#: ../v2v/virt-v2v.pl:433
-#, perl-brace-format
-msgid "Unable to stat config file {path}: {error}"
-msgstr "Imposible conocer el estado del archivo de configuración {path}: {error}"
-
-#: ../v2v/virt-v2v.pl:447
-#, perl-brace-format
+#: ../v2v/virt-v2v.pl:225
 msgid ""
-"Failed to create transfer iso. Command output was:\n"
-"{output}"
+"You must specify an output storage pool when using the libvirt output method"
 msgstr ""
-"Falló al crear ISO de transferencia. El comando de salida fue:\n"
-"{output}"
+"Debe especificar un grupo de almacenamiento de salida cuando este usando el "
+"método de salida libvirt"
 
-#: ../v2v/virt-v2v.pl:493
-msgid "no root device found in this operating system image"
-msgstr "no se ha encontrado un dispositivo raíz en la imagen de este sistema operativo"
+#: ../v2v/virt-v2v.pl:234
+msgid ""
+"You must specify an output storage domain when using the rhev output method"
+msgstr ""
+"Debe especificar un dominio de almacenamiento de salida cuando este usando "
+"el método de salida rhve"
 
-#: ../v2v/virt-v2v.pl:499
-msgid "multiboot operating systems are not supported by virt-v2v"
-msgstr "con virt-v2v, no existe soporte para inicializar múltiples sistemas operativos"
-
-#: ../v2v/virt-v2v.pl:236
-msgid "You must specify an output storage pool when using the libvirt output method"
-msgstr "Debe especificar un grupo de almacenamiento de salida cuando este usando el método de salida libvirt"
-
-#: ../v2v/virt-v2v.pl:245
-msgid "You must specify an output storage domain when using the rhev output method"
-msgstr "Debe especificar un dominio de almacenamiento de salida cuando este usando el método de salida rhve"
-
-#: ../v2v/virt-v2v.pl:254
+#: ../v2v/virt-v2v.pl:243
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} no es un método de salida válido"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
-#, perl-brace-format
-msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
-msgstr "AVISO: Error inesperado al tratar de acceder al grupo de almacenamiento {name}: {error}"
+#: ../v2v/virt-v2v.pl:252
+msgid "You must specify a filename"
+msgstr "Debe especificar un nombre de archivo"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#: ../v2v/virt-v2v.pl:258
 #, perl-brace-format
-msgid "WARNING: storage volume {name} already exists on the target. NOT fetching it again. Delete the volume and retry to download again."
-msgstr "AVISO: el volumen de almacenamiento {name} ya existe en el grupo elegido. NO será capturado nuevamente. Elimine este volumen e intente realizar una nueva descarga. "
+msgid "WARNING: {modulename} only takes a single filename."
+msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de archivo."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
+#: ../v2v/virt-v2v.pl:267
+msgid "You must specify a guest"
+msgstr "Debe especificar un huésped"
+
+#: ../v2v/virt-v2v.pl:276
 #, perl-brace-format
-msgid "Output pool {poolname} is not a valid storage pool"
-msgstr "El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
+msgid "WARNING: {modulename} only takes a single domain name."
+msgstr "ADVERTENCIA: {modulename} sólo necesita un nombre de dominio."
 
-#: ../lib/Sys/VirtV2V/Connection.pm:140
-msgid "No output target was specified"
-msgstr "No se ha especificado un grupo de salida"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:328
+#: ../v2v/virt-v2v.pl:282
 #, perl-brace-format
-msgid "WARNING: Only 4 IDE devices are supported. The following drives have been removed: {list}"
-msgstr "AVISO: Solo son soportados 4 dispositivos IDE. Las siguientes unidades han sido eliminadas: {list}"
+msgid "{input} is not a valid input method"
+msgstr "{input} no es un método de entrada válido"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
+#: ../v2v/virt-v2v.pl:342
 #, perl-brace-format
-msgid "Failed to get storage volume: {error}"
-msgstr "Falló al obtener el volumen de almacenamiento: {error}"
+msgid "{name} configured with virtio drivers"
+msgstr "{name} configurado con controladores virtio"
+
+#: ../v2v/virt-v2v.pl:345
+#, perl-brace-format
+msgid "{name} configured without virtio drivers"
+msgstr "{name} configurado sin controladores virtio"
+
+#: ../v2v/virt-v2v.pl:413
+msgid "no root device found in this operating system image"
+msgstr ""
+"no se ha encontrado un dispositivo raíz en la imagen de este sistema "
+"operativo"
+
+#: ../v2v/virt-v2v.pl:419
+msgid "multiboot operating systems are not supported by virt-v2v"
+msgstr ""
+"con virt-v2v, no existe soporte para inicializar múltiples sistemas "
+"operativos"
+
+#~ msgid "No mapping found for '{type}' interface: {name}"
+#~ msgstr "No se ha encontrado un mapeo para  la inetrfaz '{type}': {name}"
+
+#~ msgid "WARNING: Invalid network mapping in config: {config}"
+#~ msgstr "AVISO: Mapeo de red inválido en configuración: {config}"
+
+#~ msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+#~ msgstr ""
+#~ "AVISO: Tipo de interfaz {type} desconocido en mapeo de red: {config} "
+
+#~ msgid "Didn't detect OS distribution"
+#~ msgstr "No se ha detectado la distribución del SO"
+
+#~ msgid "No app in config matches {search}"
+#~ msgstr ""
+#~ "No existe una aplicación en la configuración que coincida con {search}"
+
+#~ msgid "app entry in config doesn't contain a path: {xml}"
+#~ msgstr ""
+#~ "la entrada de la aplicación en la configuración no contiene una ruta: "
+#~ "{xml}"
+
+#~ msgid "Config file {path} doesn't exist"
+#~ msgstr "No existe el archivo de configuración {path}"
+
+#~ msgid "Don't have permissions to read {path}"
+#~ msgstr "No se poseen permisos para leer {path}"
+
+#~ msgid "Unable to parse config file {path}: {error}"
+#~ msgstr "Imposible analizar el archivo de configuración {path}: {error}"
+
+#~ msgid "Unable to access {path} referenced in the config file"
+#~ msgstr ""
+#~ "No es posible acceder a {path} que está referenciado en el archivo de "
+#~ "configuración "
+
+#~ msgid "<iso-path> must be specified in the configuration file"
+#~ msgstr "<iso-path> debe especificarse en el archivo de configuración"
+
+#~ msgid "Unable to stat iso file {path}: {error}"
+#~ msgstr "Imposible conocer el estado del archivo iso {path}: {error}"
+
+#~ msgid "Unable to stat config file {path}: {error}"
+#~ msgstr ""
+#~ "Imposible conocer el estado del archivo de configuración {path}: {error}"
+
+#~ msgid ""
+#~ "Failed to create transfer iso. Command output was:\n"
+#~ "{output}"
+#~ msgstr ""
+#~ "Falló al crear ISO de transferencia. El comando de salida fue:\n"
+#~ "{output}"
 
 #~ msgid "/etc/selinux/config does not exist"
 #~ msgstr "no existe el archivo /etc/selinux/config"
@@ -389,7 +428,9 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgstr "No se pudo encontrar SELINUXTYPE en /etc/syslinux/config"
 
 #~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
-#~ msgstr "No se pudo encontrar un archivo de políticas SELinux que concuerde con {path}: {error}"
+#~ msgstr ""
+#~ "No se pudo encontrar un archivo de políticas SELinux que concuerde con "
+#~ "{path}: {error}"
 
 #~ msgid "Unable to load an SELinux policy"
 #~ msgstr "Imposible cargar una política de SELinux"
@@ -397,11 +438,22 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgid "WARNING: unable to configure SELinux: {error})"
 #~ msgstr "ADVERTENCIA: no es posible configurar SELinux: {error}"
 
-#~ msgid "Previously detected drive {drive} is no longer present in domain XML: {xml}"
-#~ msgstr "El dispositivo detectado anteriormente {drive}, actualmente no está presente en el dominio XML: {xml}"
+#~ msgid ""
+#~ "Previously detected drive {drive} is no longer present in domain XML: "
+#~ "{xml}"
+#~ msgstr ""
+#~ "El dispositivo detectado anteriormente {drive}, actualmente no está "
+#~ "presente en el dominio XML: {xml}"
 
-#~ msgid "WARNING: Unable to determine whether sdX devices in /etc/fstab refer to IDE or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may be incorrect after conversion if guest uses libata."
-#~ msgstr "AVISO: No es posible determinar si los dispositivos sdX en /etc/fstab se refieren a dispositivos IDE o SCSI. Presuponiendo que se refieren a dispositivos SCSI. Luego de la conversión, /etc/fstab podría estar incorrecto si el huésped utiliza libata. "
+#~ msgid ""
+#~ "WARNING: Unable to determine whether sdX devices in /etc/fstab refer to "
+#~ "IDE or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may "
+#~ "be incorrect after conversion if guest uses libata."
+#~ msgstr ""
+#~ "AVISO: No es posible determinar si los dispositivos sdX en /etc/fstab se "
+#~ "refieren a dispositivos IDE o SCSI. Presuponiendo que se refieren a "
+#~ "dispositivos SCSI. Luego de la conversión, /etc/fstab podría estar "
+#~ "incorrecto si el huésped utiliza libata. "
 
 #~ msgid "--commit and --rollback options are mutually exclusive"
 #~ msgstr "las opciones --commit y --rollback se excluyen mutuamente"
@@ -440,31 +492,42 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgstr "No es posible crear un directorio de capturas {dir}: {error}"
 
 #~ msgid "Unable to create v2v-snapshot storage pool: {error}"
-#~ msgstr "No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
+#~ msgstr ""
+#~ "No es posible generar grupo de almacenamiento de instantánea v2v: {error}"
 
 #~ msgid "Unable to start v2v-snapshot storage pool: {error}"
-#~ msgstr "No es posible iniciar el grupo de almacenamiento v2v-snapshot: {error}"
+#~ msgstr ""
+#~ "No es posible iniciar el grupo de almacenamiento v2v-snapshot: {error}"
 
 #~ msgid "v2v-snapshot storage pool is temporarily unavailable"
-#~ msgstr "El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
+#~ msgstr ""
+#~ "El grupo de almacenamiento v2v-snapshot no está disponible temporalmente "
 
 #~ msgid "Unable to find {path} in the v2v-snapshot storage pool."
-#~ msgstr "No es posible encontrar {path} en el grupo de almacenamiento v2v-snapshot. "
+#~ msgstr ""
+#~ "No es posible encontrar {path} en el grupo de almacenamiento v2v-"
+#~ "snapshot. "
 
 #~ msgid "Skipping device {target} as it doesn't have a backing store"
-#~ msgstr "Ignorando el dispositivo {target} porque no posee un depósito de reserva"
+#~ msgstr ""
+#~ "Ignorando el dispositivo {target} porque no posee un depósito de reserva"
 
 #~ msgid ""
 #~ "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
 #~ "Command output was:\n"
 #~ "{output}"
 #~ msgstr ""
-#~ "Falló al enviar instantánea '{path}' al depósito de reserva '{backingstore}'.\n"
+#~ "Falló al enviar instantánea '{path}' al depósito de reserva "
+#~ "'{backingstore}'.\n"
 #~ "El comando de salida fue:\n"
 #~ "{output}"
 
-#~ msgid "A snapshot already exists for {guest}. You must commit it or roll it back back before creating a new snapshot."
-#~ msgstr "Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien deshacerla antes de crear una nueva."
+#~ msgid ""
+#~ "A snapshot already exists for {guest}. You must commit it or roll it back "
+#~ "back before creating a new snapshot."
+#~ msgstr ""
+#~ "Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien "
+#~ "deshacerla antes de crear una nueva."
 
 #~ msgid "Unable to write to {path}: {error}"
 #~ msgstr "Imposible escribir en {path}: {error}"
@@ -476,7 +539,9 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgstr "Imposible crear el volumen de almacenamiento: {error}"
 
 #~ msgid "Refusing to rollback guest {name} without backed-up xml"
-#~ msgstr "Se niega a restaurar el huésped {name} sin haber hecho una copia de seguridad del archivo xml"
+#~ msgstr ""
+#~ "Se niega a restaurar el huésped {name} sin haber hecho una copia de "
+#~ "seguridad del archivo xml"
 
 #~ msgid "{path} is not a snapshot volume"
 #~ msgstr "{path} no es una imagen de volumen"
@@ -485,22 +550,29 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgstr "Falló al borrar {file}: {error}"
 
 #~ msgid "Unable to delete backup xml file {file}: {error}"
-#~ msgstr "No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
+#~ msgstr ""
+#~ "No es posible eliminar copia de seguridad del archivo xml {file}: {error} "
 
 #~ msgid "invalid source element: {element}"
 #~ msgstr "elemento fuente inválido: {element}"
 
 #~ msgid "Unable to create xml storage directory {dir}: {error}"
-#~ msgstr "No es posible crear un directorio de almacenamiento xml {dir}: {error}"
+#~ msgstr ""
+#~ "No es posible crear un directorio de almacenamiento xml {dir}: {error}"
 
-#~ msgid "WARNING: unknown configuration directive {directive} in {name} section."
-#~ msgstr "ADVERTENCIA: directiva {directive} de configuración desconocida en la sección {name}. "
+#~ msgid ""
+#~ "WARNING: unknown configuration directive {directive} in {name} section."
+#~ msgstr ""
+#~ "ADVERTENCIA: directiva {directive} de configuración desconocida en la "
+#~ "sección {name}. "
 
 #~ msgid "WARNING: unable to access {path}."
 #~ msgstr "ADVERTENCIA: no se pudo acceder a {path}."
 
 #~ msgid "Found dependency loop installing {label}: {path}"
-#~ msgstr "Se ha encontrado dependencia circular durante la instalación {label}: {path} "
+#~ msgstr ""
+#~ "Se ha encontrado dependencia circular durante la instalación {label}: "
+#~ "{path} "
 
 #~ msgid "No {object} given matching {label}"
 #~ msgstr "No se ha indicado ningún {object} que coincida con {label}"
@@ -517,8 +589,12 @@ msgstr "Falló al obtener el volumen de almacenamiento: {error}"
 #~ msgid "Unable to parse {file}: {error}"
 #~ msgstr "No se pudo analizar sintácticamente a {file}: {error}"
 
-#~ msgid "WARNING: No replacement found for {xpath} in domain XML. The node was removed."
-#~ msgstr "ADVERTENCIA: No se ha encontrado un reemplazo para {xpath} en el dominio XML. El nodo ha sido eliminado."
+#~ msgid ""
+#~ "WARNING: No replacement found for {xpath} in domain XML. The node was "
+#~ "removed."
+#~ msgstr ""
+#~ "ADVERTENCIA: No se ha encontrado un reemplazo para {xpath} en el dominio "
+#~ "XML. El nodo ha sido eliminado."
 
 #~ msgid "{input} is not a valid metadata format"
 #~ msgstr "{input} no tiene un formato de metadatos válido"
