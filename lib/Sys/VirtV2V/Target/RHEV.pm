@@ -543,10 +543,7 @@ sub create_guest
     $memsize = int($memsize / 1024);
 
     # Generate a creation date
-    my $now = gmtime();
-    my $vmcreation = sprintf("%02d/%02d/%d %02d:%02d:%02d",
-                             $now->mday(), $now->mon() + 1, $now->year() + 1900,
-                             $now->hour(), $now->min(), $now->sec());
+    my $vmcreation = _format_time(gmtime());
 
     my $osuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
 
@@ -649,6 +646,14 @@ EOF
         print $vm $ovf->toString();
     });
     $nfs->check_exit();
+}
+
+sub _format_time
+{
+    my ($time) = @_;
+    return sprintf("%04d/%02d/%02d %02d:%02d:%02d",
+                   $time->year() + 1900, $time->mon() + 1, $time->mday(),
+                   $time->hour(), $time->min(), $time->sec());
 }
 
 sub _disks
@@ -756,11 +761,7 @@ sub _disks
         $e->addText('00000000-0000-0000-0000-000000000000');
         $item->appendChild($e);
 
-        my $volcreation = gmtime($vol->_get_creation());
-        my $voldate = sprintf("%02d/%02d/%d %02d:%02d:%02d",
-                              $volcreation->mday(), $volcreation->mon() + 1,
-                              $volcreation->year() + 1900, $volcreation->hour(),
-                              $volcreation->min(), $volcreation->sec());
+        my $voldate = _format_time(gmtime($vol->_get_creation()));
 
         $e = $ovf->createElement('rasd:CreationDate');
         $e->addText($voldate);
