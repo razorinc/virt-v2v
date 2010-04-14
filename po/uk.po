@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-14 17:12+0100\n"
-"PO-Revision-Date: 2010-03-22 16:09+0300\n"
+"POT-Creation-Date: 2010-04-01 19:34+0100\n"
+"PO-Revision-Date: 2010-04-13 16:09+0300\n"
 "Last-Translator: Maxim V. Dziumanenko <dziumanenko@gmail.com>\n"
-"Language-Team: Ukrainian <uk@li.org>\n"
+"Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,40 +32,40 @@ msgstr ""
 msgid "Failed to connect to {uri}: {error}"
 msgstr "Не вдається приєднатися приєднатися до {uri}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:176
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:172
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "Гостьова система {name} зараз {state}. Спочатку її треба закрити."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:185
 msgid "idle"
 msgstr "бездіяльний"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:187
 msgid "running"
 msgstr "працює"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
 msgid "blocked"
 msgstr "заблоковано"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
 msgid "paused"
 msgstr "призупинено"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
 msgid "shutting down"
 msgstr "закривається"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:199
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
 msgid "shut down"
 msgstr "завершення роботи"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:201
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
 msgid "crashed"
 msgstr "стан-помилка"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:224
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:220
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "Неприпустима назва гостьової системи: {name}"
@@ -78,14 +78,13 @@ msgstr "Не вдається відкрити {path}: {error}"
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:96
 #, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
-msgstr "Не вдається витягнути домен з файлу {path}: {error}"
+msgstr "Не вдається розібрати домен у файлу {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:135
-#, fuzzy
+#: ../lib/Sys/VirtV2V/Connection.pm:140
 msgid "No output target was specified"
-msgstr "Не вказано пули виклику"
+msgstr "Не вказано пули виводу"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {module}, which loads the {modulename} "
@@ -93,7 +92,7 @@ msgid ""
 msgstr ""
 "УВАГА: Невідомо, як оновити {module}, який завантажує модуль {modulename}."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:314
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:268
 msgid ""
 "No bootable kernels installed, and no replacement specified in "
 "configuration.\n"
@@ -102,108 +101,135 @@ msgstr ""
 "Не встановлено завантажувальне ядро та у параметрах не визначено заміну.\n"
 "Продовження неможливе."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:450
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:408
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Не вдається відкрити /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:155
+#: ../lib/Sys/VirtV2V/Converter.pm:153
 msgid "Unable to find a module to convert this guest"
 msgstr "Не вдається знайти модуль для налаштовування цієї гостьової системи"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:331
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtV2V/Converter.pm:328
+#, perl-brace-format
 msgid ""
 "WARNING: Only 4 IDE devices are supported. The following drives have been "
 "removed: {list}"
 msgstr ""
-"УВАГА: Підтримується лише 4 пристрої CDROM. Наступні пристрої CDROM було "
-"видалено: {list}"
+"УВАГА: Підтримується лише 4 пристрої IDE. Наступні пристрої було видалено: {list}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:441
+#: ../lib/Sys/VirtV2V/Converter.pm:438
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr "Невідомий тип інтерфейсу {type} у домені XML: {domain}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:459
+#, perl-brace-format
+msgid "No mapping found for '{type}' interface: {name}"
+msgstr "Не знайдено топологію для інтерфейсу «{type}»: {name}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:473
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping in config: {config}"
+msgstr "УВАГА: Неправильна топологія мережі у конфігурації: {config}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:481
+#, perl-brace-format
+msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+msgstr "УВАГА: Неправильний тип інтерфейсу {type} у топології мережі: {config}"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:176
+msgid "Didn't detect OS distribution"
+msgstr "Не виявлено дистрибутив ОС"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:184
+#, perl-brace-format
+msgid "No config specified. No app match for {search}"
+msgstr "Не вказано конфігурацію. Немає програм, що відповідають {search}"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:210
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr "У конфігурації немає програм, що відповідають {search}"
+
+#: ../lib/Sys/VirtV2V/GuestOS.pm:215
+#, perl-brace-format
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr "запис для програми у конфігурації не містить шлях: {xml}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:145
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Не вдається знайти коректну конфігурацію modprobe"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:366
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:379
 msgid "Unable to find a default kernel"
 msgstr "Не знайдено типове ядро"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:617
-#, perl-brace-format
-msgid "No config specified. No app match for {search}"
-msgstr "Не вказано конфігурацію. Немає програм, що відповідають {search}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:507
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:511
 #, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{path} не містить коректне ядро"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:561
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:565
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Не вдається визначити архітектуру ядра для цієї гостьової системи"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:683
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:678
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Помилка при роботі {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1073
 #, perl-brace-format
 msgid "Didn't find a grub entry for kernel version {version}"
 msgstr "У grub не знайдено запис для версії ядра {version}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "УВАГА: Немає запису для initrd у grub для версії ядра {version}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:56
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:54
+#, perl-brace-format
 msgid "Failed to create storage volume: {error}"
-msgstr "Не вдається створити локальне сховище пошти '%s': %s"
+msgstr "Не вдається створити локальне сховище: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:71
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:69
+#, perl-brace-format
 msgid "Failed to get storage volume: {error}"
-msgstr "Не вдається створити локальне сховище пошти '%s': %s"
+msgstr "Не вдається отримати створити локальне сховище: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:114
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:110
 #, perl-brace-format
 msgid "Error opening storage volume {path} for writing: {error}"
-msgstr ""
+msgstr "Помилка при спробі відкрити том сховища {path} для запису: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:128
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:124
+#, perl-brace-format
 msgid "Error writing to {path}: {error}"
-msgstr "Помилка при запису у '%s'"
+msgstr "Помилка під час запису у {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:138
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:134
 #, perl-brace-format
 msgid "Error closing volume handle: {error}"
 msgstr "Помилка при закритті дескриптора тому: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:202
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:198
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid storage pool"
-msgstr ""
+msgstr "Пул виводу {poolname} не є правильним локальним пулом сховища"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:262
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:258
+#, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
-msgstr "Несподівана помилка при спробі доступу до пулу сховища: "
+msgstr "ПОПЕРЕДЖЕННЯ: Несподівана помилка при доступі до пулу сховища {name}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:320
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:316
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "Підключений гіпервізор не підтримує KVM-гостей {arch}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:347
 #, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
@@ -212,18 +238,18 @@ msgstr ""
 "Підключений гіпервізор не підтримує тип машин {machine}. Буде встановлено "
 "поточний типовий тип."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:377
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:373
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "Підключений гіпервізор не підтримує функцію {feature}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:384
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:380
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr "Ціль на підтримує acpi під KVM. ACPI буде вимкнено."
+msgstr "Ціль не підтримує acpi під KVM. ACPI буде вимкнено."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
 "again. Delete the volume and retry to download again."
@@ -242,25 +268,26 @@ msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
+"Помилка при перевірці прав доступу при підключенні до {server}. Використовуються облікові записи для {username} з .netrc."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
-msgstr "Не вдається з'єднатись з сервером після %d спроб\n"
+msgstr "Не вдається приєднатися до ESX-сервера: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
 msgid "Server response didn't include an SSL subject"
-msgstr ""
+msgstr "Відповідь сервера не містить теми SSL"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
-msgstr ""
+msgstr "У темі сертифікації SSL не міститься загальна назва: {subject}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
-msgstr ""
+msgstr "Сервер {server} надав SSL-сертифікат для {commonname}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
 #, perl-brace-format
@@ -268,186 +295,116 @@ msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
 msgstr ""
+"Для з'єднання з {server} потрібна автентифікація, проте у .netrc не виявлено облікових записів."
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{identifier}: {message}\n"
-msgstr "Повідомлення зліва"
+msgstr "{identifier}: {message}\n"
 
-#: ../v2v/virt-v2v.pl:206
+#: ../v2v/virt-v2v.pl:203
 msgid "Use -ic or -oc to specify an input or an output connection"
-msgstr ""
+msgstr "Використовуйте -ic чи -oc для вказування з'єднання входу та виходу"
 
-#: ../v2v/virt-v2v.pl:225
+#: ../v2v/virt-v2v.pl:220
+#, perl-brace-format
+msgid "Config file {path} doesn't exist"
+msgstr "Файл конфігурації {path} не існує"
+
+#: ../v2v/virt-v2v.pl:223
+#, perl-brace-format
+msgid "Don't have permissions to read {path}"
+msgstr "Немає прав на читання {path}"
+
+#: ../v2v/virt-v2v.pl:230
+#, perl-brace-format
+msgid "Unable to parse config file {path}: {error}"
+msgstr "Не вдається розібрати файл конфігурації {path}: {error}"
+
+#: ../v2v/virt-v2v.pl:236
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
+"При використанні методу виводу libvirt слід вказати пул сховища для виводу"
 
-#: ../v2v/virt-v2v.pl:234
+#: ../v2v/virt-v2v.pl:245
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
+"При використанні методу виводу libvirt слід вказати домен сховища для виводу"
 
-#: ../v2v/virt-v2v.pl:243
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:254
+#, perl-brace-format
 msgid "{output} is not a valid output method"
-msgstr "Посилання на клітинку вводу неприпустиме."
+msgstr "Неприпустимий метод вводу: {output}"
 
-#: ../v2v/virt-v2v.pl:252
-#, fuzzy
+#: ../v2v/virt-v2v.pl:263
 msgid "You must specify a filename"
-msgstr "Слід ввести ім'я файлу."
+msgstr "Потрібно вказати назву файлу"
 
-#: ../v2v/virt-v2v.pl:258
+#: ../v2v/virt-v2v.pl:269
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
-msgstr ""
+msgstr "ПОПЕРЕДЖЕННЯ: {modulename} може приймати лише одну назву файлу."
 
-#: ../v2v/virt-v2v.pl:267
-#, fuzzy
+#: ../v2v/virt-v2v.pl:278
 msgid "You must specify a guest"
-msgstr "Необхідно вказати список."
+msgstr "Необхідно вказати гостьову систему."
 
-#: ../v2v/virt-v2v.pl:276
+#: ../v2v/virt-v2v.pl:287
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
-msgstr ""
+msgstr "ПОПЕРЕДЖЕННЯ: {modulename} може приймати лише одну назву домену."
 
-#: ../v2v/virt-v2v.pl:282
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:293
+#, perl-brace-format
 msgid "{input} is not a valid input method"
-msgstr "Посилання на клітинку вводу неприпустиме."
+msgstr "Неприпустимий метод вводу: {input}"
 
-#: ../v2v/virt-v2v.pl:342
+#: ../v2v/virt-v2v.pl:351
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} налаштовано з драйверами virtio"
 
-#: ../v2v/virt-v2v.pl:345
+#: ../v2v/virt-v2v.pl:354
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} налаштовано без драйверів virtio"
 
-#: ../v2v/virt-v2v.pl:413
+#: ../v2v/virt-v2v.pl:408
+#, perl-brace-format
+msgid "Unable to access {path} referenced in the config file"
+msgstr "Не вдається отримати доступ до {path}, вказаному у файлі конфігурації"
+
+#: ../v2v/virt-v2v.pl:422
+msgid "<iso-path> must be specified in the configuration file"
+msgstr "<iso-path> має бути вказаний у файлі конфігурації"
+
+#: ../v2v/virt-v2v.pl:429
+#, perl-brace-format
+msgid "Unable to stat iso file {path}: {error}"
+msgstr "Не вдається отримати статус iso-файлу {path}: {error}"
+
+#: ../v2v/virt-v2v.pl:433
+#, perl-brace-format
+msgid "Unable to stat config file {path}: {error}"
+msgstr "Не вдається отримати статус файлу конфігурації {path}: {error}"
+
+#: ../v2v/virt-v2v.pl:447
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"Не вдалось створити ISO для передачі. Вивід команди:\n"
+"{output}"
+
+#: ../v2v/virt-v2v.pl:493
 msgid "no root device found in this operating system image"
-msgstr ""
+msgstr "Не знайдено кореневий пристрій для цього образу операційної системи"
 
-#: ../v2v/virt-v2v.pl:419
+#: ../v2v/virt-v2v.pl:499
 msgid "multiboot operating systems are not supported by virt-v2v"
-msgstr ""
+msgstr "virt-v2v не підтримує multiboot операційні системи "
 
-#~ msgid "No mapping found for '{type}' interface: {name}"
-#~ msgstr "Не знайдено топологію для інтерфейсу «{type}»: {name}"
 
-#~ msgid "WARNING: Invalid network mapping in config: {config}"
-#~ msgstr "УВАГА: Неправильна топологія мережі у конфигурації: {config}"
-
-#~ msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
-#~ msgstr ""
-#~ "УВАГА: Неправильний тип інтерфейсу {type} у топології мережі: {config}"
-
-#~ msgid "Didn't detect OS distribution"
-#~ msgstr "Не виявлено дистрибутив ОС"
-
-#~ msgid "No app in config matches {search}"
-#~ msgstr "У конфігурації немає програм, що відповідають {search}"
-
-#~ msgid "app entry in config doesn't contain a path: {xml}"
-#~ msgstr "запис для програми у конфігурації не містить шлях: {xml}"
-
-#, fuzzy
-#~ msgid "Config file {path} doesn't exist"
-#~ msgstr "Файл не існує або не може бути завантажений"
-
-#, fuzzy
-#~ msgid "Don't have permissions to read {path}"
-#~ msgstr "Недостатньо прав для читання наступних файлів"
-
-#~ msgid "/etc/selinux/config does not exist"
-#~ msgstr "/etc/selinux/config не існує"
-
-#~ msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-#~ msgstr "Не знайдено SELINUXTYPE у /etc/syslinux/config"
-
-#~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
-#~ msgstr "Не вдається знайти файл політики SELinux у {path}: {error}"
-
-#~ msgid "Unable to load an SELinux policy"
-#~ msgstr "Не вдається завантажити політику SELinux"
-
-#~ msgid "WARNING: unable to configure SELinux: {error})"
-#~ msgstr "УВАГА: Не вдається налаштувати SELinux: {error})"
-
-#~ msgid ""
-#~ "Previously detected drive {drive} is no longer present in domain XML: "
-#~ "{xml}"
-#~ msgstr ""
-#~ "Раніше виявлений пристрій {drive} більше не присутній у домені XML: {xml}"
-
-#~ msgid ""
-#~ "WARNING: Unable to determine whether sdX devices in /etc/fstab refer to "
-#~ "IDE or SCSI devices. Assuming they refer to SCSI devices. /etc/fstab may "
-#~ "be incorrect after conversion if guest uses libata."
-#~ msgstr ""
-#~ "УВАГА: Не вдається визначити, на які пристрої посилаються sdX-пристрої у /"
-#~ "etc/fstab - на IDE чи SCSI. Вважається, що вони посилаються на SCSI-"
-#~ "пристрої. /etc/fstab може бути неправильним після перетворення, якщо у "
-#~ "гостьовій системі використовується libata."
-
-#, fuzzy
-#~ msgid "no guest argument given"
-#~ msgstr "Для параметра -f не вказаний аргумент"
-
-#, fuzzy
-#~ msgid "Unable to create data directory {dir}: {error}"
-#~ msgstr "Не вдається відкрити дані POP3 зберігання на сервері `%s': %s"
-
-#, fuzzy
-#~ msgid "{input} is not a valid input format"
-#~ msgstr "Формат файлу неприпустимий."
-
-#, fuzzy
-#~ msgid "No domain has been created."
-#~ msgstr "Було створено правило ''<0w>''."
-
-#, fuzzy
-#~ msgid "Unable to open {file}: {error}"
-#~ msgstr "Неможливо відкрити файл специфікацій: %s: %s\n"
-
-#, fuzzy
-#~ msgid "Error closing {file}: {error}"
-#~ msgstr "Помилка закривання файлу \"%s\"."
-
-#, fuzzy
-#~ msgid "Wrote output to {file}"
-#~ msgstr "  -o, --output-file=ФАЙЛ      записати вивід у вказаний файл\n"
-
-#, fuzzy
-#~ msgid "Unable to create guest: {error}"
-#~ msgstr "Помилка: не вдається створити вхідний буфер.\n"
-
-#, fuzzy
-#~ msgid "Unable to write to {path}: {error}"
-#~ msgstr "Помилка: Не вдається обробити розширення"
-
-#, fuzzy
-#~ msgid "Error closing {path}: {error}"
-#~ msgstr "Помилка додавання шляху"
-
-#, fuzzy
-#~ msgid "Unable to create storage volume: {error}"
-#~ msgstr "Помилка: не вдається створити вхідний буфер.\n"
-
-#, fuzzy
-#~ msgid "{path} is not a snapshot volume"
-#~ msgstr "Не підтримується створення знімку дзеркального логічного тому."
-
-#, fuzzy
-#~ msgid "Failed to delete {file}: {error}"
-#~ msgstr "Не вдається видалити старий файл \"%s\": %s"
-
-#, fuzzy
-#~ msgid "invalid source element: {element}"
-#~ msgstr ""
-#~ "Неправильний шаблон джерела \"%s\" \n"
-#~ " %s "
