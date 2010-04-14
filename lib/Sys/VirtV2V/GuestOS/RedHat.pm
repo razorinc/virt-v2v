@@ -1043,10 +1043,17 @@ sub prepare_bootable
     my $initrd;
     my $found = 0;
     eval {
+        my $prefix;
+        if ($self->{desc}->{boot}->{grub_fs} eq "/boot") {
+            $prefix = '';
+        } else {
+            $prefix = '/boot';
+        }
+
         foreach my $kernel
                 ($g->aug_match('/files/boot/grub/menu.lst/title/kernel')) {
 
-            if($g->aug_get($kernel) eq "/vmlinuz-$version") {
+            if($g->aug_get($kernel) eq "$prefix/vmlinuz-$version") {
                 # Ensure it's the default
                 $kernel =~ m{/files/boot/grub/menu.lst/title(?:\[(\d+)\])?/kernel}
                     or die($kernel);
@@ -1068,24 +1075,118 @@ sub prepare_bootable
                 last;
             }
         }
-        $g->aug_save();
+
+        # grubby can sometimes fail to correctly update grub.conf when run from
+        # libguestfs. If it looks like this happened, install a new grub config
+        # here.
+        if (!$found) {
+            # Check that an appropriately named kernel and initrd exist
+            if ($g->exists("/boot/vmlinuz-$version") &&
+                $g->exists("/boot/initrd-$version.img"))
+            {
+                $initrd = "$prefix/initrd-$version.img";
+
+                my $title;
+                # No point in dying if /etc/redhat-release can't be read
+                eval {
+                    ($title) = $g->read_lines('/etc/redhat-release');
+                };
+                $title ||= 'Linux';
+
+                # This is how new-kernel-pkg does it
+                $title =~ s/ release.*//;
+                $title .= " ($version)";
+
+                my $default;
+                eval {
+                    $default = $g->aug_get('/files/boot/grub/menu.lst/default');
+                };
+
+                if (defined($default)) {
+                    $g->aug_defvar('template',
+                         '/files/boot/grub/menu.lst/title['.($default + 1).']');
+                }
+
+                # If there's no default, take the first entry with a kernel
+                else {
+                    my ($match) =
+                        $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
+
+                    die("No template kernel found in grub")
+                        unless(defined($match));
+
+                    $match =~ s/\/kernel$//;
+                    $g->aug_defvar('template', $match);
+                }
+
+                # Add a new title node at the end
+                $g->aug_defnode('new',
+                                '/files/boot/grub/menu.lst/title[last()+1]',
+                                $title);
+
+                # N.B. Don't change the order of root, kernel and initrd below,
+                # or the guest will not boot.
+
+                # Copy root from the template
+                $g->aug_set('$new/root', $g->aug_get('$template/root'));
+
+                # Set kernel and initrd to the new values
+                $g->aug_set('$new/kernel', "$prefix/vmlinuz-$version");
+                $g->aug_set('$new/initrd', "$prefix/initrd-$version.img");
+
+                # Copy all kernel command-line arguments
+                foreach my $arg ($g->aug_match('$template/kernel/*')) {
+                    # kernel arguments don't necessarily have values
+                    my $val;
+                    eval {
+                        $val = $g->aug_get($arg);
+                    };
+
+                    $arg =~ /([^\/]*)$/;
+                    $arg = $1;
+
+                    if (defined($val)) {
+                        $g->aug_set('$new/kernel/'.$arg, $val);
+                    } else {
+                        $g->aug_clear('$new/kernel/'.$arg);
+                    }
+                }
+
+                my ($new) = $g->aug_match('$new');
+                $new =~ /\[(\d+)\]$/;
+
+                $g->aug_set('/files/boot/grub/menu.lst/default',
+                            defined($1) ? $1 - 1 : 0);
+            }
+
+            else {
+                die("Didn't find a grub entry for kernel version $version");
+            }
+        }
+
+        eval {
+            $g->aug_save();
+        };
+
+        if ($@) {
+            my $msg = '';
+            foreach my $error ($g->aug_match('/augeas//error')) {
+                $msg .= $error.': '.$g->aug_get($error)."\n";
+            }
+            die($msg);
+        }
     };
 
     # Propagate augeas failure
     die($@) if($@);
-
-    if(!$found) {
-        die(user_message(__x("Didn't find a grub entry for kernel version ".
-                             "{version}", version => $version)));
-    }
 
     if(!defined($initrd)) {
         print STDERR user_message(__x("WARNING: Kernel version {version} ".
                                       "doesn't have an initrd entry in grub",
                                       version => $version));
     } else {
-        # Initrd as returned by grub is relative to /boot
-        $initrd = "/boot$initrd";
+        # Initrd as returned by grub may be relative to /boot
+        $initrd = $self->{desc}->{boot}->{grub_fs}.$initrd;
 
         # Backup the original initrd
         $g->mv("$initrd", "$initrd.pre-v2v");
