@@ -17,9 +17,12 @@ sub ACTION_dist
 {
     my $self = shift;
 
+    # Don't do this as it always modifies at least the date the translations,
+    # meaning the dist isn't exactly what's in git.
+    # This should be done manually prior to release.
     # Run make pot in the po directory
-    system($self->config('make'), '-C', 'po', 'pot', 'update-po') == 0
-        or return 1;
+    #system($self->config('make'), '-C', 'po', 'pot', 'update-po') == 0
+    #    or return 1;
 
     # Run the regular dist action
     return $self->SUPER::ACTION_dist;
