@@ -249,9 +249,10 @@ sub volume_exists
     my $self = shift;
     my ($name) = @_;
 
+    my $pool = $self->{pool};
     my $vol;
     eval {
-        $vol = $self->{pool}->get_volume_by_name($name);
+        $vol = $pool->get_volume_by_name($name);
     };
 
     # The above command will generate VIR_ERR_NO_STORAGE_VOL if the
@@ -262,7 +263,7 @@ sub volume_exists
             print STDERR user_message(__x("WARNING: Unexpected error ".
                                           "accessing storage pool {name}: ".
                                           "{error}",
-                                          name => $name,
+                                          name => $pool->get_name(),
                                           error => $@->stringify()));
         }
 
