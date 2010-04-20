@@ -288,8 +288,11 @@ sub map_network
          "/network");
 
     unless (defined($mapping)) {
-        print STDERR user_message(__x("No mapping found for '{type}' ".
-                                      "interface: {name}",
+        print STDERR user_message(__x("WARNING: No mapping found for ".
+                                      "{type} interface {name} in config ".
+                                      "file. The converted guest may not ".
+                                      "start until its network interface is ".
+                                      "updated.",
                                       type => $oldtype,
                                       name => $oldname));
         return;
