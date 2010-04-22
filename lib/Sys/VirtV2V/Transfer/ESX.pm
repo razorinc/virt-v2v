@@ -59,21 +59,15 @@ sub new {
         agent => 'virt-v2v/'.$Sys::VirtV2V::VERSION,
         protocols_allowed => [ 'https' ]
     );
-    $self->show_progress(1);
 
-    $self->add_handler(response_header => sub {
-        my ($response, $self, $h) = @_;
-
-        if ($response->is_success) {
-            $self->verify_certificate($response) unless ($noverify);
-            $self->create_volume($response);
-        }
-    });
+    # Older versions of LWP::UserAgent don't support show_progress
+    $self->show_progress(1) if ($self->can('show_progress'));
 
     $self->{_v2v_server}   = $server;
     $self->{_v2v_target}   = $target;
     $self->{_v2v_username} = $username;
     $self->{_v2v_password} = $password;
+    $self->{_v2v_noverify} = $noverify;
 
     if ($noverify) {
         # Unset HTTPS_CA_DIR if it is already set
@@ -176,6 +170,12 @@ sub handle_data
     my $self = shift;
 
     my ($data, $response) = @_;
+
+    # Create the volume if it hasn't been created already
+    if (!defined($self->{_v2v_vol}) && $response->is_success) {
+        $self->verify_certificate($response) unless ($self->{_v2v_noverify});
+        $self->create_volume($response);
+    }
 
     $self->{_v2v_received} += length($data);
     $self->{_v2v_vol}->write($data);
