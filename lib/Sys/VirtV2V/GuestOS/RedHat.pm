@@ -1114,6 +1114,13 @@ sub prepare_bootable
             $g->modprobe("ext2");
         };
 
+        # loop is a module in RHEL 5. Try to load it. Doesn't matter for other
+        # OSs if it doesn't exist, but RHEL 5 will complain:
+        #   All of your loopback devices are in use.
+        eval {
+            $g->modprobe("loop");
+        };
+
         $g->command(["/sbin/mkinitrd", @preload_args, $initrd, $version]);
     }
 
