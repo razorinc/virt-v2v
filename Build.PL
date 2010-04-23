@@ -12,20 +12,13 @@ my $class = Module::Build->subclass(
 __PACKAGE__->add_property('confdoc_files');
 __PACKAGE__->add_property('syntaxcheck_exclude');
 
-# Run 'make -C pot update-po' before the dist action
-sub ACTION_dist
+# Define a 'po' action which runs all the make targets under po/
+sub ACTION_po
 {
     my $self = shift;
 
-    # Don't do this as it always modifies at least the date the translations,
-    # meaning the dist isn't exactly what's in git.
-    # This should be done manually prior to release.
-    # Run make pot in the po directory
-    #system($self->config('make'), '-C', 'po', 'pot', 'update-po') == 0
-    #    or return 1;
-
-    # Run the regular dist action
-    return $self->SUPER::ACTION_dist;
+    system($self->config('make'), '-C', 'po', 'pot', 'update-po') == 0
+        or return 1;
 }
 
 # Generate locale files and install them to blib/locale
