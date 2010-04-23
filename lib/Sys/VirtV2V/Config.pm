@@ -107,8 +107,7 @@ sub get_transfer_iso
     # config file
     # We use a hash here to avoid duplicates
     my %path_args;
-    foreach my $path ($dom->findnodes('/virt-v2v/app/path/text() | '.
-                                      '/virt-v2v/app/dep/text()')) {
+    foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
         $path = $path->getData();
 
         # Get the absolute path if iso-root was defined

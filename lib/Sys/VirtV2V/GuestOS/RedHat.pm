@@ -462,7 +462,7 @@ sub add_kernel
         }
     }
 
-    my ($app, $deps);
+    my ($app, $depnames);
     eval {
         my $desc = $self->{desc};
 
@@ -475,7 +475,8 @@ sub add_kernel
                                  search => $search)));
         }
 
-        ($app, $deps) = $config->match_app($desc, $kernel_pkg, $kernel_arch);
+        ($app, $depnames) =
+            $config->match_app($desc, $kernel_pkg, $kernel_arch);
     };
     # Return undef if we didn't find a kernel
     if ($@) {
@@ -483,14 +484,12 @@ sub add_kernel
         return undef;
     }
 
-    return undef if($self->_is_installed($app));
+    return undef if ($self->_newer_installed($app));
 
-    my @install;
-    # Install any kernel dependencies which aren't already installed
-    foreach my $dep (@$deps) {
-        push(@install, $dep) unless($self->_is_installed($dep));
-    }
-    $self->_install_rpms(1, @install);
+    my $user_arch = $kernel_arch eq 'i686' ? 'i386' : $kernel_arch;
+
+    # Install any required kernel dependencies
+    $self->_install_rpms(1, $self->_get_deppaths($user_arch, @$depnames));
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
@@ -621,22 +620,17 @@ sub add_application
     my ($app, $deps) = $config->match_app($self->{desc}, $label, $user_arch);
 
     # Nothing to do if it's already installed
-    return if($self->_is_installed($app));
+    return if ($self->_newer_installed($app));
 
     my @install = ($app);
 
     # Add any dependencies which aren't already installed to the install set
-    foreach my $dep (@$deps) {
-        push(@install, $dep) unless ($self->_is_installed($dep));
-    }
+    push(@install, $self->_get_deppaths($user_arch, @$deps));
 
     $self->_install_rpms(1, @install);
 }
 
-
-# Return 1 if the requested rpm, or a newer version, is installed
-# Return 0 otherwise
-sub _is_installed
+sub _get_nevra
 {
     my $self = shift;
     my ($rpm) = @_;
@@ -657,8 +651,15 @@ sub _is_installed
     # Ensure epoch is always numeric
     $epoch = 0 if('(none)' eq $epoch);
 
-    # Search installed rpms matching <name>.<arch>
-    my $found = 0;
+    return ($name, $epoch, $version, $release, $arch);
+}
+
+sub _get_installed
+{
+    my $self = shift;
+    my ($name, $arch) = @_;
+
+    my $g = $self->{g};
 
     my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
                   "$name.$arch"];
@@ -678,32 +679,60 @@ sub _is_installed
         # a real error.
         my $error = $g->sh("LANG=C '".join("' '", @$rpmcmd)."' 2>&1 ||:");
 
-        return 0 if ($error =~ /not installed/);
+        return () if ($error =~ /not installed/);
 
         die(user_message(__x("Error running {command}: {error}",
                              command => join(' ', @$rpmcmd),
                              error => $error)));
     }
 
+    my @installed;
     foreach my $installed (@output) {
         $installed =~ /^(\S+)\s+(\S+)\s+(\S+)$/
             or die("Unexpected return from rpm command: $installed");
-        my ($iepoch, $iversion, $irelease) = ($1, $2, $3);
+        my ($epoch, $version, $release) = ($1, $2, $3);
 
         # Ensure iepoch is always numeric
-        $iepoch = 0 if('(none)' eq $iepoch);
+        $epoch = 0 if('(none)' eq $epoch);
+
+        push(@installed, [$epoch, $version, $release]);
+    }
+
+    return @installed;
+}
+
+
+# Return 1 if the requested rpm, or a newer version, is installed
+# Return 0 otherwise
+sub _newer_installed
+{
+    my $self = shift;
+    my ($rpm) = @_;
+
+    my $g = $self->{g};
+
+    my ($name, $epoch, $version, $release, $arch) = $self->_get_nevra($rpm);
+
+    my @installed = $self->_get_installed($name, $arch);
+
+    # Search installed rpms matching <name>.<arch>
+    my $found = 0;
+    foreach my $pkg (@installed) {
+        my $iepoch   = $pkg->[0];
+        my $iversion = $pkg->[1];
+        my $irelease = $pkg->[2];
 
         # Skip if installed epoch less than requested version
-        next if($iepoch < $epoch);
+        next if ($iepoch < $epoch);
 
-        if($iepoch eq $epoch) {
+        if ($iepoch eq $epoch) {
             # Skip if installed version less than requested version
-            next if(_rpmvercmp($iversion, $version) < 0);
+            next if (_rpmvercmp($iversion, $version) < 0);
 
             # Skip if install version == requested version, but release less
             # than requested release
-            if($iversion eq $version) {
-                next if(_rpmvercmp($irelease,$release) < 0);
+            if ($iversion eq $version) {
+                next if (_rpmvercmp($irelease, $release) < 0);
             }
         }
 
@@ -711,6 +740,57 @@ sub _is_installed
     }
 
     return $found;
+}
+
+# Return a list of dependency paths which need to be installed for the given
+# apps
+sub _get_deppaths
+{
+    my $self = shift;
+    my ($arch, @apps) = @_;
+
+    my $desc = $self->{desc};
+    my $config = $self->{config};
+
+    my %required;
+    foreach my $app (@apps) {
+        my ($path, $deps) = $config->match_app($desc, $app, $arch);
+
+        if (!$self->_newer_installed($path)) {
+            $required{$path} = 1;
+
+            foreach my $deppath ($self->_get_deppaths($arch, @$deps)) {
+                $required{$deppath} = 1;
+            }
+        }
+
+        # For x86_64, also check if there is any i386 version installed. If
+        # there is, check if it needs to be upgraded.
+        if ($arch eq 'x86_64') {
+            $path = undef;
+            $deps = undef;
+
+            # It's not an error if no i386 package is available
+            eval {
+                ($path, $deps) = $config->match_app($desc, $app, 'i386');
+            };
+
+            if (defined($path) && !$self->_newer_installed($path)) {
+                my ($name, undef, undef, undef, $arch) =
+                    $self->_get_nevra($path);
+
+                if ($self->_get_installed($name, $arch) > 0) {
+                    $required{$path} = 1;
+
+                    foreach my $deppath ($self->_get_deppaths('i386', @$deps)) {
+                        $required{$deppath} = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return keys(%required);
 }
 
 # An implementation of rpmvercmp. Compares two rpm version/release numbers and

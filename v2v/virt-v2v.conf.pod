@@ -133,16 +133,19 @@ describing what it was looking for.
 
 The E<lt>appE<gt> element must contain a E<lt>pathE<gt> element, which specifies
 the path to the software. It may also contain any number of E<lt>depE<gt>
-elements, which specify the paths to dependencies of the application.
+elements, which specify the names of additional applications which may need to
+be installed. Each dependency will be resolved in the same way as its parent, by
+looking for a match based on os, major, minor and arch.
 
 virt-v2v will attempt to install dependencies first. A dependency will only be
 installed if it is not already installed, or the installed version is older than
-the specified version.
+the specified version. On x86_64, virt-v2v will additionally check if an i386
+version need to by updated, but only if any i386 version of the package is
+already installed.
 
-Paths given in both the E<lt>pathE<gt> and E<lt>depE<gt> must be absolute,
-unless there is a top level E<lt>path-rootE<gt> element. If it exists, all
-E<lt>pathE<gt> and E<lt>depE<gt> elements will be relative to
-E<lt>path-rootE<gt>.
+Paths given in E<lt>pathE<gt> must be absolute, unless there is a top level
+E<lt>path-rootE<gt> element. If it exists, all E<lt>pathE<gt> elements will be
+relative to E<lt>path-rootE<gt>.
 
 virt-v2v passes software to the guest by creating an iso image and passing it to
 the guest as a cd-rom drive. The path to this iso image must be specified in a
@@ -156,17 +159,25 @@ versions, on i686:
 
  <app os='rhel' major='5' arch='i686' name='kernel'>
    <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
-   <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
-   <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
-   <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
-   <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+   <dep>ecryptfs-utils</dep>
+   <dep>lvm2</dep>
+ </app>
+ <app os='rhel' major='5' arch='i386' name='ecryptfs-utils'>
+   <path>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</path>
+ </app>
+ <app os='rhel' major='5' arch='i386' name='lvm2'>
+   <path>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</path>
+   <dep>device-mapper</dep>
+   <dep>device-mapper-event</dep>
  </app>
 
 The kernel can be found at
-/var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 4
-dependencies, which will be installed if they are not present, or are too old.
-All dependency paths are also relative to /var/lib/virt-v2v/software. virt-v2v
-will create a transfer iso image containing all paths and dependencies at
+/var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 2
+direct dependencies: ecryptfs and lvm2. ecryptfs-utils has no additional
+dependencies, but lvm2 has 2 further dependencies (not shown for brevity). All
+dependencies will also be installed if they are not present, or are too old. All
+dependency paths are also relative to /var/lib/virt-v2v/software.  virt-v2v will
+create a transfer iso image containing all paths and dependencies at
 /var/lib/virt-v2v/transfer.iso.
 
 =head1 EXAMPLE
@@ -176,39 +187,69 @@ virt-v2v distribution. The majority of the file specifies the locations of
 replacement FV kernels for RHEL 4 and RHEL 5. These will be required when
 converting Xen guests which use a PV kernel.
 
-It also specifies that guests using a bridge called either 'xenbr1' (the Xen
-default) or 'VM Network' (the VMware ESX default) should be mapped to the local
-managed network called 'default'.
+It also contains 2 example network mappings, both commented out, which provide
+mappings for:
+
+* a bridge called 'xenbr1' (the Xen default)
+* a network called 'VM Network' (the VMware ESX default)
+* a network called 'default' (the libvirt default)
+
+The first commented out section will map all of the above to the libvirt
+default, the second to the RHEV default.
 
  <virt-v2v>
    <path-root>/var/lib/virt-v2v/software</path-root>
    <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
-
+ 
    <!-- RHEL 5
         All of these RPMS are from RHEL 5.3, which was the first version of RHEL
         5 to support VirtIO -->
    <app os='rhel' major='5' arch='i686' name='kernel'>
      <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
-     <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
-     <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
-     <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
-     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+     <dep>ecryptfs-utils</dep>
+     <dep>lvm2</dep>
    </app>
    <app os='rhel' major='5' arch='i686' name='kernel-PAE'>
      <path>rhel/5/kernel-PAE-2.6.18-128.el5.i686.rpm</path>
-     <dep>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</dep>
-     <dep>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</dep>
-     <dep>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</dep>
-     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</dep>
+     <dep>ecryptfs-utils</dep>
+     <dep>lvm2</dep>
    </app>
    <app os='rhel' major='5' arch='x86_64' name='kernel'>
      <path>rhel/5/kernel-2.6.18-128.el5.x86_64.rpm</path>
-     <dep>rhel/5/ecryptfs-utils-56-8.el5.x86_64.rpm</dep>
-     <dep>rhel/5/lvm2-2.02.40-6.el5.x86_64.rpm</dep>
-     <dep>rhel/5/device-mapper-1.02.28-2.el5.x86_64.rpm</dep>
-     <dep>rhel/5/device-mapper-event-1.02.28-2.el5.x86_64.rpm</dep>
+     <dep>ecryptfs-utils</dep>
+     <dep>lvm2</dep>
    </app>
-
+ 
+   <!-- RHEL 5 Kernel dependencies -->
+   <app os='rhel' major='5' arch='x86_64' name='ecryptfs-utils'>
+     <path>rhel/5/ecryptfs-utils-56-8.el5.x86_64.rpm</path>
+   </app>
+   <app os='rhel' major='5' arch='i386' name='ecryptfs-utils'>
+     <path>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</path>
+   </app>
+   <app os='rhel' major='5' arch='x86_64' name='lvm2'>
+     <path>rhel/5/lvm2-2.02.40-6.el5.x86_64.rpm</path>
+     <dep>device-mapper</dep>
+     <dep>device-mapper-event</dep>
+   </app>
+   <app os='rhel' major='5' arch='i386' name='lvm2'>
+     <path>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</path>
+     <dep>device-mapper</dep>
+     <dep>device-mapper-event</dep>
+   </app>
+   <app os='rhel' major='5' arch='x86_64' name='device-mapper'>
+     <path>rhel/5/device-mapper-1.02.28-2.el5.x86_64.rpm</path>
+   </app>
+   <app os='rhel' major='5' arch='i386' name='device-mapper'>
+     <path>rhel/5/device-mapper-1.02.28-2.el5.i386.rpm</path>
+   </app>
+   <app os='rhel' major='5' arch='x86_64' name='device-mapper-event'>
+     <path>rhel/5/device-mapper-event-1.02.28-2.el5.x86_64.rpm</path>
+   </app>
+   <app os='rhel' major='5' arch='i386' name='device-mapper-event'>
+     <path>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</path>
+   </app>
+ 
    <!-- RHEL 4
         All of these RPMs are from RHEL 4.8, which was the first version of RHEL
         4 to support VirtIO -->
@@ -230,17 +271,39 @@ managed network called 'default'.
    <app os='rhel' major='4' arch='x86_64' name='kernel-largesmp'>
      <path>rhel/4/kernel-largesmp-2.6.9-89.EL.x86_64.rpm</path>
    </app>
-
+ 
    <!-- Networks -->
-   <!-- The default Xen bridge name -->
+   <!-- Mappings for the defaults in Xen, ESX and libvirt/KVM
+        to the default in libvirt/KVM -->
+   <!--
    <network type='bridge' name='xenbr1'>
      <network type='network' name='default'/>
    </network>
-
-   <!-- The default ESX bridge name -->
+ 
    <network type='bridge' name='VM Network'>
      <network type='network' name='default'/>
    </network>
+ 
+   <network type='network' name='default'>
+     <network type='network' name='default'/>
+   </network>
+   -->
+ 
+   <!-- If importing to RHEV, you may want to use the default network name
+        'rhevm' instead -->
+   <!--
+   <network type='bridge' name='xenbr1'>
+     <network type='network' name='rhevm'/>
+   </network>
+ 
+   <network type='bridge' name='VM Network'>
+     <network type='network' name='rhevm'/>
+   </network>
+ 
+   <network type='network' name='default'>
+     <network type='network' name='rhevm'/>
+   </network>
+   -->
  </virt-v2v>
 
 =head1 COPYRIGHT
