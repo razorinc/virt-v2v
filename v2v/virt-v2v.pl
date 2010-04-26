@@ -350,6 +350,9 @@ exit(0);
 # We should always attempt to shut down the guest gracefully
 END {
     close_guest_handle();
+
+    # die() sets $? to 255, which is untidy.
+    $? = $? == 255 ? 1 : $?;
 }
 
 ###############################################################################
@@ -364,10 +367,16 @@ sub close_guest_handle
         $g->umount_all();
         $g->sync();
 
+        my $retval = $?
+
         # Note that this undef is what actually causes the underlying handle to
         # be closed. This is required to allow the RHEV target's temporary mount
         # directory to be unmounted and deleted prior to exit.
         $g = undef;
+
+        # The above undef causes libguestfs's qemu process to be killed. This
+        # may update $?, so we preserve it here.
+        $? ||= $retval;
     }
 }
 

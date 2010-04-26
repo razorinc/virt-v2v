@@ -143,11 +143,19 @@ sub DESTROY
 {
     my $self = shift;
 
+    my $retval = $?;
+
     # Make certain the child process dies with the object
     if (defined($self->{pid})) {
         kill(9, $self->{pid});
         waitpid($self->{pid}, WNOHANG);
+
+        # waitpid() returns the status of the child process in $?, so we need to
+        # preserve both this and the original $?
+        $retval ||= $?;
     }
+
+    $? = $retval;
 }
 
 package Sys::VirtV2V::Target::RHEV::Vol;
@@ -441,6 +449,11 @@ sub DESTROY
 {
     my $self = shift;
 
+    # The ExecHelper we use to unmount the export directory will overwrite $?
+    # when the helper process exits. We need to preserve it for our own exit
+    # status.
+    my $retval = $?;
+
     my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
     if ($eh->status() != 0) {
         print STDERR user_message(__x("Failed to unmount {path}. Command ".
@@ -449,6 +462,8 @@ sub DESTROY
                                       path => $self->{domain_path},
                                       status => $eh->status(),
                                       output => $eh->output()));
+        # Exit with an error if the child failed.
+        $retval ||= $eh->status();
     }
 
     rmdir($self->{mountdir})
@@ -456,6 +471,8 @@ sub DESTROY
                                          "{dir}: {error}",
                                          dir => $self->{mountdir},
                                          error => $!));
+
+    $? = $retval;
 }
 
 =item create_volume(name, size)
