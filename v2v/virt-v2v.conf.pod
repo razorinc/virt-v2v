@@ -200,7 +200,7 @@ default, the second to the RHEV default.
  <virt-v2v>
    <path-root>/var/lib/virt-v2v/software</path-root>
    <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
- 
+
    <!-- RHEL 5
         All of these RPMS are from RHEL 5.3, which was the first version of RHEL
         5 to support VirtIO -->
@@ -219,7 +219,7 @@ default, the second to the RHEV default.
      <dep>ecryptfs-utils</dep>
      <dep>lvm2</dep>
    </app>
- 
+
    <!-- RHEL 5 Kernel dependencies -->
    <app os='rhel' major='5' arch='x86_64' name='ecryptfs-utils'>
      <path>rhel/5/ecryptfs-utils-56-8.el5.x86_64.rpm</path>
@@ -249,7 +249,7 @@ default, the second to the RHEV default.
    <app os='rhel' major='5' arch='i386' name='device-mapper-event'>
      <path>rhel/5/device-mapper-event-1.02.28-2.el5.i386.rpm</path>
    </app>
- 
+
    <!-- RHEL 4
         All of these RPMs are from RHEL 4.8, which was the first version of RHEL
         4 to support VirtIO -->
@@ -271,7 +271,7 @@ default, the second to the RHEV default.
    <app os='rhel' major='4' arch='x86_64' name='kernel-largesmp'>
      <path>rhel/4/kernel-largesmp-2.6.9-89.EL.x86_64.rpm</path>
    </app>
- 
+
    <!-- Networks -->
    <!-- Mappings for the defaults in Xen, ESX and libvirt/KVM
         to the default in libvirt/KVM -->
@@ -279,27 +279,27 @@ default, the second to the RHEV default.
    <network type='bridge' name='xenbr1'>
      <network type='network' name='default'/>
    </network>
- 
+
    <network type='bridge' name='VM Network'>
      <network type='network' name='default'/>
    </network>
- 
+
    <network type='network' name='default'>
      <network type='network' name='default'/>
    </network>
    -->
- 
+
    <!-- If importing to RHEV, you may want to use the default network name
         'rhevm' instead -->
    <!--
    <network type='bridge' name='xenbr1'>
      <network type='network' name='rhevm'/>
    </network>
- 
+
    <network type='bridge' name='VM Network'>
      <network type='network' name='rhevm'/>
    </network>
- 
+
    <network type='network' name='default'>
      <network type='network' name='rhevm'/>
    </network>
