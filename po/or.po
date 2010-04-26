@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.virt-v2v.or\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-14 17:12+0100\n"
+"POT-Creation-Date: 2010-04-26 15:05+0100\n"
 "PO-Revision-Date: 2010-02-01 15:17+0530\n"
 "Last-Translator: Manoj Kumar Giri <mgiri@redhat.com>\n"
 "Language-Team: Oriya <oriya-it@googlegroups.com>\n"
@@ -17,6 +17,80 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n!=1);\n"
 "\n"
+
+#: ../lib/Sys/VirtV2V/Config.pm:72
+#, perl-brace-format
+msgid "Config file {path} doesn't exist"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:75
+#, perl-brace-format
+msgid "Don't have permissions to read {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:82
+#, fuzzy, perl-brace-format
+msgid "Unable to parse config file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:122
+#, perl-brace-format
+msgid "Unable to access {path} referenced in the config file"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:136
+msgid "<iso-path> must be specified in the configuration file"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:143
+#, fuzzy, perl-brace-format
+msgid "Unable to stat iso file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:147
+#, fuzzy, perl-brace-format
+msgid "Unable to stat config file {path}: {error}"
+msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:161
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:214
+msgid "Didn't detect OS distribution"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:240
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:246
+#, perl-brace-format
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:290
+#, perl-brace-format
+msgid ""
+"WARNING: No mapping found for {type} interface {name} in config file. The "
+"converted guest may not start until its network interface is updated."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:307
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping in config: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:315
+#, perl-brace-format
+msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
 #, fuzzy, perl-brace-format
@@ -137,31 +211,26 @@ msgid "Unable to find a default kernel"
 msgstr "ଗୋଟିଏ ପୂର୍ବନିର୍ଦ୍ଧାରିତ କର୍ଣ୍ଣଲକୁ ଖୋଜିପାଇବାରେ ଅସମର୍ଥ"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:617
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:507
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
 #, fuzzy, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} କୌଣସି ବୈଧ କର୍ଣ୍ଣଲ ଧାରଣ କରିନଥାଏ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:561
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "ଏହି ଅତିଥି ପାଇଁ ଗୋଟିଏ କର୍ଣ୍ଣଲ ସଂରଚନାକୁ ନିର୍ଦ୍ଧାରଣ କରିବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:683
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
-#, perl-brace-format
-msgid "Didn't find a grub entry for kernel version {version}"
-msgstr "କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ କୌଣସି grub ଭରଣ ଖୋଜି ପାଇଲା ନାହିଁ"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "WARNING: କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ grub ରେ କୌଣସି initrd ଭରଣ ନାହିଁ"
@@ -196,53 +265,117 @@ msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {er
 msgid "Output pool {poolname} is not a valid storage pool"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:262
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:263
 #, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:320
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:321
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର କୌଣସି {arch} kvm ଅତିଥିକୁ ସମର୍ଥନ କରେନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:352
 #, fuzzy, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ଯନ୍ତ୍ର ପ୍ରକାର {machine} କୁ ସମର୍ଥନ କରେନାହିଁ।"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:377
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "ସଂଯୁକ୍ତ ହାଇପରଭାଇଜର ବିଶେଷତା {feature} କୁ ସମର୍ଥନ କରେନାହିଁ"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:384
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:265 ../lib/Sys/VirtV2V/Target/RHEV.pm:651
+#, fuzzy, perl-brace-format
+msgid "Failed to create directory {dir}: {error}"
+msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:272 ../lib/Sys/VirtV2V/Target/RHEV.pm:658
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for writing: {error}"
+msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:292
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:386
+msgid "You must be root to output to RHEV"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:393
+#, perl-brace-format
+msgid "Unable to change ownership of {mountdir} to 36:36"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:402
+#, perl-brace-format
+msgid ""
+"Failed to mount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:411
+#, fuzzy, perl-brace-format
+msgid "Unable to open {mountdir}: {error}"
+msgstr "{file} କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:427
+#, perl-brace-format
+msgid "{mountdir} contains multiple possible domains. It may only contain one."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:438
+#, perl-brace-format
+msgid "{mountdir} does not contain an initialised storage domain"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
+#, perl-brace-format
+msgid ""
+"Failed to unmount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:470
+#, fuzzy, perl-brace-format
+msgid "Failed to remove mount directory {dir}: {error}"
+msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:866
+#, perl-brace-format
+msgid ""
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:116
 #, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
 "again. Delete the volume and retry to download again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
@@ -266,6 +399,40 @@ msgstr ""
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:64
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:64
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT copying it "
+"again. Delete the volume and retry to copy again."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:74
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for reading: {error}"
+msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
+#, fuzzy, perl-brace-format
+msgid "Unable to stat {path}: {error}"
+msgstr "{path} କୁ ଲେଖିବାରେ ଅସମର୍ଥ: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#, fuzzy, perl-brace-format
+msgid "Error reading data from {path}: {error}"
+msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#, perl-brace-format
+msgid "Unexpected error copying {path} from {host}. Command output: {output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#, perl-brace-format
+msgid "Unexpected error getting {path}: {output}"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
@@ -326,36 +493,20 @@ msgstr "{name} କୁ virtio ଡ୍ରାଇଭରମାନଙ୍କ ସହି�
 msgid "{name} configured without virtio drivers"
 msgstr "{name} କୁ virtio ଡ୍ରାଇଭର ବିନା ବିନ୍ୟାସ କରାଯାଇନାହିଁ"
 
-#: ../v2v/virt-v2v.pl:413
+#: ../v2v/virt-v2v.pl:422
 msgid "no root device found in this operating system image"
 msgstr "ଏହି ପ୍ରଚାଳନ ତନ୍ତ୍ର ପ୍ରତିଛବିରେ କୌଣସି ରୁଟ ଉପକରଣ ମିଳିଲା ନାହିଁ"
 
-#: ../v2v/virt-v2v.pl:419
+#: ../v2v/virt-v2v.pl:428
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ virt-v2v ଦ୍ୱାରା ସମର୍ଥିତ ନୁହଁ"
+
+#~ msgid "Didn't find a grub entry for kernel version {version}"
+#~ msgstr "କର୍ଣ୍ଣଲ ସଂସ୍କରଣ {version} ପାଇଁ କୌଣସି grub ଭରଣ ଖୋଜି ପାଇଲା ନାହିଁ"
 
 #, fuzzy
 #~ msgid "No mapping found for '{type}' interface: {name}"
 #~ msgstr "ବ୍ଲକ ଉପକରଣ {device} ପାଇଁ କୌଣସି ମ୍ୟାପିଙ୍ଗ ମିଳିନାହିଁ"
-
-#, fuzzy
-#~ msgid "Unable to parse config file {path}: {error}"
-#~ msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#, fuzzy
-#~ msgid "Unable to stat iso file {path}: {error}"
-#~ msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#, fuzzy
-#~ msgid "Unable to stat config file {path}: {error}"
-#~ msgstr "{path} କୁ ବିଶ୍ଳେଷଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
-#~ msgid ""
-#~ "Failed to create transfer iso. Command output was:\n"
-#~ "{output}"
-#~ msgstr ""
-#~ "ପରିବହନ iso ନିର୍ମାଣ କରିବାରେ ବିଫଳ। ନିର୍ଦ୍ଦେଶ ଫଳାଫଳଟି ହେଉଛି:\n"
-#~ "{output}"
 
 #~ msgid "/etc/selinux/config does not exist"
 #~ msgstr "/etc/selinux/config ଅବସ୍ଥିତ ନାହିଁ"
@@ -378,18 +529,11 @@ msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ vir
 #~ msgid "no guest argument given"
 #~ msgstr "କୌଣସି ଅତିଥି ସ୍ୱତନ୍ତ୍ରଚର ପ୍ରଦାନ କରାଯାଇନାହିଁ"
 
-#, fuzzy
-#~ msgid "Unable to create data directory {dir}: {error}"
-#~ msgstr "ଅତିଥି ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"
-
 #~ msgid "{input} is not a valid input format"
 #~ msgstr "{input} ଟି ଗୋଟିଏ ବୈଧ ନିବେଶ ଶୈଳୀ ନୁହଁ"
 
 #~ msgid "No domain has been created."
 #~ msgstr "କୌଣସି ଡମେନ ନିର୍ମାଣ ହୋଇନାହିଁ।"
-
-#~ msgid "Unable to open {file}: {error}"
-#~ msgstr "{file} କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
 
 #~ msgid "Error closing {file}: {error}"
 #~ msgstr "{file} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
@@ -437,12 +581,6 @@ msgstr "multiboot ପ୍ରଚାଳନ ତନ୍ତ୍ରଗୁଡ଼ିକ vir
 #~ msgstr ""
 #~ "{guest} ପାଇଁ ଗୋଟିଏ ସ୍ନାପସର୍ଟ ପୂର୍ବରୁ ଅବସ୍ଥିତ ଅଛି। ଆପଣଙ୍କୁ ଏହାକୁ ଦାଖଲ କରିବାକୁ ହେବ ଅଥବା "
 #~ "ଗୋଟିଏ ନୂତନ ସ୍ନାପସର୍ଟ ନିର୍ମାଣ କରିବା ପୂର୍ବରୁ ଏହାକୁ ଫେରାଇ ଦେବା ଉଚିତ।"
-
-#~ msgid "Unable to write to {path}: {error}"
-#~ msgstr "{path} କୁ ଲେଖିବାରେ ଅସମର୍ଥ: {error}"
-
-#~ msgid "Error closing {path}: {error}"
-#~ msgstr "{path} କୁ ବନ୍ଦ କରିବାରେ ତ୍ରୁଟି: {error}"
 
 #~ msgid "Unable to create storage volume: {error}"
 #~ msgstr "ସଂରକ୍ଷଣ ଭଲ୍ୟୁମ ନିର୍ମାଣ କରିବାରେ ଅସମର୍ଥ: {error}"

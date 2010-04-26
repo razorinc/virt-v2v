@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-14 17:12+0100\n"
+"POT-Creation-Date: 2010-04-26 15:05+0100\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -17,6 +17,80 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../lib/Sys/VirtV2V/Config.pm:72
+#, perl-brace-format
+msgid "Config file {path} doesn't exist"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:75
+#, perl-brace-format
+msgid "Don't have permissions to read {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:82
+#, fuzzy, perl-brace-format
+msgid "Unable to parse config file {path}: {error}"
+msgstr "无法解析 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:122
+#, perl-brace-format
+msgid "Unable to access {path} referenced in the config file"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:136
+msgid "<iso-path> must be specified in the configuration file"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:143
+#, fuzzy, perl-brace-format
+msgid "Unable to stat iso file {path}: {error}"
+msgstr "无法解析 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:147
+#, fuzzy, perl-brace-format
+msgid "Unable to stat config file {path}: {error}"
+msgstr "无法解析 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:161
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"无法创建传输标准。 命令的输出是：\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:214
+msgid "Didn't detect OS distribution"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:240
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:246
+#, perl-brace-format
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:290
+#, perl-brace-format
+msgid ""
+"WARNING: No mapping found for {type} interface {name} in config file. The "
+"converted guest may not start until its network interface is updated."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:307
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping in config: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:315
+#, perl-brace-format
+msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
 #, fuzzy, perl-brace-format
@@ -134,31 +208,26 @@ msgid "Unable to find a default kernel"
 msgstr "无法找到默认内核"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:617
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:507
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
 #, fuzzy, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} 不包含有效内核"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:561
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "无法为这个客户端确定内核构架"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:683
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
-#, perl-brace-format
-msgid "Didn't find a grub entry for kernel version {version}"
-msgstr "没有找到内核版本 {version} 的 grub 条目"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
@@ -193,53 +262,117 @@ msgstr "关闭 {file} 出错：{error}"
 msgid "Output pool {poolname} is not a valid storage pool"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:262
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:263
 #, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:320
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:321
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "连接的管理程序不支持 {arch} kvm 客户端"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:352
 #, fuzzy, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
 msgstr "连接的管理程序不支持机器类型 {machine}。"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:377
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "连接的管理程序不支持特性 {feature}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:384
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:265 ../lib/Sys/VirtV2V/Target/RHEV.pm:651
+#, fuzzy, perl-brace-format
+msgid "Failed to create directory {dir}: {error}"
+msgstr "无法创建客户端：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:272 ../lib/Sys/VirtV2V/Target/RHEV.pm:658
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for writing: {error}"
+msgstr "打开 {path} 失败：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:292
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "关闭 {path} 出错：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:386
+msgid "You must be root to output to RHEV"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:393
+#, perl-brace-format
+msgid "Unable to change ownership of {mountdir} to 36:36"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:402
+#, perl-brace-format
+msgid ""
+"Failed to mount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:411
+#, fuzzy, perl-brace-format
+msgid "Unable to open {mountdir}: {error}"
+msgstr "无法打开文件 {file}：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:427
+#, perl-brace-format
+msgid "{mountdir} contains multiple possible domains. It may only contain one."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:438
+#, perl-brace-format
+msgid "{mountdir} does not contain an initialised storage domain"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
+#, perl-brace-format
+msgid ""
+"Failed to unmount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:470
+#, fuzzy, perl-brace-format
+msgid "Failed to remove mount directory {dir}: {error}"
+msgstr "无法创建客户端：{error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:866
+#, perl-brace-format
+msgid ""
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:116
 #, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
 "again. Delete the volume and retry to download again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "打开 {path} 失败：{error}"
@@ -263,6 +396,40 @@ msgstr ""
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:64
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:64
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT copying it "
+"again. Delete the volume and retry to copy again."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:74
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for reading: {error}"
+msgstr "打开 {path} 失败：{error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
+#, fuzzy, perl-brace-format
+msgid "Unable to stat {path}: {error}"
+msgstr "无法写入 {path}：{error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#, fuzzy, perl-brace-format
+msgid "Error reading data from {path}: {error}"
+msgstr "关闭 {path} 出错：{error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#, perl-brace-format
+msgid "Unexpected error copying {path} from {host}. Command output: {output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#, perl-brace-format
+msgid "Unexpected error getting {path}: {output}"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
@@ -323,36 +490,20 @@ msgstr "virtio 驱动程序配置的 {name}"
 msgid "{name} configured without virtio drivers"
 msgstr "非 virtio 驱动程序配置的 {name}"
 
-#: ../v2v/virt-v2v.pl:413
+#: ../v2v/virt-v2v.pl:422
 msgid "no root device found in this operating system image"
 msgstr "在这个操作系统映像中没有找到 root 设备"
 
-#: ../v2v/virt-v2v.pl:419
+#: ../v2v/virt-v2v.pl:428
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v 不支持多重引导操作系统"
+
+#~ msgid "Didn't find a grub entry for kernel version {version}"
+#~ msgstr "没有找到内核版本 {version} 的 grub 条目"
 
 #, fuzzy
 #~ msgid "No mapping found for '{type}' interface: {name}"
 #~ msgstr "没有找到块设备 {device} 映射"
-
-#, fuzzy
-#~ msgid "Unable to parse config file {path}: {error}"
-#~ msgstr "无法解析 {path}：{error}"
-
-#, fuzzy
-#~ msgid "Unable to stat iso file {path}: {error}"
-#~ msgstr "无法解析 {path}：{error}"
-
-#, fuzzy
-#~ msgid "Unable to stat config file {path}: {error}"
-#~ msgstr "无法解析 {path}：{error}"
-
-#~ msgid ""
-#~ "Failed to create transfer iso. Command output was:\n"
-#~ "{output}"
-#~ msgstr ""
-#~ "无法创建传输标准。 命令的输出是：\n"
-#~ "{output}"
 
 #~ msgid "/etc/selinux/config does not exist"
 #~ msgstr "/etc/selinux/config 不存在"
@@ -375,18 +526,11 @@ msgstr "virt-v2v 不支持多重引导操作系统"
 #~ msgid "no guest argument given"
 #~ msgstr "没有给出客户端参数"
 
-#, fuzzy
-#~ msgid "Unable to create data directory {dir}: {error}"
-#~ msgstr "无法创建客户端：{error}"
-
 #~ msgid "{input} is not a valid input format"
 #~ msgstr "{input} 不是有效输入格式"
 
 #~ msgid "No domain has been created."
 #~ msgstr "未生成域。"
-
-#~ msgid "Unable to open {file}: {error}"
-#~ msgstr "无法打开文件 {file}：{error}"
 
 #~ msgid "Error closing {file}: {error}"
 #~ msgstr "关闭 {file} 出错：{error}"
@@ -432,12 +576,6 @@ msgstr "virt-v2v 不支持多重引导操作系统"
 #~ "A snapshot already exists for {guest}. You must commit it or roll it back "
 #~ "back before creating a new snapshot."
 #~ msgstr "{guest} 已经有快照存在。您必须在创建新快照前提交它或者返回。"
-
-#~ msgid "Unable to write to {path}: {error}"
-#~ msgstr "无法写入 {path}：{error}"
-
-#~ msgid "Error closing {path}: {error}"
-#~ msgstr "关闭 {path} 出错：{error}"
 
 #~ msgid "Unable to create storage volume: {error}"
 #~ msgstr "无法创建存储卷：{error}"

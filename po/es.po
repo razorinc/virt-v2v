@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.es(4)\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-14 17:12+0100\n"
+"POT-Creation-Date: 2010-04-26 15:05+0100\n"
 "PO-Revision-Date: 2010-02-22 15:41-0300\n"
 "Last-Translator: Héctor Daniel Cabrera <logan@fedoraproject.org>\n"
 "Language-Team: Spanish <fedora-trans-es@redhat.com>\n"
@@ -18,6 +18,84 @@ msgstr ""
 "X-Poedit-Language: Spanish\n"
 "X-Poedit-Country: ARGENTINA\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: ../lib/Sys/VirtV2V/Config.pm:72
+#, perl-brace-format
+msgid "Config file {path} doesn't exist"
+msgstr "No existe el archivo de configuración {path}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:75
+#, perl-brace-format
+msgid "Don't have permissions to read {path}"
+msgstr "No se poseen permisos para leer {path}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:82
+#, perl-brace-format
+msgid "Unable to parse config file {path}: {error}"
+msgstr "Imposible analizar el archivo de configuración {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:122
+#, perl-brace-format
+msgid "Unable to access {path} referenced in the config file"
+msgstr ""
+"No es posible acceder a {path} que está referenciado en el archivo de "
+"configuración "
+
+#: ../lib/Sys/VirtV2V/Config.pm:136
+msgid "<iso-path> must be specified in the configuration file"
+msgstr "<iso-path> debe especificarse en el archivo de configuración"
+
+#: ../lib/Sys/VirtV2V/Config.pm:143
+#, perl-brace-format
+msgid "Unable to stat iso file {path}: {error}"
+msgstr "Imposible conocer el estado del archivo iso {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:147
+#, perl-brace-format
+msgid "Unable to stat config file {path}: {error}"
+msgstr ""
+"Imposible conocer el estado del archivo de configuración {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:161
+#, perl-brace-format
+msgid ""
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
+msgstr ""
+"Falló al crear ISO de transferencia. El comando de salida fue:\n"
+"{output}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:214
+msgid "Didn't detect OS distribution"
+msgstr "No se ha detectado la distribución del SO"
+
+#: ../lib/Sys/VirtV2V/Config.pm:240
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr "No existe una aplicación en la configuración que coincida con {search}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:246
+#, perl-brace-format
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr ""
+"la entrada de la aplicación en la configuración no contiene una ruta: {xml}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:290
+#, perl-brace-format
+msgid ""
+"WARNING: No mapping found for {type} interface {name} in config file. The "
+"converted guest may not start until its network interface is updated."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:307
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping in config: {config}"
+msgstr "AVISO: Mapeo de red inválido en configuración: {config}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:315
+#, perl-brace-format
+msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
+msgstr "AVISO: Tipo de interfaz {type} desconocido en mapeo de red: {config} "
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
 #, perl-brace-format
@@ -141,35 +219,28 @@ msgid "Unable to find a default kernel"
 msgstr "Imposible encontrar un kernel predeterminado"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:617
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr ""
 "No se ha especificado una configuración. No existe una aplicación "
 "coincidente con {search}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:507
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
 #, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{path} no contiene un kernel válido"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:561
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "No es posible determinar una arquitectura de kernel para este huésped"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:683
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Error al ejecutar {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
-#, perl-brace-format
-msgid "Didn't find a grub entry for kernel version {version}"
-msgstr ""
-"No se ha encontrado una entrada en el GRUB para la versión del kernel "
-"{version}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr ""
@@ -208,19 +279,19 @@ msgid "Output pool {poolname} is not a valid storage pool"
 msgstr ""
 "El grupo de salida {poolname} no es un grupo de almacenamiento local válido"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:262
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:263
 #, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
 "AVISO: Error inesperado al tratar de acceder al grupo de almacenamiento "
 "{name}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:320
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:321
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest"
 msgstr "El hipervisor conectado no tiene soporte para un huésped KVM {arch}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:352
 #, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
@@ -229,18 +300,82 @@ msgstr ""
 "El hipervisor conectado no tiene soporte para una máquina del tipo "
 "{machine}. Será definido con las configuraciones predeterminadas."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:377
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}"
 msgstr "El hipervisor conectado no soporta la característica {feature}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:384
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
 "El huésped elegido no tiene soporte acpi bajo KVM. ACPI será deshabilitado."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:122
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:265 ../lib/Sys/VirtV2V/Target/RHEV.pm:651
+#, fuzzy, perl-brace-format
+msgid "Failed to create directory {dir}: {error}"
+msgstr "No es posible crear directorio de datos {dir}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:272 ../lib/Sys/VirtV2V/Target/RHEV.pm:658
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for writing: {error}"
+msgstr "Falló al abrir {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:292
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "Error al cerrar {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:386
+msgid "You must be root to output to RHEV"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:393
+#, perl-brace-format
+msgid "Unable to change ownership of {mountdir} to 36:36"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:402
+#, perl-brace-format
+msgid ""
+"Failed to mount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:411
+#, fuzzy, perl-brace-format
+msgid "Unable to open {mountdir}: {error}"
+msgstr "Imposible abrir {file}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:427
+#, perl-brace-format
+msgid "{mountdir} contains multiple possible domains. It may only contain one."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:438
+#, perl-brace-format
+msgid "{mountdir} does not contain an initialised storage domain"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
+#, perl-brace-format
+msgid ""
+"Failed to unmount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:470
+#, fuzzy, perl-brace-format
+msgid "Failed to remove mount directory {dir}: {error}"
+msgstr "No es posible crear directorio de datos {dir}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:866
+#, perl-brace-format
+msgid ""
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:116
 #, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
@@ -250,14 +385,14 @@ msgstr ""
 "será capturado nuevamente. Elimine este volumen e intente realizar una nueva "
 "descarga. "
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 "No se ha recibido la totalidad del volumen. Se han recibido {received} de "
 "{total} bytes."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:152
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
@@ -266,7 +401,7 @@ msgstr ""
 "Error de autenticación al intentar conectarse con {server}. Las credenciales "
 "utilizadas para {username} provienen de .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:159
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
 #, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "Falló al conectarse con el servidor ESX: {error}"
@@ -294,6 +429,43 @@ msgid ""
 msgstr ""
 "Es necesaria una autenticación para conectarse con {server} y no se ha "
 "encontrado ninguna credencial en .netrc."
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:64
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:64
+#, fuzzy, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT copying it "
+"again. Delete the volume and retry to copy again."
+msgstr ""
+"AVISO: el volumen de almacenamiento {name} ya existe en el grupo elegido. NO "
+"será capturado nuevamente. Elimine este volumen e intente realizar una nueva "
+"descarga. "
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:74
+#, fuzzy, perl-brace-format
+msgid "Unable to open {path} for reading: {error}"
+msgstr "Falló al abrir {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
+#, fuzzy, perl-brace-format
+msgid "Unable to stat {path}: {error}"
+msgstr "Imposible escribir en {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#, fuzzy, perl-brace-format
+msgid "Error reading data from {path}: {error}"
+msgstr "Error escribiendo en {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#, perl-brace-format
+msgid "Unexpected error copying {path} from {host}. Command output: {output}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#, perl-brace-format
+msgid "Unexpected error getting {path}: {output}"
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
@@ -356,70 +528,25 @@ msgstr "{name} configurado con controladores virtio"
 msgid "{name} configured without virtio drivers"
 msgstr "{name} configurado sin controladores virtio"
 
-#: ../v2v/virt-v2v.pl:413
+#: ../v2v/virt-v2v.pl:422
 msgid "no root device found in this operating system image"
 msgstr ""
 "no se ha encontrado un dispositivo raíz en la imagen de este sistema "
 "operativo"
 
-#: ../v2v/virt-v2v.pl:419
+#: ../v2v/virt-v2v.pl:428
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr ""
 "con virt-v2v, no existe soporte para inicializar múltiples sistemas "
 "operativos"
 
+#~ msgid "Didn't find a grub entry for kernel version {version}"
+#~ msgstr ""
+#~ "No se ha encontrado una entrada en el GRUB para la versión del kernel "
+#~ "{version}"
+
 #~ msgid "No mapping found for '{type}' interface: {name}"
 #~ msgstr "No se ha encontrado un mapeo para  la inetrfaz '{type}': {name}"
-
-#~ msgid "WARNING: Invalid network mapping in config: {config}"
-#~ msgstr "AVISO: Mapeo de red inválido en configuración: {config}"
-
-#~ msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
-#~ msgstr ""
-#~ "AVISO: Tipo de interfaz {type} desconocido en mapeo de red: {config} "
-
-#~ msgid "Didn't detect OS distribution"
-#~ msgstr "No se ha detectado la distribución del SO"
-
-#~ msgid "No app in config matches {search}"
-#~ msgstr ""
-#~ "No existe una aplicación en la configuración que coincida con {search}"
-
-#~ msgid "app entry in config doesn't contain a path: {xml}"
-#~ msgstr ""
-#~ "la entrada de la aplicación en la configuración no contiene una ruta: "
-#~ "{xml}"
-
-#~ msgid "Config file {path} doesn't exist"
-#~ msgstr "No existe el archivo de configuración {path}"
-
-#~ msgid "Don't have permissions to read {path}"
-#~ msgstr "No se poseen permisos para leer {path}"
-
-#~ msgid "Unable to parse config file {path}: {error}"
-#~ msgstr "Imposible analizar el archivo de configuración {path}: {error}"
-
-#~ msgid "Unable to access {path} referenced in the config file"
-#~ msgstr ""
-#~ "No es posible acceder a {path} que está referenciado en el archivo de "
-#~ "configuración "
-
-#~ msgid "<iso-path> must be specified in the configuration file"
-#~ msgstr "<iso-path> debe especificarse en el archivo de configuración"
-
-#~ msgid "Unable to stat iso file {path}: {error}"
-#~ msgstr "Imposible conocer el estado del archivo iso {path}: {error}"
-
-#~ msgid "Unable to stat config file {path}: {error}"
-#~ msgstr ""
-#~ "Imposible conocer el estado del archivo de configuración {path}: {error}"
-
-#~ msgid ""
-#~ "Failed to create transfer iso. Command output was:\n"
-#~ "{output}"
-#~ msgstr ""
-#~ "Falló al crear ISO de transferencia. El comando de salida fue:\n"
-#~ "{output}"
 
 #~ msgid "/etc/selinux/config does not exist"
 #~ msgstr "no existe el archivo /etc/selinux/config"
@@ -464,17 +591,11 @@ msgstr ""
 #~ msgid "Unable to get home directory for current user"
 #~ msgstr "No es posible acceder al directorio personal del usuario actual"
 
-#~ msgid "Unable to create data directory {dir}: {error}"
-#~ msgstr "No es posible crear directorio de datos {dir}: {error}"
-
 #~ msgid "{input} is not a valid input format"
 #~ msgstr "{input} no es un formato de entrada válido"
 
 #~ msgid "No domain has been created."
 #~ msgstr "Ningún dominio fue creado."
-
-#~ msgid "Unable to open {file}: {error}"
-#~ msgstr "Imposible abrir {file}: {error}"
 
 #~ msgid "Error closing {file}: {error}"
 #~ msgstr "Error al cerrar {file}: {error}"
@@ -528,12 +649,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Ya existe una instantánea para {guest}. Debe, o bien enviarla, o bien "
 #~ "deshacerla antes de crear una nueva."
-
-#~ msgid "Unable to write to {path}: {error}"
-#~ msgstr "Imposible escribir en {path}: {error}"
-
-#~ msgid "Error closing {path}: {error}"
-#~ msgstr "Error al cerrar {path}: {error}"
 
 #~ msgid "Unable to create storage volume: {error}"
 #~ msgstr "Imposible crear el volumen de almacenamiento: {error}"
