@@ -367,7 +367,7 @@ sub close_guest_handle
         $g->umount_all();
         $g->sync();
 
-        my $retval = $?
+        my $retval = $?;
 
         # Note that this undef is what actually causes the underlying handle to
         # be closed. This is required to allow the RHEV target's temporary mount
