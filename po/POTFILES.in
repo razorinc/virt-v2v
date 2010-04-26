@@ -1,3 +1,4 @@
+../lib/Sys/VirtV2V/Config.pm
 ../lib/Sys/VirtV2V/Connection/LibVirt.pm
 ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm
 ../lib/Sys/VirtV2V/Connection.pm
@@ -8,6 +9,9 @@
 ../lib/Sys/VirtV2V/GuestOS/RedHat.pm
 ../lib/Sys/VirtV2V.pm
 ../lib/Sys/VirtV2V/Target/LibVirt.pm
+../lib/Sys/VirtV2V/Target/RHEV.pm
 ../lib/Sys/VirtV2V/Transfer/ESX.pm
+../lib/Sys/VirtV2V/Transfer/LocalCopy.pm
+../lib/Sys/VirtV2V/Transfer/SSH.pm
 ../lib/Sys/VirtV2V/UserMessage.pm
 ../v2v/virt-v2v.pl
