@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-04-26 15:05+0100\n"
-"PO-Revision-Date: 2010-04-06 22:14+0200\n"
+"PO-Revision-Date: 2010-04-27 21:12+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -76,6 +76,9 @@ msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
+"OSTRZEŻENIE: nie odnaleziono mapowania dla {type} interfejsu {name} w pliku "
+"konfiguracji. Przekonwertowany gość może się nie uruchamiać, dopóki jego "
+"interfejs sieciowy nie zostanie zaktualizowany."
 
 #: ../lib/Sys/VirtV2V/Config.pm:307
 #, perl-brace-format
@@ -298,28 +301,28 @@ msgid ""
 msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:265 ../lib/Sys/VirtV2V/Target/RHEV.pm:651
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
-msgstr "Połączenie z {uri} nie powiodło się: {error}"
+msgstr "Utworzenie katalogu {dir} nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:272 ../lib/Sys/VirtV2V/Target/RHEV.pm:658
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
-msgstr "Otwarcie {path} nie powiodło się: {error}"
+msgstr "Nie można otworzyć {path} do zapisania: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:292
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error closing {path}: {error}"
-msgstr "Błąd podczas zapisywania do {path}: {error}"
+msgstr "Błąd podczas zamykania {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:386
 msgid "You must be root to output to RHEV"
-msgstr ""
+msgstr "Należy być rootem, aby przekazać wyjście do RHEV"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:393
 #, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to 36:36"
-msgstr ""
+msgstr "Nie można zmienić właściciela {mountdir} na 36:36"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:402
 #, perl-brace-format
@@ -327,21 +330,23 @@ msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
+"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:411
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to open {mountdir}: {error}"
-msgstr "Otwarcie {path} nie powiodło się: {error}"
+msgstr "Nie można otworzyć {mountdir}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:427
 #, perl-brace-format
 msgid "{mountdir} contains multiple possible domains. It may only contain one."
-msgstr ""
+msgstr "{mountdir} zawiera wiele możliwych domen. Może zawierać tylko jedną."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:438
 #, perl-brace-format
 msgid "{mountdir} does not contain an initialised storage domain"
-msgstr ""
+msgstr "{mountdir} nie zawiera zainicjowanej domeny pamięci masowej"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
 #, perl-brace-format
@@ -349,17 +354,21 @@ msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
+"Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:470
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
-msgstr "Połączenie z {uri} nie powiodło się: {error}"
+msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:866
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
 msgstr ""
+"Nieznany model NIC {driver} dla {dev}. NIC będzie wynosić {default} po "
+"zaimportowaniu"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:116
 #, perl-brace-format
@@ -415,40 +424,42 @@ msgstr ""
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:64
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:64
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT copying it "
 "again. Delete the volume and retry to copy again."
 msgstr ""
 "OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
-"zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
-"pobrania."
+"zostanie skopiowany ponownie. Należy usunąć wolumin i ponowić próbę "
+"skopiowania."
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:74
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to open {path} for reading: {error}"
-msgstr "Otwarcie {path} nie powiodło się: {error}"
+msgstr "Nie można otworzyć {path} do odczytania: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to stat {path}: {error}"
-msgstr "Nie można wykonać stat na pliku ISO {path}: {error}"
+msgstr "Nie można wykonać stat na {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error reading data from {path}: {error}"
-msgstr "Błąd podczas zapisywania do {path}: {error}"
+msgstr "Błąd podczas odczytywania danych z {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
 #, perl-brace-format
 msgid "Unexpected error copying {path} from {host}. Command output: {output}"
 msgstr ""
+"Nieoczekiwany błąd podczas kopiowania {path} z {host}. Wyjście polecenia: "
+"{output}"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
-msgstr ""
+msgstr "Nieoczekiwany błąd podczas otrzymywania {path}: {output}"
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
@@ -518,9 +529,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:428
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "Didn't find a grub entry for kernel version {version}"
-#~ msgstr "Nie odnaleziono wpisu programu GRUB dla wersji jądra {version}"
-
-#~ msgid "No mapping found for '{type}' interface: {name}"
-#~ msgstr "Nie odnaleziono mapowania dla interfejsu \"{type}\": {name}"
