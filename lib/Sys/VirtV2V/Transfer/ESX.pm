@@ -131,16 +131,18 @@ sub get_volume
         my $died = $r->header('X-Died');
         die($died) if (defined($died));
 
+        # It reports success even if we didn't receive the whole file
+        die(user_message(__x("Didn't receive full volume. Received {received} ".
+                             "of {total} bytes.",
+                             received => $self->{_v2v_received},
+                             total => $self->{_v2v_volsize})))
+            unless ($self->{_v2v_received} == $self->{_v2v_volsize});
+
         my $vol = $self->{_v2v_vol};
         $vol->close();
         return $vol;
     }
 
-    die(user_message(__x("Didn't receive full volume. Received {received} of ".
-                         "{total} bytes.",
-                         received => $self->{_v2v_received},
-                         total => $self->{_v2v_volsize})))
-        unless ($self->{_v2v_received} == $self->{_v2v_volsize});
 
     if ($r->code == 401) {
         die(user_message(__x("Authentication error connecting to ".
