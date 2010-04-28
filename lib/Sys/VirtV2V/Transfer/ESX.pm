@@ -121,10 +121,22 @@ sub get_volume
         return $target->get_volume($volname);
     }
 
+    # Head request to get the size and create the volume
+    # We could do this with a single GET request. The problem with this is that
+    # you have to create the volume before writing to it. If the volume creation
+    # takes a very long time, the transfer may fail in the mean time.
+    my $r = $self->head($url);
+    if ($r->is_success) {
+        $self->verify_certificate($r) unless ($self->{_v2v_noverify});
+        $self->create_volume($r);
+    } else {
+        $self->report_error($r);
+    }
+
     $self->{_v2v_received} = 0;
-    my $r = $self->SUPER::get($url,
-                              ':content_cb' => sub { $self->handle_data(@_); },
-                              ':read_size_hint' => 64 * 1024);
+    $r = $self->get($url,
+                    ':content_cb' => sub { $self->handle_data(@_); },
+                    ':read_size_hint' => 64 * 1024);
 
     if ($r->is_success) {
         # It reports success even if one of the callbacks died
@@ -143,6 +155,13 @@ sub get_volume
         return $vol;
     }
 
+    $self->report_error($r);
+}
+
+sub report_error
+{
+    my $self = shift;
+    my ($r) = @_;
 
     if ($r->code == 401) {
         die(user_message(__x("Authentication error connecting to ".
@@ -173,10 +192,9 @@ sub handle_data
 
     my ($data, $response) = @_;
 
-    # Create the volume if it hasn't been created already
-    if (!defined($self->{_v2v_vol}) && $response->is_success) {
+    # Verify the certificate of the get request the first time we're called
+    if ($self->{_v2v_received} == 0) {
         $self->verify_certificate($response) unless ($self->{_v2v_noverify});
-        $self->create_volume($response);
     }
 
     $self->{_v2v_received} += length($data);
