@@ -686,7 +686,7 @@ sub _get_installed
                              error => $error)));
     }
 
-    my @installed;
+    my @installed = ();
     foreach my $installed (@output) {
         $installed =~ /^(\S+)\s+(\S+)\s+(\S+)$/
             or die("Unexpected return from rpm command: $installed");
@@ -779,7 +779,8 @@ sub _get_deppaths
                 my ($name, undef, undef, undef, $arch) =
                     $self->_get_nevra($path);
 
-                if ($self->_get_installed($name, $arch) > 0) {
+                my @installed = $self->_get_installed($name, $arch);
+                if (@installed > 0) {
                     $required{$path} = 1;
 
                     foreach my $deppath ($self->_get_deppaths('i386', @$deps)) {
