@@ -87,7 +87,7 @@ sub new
     bless($self, $class);
 
     $self->_init_selinux();
-    $self->_init_augeas_modprobe();
+    $self->_init_augeas();
 
     return $self;
 }
@@ -107,7 +107,7 @@ sub _init_selinux
     $g->touch('/.autorelabel');
 }
 
-sub _init_augeas_modprobe
+sub _init_augeas
 {
     my $self = shift;
 
@@ -158,15 +158,24 @@ sub _init_augeas_modprobe
             }
         }
 
-        # Remove all includes for the Grub lens, and add only
-        # /boot/grub/menu.lst
+        # Check if /boot/grub/menu.lst is included by the Grub lens
+        my $found = 0;
         foreach my $incl ($g->aug_match("/augeas/load/Grub/incl")) {
-            $g->aug_rm($incl);
+            if ($g->aug_get($incl) eq '/boot/grub/menu.lst') {
+                $found = 1;
+                last;
+            }
         }
-        $g->aug_set("/augeas/load/Grub/incl[last()+1]", "/boot/grub/menu.lst");
 
-        # Make augeas pick up the new configuration
-        $g->aug_load();
+        # If it wasn't there, add it
+        unless ($found) {
+            $g->aug_set("/augeas/load/Grub/incl[last()+1]",
+                        "/boot/grub/menu.lst");
+
+            # Make augeas pick up the new configuration
+            $g->aug_load();
+        }
+
     };
 
     # The augeas calls will die() on any error.
