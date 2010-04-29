@@ -82,6 +82,7 @@ sub transfer
     my $vol = $target->create_volume($name, $size);
     $vol->open();
 
+    my $written = 0;
     for (;;) {
         my $buffer;
         # Transfer in 8k chunks
@@ -93,9 +94,15 @@ sub transfer
         last if ($in == 0);
 
         $vol->write($buffer);
+        $written += length($buffer);
     }
 
     $vol->close();
+
+    die(user_message(__x("Didn't receive full volume. Received {received} ".
+                         "of {total} bytes.",
+                         received => $written,
+                         total => $size))) unless ($written == $size);
 
     waitpid($pid, 0) == $pid or die("error reaping child: $!");
     # If the child returned an error, check for anything on its stderr
