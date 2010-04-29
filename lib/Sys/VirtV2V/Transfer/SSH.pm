@@ -86,7 +86,7 @@ sub transfer
     for (;;) {
         my $buffer;
         # Transfer in 8k chunks
-        my $in = sysread($fh, $buffer, 8 * 1024);
+        my $in = read($fh, $buffer, 8 * 1024);
         die(user_message(__x("Error reading data from {path}: {error}",
                              path => $path,
                              error => $!))) if (!defined($in));
