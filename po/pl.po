@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-26 15:05+0100\n"
+"POT-Creation-Date: 2010-04-29 14:51+0100\n"
 "PO-Revision-Date: 2010-04-27 21:12+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
@@ -207,31 +207,31 @@ msgstr "Nieznany typ interfejsu {type} w pliku XML domeny: {domain}"
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:366
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:375
 msgid "Unable to find a default kernel"
 msgstr "Nie można odnaleźć domyślnego jądra"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:482
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:625
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr "Nie podano konfiguracji. Brak aplikacji pasującej do {search}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:515
 #, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{path} nie zawiera prawidłowego jądra"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:569
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:693
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1274
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr ""
@@ -380,12 +380,13 @@ msgstr ""
 "zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
 "pobrania."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:147
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:102
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr "Nie odebrano pełnego woluminu. Odebrano {received} z {total} bajtów."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
@@ -394,26 +395,26 @@ msgstr ""
 "Błąd uwierzytelnienia podczas łączenia się z {server}. Użyto danych "
 "uwierzytelniających dla {username} z pliku .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
 #, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "Połączenie się z serwerem ESX nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:234
 msgid "Server response didn't include an SSL subject"
 msgstr "Odpowiedź serwera nie zawiera tematu SSL"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr "Temat certyfikatu SSL nie zawiera wspólnej nazwy: {subject}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:244
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr "Serwer {server} zaprezentował certyfikat SSL dla {commonname}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:297
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -444,19 +445,19 @@ msgid "Unable to stat {path}: {error}"
 msgstr "Nie można wykonać stat na {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:90
 #, perl-brace-format
 msgid "Error reading data from {path}: {error}"
 msgstr "Błąd podczas odczytywania danych z {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:114
 #, perl-brace-format
 msgid "Unexpected error copying {path} from {host}. Command output: {output}"
 msgstr ""
 "Nieoczekiwany błąd podczas kopiowania {path} z {host}. Wyjście polecenia: "
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:182
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
 msgstr "Nieoczekiwany błąd podczas otrzymywania {path}: {output}"

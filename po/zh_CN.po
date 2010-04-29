@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-26 15:05+0100\n"
+"POT-Creation-Date: 2010-04-29 14:51+0100\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -203,31 +203,31 @@ msgstr ""
 msgid "Unable to find any valid modprobe configuration"
 msgstr "无法找到任何有效 modprobe 配置"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:366
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:375
 msgid "Unable to find a default kernel"
 msgstr "无法找到默认内核"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:482
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:625
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:515
 #, fuzzy, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{filename} 不包含有效内核"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:569
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "无法为这个客户端确定内核构架"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:693
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1274
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
@@ -360,38 +360,39 @@ msgid ""
 "again. Delete the volume and retry to download again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:147
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:102
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:234
 msgid "Server response didn't include an SSL subject"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:244
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:297
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -417,17 +418,17 @@ msgid "Unable to stat {path}: {error}"
 msgstr "无法写入 {path}：{error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:90
 #, fuzzy, perl-brace-format
 msgid "Error reading data from {path}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:114
 #, perl-brace-format
 msgid "Unexpected error copying {path} from {host}. Command output: {output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:182
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
 msgstr ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-04-26 15:05+0100\n"
+"POT-Creation-Date: 2010-04-29 14:51+0100\n"
 "PO-Revision-Date: 2010-04-13 16:09+0300\n"
 "Last-Translator: Maxim V. Dziumanenko <dziumanenko@gmail.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -202,31 +202,31 @@ msgstr "Невідомий тип інтерфейсу {type} у домені XM
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Не вдається знайти коректну конфігурацію modprobe"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:366
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:375
 msgid "Unable to find a default kernel"
 msgstr "Не знайдено типове ядро"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:473
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:616
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:482
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:625
 #, perl-brace-format
 msgid "No config specified. No app match for {search}"
 msgstr "Не вказано конфігурацію. Немає програм, що відповідають {search}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:506
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:515
 #, perl-brace-format
 msgid "{path} doesn't contain a valid kernel"
 msgstr "{path} не містить коректне ядро"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:560
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:569
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Не вдається визначити архітектуру ядра для цієї гостьової системи"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:684
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:693
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Помилка при роботі {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1264
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1274
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "УВАГА: Немає запису для initrd у grub для версії ядра {version}"
@@ -364,12 +364,13 @@ msgstr ""
 "УВАГА: том сховища {name} вже існує у цілому пулі. НЕ буде отримано ще раз. "
 "Видаліть том та спробуйте завантажити знову."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:139
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:147
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:102
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr "Отримано не весь том. Отримано {received} з {total} байт."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:146
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
@@ -378,26 +379,26 @@ msgstr ""
 "Помилка при перевірці прав доступу при підключенні до {server}. "
 "Використовуються облікові записи для {username} з .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:153
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
 #, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "Не вдається приєднатися до ESX-сервера: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:214
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:234
 msgid "Server response didn't include an SSL subject"
 msgstr "Відповідь сервера не містить теми SSL"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:218
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr "У темі сертифікації SSL не міститься загальна назва: {subject}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:224
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:244
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr "Сервер {server} надав SSL-сертифікат для {commonname}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:297
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -427,17 +428,17 @@ msgid "Unable to stat {path}: {error}"
 msgstr "Не вдається отримати статус iso-файлу {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:90
 #, fuzzy, perl-brace-format
 msgid "Error reading data from {path}: {error}"
 msgstr "Помилка під час запису у {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:107
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:114
 #, perl-brace-format
 msgid "Unexpected error copying {path} from {host}. Command output: {output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:175
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:182
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
 msgstr ""
