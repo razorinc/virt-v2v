@@ -178,6 +178,28 @@ my $config_file;
 
 Load the virt-v2v configuration from I<file>. There is no default.
 
+=cut
+
+my $network;
+
+=item B<-n network> | B<--network network>
+
+Map all guest bridges or networks which don't have a mapping in the
+configuration file to I<network>.
+
+This option cannot be used in conjunction with I<--bridge>.
+
+=cut
+
+my $bridge;
+
+=item B<-b bridge> | B<--bridge bridge>
+
+Map all guest bridges or networks which don't have a mapping in the
+configuration file to I<bridge>.
+
+This option cannot be used in conjunction with I<--network>.
+
 =item B<--help>
 
 Display brief help.
@@ -213,11 +235,33 @@ GetOptions ("help|?"      => sub {
             "oc=s"        => \$output_uri,
             "op=s"        => \$output_pool,
             "osd=s"       => \$output_storage_domain,
-            "f|config=s"  => \$config_file
+            "f|config=s"  => \$config_file,
+            "n|network=s" => sub {
+                my (undef, $value) = @_;
+
+                pod2usage({ -message => __("--network may only be specified ".
+                                           "once"),
+                            -exitval => 1 }) if (defined($network));
+                $network = $value;
+            },
+            "b|bridge=s"  => sub {
+                my (undef, $value) = @_;
+
+                pod2usage({ -message => __("--bridge may only be specified ".
+                                           "once"),
+                            -exitval => 1 }) if (defined($bridge));
+                $bridge = $value;
+            },
 ) or pod2usage(2);
 
 # Read the config file if one was given
 my $config = Sys::VirtV2V::Config->new($config_file);
+
+if (defined($network)) {
+    $config->set_default_net_mapping($network, 'network');
+} elsif (defined($bridge)) {
+    $config->set_default_net_mapping($bridge, 'bridge');
+}
 
 my $target;
 if ($output_method eq "libvirt") {
@@ -509,7 +553,8 @@ be created. virt-v2v.conf should specify:
 
 =item *
 
-a mapping for the guest's network configuration.
+a mapping for the guest's network configuration, unless a default was specified
+on the command line with I<--bridge> or I<--network>.
 
 =item *
 
@@ -566,8 +611,9 @@ converted.
 
 =back
 
-virt-v2v.conf should specify a mapping for the guest's network configuration.
-See L<virt-v2v.conf(5)> for details.
+virt-v2v.conf should specify a mapping for the guest's network configuration,
+unless a default was specified on the command line with I<--bridge> or
+I<--network>. See L<virt-v2v.conf(5)> for details.
 
 =head3 Authenticating to the ESX server
 
@@ -632,7 +678,8 @@ virt-v2v -f virt-v2v.conf -o rhev -osd <export_sd> <domain>
 =back
 
 Ensure that I<virt-v2v.conf> contains a correct network mapping for your target
-RHEV configuration.
+RHEV configuration, or that you have specified a default mapping on the command
+line with either I<--bridge> or I<--network>.
 
 =head1 RUNNING THE CONVERTED GUEST
 

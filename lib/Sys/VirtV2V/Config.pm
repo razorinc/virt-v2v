@@ -312,6 +312,10 @@ sub map_network
     }
 
     unless (defined($mapping)) {
+        # Return the default if it was specified
+        return @{$self->{default_net_mapping}}
+            if (defined($self->{default_net_mapping}));
+
         print STDERR user_message(__x("WARNING: No mapping found for ".
                                       "{type} interface {name} in config ".
                                       "file. The converted guest may not ".
@@ -344,6 +348,22 @@ sub map_network
     }
 
     return ($newname, $newtype);
+}
+
+=item set_default_net_mapping(name, type)
+
+Set the default network name and type which will be used if no specific mapping
+can be found in a config file.
+
+=cut
+
+sub set_default_net_mapping
+{
+    my $self = shift;
+
+    my ($name, $type) = @_;
+
+    $self->{default_net_mapping} = [ $name, $type ];
 }
 
 =back
