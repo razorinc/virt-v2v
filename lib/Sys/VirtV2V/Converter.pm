@@ -136,7 +136,7 @@ sub convert
     my $class = shift;
 
     my ($g, $guestos, $config, $dom, $desc, $devices) = @_;
-    carp("convert called without guestos argument") unless defined($guestos);
+    # guestos may be undef if none was found
     carp("convert called without config argument") unless defined($config);
     carp("convert called without dom argument") unless defined($dom);
     carp("convert called without desc argument") unless defined($desc);
@@ -153,8 +153,23 @@ sub convert
         }
     }
 
-    die(user_message(__"Unable to find a module to convert this guest"))
-        unless (defined($guestcaps));
+    unless (defined($guestcaps)) {
+        print STDERR user_message(__x("WARNING: Unable to convert this guest ".
+                                      "operating system. Its storage will be ".
+                                      "transfered and a domain created for ".
+                                      "it, but it may not operate correctly ".
+                                      "without manual reconfiguration. The ".
+                                      "domain will present all storage ".
+                                      "devices as IDE, all network interfaces ".
+                                      "as e1000 and the host as x86_64."));
+
+        # Set some conservative defaults
+        $guestcaps = {
+            'arch'   => 'x86_64',
+            'virtio' => 0,
+            'acpi'   => 1
+        };
+    }
 
     # Map network names from config
     _map_networks($dom, $config);
