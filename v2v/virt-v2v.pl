@@ -217,8 +217,7 @@ GetOptions ("help|?"      => sub {
 ) or pod2usage(2);
 
 # Read the config file if one was given
-my $config;
-$config = Sys::VirtV2V::Config->new($config_file) if defined($config_file);
+my $config = Sys::VirtV2V::Config->new($config_file);
 
 my $target;
 if ($output_method eq "libvirt") {
@@ -302,7 +301,7 @@ my $storage = $conn->get_storage_paths();
 
 # Create the transfer iso if required
 my $transferiso;
-$transferiso = $config->get_transfer_iso() if (defined($config));
+$transferiso = $config->get_transfer_iso();
 
 if ($output_method eq 'rhev') {
     $) = "36 36";

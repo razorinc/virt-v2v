@@ -69,6 +69,9 @@ sub new
     my $self = {};
     bless($self, $class);
 
+    # No further config required if no config path was specified
+    return $self if (!defined($path));
+
     die(user_message(__x("Config file {path} doesn't exist",
                          path => $path))) unless (-e $path);
 
@@ -98,6 +101,8 @@ sub get_transfer_iso
     my $self = shift;
 
     my $dom = $self->{dom};
+
+    return undef unless (defined($dom));
 
     # path-root doesn't have to be defined
     my ($root) = $dom->findnodes('/virt-v2v/path-root/text()');
@@ -175,15 +180,7 @@ sub get_transfer_iso
     return $iso_path;
 }
 
-=item get_app_search(desc, name, arch)
-
-Return a string describing what v2v is looking for in the config file. The
-string is intended to be presented to the user to help improve the configuration
-file.
-
-=cut
-
-sub get_app_search
+sub _get_app_search
 {
     my ($desc, $name, $arch) = @_;
 
@@ -215,6 +212,10 @@ sub match_app
     my ($desc, $name, $arch) = @_;
 
     my $dom = $self->{dom};
+
+    die(user_message(__x("No config specified. No app match for {search}",
+                         search => _get_app_search($desc, $name, $arch))))
+        unless (defined($dom));
 
     my $distro = $desc->{distro};
     my $major  = $desc->{major_version};
@@ -248,7 +249,7 @@ sub match_app
     }
 
     die(user_message(__x("No app in config matches {search}",
-                         search => get_app_search($desc, $name, $arch))))
+                         search => _get_app_search($desc, $name, $arch))))
         unless (defined($app));
 
     my %app;
@@ -263,7 +264,7 @@ sub match_app
     die(user_message(__x("Matched local file {path} for {search}. ".
                          "However, this file is not available.",
                          path => $abs,
-                         search => get_app_search($desc, $name, $arch))))
+                         search => _get_app_search($desc, $name, $arch))))
         unless (-r $abs);
 
     my @deps;
@@ -301,9 +302,14 @@ sub map_network
     my $self = shift;
     my ($oldname, $oldtype) = @_;
 
-    my ($mapping) = $self->{dom}->findnodes
-        ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldname']".
-         "/network");
+    my $dom = $self->{dom};
+
+    my $mapping;
+    if (defined($dom)) {
+        my ($mapping) = $dom->findnodes
+            ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldname']".
+             "/network");
+    }
 
     unless (defined($mapping)) {
         print STDERR user_message(__x("WARNING: No mapping found for ".

@@ -100,7 +100,7 @@ sub new
     defined($g)      or carp("instantiate called without g argument");
     defined($desc)   or carp("instantiate called without desc argument");
     defined($dom)    or carp("instantiate called without dom argument");
-    # config will be undefined if no config was specified
+    defined($config) or carp("instantiate called without config argument");
 
     my $self = {};
 

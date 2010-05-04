@@ -475,17 +475,8 @@ sub add_kernel
     eval {
         my $desc = $self->{desc};
 
-        my $config = $self->{config};
-        unless (defined($config)) {
-            my $search = Sys::VirtV2V::Config::get_app_search
-                            ($desc, $kernel_pkg, $kernel_arch);
-            die(user_message(__x("No config specified. No app match for ".
-                                 "{search}",
-                                 search => $search)));
-        }
-
         ($app, $depnames) =
-            $config->match_app($desc, $kernel_pkg, $kernel_arch);
+            $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
     };
     # Return undef if we didn't find a kernel
     if ($@) {
@@ -619,13 +610,6 @@ sub add_application
     my $user_arch = $desc->{arch};
 
     my $config = $self->{config};
-    unless (defined($config)) {
-        my $search = Sys::VirtV2V::Config::get_app_search($desc, $label,
-                                                          $user_arch);
-        die(user_message(__x("No config specified. No app match for {search}",
-                             search => $search)));
-    }
-
     my ($app, $deps) = $config->match_app($self->{desc}, $label, $user_arch);
 
     # Nothing to do if it's already installed
