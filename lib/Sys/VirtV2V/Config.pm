@@ -107,6 +107,7 @@ sub get_transfer_iso
     # config file
     # We use a hash here to avoid duplicates
     my %path_args;
+    my %paths;
     foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
         $path = $path->getData();
 
@@ -118,12 +119,10 @@ sub get_transfer_iso
             $abs = $path;
         }
 
-        # Check the referenced path is accessible
-        die(user_message(__x("Unable to access {path} referenced in ".
-                             "the config file",
-                             path => $path))) unless (-r $abs);
-
-        $path_args{"$path=$abs"} = 1;
+        if (-r $abs) {
+            $path_args{"$path=$abs"} = 1;
+            $paths{$abs} = 1;
+        }
     }
 
     # Nothing further to do if there are no paths
@@ -140,16 +139,27 @@ sub get_transfer_iso
     # Check if the transfer iso exists, and is newer than the config file
     if (-e $iso_path) {
         my $iso_st = stat($iso_path)
-            or die(user_message(__x("Unable to stat iso file {path}: {error}",
+            or die(user_message(__x("Unable to stat {path}: {error}",
                                     path => $iso_path, error => $!)));
 
         my $config_st = stat($self->{path})
-            or die(user_message(__x("Unable to stat config file {path}: ".
-                                    "{error}",
+            or die(user_message(__x("Unable to stat {path}: {error}",
                                     path => $self->{path}, error => $!)));
 
-        # Don't need to re-create if the iso file is newer than the config file
-        return $iso_path if ($iso_st->mtime > $config_st->mtime);
+        if ($iso_st->mtime > $config_st->mtime) {
+            my $rebuild = 0;
+
+            foreach my $path (keys(%paths)) {
+                my $path_st = stat($path);
+
+                if ($path_st->mtime > $iso_st->mtime) {
+                    $rebuild = 1;
+                    last;
+                }
+            }
+
+            return $iso_path if (!$rebuild);
+        }
     }
 
     # Re-create the transfer iso
@@ -246,6 +256,15 @@ sub match_app
     die(user_message(__x("app entry in config doesn't contain a path: {xml}",
                          xml => $app->toString()))) unless (defined($path));
     $path = $path->getData();
+
+    my ($pathroot) = $dom->findnodes('/virt-v2v/path-root/text()');
+    my $abs = defined($pathroot) ? $pathroot->getData()."/$path" : $path;
+
+    die(user_message(__x("Matched local file {path} for {search}. ".
+                         "However, this file is not available.",
+                         path => $abs,
+                         search => get_app_search($desc, $name, $arch))))
+        unless (-r $abs);
 
     my @deps;
     foreach my $dep ($app->findnodes('dep/text()')) {
