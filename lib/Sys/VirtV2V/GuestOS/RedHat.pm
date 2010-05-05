@@ -557,10 +557,10 @@ sub _discover_kernel
 
         # Get the kernel package name
         $kernel_pkg = $kernel->{package};
-
-        # Default to 'kernel' if package name wasn't discovered
-        $kernel_pkg = "kernel" if(!defined($kernel_pkg));
     }
+
+    # Default to 'kernel' if package name wasn't discovered
+    $kernel_pkg = "kernel" if(!defined($kernel_pkg));
 
     # Default the kernel architecture to the userspace architecture if it wasn't
     # directly detected
