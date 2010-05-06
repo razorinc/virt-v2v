@@ -187,11 +187,14 @@ sub get_app_search
 {
     my ($desc, $name, $arch) = @_;
 
+    my $os     = $desc->{os};
     my $distro = $desc->{distro};
     my $major  = $desc->{major_version};
     my $minor  = $desc->{minor_version};
 
-    my $search = "distro='$distro' name='$name'";
+    my $search = "os='$os'";
+    $search .= " name='$name'";
+    $search .= " distro='$distro'" if (defined ($distro));
     $search .= " major='$major'" if (defined($major));
     $search .= " minor='$minor'" if (defined($minor));
     $search .= " arch='$arch'";
@@ -216,29 +219,30 @@ sub match_app
 
     my $dom = $self->{dom};
 
+    my $os     = $desc->{os};
     my $distro = $desc->{distro};
     my $major  = $desc->{major_version};
     my $minor  = $desc->{minor_version};
 
-    # Check we've got at least a distro from OS detection
-    die(user_message(__"Didn't detect OS distribution"))
-        unless (defined($distro));
+    # Check we've got at least the {os} field from OS detection.
+    die(user_message(__"Didn't detect operating system"))
+        unless defined $os;
 
     # Create a list of xpath queries against the config which look for a
     # matching <app> config entry in descending order of specificity
     my @queries;
     if (defined($major)) {
         if (defined($minor)) {
-            push(@queries, _app_query($name, $distro, $major, $minor, $arch));
-            push(@queries, _app_query($name, $distro, $major, $minor, undef));
+            push(@queries, _app_query($name, $os, $distro, $major, $minor, $arch));
+            push(@queries, _app_query($name, $os, $distro, $major, $minor, undef));
         }
 
-        push(@queries, _app_query($name, $distro, $major, undef, $arch));
-        push(@queries, _app_query($name, $distro, $major, undef, undef));
+        push(@queries, _app_query($name, $os, $distro, $major, undef, $arch));
+        push(@queries, _app_query($name, $os, $distro, $major, undef, undef));
     }
 
-    push(@queries, _app_query($name, $distro, undef, undef, $arch));
-    push(@queries, _app_query($name, $distro, undef, undef, undef));
+    push(@queries, _app_query($name, $os, $distro, undef, undef, $arch));
+    push(@queries, _app_query($name, $os, $distro, undef, undef, undef));
 
     # Use the results of the first query which returns a result
     my $app;
@@ -276,9 +280,11 @@ sub match_app
 
 sub _app_query
 {
-    my ($name, $distro, $major, $minor, $arch) = @_;
+    my ($name, $os, $distro, $major, $minor, $arch) = @_;
 
-    my $query = "/virt-v2v/app[\@name='$name' and \@os='$distro' and ";
+    my $query = "/virt-v2v/app[\@name='$name' and \@os='$os' and ";
+    $query .= defined($distro) ? "\@distro='$distro'" : 'not(@distro)';
+    $query .= ' and ';
     $query .= defined($major) ? "\@major='$major'" : 'not(@major)';
     $query .= ' and ';
     $query .= defined($minor) ? "\@minor='$minor'" : 'not(@minor)';
