@@ -320,8 +320,9 @@ sub _configure_capabilities
     (my $guestcap) = $caps->findnodes
         ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
 
-    die(__x("The connected hypervisor does not support a {arch} kvm guest",
-        arch => $arch)) unless(defined($guestcap));
+    die(user_message(__x("The connected hypervisor does not support a {arch} ".
+                         "kvm guest",
+                         arch => $arch))) unless(defined($guestcap));
 
     # Ensure that /domain/@type = 'kvm'
     my ($type) = $dom->findnodes('/domain/@type');
