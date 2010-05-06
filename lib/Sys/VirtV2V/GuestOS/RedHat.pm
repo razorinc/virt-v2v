@@ -484,12 +484,22 @@ sub add_kernel
         return undef;
     }
 
-    return undef if ($self->_newer_installed($app));
+    my @missing;
+    if (!$self->{g}->exists($self->_transfer_path($app))) {
+        push(@missing, $app);
+    } else {
+        return undef if ($self->_newer_installed($app));
+    }
 
     my $user_arch = $kernel_arch eq 'i686' ? 'i386' : $kernel_arch;
 
+    my @deps = $self->_get_deppaths(\@missing, $user_arch, @$depnames);
+
+    # We can't proceed if there are any files missing
+    _die_missing(@missing) if (@missing > 0);
+
     # Install any required kernel dependencies
-    $self->_install_rpms(1, $self->_get_deppaths($user_arch, @$depnames));
+    $self->_install_rpms(1, @deps);
 
     # Inspect the rpm to work out what kernel version it contains
     my $version;
@@ -512,6 +522,15 @@ sub add_kernel
     $g->aug_load();
 
     return $version;
+}
+
+sub _die_missing
+{
+    # We can't proceed if there are any files missing
+    die(user_message(__x("Conversion cannot proceed because the following ".
+                         "files referenced in the configuration file are ".
+                         "required, but missing: {list}",
+                         list => join(' ', @_))));
 }
 
 # Inspect the guest description to work out what kernel package is in use
@@ -612,13 +631,19 @@ sub add_application
     my $config = $self->{config};
     my ($app, $deps) = $config->match_app($self->{desc}, $label, $user_arch);
 
-    # Nothing to do if it's already installed
-    return if ($self->_newer_installed($app));
+    my @missing;
+    if (!$self->{g}->exists($self->_transfer_path($app))) {
+        push(@missing, $app);
+    } else {
+        return if ($self->_newer_installed($app));
+    }
 
     my @install = ($app);
 
     # Add any dependencies which aren't already installed to the install set
-    push(@install, $self->_get_deppaths($user_arch, @$deps));
+    push(@install, $self->_get_deppaths(\@missing, $user_arch, @$deps));
+
+    _die_missing(@missing) if (@missing > 0);
 
     $self->_install_rpms(1, @install);
 }
@@ -740,7 +765,7 @@ sub _newer_installed
 sub _get_deppaths
 {
     my $self = shift;
-    my ($arch, @apps) = @_;
+    my ($missing, $arch, @apps) = @_;
 
     my $desc = $self->{desc};
     my $config = $self->{config};
@@ -749,16 +774,23 @@ sub _get_deppaths
     foreach my $app (@apps) {
         my ($path, $deps) = $config->match_app($desc, $app, $arch);
 
-        if (!$self->_newer_installed($path)) {
+        my $exists = $self->{g}->exists($self->_transfer_path($path));
+
+        if (!$exists) {
+            push(@$missing, $path);
+        }
+
+        if (!$exists || !$self->_newer_installed($path)) {
             $required{$path} = 1;
 
-            foreach my $deppath ($self->_get_deppaths($arch, @$deps)) {
+            foreach my $deppath ($self->_get_deppaths($missing,
+                                                      $arch, @$deps)) {
                 $required{$deppath} = 1;
             }
         }
 
-        # For x86_64, also check if there is any i386 version installed. If
-        # there is, check if it needs to be upgraded.
+        # For x86_64, also check if there is any i386 or i686 version installed.
+        # If there is, check if it needs to be upgraded.
         if ($arch eq 'x86_64') {
             $path = undef;
             $deps = undef;
@@ -768,16 +800,31 @@ sub _get_deppaths
                 ($path, $deps) = $config->match_app($desc, $app, 'i386');
             };
 
-            if (defined($path) && !$self->_newer_installed($path)) {
-                my ($name, undef, undef, undef, $arch) =
-                    $self->_get_nevra($path);
+            if (defined($path)) {
+                if (!$self->{g}->exists($self->_transfer_path($path))) {
+                    push(@$missing, $path);
 
-                my @installed = $self->_get_installed($name, $arch);
-                if (@installed > 0) {
-                    $required{$path} = 1;
-
-                    foreach my $deppath ($self->_get_deppaths('i386', @$deps)) {
+                    foreach my $deppath ($self->_get_deppaths($missing,
+                                                              'i386', @$deps))
+                    {
                         $required{$deppath} = 1;
+                    }
+                }
+
+                elsif (!$self->_newer_installed($path)) {
+                    my ($name, undef, undef, undef, $arch) =
+                        $self->_get_nevra($path);
+
+                    my @installed = $self->_get_installed($name, $arch);
+
+                    if (@installed > 0) {
+                        $required{$path} = 1;
+
+                        foreach my $deppath
+                            ($self->_get_deppaths($missing, 'i386', @$deps))
+                        {
+                            $required{$deppath} = 1;
+                        }
                     }
                 }
             }

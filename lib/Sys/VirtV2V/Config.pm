@@ -262,15 +262,6 @@ sub match_app
                          xml => $app->toString()))) unless (defined($path));
     $path = $path->getData();
 
-    my ($pathroot) = $dom->findnodes('/virt-v2v/path-root/text()');
-    my $abs = defined($pathroot) ? $pathroot->getData()."/$path" : $path;
-
-    die(user_message(__x("Matched local file {path} for {search}. ".
-                         "However, this file is not available.",
-                         path => $abs,
-                         search => _get_app_search($desc, $name, $arch))))
-        unless (-r $abs);
-
     my @deps;
     foreach my $dep ($app->findnodes('dep/text()')) {
         push(@deps, $dep->getData());
