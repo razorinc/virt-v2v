@@ -350,38 +350,34 @@ sub get_default_kernel
         $default = $g->aug_get('/files/boot/grub/menu.lst/default');
     };
 
+    # Get the grub filesystem
+    my $grub = $self->{desc}->{boot}->{grub_fs};
+
+    # Look for a kernel, starting with the default
+    my @paths;
+    push(@paths, $g->aug_match("/files/boot/grub/menu.lst/".
+                               "title[$default]/kernel")) if defined($default);
+    push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
+
     my $kernel;
-    if(defined($default)) {
-        # Grub's default is zero-based, but augeas arrays are 1-based.
-        $default += 1;
+    foreach my $path (@paths) {
+        $kernel = $g->aug_get($path);
 
-        # Check it's got a kernel entry
-        eval {
-            $kernel =
-                $g->aug_get("/files/boot/grub/menu.lst/title[$default]/kernel");
-        };
-    }
+        # Prepend the grub filesystem to the kernel path
+        $kernel = "$grub$kernel" if(defined($grub));
 
-    # If we didn't find a default, find the first listed kernel
-    if(!defined($kernel)) {
-        eval {
-            my @paths = $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
+        # Check the kernel exists
+        last if($g->exists($kernel));
 
-            $kernel = $g->aug_get($paths[0]) if(@paths > 0);
-        };
+        print STDERR user_message(__x("WARNING: grub refers to ".
+                                      "{path}, which doesn't exist.",
+                                      path => $kernel));
+        $kernel = undef;
     }
 
     # If we got here, grub doesn't contain any kernels. Give up.
     die(user_message(__"Unable to find a default kernel"))
         unless(defined($kernel));
-
-    my $desc = $self->{desc};
-
-    # Get the grub filesystem
-    my $grub = $desc->{boot}->{grub_fs};
-
-    # Prepend the grub filesystem to the kernel path to get an absolute path
-    $kernel = "$grub$kernel" if(defined($grub));
 
     # Work out it's version number
     my $kernel_desc = inspect_linux_kernel ($g, $kernel, 'rpm');
