@@ -154,12 +154,26 @@ sub get_transfer_iso
         if ($iso_st->mtime > $config_st->mtime) {
             my $rebuild = 0;
 
+            my %dirs;
             foreach my $path (keys(%paths)) {
                 my $path_st = stat($path);
 
                 if ($path_st->mtime > $iso_st->mtime) {
                     $rebuild = 1;
                     last;
+                }
+
+                # Also check if the containing directory has been updated. This
+                # will pick up the case where a file with an old timestamp has
+                # been moved into a directory.
+                my (undef, $dir, undef) = File::Spec->splitpath($path);
+                if (!exists($dirs{$dir})) {
+                    my $dir_st = stat($dir);
+                    if ($dir_st->mtime > $iso_st->mtime) {
+                        $rebuild = 1;
+                        last;
+                    }
+                    $dirs{$dir} = 1;
                 }
             }
 
