@@ -317,7 +317,7 @@ sub map_network
 
     my $mapping;
     if (defined($dom)) {
-        my ($mapping) = $dom->findnodes
+        ($mapping) = $dom->findnodes
             ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldname']".
              "/network");
     }
