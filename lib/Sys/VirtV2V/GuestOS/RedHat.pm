@@ -173,6 +173,17 @@ sub _init_augeas
                         "/boot/grub/menu.lst");
         }
 
+        # If we have XF86Config instead of xorg.conf, use that instead.
+        if (! $g->exists('/etc/X11/xorg.conf') &&
+            $g->exists('/etc/X11/XF86Config'))
+        {
+            $g->aug_set('/augeas/load/Xorg/incl[last()+1]',
+                        '/etc/X11/XF86Config');
+            $self->{xorg} = '/etc/X11/XF86Config';
+        } else {
+            $self->{xorg} = '/etc/X11/xorg.conf';
+        }
+
         # Make augeas pick up the new configuration
         $g->aug_load();
     };
@@ -287,7 +298,7 @@ sub update_display_driver
     # Update the display driver if it exists
     eval {
         foreach my $path
-            ($g->aug_match('/files/etc/X11/xorg.conf/Device/Driver'))
+            ($g->aug_match('/files'.$self->{xorg}.'/Device/Driver'))
         {
             $g->aug_set($path, $driver);
         }
