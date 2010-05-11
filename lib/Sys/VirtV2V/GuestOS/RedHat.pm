@@ -1132,6 +1132,11 @@ sub remap_block_devices
         $g->aug_set($spec, "/dev/".$map{$name}.$part);
     }
     $g->aug_save();
+
+    # Delete cached (and now out of date) blkid info if it exists
+    foreach my $blkidtab ('/etc/blkid/blkid.tab', '/etc/blkid.tab') {
+        $g->rm($blkidtab) if ($g->exists($blkidtab));
+    }
 }
 
 sub _drivecmp
