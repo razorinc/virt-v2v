@@ -171,11 +171,10 @@ sub _init_augeas
         unless ($found) {
             $g->aug_set("/augeas/load/Grub/incl[last()+1]",
                         "/boot/grub/menu.lst");
-
-            # Make augeas pick up the new configuration
-            $g->aug_load();
         }
 
+        # Make augeas pick up the new configuration
+        $g->aug_load();
     };
 
     # The augeas calls will die() on any error.
