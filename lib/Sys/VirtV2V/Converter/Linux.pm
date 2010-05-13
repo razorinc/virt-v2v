@@ -332,7 +332,13 @@ sub _configure_boot
     my ($guestos, $kernel, $virtio) = @_;
 
     if($virtio) {
-        $guestos->prepare_bootable($kernel, "virtio_pci", "virtio_blk");
+        # The order of modules here is deliberately the same as the order
+        # specified in the postinstall script of kmod-virtio in RHEL3. The
+        # reason is that the probing order determines the major number of vdX
+        # block devices. If we change it, RHEL 3 KVM guests won't boot.
+        $guestos->prepare_bootable($kernel, "virtio", "virtio_ring",
+                                            "virtio_blk", "virtio_net",
+                                            "virtio_pci");
     } else {
         $guestos->prepare_bootable($kernel, "sym53c8xx");
     }

@@ -1393,10 +1393,10 @@ sub prepare_bootable
         # Backup the original initrd
         $g->mv("$initrd", "$initrd.pre-v2v");
 
-        # Create a new initrd which preloads the required kernel modules
-        my @preload_args = ();
+        # Create a new initrd which probes the required kernel modules
+        my @module_args = ();
         foreach my $module (@modules) {
-            push(@preload_args, "--preload=$module");
+            push(@module_args, "--with=$module");
         }
 
         # mkinitrd reads configuration which we've probably changed
@@ -1419,7 +1419,7 @@ sub prepare_bootable
             $g->modprobe("loop");
         };
 
-        $g->command(["/sbin/mkinitrd", @preload_args, $initrd, $version]);
+        $g->command(["/sbin/mkinitrd", @module_args, $initrd, $version]);
     }
 
     # Disable kudzu in the guest
