@@ -87,6 +87,7 @@ sub new
     bless($self, $class);
 
     $self->_init_selinux();
+    $self->_init_modules();
     $self->_init_augeas();
 
     return $self;
@@ -168,10 +169,9 @@ sub _init_selinux
     $g->touch('/.autorelabel');
 }
 
-sub _init_augeas
+sub _init_modules
 {
     my $self = shift;
-
     my $g = $self->{g};
 
     # Check how new modules should be configured. Possibilities, in descending
@@ -185,10 +185,8 @@ sub _init_augeas
     # discovered method will be chosen
 
     # Files which the augeas Modprobe lens doesn't look for by default
-    my @modprobe_add = ();
     foreach my $file qw(/etc/conf.modules /etc/modules.conf) {
         if($g->exists($file)) {
-            push(@modprobe_add, $file);
             $self->{modules} = $file;
         }
     }
@@ -205,19 +203,17 @@ sub _init_augeas
 
     die(user_message(__"Unable to find any valid modprobe configuration"))
         unless(defined($self->{modules}));
+}
+
+sub _init_augeas
+{
+    my $self = shift;
+    my $g = $self->{g};
 
     # Initialise augeas
     eval {
         $g->aug_close();
         $g->aug_init("/", 1);
-
-        # Add files which exist, but the augeas Modprobe lens doesn't look for
-        # by default
-        if(scalar(@modprobe_add) > 0) {
-            foreach (@modprobe_add) {
-                $g->aug_set("/augeas/load/Modprobe/incl[last()+1]", $_);
-            }
-        }
 
         # Check if /boot/grub/menu.lst is included by the Grub lens
         my $found = 0;
