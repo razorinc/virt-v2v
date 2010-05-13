@@ -92,6 +92,67 @@ sub new
     return $self;
 }
 
+sub _augeas_error
+{
+    my $self = shift;
+    my ($err) = @_; # The original error message. We will emit this if there
+                    # were no augeas errors.
+
+    my $g = $self->{g};
+
+    my $msg = "";
+
+    eval {
+        foreach my $error ($g->aug_match('/augeas/files//error')) {
+            $error =~ /^\/augeas\/files(\/.*)\/error$/
+                or die("Unexpected return from aug_match: $error");
+            my $file = $1;
+
+            my %detail;
+            foreach my $detail_path ($g->aug_match("$error//*")) {
+                $detail_path =~ /^$error\/(.*)$/
+                    or die("Unexpected return from aug_match: $detail_path");
+                $detail{$1} = $g->aug_get($detail_path);
+            }
+
+            if (defined($detail{message})) {
+                $msg .= __x("augeas error for {file}: {error}",
+                           file => $file,
+                           error => $detail{message})."\n";
+            } else {
+                $msg .= __x("augeas error for {file}",
+                           file => $file)."\n";
+            }
+
+            if (defined($detail{pos}) && defined($detail{line}) &&
+                defined($detail{char}))
+            {
+                $msg .= __x("error at line {line}, char {char}, file ".
+                                 "position {pos}",
+                                 line => $detail{line},
+                                 char => $detail{char},
+                                 pos => $detail{pos})."\n";
+            }
+
+            if (defined($detail{lens})) {
+                $msg .= __x("augeas lens: {lens}",
+                            lens => $detail{lens})."\n";
+            }
+        }
+    };
+
+    # Check for failures above
+    if ($@) {
+        die("error generating pretty augeas error: $@\n".
+            "Original error was: $err");
+    }
+
+    chomp($msg);
+
+    die(user_message($msg)) if (length($msg) > 0);
+    die($err);
+}
+
 # Handle SELinux for the guest
 sub _init_selinux
 {
@@ -189,7 +250,7 @@ sub _init_augeas
     };
 
     # The augeas calls will die() on any error.
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 }
 
 =item enable_kernel_module(device, module)
@@ -213,7 +274,7 @@ sub enable_kernel_module
     };
 
     # Propagate augeas errors
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 }
 
 =item update_kernel_module(device, module)
@@ -246,7 +307,7 @@ sub update_kernel_module
     };
 
     # Propagate augeas errors
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 }
 
 =item disable_kernel_module(device)
@@ -279,7 +340,7 @@ sub disable_kernel_module
     };
 
     # Propagate augeas errors
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 }
 
 =item update_display_driver(driver)
@@ -307,7 +368,7 @@ sub update_display_driver
     };
 
     # Propagate augeas errors
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 }
 
 # We can't rely on the index in the augeas path because it will change if
@@ -337,7 +398,7 @@ sub _check_augeas_device
     };
 
     # Propagate augeas errors
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 
     return $augeas;
 }
@@ -359,19 +420,28 @@ sub get_default_kernel
     eval {
         $default = $g->aug_get('/files/boot/grub/menu.lst/default');
     };
+    # Doesn't matter if get fails
 
     # Get the grub filesystem
     my $grub = $self->{desc}->{boot}->{grub_fs};
 
     # Look for a kernel, starting with the default
     my @paths;
-    push(@paths, $g->aug_match("/files/boot/grub/menu.lst/".
-                               "title[$default]/kernel")) if defined($default);
-    push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
+    eval {
+        push(@paths, $g->aug_match("/files/boot/grub/menu.lst/".
+                                   "title[$default]/kernel"))
+            if defined($default);
+        push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
+    };
+
+    $self->_augeas_error($@) if ($@);
 
     my $kernel;
     foreach my $path (@paths) {
-        $kernel = $g->aug_get($path);
+        eval {
+            $kernel = $g->aug_get($path);
+        };
+        $self->_augeas_error($@) if ($@);
 
         # Prepend the grub filesystem to the kernel path
         $kernel = "$grub$kernel" if(defined($grub));
@@ -525,7 +595,11 @@ sub add_kernel
     $self->_install_rpms(0, ($app));
 
     # Make augeas reload so it'll find the new kernel
-    $g->aug_load();
+    eval {
+        $g->aug_load();
+    };
+
+    $self->_augeas_error($@) if ($@);
 
     return $version;
 }
@@ -607,17 +681,15 @@ sub remove_kernel
         unless(defined($version));
 
     my $g = $self->{g};
-    eval {
-        # Work out which rpm contains the kernel
-        my @output =
-            $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
-        $g->command(['rpm', '-e', $output[0]]);
-    };
-
-    die($@) if($@);
+    # Work out which rpm contains the kernel
+    my @output = $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
+    $g->command(['rpm', '-e', $output[0]]);
 
     # Make augeas reload so it knows the kernel's gone
-    $g->aug_load();
+    eval {
+        $g->aug_load();
+    };
+    $self->_augeas_error($@) if ($@);
 }
 
 =item add_application(label)
@@ -932,13 +1004,14 @@ sub remove_application
     my $name = shift;
 
     my $g = $self->{g};
-    eval {
-        $g->command(['rpm', '-e', $name]);
-    };
-    die($@) if($@);
+    $g->command(['rpm', '-e', $name]);
 
     # Make augeas reload in case the removal changed anything
-    $g->aug_load();
+    eval {
+        $g->aug_load();
+    };
+
+    $self->_augeas_error($@) if ($@);
 }
 
 =item get_application_owner(file)
@@ -973,15 +1046,14 @@ sub _install_rpms
     @rpms = map { $_ = $self->_transfer_path($_) } @rpms;
 
     my $g = $self->{g};
-    eval {
-        $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
-    };
-
-    # Propagate command failure
-    die($@) if($@);
+    $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
 
     # Reload augeas in case the rpm installation changed anything
-    $g->aug_load();
+    eval {
+        $g->aug_load();
+    };
+
+    $self->_augeas_error($@) if($@);
 }
 
 # Get full, local path of a file on the transfer mount
@@ -1053,13 +1125,17 @@ sub remap_block_devices
     if ($libata) {
         # Look for IDE and SCSI devices in fstab for the guest
         my %guestif;
-        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
-            my $device = $g->aug_get($spec);
+        eval {
+            foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+                my $device = $g->aug_get($spec);
 
-            next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
-            $guestif{$1} ||= {};
-            $guestif{$1}->{$1.$2} = 1;
-        }
+                next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
+                $guestif{$1} ||= {};
+                $guestif{$1}->{$1.$2} = 1;
+            }
+        };
+
+        $self->_augeas_error($@) if ($@);
 
         # If fstab contains references to sdX, these could refer to IDE or SCSI
         # devices. We may need to update them.
@@ -1119,19 +1195,23 @@ sub remap_block_devices
         $letter++;
     }
 
-    # Go through fstab again, updating bare device references
-    foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
-        my $device = $g->aug_get($spec);
+    eval {
+        # Go through fstab again, updating bare device references
+        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+            my $device = $g->aug_get($spec);
 
-        next unless($device =~ m{^/dev/([a-z]+)(\d*)});
-        my $name = $1;
-        my $part = $2;
+            next unless($device =~ m{^/dev/([a-z]+)(\d*)});
+            my $name = $1;
+            my $part = $2;
 
-        next unless(exists($map{$name}));
+            next unless(exists($map{$name}));
 
-        $g->aug_set($spec, "/dev/".$map{$name}.$part);
-    }
-    $g->aug_save();
+            $g->aug_set($spec, "/dev/".$map{$name}.$part);
+        }
+        $g->aug_save();
+    };
+
+    $self->_augeas_error($@) if ($@);
 
     # Delete cached (and now out of date) blkid info if it exists
     foreach my $blkidtab ('/etc/blkid/blkid.tab', '/etc/blkid.tab') {
@@ -1296,21 +1376,11 @@ sub prepare_bootable
             }
         }
 
-        eval {
-            $g->aug_save();
-        };
-
-        if ($@) {
-            my $msg = '';
-            foreach my $error ($g->aug_match('/augeas//error')) {
-                $msg .= $error.': '.$g->aug_get($error)."\n";
-            }
-            die($msg);
-        }
+        $g->aug_save();
     };
 
     # Propagate augeas failure
-    die($@) if($@);
+    $self->_augeas_error($@) if ($@);
 
     if(!defined($initrd)) {
         print STDERR user_message(__x("WARNING: Kernel version {version} ".
@@ -1334,12 +1404,7 @@ sub prepare_bootable
             $g->aug_save();
         };
 
-        if($@) {
-            foreach my $error ($g->aug_match('/augeas//error/*')) {
-                print STDERR "$error: ".$g->aug_get($error)."\n";
-            }
-            die($@);
-        }
+        $self->_augeas_error($@) if ($@);
 
         # We explicitly modprobe ext2 here. This is required by mkinitrd on RHEL
         # 3, and shouldn't hurt on other OSs. We don't care if this fails.
