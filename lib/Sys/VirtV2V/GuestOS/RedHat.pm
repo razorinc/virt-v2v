@@ -471,7 +471,7 @@ sub add_kernel
 {
     my $self = shift;
 
-    my ($kernel_pkg, $kernel_arch) = $self->_discover_kernel();
+    my ($kernel_pkg, $kernel_ver, $kernel_arch) = $self->_discover_kernel();
 
     # If the guest is using a Xen PV kernel, choose an appropriate normal kernel
     # replacement
@@ -543,52 +543,140 @@ sub add_kernel
         }
     }
 
-    my ($app, $depnames);
-    eval {
-        my $desc = $self->{desc};
-
-        ($app, $depnames) =
-            $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
-    };
-    # Return undef if we didn't find a kernel
-    if ($@) {
-        print STDERR $@;
-        return undef;
-    }
-
-    my @missing;
-    if (!$self->{g}->exists($self->_transfer_path($app))) {
-        push(@missing, $app);
-    } else {
-        return undef if ($self->_newer_installed($app));
-    }
-
-    my $user_arch = $kernel_arch eq 'i686' ? 'i386' : $kernel_arch;
-
-    my @deps = $self->_get_deppaths(\@missing, $user_arch, @$depnames);
-
-    # We can't proceed if there are any files missing
-    _die_missing(@missing) if (@missing > 0);
-
-    # Install any required kernel dependencies
-    $self->_install_rpms(1, @deps);
-
-    # Inspect the rpm to work out what kernel version it contains
     my $version;
     my $g = $self->{g};
-    foreach my $file ($g->command_lines
-        (["rpm", "-qlp", $self->_transfer_path($app)]))
-    {
-        if($file =~ m{^/boot/vmlinuz-(.*)$}) {
-            $version = $1;
-            last;
+    my $update_fail = 0;
+
+    # try using up2date / yum if available
+    if ($g->exists('/usr/sbin/up2date') or $g->exists('/usr/bin/yum')) {
+
+        my $desc = $self->{desc};
+
+        my ($min_virtio_ver, @kern_vr, @preinst_cmd, @inst_cmd, $inst_fmt);
+
+        # filter out xen/xenU from release field
+        if ($kernel_ver =~ /^(\S+)-(\S+?)(xen)?(U)?$/) {
+            @kern_vr = ($1, $2);
+            $kernel_ver = join('-', @kern_vr);
+        }
+
+        # We need to upgrade kernel deps. first to avoid possible conflicts
+        my $deps = ($self->{config}->match_app($desc, $kernel_pkg, $kernel_arch))[1];
+
+        # use up2date when available (RHEL-4 and earlier)
+        if ($g->exists('/usr/sbin/up2date')) {
+             if (_rpmvercmp($kernel_ver, '2.6.9-89.EL') >= 0) {
+                # Install matching kernel version
+                @inst_cmd = ('/usr/bin/python', '-c',
+                    "import sys; sys.path.append('/usr/share/rhn');" .
+                    "import actions.packages;" .
+                    "actions.packages.cfg['forceInstall'] = 1;" .
+                    "actions.packages.update([['$kernel_pkg', " .
+                    "'$kern_vr[0]', '$kern_vr[1]', '']])");
+            } else {
+                # Install latest available kernel version
+                @inst_cmd = ('/usr/sbin/up2date', '-fi', $kernel_pkg);
+            }
+
+            if (@$deps) {
+                use Data::Dumper; print Dumper($deps);
+                @preinst_cmd = ('/usr/sbin/up2date', '-fu', @$deps);
+            }
+        }
+        # use yum when available (RHEL-5 and beyond)
+        elsif ($g->exists('/usr/bin/yum')) {
+            if (_rpmvercmp($kernel_ver, '2.6.18-128.el5') >= 0) {
+                # Install matching kernel version
+                @inst_cmd = ('/usr/bin/yum', '-y', 'install',
+                             "$kernel_pkg-$kernel_ver");
+            } else {
+                # Install latest available kernel version
+                @inst_cmd = ('/usr/bin/yum', '-y', 'install', $kernel_pkg);
+            }
+
+            if ($deps) {
+                @preinst_cmd = ('/usr/bin/yum', '-y', 'upgrade', @$deps);
+            }
+        }
+
+        my (@k_before, @k_new);
+
+        # List of kernels before the new kernel installation
+        @k_before = $self->{g}->glob_expand('/boot/vmlinuz-*');
+
+        eval {
+            # Upgrade dependencies if needed
+            if (@preinst_cmd) {
+                $g->command(\@preinst_cmd);
+            }
+            # Install new kernel
+            $g->command(\@inst_cmd);
+        };
+
+        if ($@) {
+            $update_fail = 1;
+        }
+        else {
+
+            # Figure out which kernel has just been installed
+            foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
+                grep(/^$k$/, @k_before) or push(@k_new, $k);
+            }
+
+            # version-release of the new kernel package
+            $version = ($g->command_lines(
+                ['rpm', '-qf', '--qf=%{VERSION}-%{RELEASE}', $k_new[0]]))[0];
         }
     }
 
-    die(user_message(__x("{path} doesn't contain a valid kernel",
-                         path => $app))) if(!defined($version));
+    if ($update_fail) {
 
-    $self->_install_rpms(0, ($app));
+        my ($app, $depnames);
+        eval {
+            my $desc = $self->{desc};
+
+            ($app, $depnames) =
+                $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
+        };
+        # Return undef if we didn't find a kernel
+        if ($@) {
+            print STDERR $@;
+            return undef;
+        }
+
+        my @missing;
+        if (!$g->exists($self->_transfer_path($app))) {
+            push(@missing, $app);
+        } else {
+            return undef if ($self->_newer_installed($app));
+        }
+
+        my $user_arch = $kernel_arch eq 'i686' ? 'i386' : $kernel_arch;
+
+        my @deps = $self->_get_deppaths(\@missing, $user_arch, @$depnames);
+
+        # We can't proceed if there are any files missing
+        _die_missing(@missing) if (@missing > 0);
+
+        # Install any required kernel dependencies
+        $self->_install_rpms(1, @deps);
+
+        # Inspect the rpm to work out what kernel version it contains
+        foreach my $file ($g->command_lines
+            (["rpm", "-qlp", $self->_transfer_path($app)]))
+        {
+            if($file =~ m{^/boot/vmlinuz-(.*)$}) {
+                $version = $1;
+                last;
+            }
+        }
+
+        die(user_message(__x("{path} doesn't contain a valid kernel",
+                             path => $app))) if(!defined($version));
+
+        $self->_install_rpms(0, ($app));
+
+    }
 
     # Make augeas reload so it'll find the new kernel
     eval {
@@ -628,6 +716,7 @@ sub _discover_kernel
 
     # Get a current bootable kernel, preferrably the default
     my $kernel_pkg;
+    my $kernel_ver;
     my $kernel_arch;
 
     foreach my $i (@configs) {
@@ -643,6 +732,11 @@ sub _discover_kernel
 
         # Get the kernel package name
         $kernel_pkg = $kernel->{package};
+
+        # Get the kernel package version
+        $kernel_ver = $kernel->{version};
+
+        last;
     }
 
     # Default to 'kernel' if package name wasn't discovered
@@ -660,7 +754,7 @@ sub _discover_kernel
     # a very long time.
     $kernel_arch = 'i686' if('i386' eq $kernel_arch);
 
-    return ($kernel_pkg, $kernel_arch);
+    return ($kernel_pkg, $kernel_ver, $kernel_arch);
 }
 
 =item remove_kernel(version)
