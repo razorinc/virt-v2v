@@ -225,8 +225,8 @@ sub _add_viostor_to_registry
         or die "open system hive: $!";
 
     # Make the changes.
-    my $regedits_w2k3 = '
-; Edits to be made to a Windows 2003 guest to have
+    my $regedits = '
+; Edits to be made to a Windows guest to have
 ; it boot from viostor.
 
 [HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1af4&dev_1001&subsys_00000000]
@@ -271,59 +271,9 @@ sub _add_viostor_to_registry
 "NextInstance"=dword:00000001
 ';
 
-    my $regedits_w2k8 = '
-; Edits to be made to a Windows 2008 guest to have
-; it boot from viostor.
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\PCI#VEN_1AF4&DEV_1001&SUBSYS_00000000]
-"ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
-"Service"="viostor"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\PCI#VEN_1AF4&DEV_1001&SUBSYS_00020000]
-"ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
-"Service"="viostor"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\PCI#VEN_1AF4&DEV_1001&SUBSYS_00021AF4]
-"ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
-"Service"="viostor"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor]
-"Group"="SCSI miniport"
-"ImagePath"=hex(2):73,00,79,00,73,00,74,00,65,00,6d,00,33,00,32,00,5c,00,64,00,\
-  72,00,69,00,76,00,65,00,72,00,73,00,5c,00,76,00,69,00,6f,00,73,00,74,00,6f,\
-  00,72,00,2e,00,73,00,79,00,73,00,00,00
-"ErrorControl"=dword:00000001
-"Start"=dword:00000000
-"Type"=dword:00000001
-"Tag"=dword:00000040
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters]
-"BusType"=dword:00000001
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\MaxTransferSize]
-"ParamDesc"="Maximum Transfer Size"
-"type"="enum"
-"default"="0"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\MaxTransferSize\enum]
-"0"="64  KB"
-"1"="128 KB"
-"2"="256 KB"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\PnpInterface]
-"5"=dword:00000001
-
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Enum]
-"0"="PCI\\\\VEN_1AF4&DEV_1001&SUBSYS_00021AF4&REV_00\\\\3&13c0b0c5&2&20"
-"Count"=dword:00000001
-"NextInstance"=dword:00000001
-';
-
     my $io;
-    if ($desc->{major_version} == 5 && $desc->{minor_version} == 2) {
-        $io = IO::String->new ($regedits_w2k3);
-    } elsif ($desc->{major_version} == 6) {
-        $io = IO::String->new ($regedits_w2k8);
+    if ($desc->{major_version} == 5 || $desc->{major_version} == 6) {
+        $io = IO::String->new ($regedits);
     } else {
         die (user_message (__x"Guest is not a supported version of Windows ({major}.{minor})",
                            major => $desc->{major_version},
@@ -375,7 +325,7 @@ sub _add_service_to_registry
 
     # Make the changes.
     my $regedits = '
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\RHSrvAny]
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\rhev-apt]
 "Type"=dword:00000010
 "Start"=dword:00000002
 "ErrorControl"=dword:00000001
@@ -383,7 +333,7 @@ sub _add_service_to_registry
 "DisplayName"="RHSrvAny"
 "ObjectName"="LocalSystem"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\RHSrvAny\Parameters]
+[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\rhev-apt\Parameters]
 "CommandLine"="cmd /c \"c:\\\\Temp\\\\V2V\\\\firstboot.bat\""
 "PWD"="c:\\\\Temp\\\\V2V"
 ';
@@ -441,7 +391,12 @@ sub _upload_service
     $g->cp ($app, $path);
 
     ($app, $depnames) =
-        $config->match_app ($desc, "firstbootzip", $desc->{arch});
+        $config->match_app ($desc, "firstbootapp", $desc->{arch});
+    $app = _transfer_path ($transfer_mount, $app);
+    $g->cp ($app, $path);
+    
+    ($app, $depnames) =
+        $config->match_app ($desc, "rhsrvany", $desc->{arch});
     $app = _transfer_path ($transfer_mount, $app);
     $g->cp ($app, $path);
 }
