@@ -853,6 +853,28 @@ sub _get_installed
     return @installed;
 }
 
+sub _evr_cmp
+{
+    my ($e1, $v1, $r1, $e2, $v2, $r2) = @_;
+
+    # Treat epoch as zero if undefined
+    $e1 ||= 0;
+    $e2 ||= 0;
+
+    return -1 if ($e1 < $e2);
+    return 1 if ($e1 > $e2);
+
+    # version must be defined
+    my $cmp = _rpmvercmp($v1, $v2);
+    return $cmp if ($cmp != 0);
+
+    # Treat release as the empty string if undefined
+    $r1 ||= "";
+    $r2 ||= "";
+
+    return _rpmvercmp($r1, $r2);
+}
+
 
 # Return 1 if the requested rpm, or a newer version, is installed
 # Return 0 otherwise
@@ -870,24 +892,8 @@ sub _newer_installed
     # Search installed rpms matching <name>.<arch>
     my $found = 0;
     foreach my $pkg (@installed) {
-        my $iepoch   = $pkg->[0];
-        my $iversion = $pkg->[1];
-        my $irelease = $pkg->[2];
-
-        # Skip if installed epoch less than requested version
-        next if ($iepoch < $epoch);
-
-        if ($iepoch eq $epoch) {
-            # Skip if installed version less than requested version
-            next if (_rpmvercmp($iversion, $version) < 0);
-
-            # Skip if install version == requested version, but release less
-            # than requested release
-            if ($iversion eq $version) {
-                next if (_rpmvercmp($irelease, $release) < 0);
-            }
-        }
-
+        next if _evr_cmp($pkg->[0], $pkg->[1], $pkg->[2],
+                         $epoch, $version, $release) < 0;
         $found = 1;
     }
 
