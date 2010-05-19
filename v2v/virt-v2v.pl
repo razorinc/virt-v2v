@@ -173,10 +173,12 @@ The nfs export must be mountable and writable by the machine running virt-v2v.
 =cut
 
 my $config_file;
+$config_file = '/etc/virt-v2v.conf' if (-r '/etc/virt-v2v.conf');
 
 =item B<-f file> | B<--config file>
 
-Load the virt-v2v configuration from I<file>. There is no default.
+Load the virt-v2v configuration from I<file>. Defaults to /etc/virt-v2v.conf if
+it exists;
 
 =cut
 
