@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-19 18:16+0100\n"
+"POT-Creation-Date: 2010-05-19 19:44+0100\n"
 "PO-Revision-Date: 2010-04-13 16:09+0300\n"
 "Last-Translator: Maxim V. Dziumanenko <dziumanenko@gmail.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -30,17 +30,17 @@ msgstr "Немає прав на читання {path}"
 msgid "Unable to parse config file {path}: {error}"
 msgstr "Не вдається розібрати файл конфігурації {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:140
+#: ../lib/Sys/VirtV2V/Config.pm:145
 msgid "<iso-path> must be specified in the configuration file"
 msgstr "<iso-path> має бути вказаний у файлі конфігурації"
 
-#: ../lib/Sys/VirtV2V/Config.pm:147 ../lib/Sys/VirtV2V/Config.pm:151
+#: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
 #, fuzzy, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "Не вдається отримати статус iso-файлу {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:190
+#: ../lib/Sys/VirtV2V/Config.pm:198
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -49,46 +49,46 @@ msgstr ""
 "Не вдалось створити ISO для передачі. Вивід команди:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:236
+#: ../lib/Sys/VirtV2V/Config.pm:245
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr "запис для програми у конфігурації не містить шлях: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:293
+#: ../lib/Sys/VirtV2V/Config.pm:302
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:326
+#: ../lib/Sys/VirtV2V/Config.pm:335
 #, fuzzy, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr "Не вказано конфігурацію. Немає програм, що відповідають {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:337
+#: ../lib/Sys/VirtV2V/Config.pm:346
 #, fuzzy
 msgid "Didn't detect operating system"
 msgstr "Не виявлено дистрибутив ОС"
 
-#: ../lib/Sys/VirtV2V/Config.pm:371
+#: ../lib/Sys/VirtV2V/Config.pm:380
 #, fuzzy, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr "У конфігурації немає програм, що відповідають {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:402
+#: ../lib/Sys/VirtV2V/Config.pm:411
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:419
+#: ../lib/Sys/VirtV2V/Config.pm:428
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr "УВАГА: Неправильна топологія мережі у конфігурації: {config}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:427
+#: ../lib/Sys/VirtV2V/Config.pm:436
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr "УВАГА: Неправильний тип інтерфейсу {type} у топології мережі: {config}"
@@ -277,23 +277,23 @@ msgstr ""
 "Не вдалось створити ISO для передачі. Вивід команди:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:899
 #, perl-brace-format
 msgid ""
-"Conversion cannot proceed because the following files referenced in the "
+"Installation failed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1127
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Не вдається визначити архітектуру ядра для цієї гостьової системи"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1220
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1214
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Помилка при роботі {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1747
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "УВАГА: Немає запису для initrd у grub для версії ядра {version}"

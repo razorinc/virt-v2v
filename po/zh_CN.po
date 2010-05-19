@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-19 18:16+0100\n"
+"POT-Creation-Date: 2010-05-19 19:44+0100\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -33,17 +33,17 @@ msgstr ""
 msgid "Unable to parse config file {path}: {error}"
 msgstr "无法解析 {path}：{error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:140
+#: ../lib/Sys/VirtV2V/Config.pm:145
 msgid "<iso-path> must be specified in the configuration file"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:147 ../lib/Sys/VirtV2V/Config.pm:151
+#: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
 #, fuzzy, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "无法写入 {path}：{error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:190
+#: ../lib/Sys/VirtV2V/Config.pm:198
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -52,45 +52,45 @@ msgstr ""
 "无法创建传输标准。 命令的输出是：\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:236
+#: ../lib/Sys/VirtV2V/Config.pm:245
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:293
+#: ../lib/Sys/VirtV2V/Config.pm:302
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:326
+#: ../lib/Sys/VirtV2V/Config.pm:335
 #, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:337
+#: ../lib/Sys/VirtV2V/Config.pm:346
 msgid "Didn't detect operating system"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:371
+#: ../lib/Sys/VirtV2V/Config.pm:380
 #, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:402
+#: ../lib/Sys/VirtV2V/Config.pm:411
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:419
+#: ../lib/Sys/VirtV2V/Config.pm:428
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:427
+#: ../lib/Sys/VirtV2V/Config.pm:436
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -276,23 +276,23 @@ msgstr ""
 "无法创建传输标准。 命令的输出是：\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:899
 #, perl-brace-format
 msgid ""
-"Conversion cannot proceed because the following files referenced in the "
+"Installation failed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1127
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "无法为这个客户端确定内核构架"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1220
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1214
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1747
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"

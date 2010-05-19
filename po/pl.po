@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-19 18:16+0100\n"
+"POT-Creation-Date: 2010-05-19 19:44+0100\n"
 "PO-Revision-Date: 2010-04-27 21:12+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
@@ -28,17 +28,17 @@ msgstr "Brak uprawnień do odczytania {path}"
 msgid "Unable to parse config file {path}: {error}"
 msgstr "Nie można przetworzyć pliku konfiguracji {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:140
+#: ../lib/Sys/VirtV2V/Config.pm:145
 msgid "<iso-path> must be specified in the configuration file"
 msgstr "<ścieżka-do-pliku-ISO> musi zostać podana w pliku konfiguracji"
 
-#: ../lib/Sys/VirtV2V/Config.pm:147 ../lib/Sys/VirtV2V/Config.pm:151
+#: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
 #, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "Nie można wykonać stat na {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:190
+#: ../lib/Sys/VirtV2V/Config.pm:198
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -47,34 +47,34 @@ msgstr ""
 "Utworzenie pliku ISO przesyłania nie powiodło się. Wyjście polecenia:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:236
+#: ../lib/Sys/VirtV2V/Config.pm:245
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr "wpis aplikacji w konfiguracji nie zawiera ścieżki: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:293
+#: ../lib/Sys/VirtV2V/Config.pm:302
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:326
+#: ../lib/Sys/VirtV2V/Config.pm:335
 #, fuzzy, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr "Nie podano konfiguracji. Brak aplikacji pasującej do {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:337
+#: ../lib/Sys/VirtV2V/Config.pm:346
 #, fuzzy
 msgid "Didn't detect operating system"
 msgstr "Nie wykryto dystrybucji systemu operacyjnego"
 
-#: ../lib/Sys/VirtV2V/Config.pm:371
+#: ../lib/Sys/VirtV2V/Config.pm:380
 #, fuzzy, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr "Brak aplikacji w konfiguracji pasującej do {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:402
+#: ../lib/Sys/VirtV2V/Config.pm:411
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
@@ -84,12 +84,12 @@ msgstr ""
 "konfiguracji. Przekonwertowany gość może się nie uruchamiać, dopóki jego "
 "interfejs sieciowy nie zostanie zaktualizowany."
 
-#: ../lib/Sys/VirtV2V/Config.pm:419
+#: ../lib/Sys/VirtV2V/Config.pm:428
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci w konfiguracji: {config}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:427
+#: ../lib/Sys/VirtV2V/Config.pm:436
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -282,23 +282,23 @@ msgstr ""
 "Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
 "{status}. Wyjście: {output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:899
 #, perl-brace-format
 msgid ""
-"Conversion cannot proceed because the following files referenced in the "
+"Installation failed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1127
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1220
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1214
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1747
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr ""
