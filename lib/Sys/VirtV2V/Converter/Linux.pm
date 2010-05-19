@@ -113,7 +113,7 @@ sub convert
 
     # Configure the rest of the system
     _configure_console($g);
-    _configure_display_driver($guestos, $virtio);
+    _configure_display_driver($guestos);
     $guestos->remap_block_devices($devices, $virtio);
     _configure_kernel_modules($guestos, $desc, $virtio);
     _configure_boot($guestos, $kernel, $virtio);
@@ -241,7 +241,7 @@ sub _configure_console
 
 sub _configure_display_driver
 {
-    my ($guestos, $virtio) = @_;
+    my ($guestos) = @_;
 
     $guestos->update_display_driver("cirrus");
 }
