@@ -271,19 +271,6 @@ The version number of the kernel to be removed.
 
 remove_kernel uninstalls a kernel from the guest.
 
-=item add_application(label)
-
-=over
-
-=item label
-
-The label of the application to be installed. See L<virt-v2v.conf(5)> for more
-details.
-
-=back
-
-add_application installs an application and its dependencies into the guest.
-
 =item remove_application(name)
 
 =over

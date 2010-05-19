@@ -782,40 +782,6 @@ sub remove_kernel
     $self->_augeas_error($@) if ($@);
 }
 
-=item add_application(label)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub add_application
-{
-    my $self = shift;
-    my $label = shift;
-
-    my $desc = $self->{desc};
-    my $user_arch = $desc->{arch};
-
-    my $config = $self->{config};
-    my ($app, $deps) = $config->match_app($self->{desc}, $label, $user_arch);
-
-    my @missing;
-    if (!$self->{g}->exists($self->_transfer_path($app))) {
-        push(@missing, $app);
-    } else {
-        return if ($self->_newer_installed($app));
-    }
-
-    my @install = ($app);
-
-    # Add any dependencies which aren't already installed to the install set
-    push(@install, $self->_get_deppaths(\@missing, $user_arch, @$deps));
-
-    _die_missing(@missing) if (@missing > 0);
-
-    $self->_install_rpms(1, @install);
-}
-
 sub _get_nevra
 {
     my $self = shift;
