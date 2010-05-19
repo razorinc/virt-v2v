@@ -896,7 +896,10 @@ sub _install_config
     my @user_paths = $self->_get_deppaths(\@missing, $desc->{arch}, @$user);
 
     # We can't proceed if there are any files missing
-    _die_missing(@missing) if (@missing > 0);
+    die(user_message(__x("Installation failed because the following ".
+                         "files referenced in the configuration file are ".
+                         "required, but missing: {list}",
+                         list => join(' ', @missing)))) if (@missing > 0);
 
     # Install any non-kernel requirements
     $self->_install_rpms(1, @user_paths);
@@ -1070,15 +1073,6 @@ sub _check_grub
         $g->aug_save();
     };
     $self->_augeas_error($@) if ($@);
-}
-
-sub _die_missing
-{
-    # We can't proceed if there are any files missing
-    die(user_message(__x("Conversion cannot proceed because the following ".
-                         "files referenced in the configuration file are ".
-                         "required, but missing: {list}",
-                         list => join(' ', @_))));
 }
 
 # Inspect the guest description to work out what kernel package is in use
