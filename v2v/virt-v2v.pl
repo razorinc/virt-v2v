@@ -547,30 +547,16 @@ To perform the conversion, run:
 
 where C<< <domain>.xml >> is the path to the exported guest domain's xml, and
 C<< <pool> >> is the local storage pool where copies of the guest's disks will
-be created. virt-v2v.conf should specify:
+be created. See L<virt-v2v.conf(5)> for a details of virt-v2v.conf.
 
-=over
-
-=item *
-
-a mapping for the guest's network configuration, unless a default was specified
-on the command line with I<--bridge> or I<--network>.
-
-=item *
-
-app definitions for any required replacement kernels.
-
-=back
-
-See L<virt-v2v.conf(5)> for details.
-
-It is possible to avoid specifying replacement kernels in the virt-v2v config
-file by ensuring that the guest has an appropriate kernel installed prior to
-conversion. If your guest uses a Xen paravirtualised kernel (it would be called
-something like kernel-xen or kernel-xenU), you can install a regular kernel,
-which won't reference a hypervisor in its name, alongside it. You shouldn't make
-this newly installed kernel your default kernel because Xen may not boot it.
-virt-v2v will make it the default during conversion.
+If it is not possible to provide software updates over the network in your
+environment, it is still possible to avoid specifying replacement kernels in the
+virt-v2v config file by ensuring that the guest has an appropriate kernel
+installed prior to conversion. If your guest uses a Xen paravirtualised kernel
+(it would be called something like kernel-xen or kernel-xenU), you can install a
+regular kernel, which won't reference a hypervisor in its name, alongside it.
+You shouldn't make this newly installed kernel your default kernel because Xen
+may not boot it.  virt-v2v will make it the default during conversion.
 
 =head2 CONVERTING A GUEST FROM VMWARE ESX
 
@@ -611,9 +597,7 @@ converted.
 
 =back
 
-virt-v2v.conf should specify a mapping for the guest's network configuration,
-unless a default was specified on the command line with I<--bridge> or
-I<--network>. See L<virt-v2v.conf(5)> for details.
+See L<virt-v2v.conf(5)> for a details of virt-v2v.conf.
 
 =head3 Authenticating to the ESX server
 
@@ -677,9 +661,7 @@ virt-v2v -f virt-v2v.conf -o rhev -osd <export_sd> <domain>
 
 =back
 
-Ensure that I<virt-v2v.conf> contains a correct network mapping for your target
-RHEV configuration, or that you have specified a default mapping on the command
-line with either I<--bridge> or I<--network>.
+See L<virt-v2v.conf(5)> for details of virt-v2v.conf.
 
 =head1 RUNNING THE CONVERTED GUEST
 
@@ -806,6 +788,7 @@ Describe the bug accurately, and give a way to reproduce it.
 
 =head1 SEE ALSO
 
+L<virt-v2v.conf(5)>,
 L<virt-manager(1)>,
 L<http://libguestfs.org/>.
 

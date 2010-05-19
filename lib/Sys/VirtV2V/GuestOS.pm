@@ -242,23 +242,6 @@ The name of the new disply driver. An example is I<cirrus>.
 
 Update the display driver, if defined, to the given driver.
 
-=item get_default_kernel
-
-get_default_kernel returns the version number of the kernel which will be booted
-according to the current configuration. It examines the guest directly rather
-than relying on the output from Sys::Guestfs::Lib, which may be out of date.
-
-=item add_kernel
-
-add_kernel installs a new kernel. It chooses a kernel label based on the name of
-the default kernel installed in the guest. See L<virt-v2v(5)> for details of how
-files are selected for installation.
-
-add_kernel will also install dependencies of the chosen kernel.
-
-add_kernel returns the version number of the kernel it installed, or undef if it
-did not find a kernel to install.
-
 =item remove_kernel(version)
 
 =over
@@ -270,19 +253,6 @@ The version number of the kernel to be removed.
 =back
 
 remove_kernel uninstalls a kernel from the guest.
-
-=item remove_application(name)
-
-=over
-
-=item name
-
-The name of the the application, as it is known to the underlying package
-manager.
-
-=back
-
-remove an application from the guest.
 
 =item get_application_owner(file)
 

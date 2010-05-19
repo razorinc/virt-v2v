@@ -262,6 +262,60 @@ sub _match_query
     return $query;
 }
 
+=item match_capability
+
+Match a capability from the configuration. Returned as a hashref containing
+dependencies, where each dependency is a hashref containing:
+
+  {capability} ->
+    {name} ->       : package name
+      {minversion}  : minimum required version
+      {ifinstalled} : 1 if the package should be upgraded if necessary, but
+                      not installed if it is not already, 0 otherwise
+
+Returns undef if the capability was not found.
+
+=cut
+
+sub match_capability
+{
+    my $self = shift;
+    my ($desc, $name, $arch) = @_;
+
+    my $cap = $self->_match_element('capability', $desc, $name, $arch);
+
+    my %out;
+    foreach my $dep ($cap->findnodes('dep')) {
+        my %props;
+        foreach my $prop ('name', 'minversion') {
+            my ($val) = $dep->findnodes('@'.$prop);
+            $val &&= $val->getData();
+            die(user_message(__x("Capability in config contains a dependency ".
+                                 "with no {property} attribute: {xml}",
+                                 property => $prop,
+                                 xml => $cap->toString())))
+                if (!defined($val));
+            $props{$prop} = $val;
+        }
+
+        my ($ifinstalled) = $dep->findnodes('@ifinstalled');
+        $ifinstalled &&= $ifinstalled->getData();
+        if (defined($ifinstalled) &&
+            ($ifinstalled eq "1" || $ifinstalled eq "yes"))
+        {
+            $props{ifinstalled} = 1;
+        } else {
+            $props{ifinstalled} = 0;
+        }
+
+        my $depname = $props{name};
+        delete($props{name});
+
+        $out{$depname} = \%props;
+    }
+    return \%out;
+}
+
 sub _match_element
 {
     my $self = shift;

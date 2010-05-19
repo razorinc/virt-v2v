@@ -68,9 +68,102 @@ virt-v2v may have to install software in a guest during the conversion process
 to ensure it boots. An example is replacing a Xen paravirtualised kernel with a
 normal kernel. This software will be specific to the guest operating system.
 
-Software to be installed is specified in the E<lt>appE<gt> element, which is a
+=head3 Capabilities
+
+A capability describes the set of software required for a specific goal, for
+example VirtIO support.  A capability describes only direct dependencies.
+Transitive dependencies will be resolved by the installation method, for example
+yum or L</"Local Installation">.
+
+E<lt>capabilityE<gt> is a child of the root element. There can be any number of
+E<lt>capabilityE<gt> elements. See L</Searching> for a description of the
+attributes of E<lt>capabilityE<gt> and how they are matched.
+
+Dependencies are specified in the E<lt>depE<gt> element, which has the following
+attributes:
+
+=over
+
+=item name
+
+The symbolic name of a dependency. On an rpm-based system this will be the
+package name. This attribute is required.
+
+=item minversion
+
+The minimum required version of the software. For rpm-based systems this must be
+specified as [epoch:]version[-release]. This attribute is required.
+
+=item ifinstalled
+
+A dependency must normally be installed if it is not present, or upgraded if it
+present but too old. If I<ifinstalled> is 'yes', the dependency will be upgraded
+if is present but too old, but not installed if it is not already present.
+
+=back
+
+=head3 Local Installation
+
+If it is not possible to install required software using the guest's update
+agent, the software can be installed from the conversion host. In this case, it
+must be specified in the E<lt>appE<gt> element. E<lt>appE<gt> is a
 child of the root element. The configuration can specify any number of
-E<lt>appE<gt> elements. E<lt>appE<gt> can have these attributes:
+E<lt>appE<gt> elements. See L</Searching> for a description of the attribute of
+E<lt>appE<gt> and how they are matched.
+
+The E<lt>appE<gt> element must contain a E<lt>pathE<gt> element, which specifies
+the path to the software. It may also contain any number of E<lt>depE<gt>
+elements, which specify the names of additional applications which may need to
+be installed. Each dependency will be resolved in the same way as its parent, by
+looking for a match based on os, distro, major, minor and arch.
+
+virt-v2v will attempt to install dependencies first. A dependency will only be
+installed if it is not already installed, or the installed version is older than
+the specified version. On x86_64, virt-v2v will additionally check if an i386
+version need to by updated, but only if any i386 version of the package is
+already installed.
+
+Paths given in E<lt>pathE<gt> must be absolute, unless there is a top level
+E<lt>path-rootE<gt> element. If it exists, all E<lt>pathE<gt> elements will be
+relative to E<lt>path-rootE<gt>.
+
+virt-v2v passes software to the guest by creating an iso image and passing it to
+the guest as a cd-rom drive. The path to this iso image must be specified in a
+top level E<lt>iso-pathE<gt> element.
+
+The following example specifies the location of 'kernel' for RHEL 5, all minor
+versions, on i686:
+
+ <app os='linux' distro='rhel' major='5' arch='i686' name='kernel'>
+   <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
+   <dep>ecryptfs-utils</dep>
+   <dep>lvm2</dep>
+ </app>
+ <app os='linux' distro='rhel' major='5' arch='i386' name='ecryptfs-utils'>
+   <path>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</path>
+ </app>
+ <app os='linux' distro='rhel' major='5' arch='i386' name='lvm2'>
+   <path>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</path>
+   <dep>device-mapper</dep>
+   <dep>device-mapper-event</dep>
+ </app>
+
+ <path-root>/var/lib/virt-v2v/software</path-root>
+ <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
+
+The kernel can be found at
+/var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 2
+direct dependencies: ecryptfs and lvm2. ecryptfs-utils has no additional
+dependencies, but lvm2 has 2 further dependencies (not shown for brevity). All
+dependencies will also be installed if they are not present, or are too old. All
+dependency paths are also relative to /var/lib/virt-v2v/software.  virt-v2v will
+create a transfer iso image containing all paths and dependencies at
+/var/lib/virt-v2v/transfer.iso.
+
+=head3 Searching
+
+Both E<lt>capabilityE<gt> and E<lt>appE<gt> are matched in the same way, based
+on the following attributes:
 
 =over
 
@@ -105,11 +198,11 @@ The guest architecture, as returned by virt-inspector.
 
 =back
 
-virt-v2v requests a file from the configuration by its symbolic name, searching
-based on its additional attributes.  If an attribute is missing from the
-E<lt>appE<gt> element, it will match any value. If multiple E<lt>appE<gt>
-elements would match a given search, virt-v2v will choose the most specific
-match. Specifically, it searches in the following order:
+virt-v2v searches for an E<lt>appE<gt> or E<lt>capabilityE<gt> by symbolic name,
+matching based on its additional attributes. If an attribute is missing it will
+match any value. If multiple elements would match a given search, virt-v2v will
+choose the most specific match. Specifically, it searches in the following
+order:
 
 =over
 
@@ -139,57 +232,8 @@ os
 
 =back
 
-If virt-v2v doesn't find a matching E<lt>appE<gt>, it will quit with an error
-describing what it was looking for.
-
-The E<lt>appE<gt> element must contain a E<lt>pathE<gt> element, which specifies
-the path to the software. It may also contain any number of E<lt>depE<gt>
-elements, which specify the names of additional applications which may need to
-be installed. Each dependency will be resolved in the same way as its parent, by
-looking for a match based on os, major, minor and arch.
-
-virt-v2v will attempt to install dependencies first. A dependency will only be
-installed if it is not already installed, or the installed version is older than
-the specified version. On x86_64, virt-v2v will additionally check if an i386
-version need to by updated, but only if any i386 version of the package is
-already installed.
-
-Paths given in E<lt>pathE<gt> must be absolute, unless there is a top level
-E<lt>path-rootE<gt> element. If it exists, all E<lt>pathE<gt> elements will be
-relative to E<lt>path-rootE<gt>.
-
-virt-v2v passes software to the guest by creating an iso image and passing it to
-the guest as a cd-rom drive. The path to this iso image must be specified in a
-top level E<lt>iso-pathE<gt> element.
-
-The following example specifies the location of 'kernel' for RHEL 5, all minor
-versions, on i686:
-
- <path-root>/var/lib/virt-v2v/software</path-root>
- <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
-
- <app os='linux' distro='rhel' major='5' arch='i686' name='kernel'>
-   <path>rhel/5/kernel-2.6.18-128.el5.i686.rpm</path>
-   <dep>ecryptfs-utils</dep>
-   <dep>lvm2</dep>
- </app>
- <app os='linux' distro='rhel' major='5' arch='i386' name='ecryptfs-utils'>
-   <path>rhel/5/ecryptfs-utils-56-8.el5.i386.rpm</path>
- </app>
- <app os='linux' distro='rhel' major='5' arch='i386' name='lvm2'>
-   <path>rhel/5/lvm2-2.02.40-6.el5.i386.rpm</path>
-   <dep>device-mapper</dep>
-   <dep>device-mapper-event</dep>
- </app>
-
-The kernel can be found at
-/var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 2
-direct dependencies: ecryptfs and lvm2. ecryptfs-utils has no additional
-dependencies, but lvm2 has 2 further dependencies (not shown for brevity). All
-dependencies will also be installed if they are not present, or are too old. All
-dependency paths are also relative to /var/lib/virt-v2v/software.  virt-v2v will
-create a transfer iso image containing all paths and dependencies at
-/var/lib/virt-v2v/transfer.iso.
+If virt-v2v doesn't find a match it will quit with an error describing what it
+was looking for.
 
 =head1 COPYRIGHT
 

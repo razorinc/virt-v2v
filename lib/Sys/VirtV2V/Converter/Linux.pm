@@ -105,11 +105,11 @@ sub convert
     # replacement
     _unconfigure_hv($g, $guestos, $desc);
 
-    # Get the best available kernel
-    my $kernel = _configure_kernel($guestos, $desc);
+    # Try to install the virtio capability
+    my $virtio = $guestos->install_capability('virtio');
 
-    # Check if the resulting kernel will support virtio
-    my $virtio = $guestos->supports_virtio($kernel);
+    # Get an appropriate kernel, and remove non-bootable kernels
+    my $kernel = _configure_kernel($guestos, $desc, $virtio);
 
     # Configure the rest of the system
     _configure_console($g);
@@ -248,81 +248,51 @@ sub _configure_display_driver
 
 sub _configure_kernel
 {
-    my ($guestos, $desc) = @_;
-
-    my %kernels;
-
-    # Look for installed kernels with virtio support
-    foreach my $kernel (@{$desc->{kernels}}) {
-        my %checklist = (
-            "virtio_blk" => undef,
-            "virtio_pci" => undef,
-            "virtio_net" => undef
-        );
-
-        foreach my $module (@{$kernel->{modules}}) {
-            if(exists($checklist{$module})) {
-                $checklist{$module} = 1;
-            }
-        }
-
-        my $virtio = 1;
-        foreach my $module (keys(%checklist)) {
-            if(!defined($checklist{$module})) {
-                $virtio = 0;
-                last;
-            }
-        }
-
-        if($virtio) {
-            $kernels{$kernel->{version}} = 1;
-        } else {
-            $kernels{$kernel->{version}} = 0;
-        }
-    }
+    my ($guestos, $desc, $virtio) = @_;
 
     my @remove_kernels = ();
 
     # Remove foreign hypervisor specific kernels from the list of available
     # kernels
     foreach my $kernel (_find_hv_kernels($desc)) {
-        # Remove the kernel from our cache
-        delete($kernels{$kernel});
-
         # Don't actually try to remove them yet in case we remove them all. This
-        # would make your dependency checker unhappy.
+        # might make your dependency checker unhappy.
         push(@remove_kernels, $kernel);
     }
 
-    # Find the highest versioned, virtio capable, installed kernel
+    # Pick first appropriate kernel returned by list_kernels()
     my $boot_kernel;
-    foreach my $kernel (sort {$b cmp $a} (keys(%kernels))) {
-        if($kernels{$kernel}) {
-            $boot_kernel = $kernel;
-            last;
-        }
+    foreach my $kernel ($guestos->list_kernels()) {
+        # Skip kernels we're going to remove
+        next if (grep(/^$kernel$/, @remove_kernels));
+
+        # If we're configuring virtio, check this kernel supports it
+        next if ($virtio && !$guestos->supports_virtio($kernel));
+
+        $boot_kernel = $kernel;
+        last;
     }
+
+    # There should be an installed virtio capable kernel if virtio was installed
+    die("virtio configured, but no virtio kernel found")
+        if ($virtio && !defined($boot_kernel));
 
     # If none of the installed kernels are appropriate, install a new one
     if(!defined($boot_kernel)) {
-        $boot_kernel = $guestos->add_kernel();
+        $boot_kernel = $guestos->install_good_kernel();
     }
 
-    # Check that either there are still kernels in the cache, or we just added a
-    # kernel. If neither of these is the case, we're about to try to remove all
-    # kernels, which will fail unpleasantly. Fail nicely instead.
+    # Check we have a bootable kernel. If we don't, we're probably about to
+    # remove all kernels, which will fail unpleasantly. Fail nicely instead.
     die(user_message(__"No bootable kernels installed, and no replacement ".
-                       "specified in configuration.\nUnable to continue."))
-        unless(keys(%kernels) > 0 || defined($boot_kernel));
+                       "is available.\nUnable to continue."))
+        unless(defined($boot_kernel));
 
     # It's safe to remove kernels now
     foreach my $kernel (@remove_kernels) {
         # Uninstall the kernel from the guest
         $guestos->remove_kernel($kernel);
     }
-
-    # If we didn't install a new kernel, pick the default kernel
-    $boot_kernel ||= $guestos->get_default_kernel();
 
     return $boot_kernel;
 }

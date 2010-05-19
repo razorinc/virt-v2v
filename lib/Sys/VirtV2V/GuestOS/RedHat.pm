@@ -399,13 +399,14 @@ sub _check_augeas_device
     return $augeas;
 }
 
-=item get_default_kernel()
+=item list_kernels()
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+List all installed kernels. List the default kernel first, followed by the
+remaining kernels in the order they are listed in grub.
 
 =cut
 
-sub get_default_kernel
+sub list_kernels
 {
     my $self = shift;
 
@@ -429,11 +430,15 @@ sub get_default_kernel
             if defined($default);
         push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
     };
-
     $self->_augeas_error($@) if ($@);
 
-    my $kernel;
+    my @kernels;
+    my %checked;
     foreach my $path (@paths) {
+        next if ($checked{$path});
+        $checked{$path} = 1;
+
+        my $kernel;
         eval {
             $kernel = $g->aug_get($path);
         };
@@ -443,249 +448,628 @@ sub get_default_kernel
         $kernel = "$grub$kernel" if(defined($grub));
 
         # Check the kernel exists
-        last if($g->exists($kernel));
+        if ($g->exists($kernel)) {
+            # Work out it's version number
+            my $kernel_desc = inspect_linux_kernel($g, $kernel, 'rpm');
 
-        print STDERR user_message(__x("WARNING: grub refers to ".
-                                      "{path}, which doesn't exist.",
-                                      path => $kernel));
-        $kernel = undef;
+            push(@kernels, $kernel_desc->{version});
+        }
+
+        else {
+            warn user_message(__x("WARNING: grub refers to {path}, which ".
+                                  "doesn't exist.",
+                                  path => $kernel));
+        }
     }
 
-    # If we got here, grub doesn't contain any kernels. Give up.
-    die(user_message(__"Unable to find a default kernel"))
-        unless(defined($kernel));
-
-    # Work out it's version number
-    my $kernel_desc = inspect_linux_kernel ($g, $kernel, 'rpm');
-
-    return $kernel_desc->{version};
+    return @kernels;
 }
 
-=item add_kernel()
+sub _parse_evr
+{
+    my ($evr) = @_;
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+    $evr =~ /^(?:(\d+):)?([^-]+)(?:-(\S+))?$/ or die();
+
+    my $epoch = $1;
+    my $version = $2;
+    my $release = $3;
+
+    return ($epoch, $version, $release);
+}
+
+=item install_capability(name)
+
+Install a capability specified in the configuration file.
 
 =cut
 
-sub add_kernel
+sub install_capability
 {
     my $self = shift;
+    my ($name) = @_;
 
-    my ($kernel_pkg, $kernel_ver, $kernel_arch) = $self->_discover_kernel();
+    my $desc = $self->{desc};
+    my $config = $self->{config};
 
-    # If the guest is using a Xen PV kernel, choose an appropriate normal kernel
-    # replacement
-    if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-        my $desc = $self->{desc};
+    my $cap;
+    eval {
+        $cap = $config->match_capability($desc, $name);
+    };
+    if ($@) {
+        warn($@);
+        return 0;
+    }
 
-        # Make an informed choice about a replacement kernel for distros we know
-        # about
+    if (!defined($cap)) {
+        warn(user_message(__x("{name} capability not found in configuration",
+                               name => $name)));
+        return 0;
+    }
 
-        # RHEL 5
-        if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
-            if ($kernel_arch eq 'i686') {
-                # XXX: This assumes that PAE will be available in the
-                # hypervisor. While this is almost certainly true, it's
-                # theoretically possible that it isn't. The information we need
-                # is available in the capabilities XML.
-                # If PAE isn't available, we should choose 'kernel'.
-                $kernel_pkg = 'kernel-PAE';
+    my @install;
+    my @upgrade;
+    my $kernel;
+    foreach my $name (keys(%$cap)) {
+        my $props = $cap->{$name};
+        my $ifinstalled = $props->{ifinstalled};
+
+        # Parse epoch, version and release from minversion
+        my ($min_epoch, $min_version, $min_release);
+        eval {
+            ($min_epoch, $min_version, $min_release) =
+                _parse_evr($props->{minversion});
+        };
+        if ($@) {
+            die(user_message(__x("Unrecognised format for {field} in config: ".
+                                 "{value}. {field} must be in the format ".
+                                 "[epoch:]version[-release].",
+                                 field => 'minversion',
+                                 value => $props->{minversion})));
+        }
+
+        # Kernels are special
+        if ($name eq 'kernel') {
+            my ($kernel_pkg, $kernel_rpmver, $kernel_arch) =
+                $self->_discover_kernel();
+
+            my ($kernel_epoch, $kernel_ver, $kernel_release);
+            eval {
+                ($kernel_epoch, $kernel_ver, $kernel_release) =
+                    _parse_evr($kernel_rpmver);
+            };
+            if ($@) {
+                # Don't die here, just make best effort to do a version
+                # comparison by directly comparing the full strings
+                $kernel_epoch = undef;
+                $kernel_ver = $kernel_rpmver;
+                $kernel_release = undef;
+
+                $min_epoch = undef;
+                $min_version = $props->{minversion};
+                $min_release = undef;
             }
 
-            # There's only 1 kernel package on RHEL 5 x86_64
-            else {
-                $kernel_pkg = 'kernel';
+            # If the guest is using a Xen PV kernel, choose an appropriate
+            # normal kernel replacement
+            if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
+                $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
+
+                # filter out xen/xenU from release field
+                if (defined($kernel_release) &&
+                    $kernel_release =~ /^(\S+?)(xen)?(U)?$/)
+                {
+                    $kernel_release = $1;
+                }
+
+                # If the guest kernel is new enough, but PV, try to replace it
+                # with an equivalent version FV kernel
+                if (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
+                             $min_epoch, $min_version, $min_release) >= 0) {
+                    $kernel = [$kernel_pkg, $kernel_arch,
+                               $kernel_epoch, $kernel_ver, $kernel_release];
+                }
+
+                # Otherwise, just grab the latest
+                else {
+                    $kernel = [$kernel_pkg, $kernel_arch];
+                }
+            }
+
+            # If the kernel is too old, grab the latest replacement
+            elsif (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
+                            $min_epoch, $min_version, $min_release) < 0) {
+                $kernel = [$kernel_pkg, $kernel_arch];
             }
         }
 
-        # RHEL 4
-        elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
-            my $ncpus = $self->get_ncpus();
-
-            if ($kernel_arch eq 'i686') {
-                # If the guest has > 10G RAM, give it a hugemem kernel
-                if ($self->get_memory_kb() > 10 * 1024 * 1024) {
-                    $kernel_pkg = 'kernel-hugemem';
-                }
-
-                # SMP kernel for guests with >1 CPU
-                elsif ($ncpus > 1) {
-                    $kernel_pkg = 'kernel-smp';
-                }
-
-                else {
-                    $kernel_pkg = 'kernel';
-                }
-            }
-
-            else {
-                if ($ncpus > 8) {
-                    $kernel_pkg = 'kernel-largesmp';
-                }
-
-                elsif ($ncpus > 1) {
-                    $kernel_pkg = 'kernel-smp';
-                }
-
-                else {
-                    $kernel_pkg = 'kernel';
-                }
-            }
-        }
-
-        # RHEL 3 didn't have a xen kernel
-
-        # XXX: Could do with a history of Fedora kernels in here
-
-        # For other distros, be conservative and just return 'kernel'
         else {
-            $kernel_pkg = 'kernel';
+            my @installed = $self->_get_installed($name);
+
+            # Ignore an 'ifinstalled' dep if it's not currently installed
+            next if (@installed == 0 && $ifinstalled);
+
+            # Check if any installed version meets the minimum version
+            my $found = 0;
+            foreach my $app (@installed) {
+                my ($epoch, $version, $release) = @$app;
+
+                if (_evr_cmp($app->[0], $app->[1], $app->[2],
+                             $min_epoch, $min_version, $min_release) >= 0) {
+                    $found = 1;
+                    last;
+                }
+            }
+
+            # Install the latest available version of the dep if it wasn't found
+            if (!$found) {
+                if (@installed == 0) {
+                    push(@install, [$name]);
+                } else {
+                    push(@upgrade, [$name]);
+                }
+            }
         }
     }
 
-    my $version;
+    # Capability is already installed
+    if (!defined($kernel) && @install == 0 && @upgrade == 0) {
+        return 1;
+    }
+
     my $g = $self->{g};
-    my $update_fail = 0;
 
-    # try using up2date / yum if available
-    if ($g->exists('/usr/sbin/up2date') or $g->exists('/usr/bin/yum')) {
+    # List of kernels before the new kernel installation
+    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
 
-        my $desc = $self->{desc};
+    my $success = $self->_install_any($kernel, \@install, \@upgrade);
 
-        my ($min_virtio_ver, @kern_vr, @preinst_cmd, @inst_cmd, $inst_fmt);
+    # Check to see if we installed a new kernel, and check grub if we did
+    $self->_find_new_kernel(@k_before);
 
-        # filter out xen/xenU from release field
-        if ($kernel_ver =~ /^(\S+)-(\S+?)(xen)?(U)?$/) {
-            @kern_vr = ($1, $2);
-            $kernel_ver = join('-', @kern_vr);
+    return $success;
+}
+
+sub _get_replacement_kernel_name
+{
+    my $self = shift;
+    my ($arch) = @_;
+
+    my $desc = $self->{desc};
+
+    # Make an informed choice about a replacement kernel for distros we know
+    # about
+
+    # RHEL 5
+    if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
+        if ($arch eq 'i686') {
+            # XXX: This assumes that PAE will be available in the hypervisor.
+            # While this is almost certainly true, it's theoretically possible
+            # that it isn't. The information we need is available in the
+            # capabilities XML.  If PAE isn't available, we should choose
+            # 'kernel'.
+            return 'kernel-PAE';
         }
 
-        # We need to upgrade kernel deps. first to avoid possible conflicts
-        my $deps = ($self->{config}->match_app($desc, $kernel_pkg, $kernel_arch))[1];
-
-        # use up2date when available (RHEL-4 and earlier)
-        if ($g->exists('/usr/sbin/up2date')) {
-             if (_rpmvercmp($kernel_ver, '2.6.9-89.EL') >= 0) {
-                # Install matching kernel version
-                @inst_cmd = ('/usr/bin/python', '-c',
-                    "import sys; sys.path.append('/usr/share/rhn');" .
-                    "import actions.packages;" .
-                    "actions.packages.cfg['forceInstall'] = 1;" .
-                    "actions.packages.update([['$kernel_pkg', " .
-                    "'$kern_vr[0]', '$kern_vr[1]', '']])");
-            } else {
-                # Install latest available kernel version
-                @inst_cmd = ('/usr/sbin/up2date', '-fi', $kernel_pkg);
-            }
-
-            if (@$deps) {
-                use Data::Dumper; print Dumper($deps);
-                @preinst_cmd = ('/usr/sbin/up2date', '-fu', @$deps);
-            }
-        }
-        # use yum when available (RHEL-5 and beyond)
-        elsif ($g->exists('/usr/bin/yum')) {
-            if (_rpmvercmp($kernel_ver, '2.6.18-128.el5') >= 0) {
-                # Install matching kernel version
-                @inst_cmd = ('/usr/bin/yum', '-y', 'install',
-                             "$kernel_pkg-$kernel_ver");
-            } else {
-                # Install latest available kernel version
-                @inst_cmd = ('/usr/bin/yum', '-y', 'install', $kernel_pkg);
-            }
-
-            if ($deps) {
-                @preinst_cmd = ('/usr/bin/yum', '-y', 'upgrade', @$deps);
-            }
-        }
-
-        my (@k_before, @k_new);
-
-        # List of kernels before the new kernel installation
-        @k_before = $self->{g}->glob_expand('/boot/vmlinuz-*');
-
-        eval {
-            # Upgrade dependencies if needed
-            if (@preinst_cmd) {
-                $g->command(\@preinst_cmd);
-            }
-            # Install new kernel
-            $g->command(\@inst_cmd);
-        };
-
-        if ($@) {
-            $update_fail = 1;
-        }
+        # There's only 1 kernel package on RHEL 5 x86_64
         else {
-
-            # Figure out which kernel has just been installed
-            foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
-                grep(/^$k$/, @k_before) or push(@k_new, $k);
-            }
-
-            # version-release of the new kernel package
-            $version = ($g->command_lines(
-                ['rpm', '-qf', '--qf=%{VERSION}-%{RELEASE}', $k_new[0]]))[0];
+            return 'kernel';
         }
     }
 
-    if ($update_fail) {
+    # RHEL 4
+    elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+        my $ncpus = $self->get_ncpus();
 
-        my ($app, $depnames);
-        eval {
-            my $desc = $self->{desc};
+        if ($arch eq 'i686') {
+            # If the guest has > 10G RAM, give it a hugemem kernel
+            if ($self->get_memory_kb() > 10 * 1024 * 1024) {
+                return 'kernel-hugemem';
+            }
 
-            ($app, $depnames) =
-                $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
-        };
-        # Return undef if we didn't find a kernel
-        if ($@) {
-            print STDERR $@;
-            return undef;
-        }
+            # SMP kernel for guests with >1 CPU
+            elsif ($ncpus > 1) {
+                return 'kernel-smp';
+            }
 
-        my @missing;
-        if (!$g->exists($self->_transfer_path($app))) {
-            push(@missing, $app);
-        } else {
-            return undef if ($self->_newer_installed($app));
-        }
-
-        my $user_arch = $kernel_arch eq 'i686' ? 'i386' : $kernel_arch;
-
-        my @deps = $self->_get_deppaths(\@missing, $user_arch, @$depnames);
-
-        # We can't proceed if there are any files missing
-        _die_missing(@missing) if (@missing > 0);
-
-        # Install any required kernel dependencies
-        $self->_install_rpms(1, @deps);
-
-        # Inspect the rpm to work out what kernel version it contains
-        foreach my $file ($g->command_lines
-            (["rpm", "-qlp", $self->_transfer_path($app)]))
-        {
-            if($file =~ m{^/boot/vmlinuz-(.*)$}) {
-                $version = $1;
-                last;
+            else {
+                return 'kernel';
             }
         }
 
-        die(user_message(__x("{path} doesn't contain a valid kernel",
-                             path => $app))) if(!defined($version));
+        else {
+            if ($ncpus > 8) {
+                return 'kernel-largesmp';
+            }
 
-        $self->_install_rpms(0, ($app));
+            elsif ($ncpus > 1) {
+                return 'kernel-smp';
+            }
 
+            else {
+                return 'kernel';
+            }
+        }
     }
 
-    # Make augeas reload so it'll find the new kernel
+    # RHEL 3 didn't have a xen kernel
+
+    # XXX: Could do with a history of Fedora kernels in here
+
+    # For other distros, be conservative and just return 'kernel'
+    return 'kernel';
+}
+
+sub _install_any
+{
+    my $self = shift;
+    my ($kernel, $install, $upgrade) = @_;
+
+    my $g = $self->{g};
+
+    my $resolv_bak = $g->exists('/etc/resolv.conf');
+    $g->mv('/etc/resolv.conf', '/etc/resolv.conf.v2vtmp') if ($resolv_bak);
+
+    # XXX We should get the nameserver from the appliance here. However,
+    # there's no current api other than debug to do this, and in any case
+    # resolv.conf in the appliance is both hardcoded and currently wrong.
+    $g->write_file('/etc/resolv.conf', "nameserver 169.254.2.3", 0);
+
+    my $success;
+    eval {
+        # Try to fetch these dependencies using the guest's native update tool
+        $success = $self->_install_up2date($kernel, $install, $upgrade);
+        $success = $self->_install_yum($kernel, $install, $upgrade)
+            unless ($success);
+
+        # Fall back to local config if the above didn't work
+        $success = $self->_install_config($kernel, $install, $upgrade)
+            unless ($success);
+    };
+    if ($@) {
+        warn($@);
+        $success = 0;
+    }
+
+    $g->mv('/etc/resolv.conf.v2vtmp', '/etc/resolv.conf') if ($resolv_bak);
+
+    # Make augeas reload to pick up any altered configuration
     eval {
         $g->aug_load();
     };
-
     $self->_augeas_error($@) if ($@);
 
+    return $success;
+}
+
+sub _install_up2date
+{
+    my $self = shift;
+    my ($kernel, $install, $upgrade) = @_;
+
+    my $g = $self->{g};
+
+    # Check this system has actions.packages
+    return 0 unless ($g->exists('/usr/bin/up2date'));
+
+    # Check this system is registered to rhn
+    return 0 unless ($g->exists('/etc/sysconfig/rhn/systemid'));
+
+    my @pkgs;
+    foreach my $pkg ($kernel, @$install, @$upgrade) {
+        next unless defined($pkg);
+
+        # up2date doesn't do arch
+        my ($name, undef, $epoch, $version, $release) = @$pkg;
+
+        $epoch   ||= "";
+        $version ||= "";
+        $release ||= "";
+
+        push(@pkgs, "['$name', '$version', '$release', '$epoch']");
+    }
+
+    eval {
+         $g->command(['/usr/bin/python', '-c',
+                     "import sys; sys.path.append('/usr/share/rhn'); ".
+                     "import actions.packages;                       ".
+                     "actions.packages.cfg['forceInstall'] = 1;      ".
+                     "ret = actions.packages.update([".join(',', @pkgs)."]); ".
+                     "sys.exit(ret[0]);                              "]);
+    };
+    if ($@) {
+        warn(user_message(__x("Failed to install packages using up2date. ".
+                              "Error message was: {error}",
+                              error => $@)));
+        return 0;
+    }
+
+    return 1;
+}
+
+sub _install_yum
+{
+    my $self = shift;
+    my ($kernel, $install, $upgrade) = @_;
+
+    my $g = $self->{g};
+
+    # Check this system has yum installed
+    return 0 unless ($g->exists('/usr/bin/yum'));
+
+    # Install or upgrade the kernel?
+    # If it isn't installed (because we're replacing a PV kernel), we need to
+    # install
+    # If we're installing a specific version, we need to install
+    # If the kernel package we're installing is already installed and we're
+    # just upgrading to the latest version, we need to upgrade
+    if (defined($kernel)) {
+        my @installed = $self->_get_installed($kernel->[0]);
+
+        # Don't modify the contents of $install and $upgrade in case we fall
+        # through and they're reused in another function
+        if (@installed == 0 || defined($kernel->[2])) {
+            my @tmp = @$install;
+            push(@tmp, $kernel);
+            $install = \@tmp;
+        } else {
+            my @tmp = @$upgrade;
+            push(@tmp, $kernel);
+            $upgrade = \@tmp;
+        }
+    }
+
+    my $success = 1;
+    YUM: foreach my $task (
+        [ "install", $install, qr/(^No package|already installed)/ ],
+        [ "upgrade", $upgrade, qr/^No Packages/ ]
+    ) {
+        my ($action, $list, $failure) = @$task;
+
+        # We can't do these all in a single transaction, because yum offers us
+        # no way to tell if a transaction partially succeeded
+        foreach my $entry (@$list) {
+            next unless (defined($entry));
+
+            # You can't specify epoch without architecture to yum, so we just
+            # ignore epoch and hope
+            my ($name, undef, undef, $version, $release) = @$entry;
+
+            # Construct n-v-r
+            my $pkg = $name;
+            $pkg .= "-$version" if (defined($version));
+            $pkg .= "-$release" if (defined($release));
+
+            my @output;
+            eval {
+                @output = $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg");
+            };
+            if ($@) {
+                warn(user_message(__x("Failed to install packages using yum. ".
+                                      "Output was: {output}",
+                                      error => $@)));
+                $success = 0;
+                last YUM;
+            }
+
+            foreach my $line (@output) {
+                # Yum probably just isn't configured. Don't bother with an error
+                # message
+                if ($line =~ /$failure/) {
+                    $success = 0;
+                    last YUM;
+                }
+            }
+        }
+    }
+
+    return $success;
+}
+
+sub _install_config
+{
+    my $self = shift;
+    my ($kernel_naevr, $install, $upgrade) = @_;
+
+    my $g = $self->{g};
+    my $desc = $self->{desc};
+
+    my ($kernel, $user);
+    if (defined($kernel_naevr)) {
+        my ($kernel_pkg, $kernel_arch) = @$kernel_naevr;
+
+        ($kernel, $user) =
+            $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
+    } else {
+        $user = [];
+    }
+
+    foreach my $pkg (@$install, @$upgrade) {
+        push(@$user, $pkg->[0]);
+    }
+
+    my @missing;
+    if (defined($kernel) && !$g->exists($self->_transfer_path($kernel))) {
+        push(@missing, $kernel);
+    }
+
+    my @user_paths = $self->_get_deppaths(\@missing, $desc->{arch}, @$user);
+
+    # We can't proceed if there are any files missing
+    _die_missing(@missing) if (@missing > 0);
+
+    # Install any non-kernel requirements
+    $self->_install_rpms(1, @user_paths);
+
+    if (defined($kernel)) {
+        $self->_install_rpms(0, ($kernel));
+    }
+
+    return 1;
+}
+
+=item install_good_kernel
+
+Attempt to install a known-good kernel
+
+=cut
+
+sub install_good_kernel
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
+    my ($kernel_pkg, $kernel_rpmver, $kernel_arch) = $self->_discover_kernel();
+
+    # If the guest is using a Xen PV kernel, choose an appropriate
+    # normal kernel replacement
+    if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
+        $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
+    }
+
+    # List of kernels before the new kernel installation
+    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
+
+    return undef unless ($self->_install_any([$kernel_pkg, $kernel_arch]));
+
+    my $version = $self->_find_new_kernel(@k_before);
+    die("Couldn't determine version of installed kernel")
+        unless (defined($version));
+
     return $version;
+}
+
+sub _find_new_kernel
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
+    # Figure out which kernel has just been installed
+    foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
+        if (!grep(/^$k$/, @_)) {
+            # Check which directory in /lib/modules the kernel rpm creates
+            foreach my $file ($g->command_lines (['rpm', '-qlf', $k])) {
+                next unless ($file =~ m{^/lib/modules/([^/]+)$});
+
+                my $version = $1;
+                if ($g->is_dir("/lib/modules/$version")) {
+                    $self->_check_grub($version, $k);
+                    return $version;
+                }
+            }
+        }
+    }
+    return undef;
+}
+
+# grubby can sometimes fail to correctly update grub.conf when run from
+# libguestfs. If it looks like this happened, install a new grub config here.
+sub _check_grub
+{
+    my $self = shift;
+    my ($version, $kernel) = @_;
+
+    my $g = $self->{g};
+
+    # Nothing to do if there's already a grub entry
+    eval {
+        foreach my $augpath
+            ($g->aug_match('/files/boot/grub/menu.lst/title/kernel'))
+        {
+            return if ($g->aug_get($augpath) eq $kernel);
+        }
+    };
+    $self->_augeas_error($@) if ($@);
+
+    my $prefix;
+    if ($self->{desc}->{boot}->{grub_fs} eq "/boot") {
+        $prefix = '';
+    } else {
+        $prefix = '/boot';
+    }
+
+    my $initrd = "$prefix/initrd-$version.img";
+    $kernel =~ m{^/boot/(.*)$} or die("kernel in unexpected location: $kernel");
+    my $vmlinuz = "$prefix/$1";
+
+    my $title;
+    # No point in dying if /etc/redhat-release can't be read
+    eval {
+        ($title) = $g->read_lines('/etc/redhat-release');
+    };
+    $title ||= 'Linux';
+
+    # This is how new-kernel-pkg does it
+    $title =~ s/ release.*//;
+    $title .= " ($version)";
+
+    my $default;
+    # Doesn't matter if there's no default
+    eval {
+        $default = $g->aug_get('/files/boot/grub/menu.lst/default');
+    };
+
+    eval {
+        if (defined($default)) {
+            $g->aug_defvar('template',
+                 '/files/boot/grub/menu.lst/title['.($default + 1).']');
+        }
+
+        # If there's no default, take the first entry with a kernel
+        else {
+            my ($match) =
+                $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
+
+            die("No template kernel found in grub") unless(defined($match));
+
+            $match =~ s/\/kernel$//;
+            $g->aug_defvar('template', $match);
+        }
+
+        # Add a new title node at the end
+        $g->aug_defnode('new',
+                        '/files/boot/grub/menu.lst/title[last()+1]',
+                        $title);
+
+        # N.B. Don't change the order of root, kernel and initrd below, or the
+        # guest will not boot.
+
+        # Copy root from the template
+        $g->aug_set('$new/root', $g->aug_get('$template/root'));
+
+        # Set kernel and initrd to the new values
+        $g->aug_set('$new/kernel', $vmlinuz);
+        $g->aug_set('$new/initrd', $initrd);
+
+        # Copy all kernel command-line arguments
+        foreach my $arg ($g->aug_match('$template/kernel/*')) {
+            # kernel arguments don't necessarily have values
+            my $val;
+            eval {
+                $val = $g->aug_get($arg);
+            };
+
+            $arg =~ /([^\/]*)$/;
+            $arg = $1;
+
+            if (defined($val)) {
+                $g->aug_set('$new/kernel/'.$arg, $val);
+            } else {
+                $g->aug_clear('$new/kernel/'.$arg);
+            }
+        }
+
+        my ($new) = $g->aug_match('$new');
+        $new =~ /\[(\d+)\]$/;
+
+        $g->aug_set('/files/boot/grub/menu.lst/default',
+                    defined($1) ? $1 - 1 : 0);
+
+        $g->aug_save();
+    };
+    $self->_augeas_error($@) if ($@);
 }
 
 sub _die_missing
@@ -809,12 +1193,12 @@ sub _get_nevra
 sub _get_installed
 {
     my $self = shift;
-    my ($name, $arch) = @_;
+    my ($name) = @_;
 
     my $g = $self->{g};
 
     my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
-                  "$name.$arch"];
+                  $name];
     my @output;
     eval {
         @output = $g->command_lines($rpmcmd);
@@ -887,7 +1271,7 @@ sub _newer_installed
 
     my ($name, $epoch, $version, $release, $arch) = $self->_get_nevra($rpm);
 
-    my @installed = $self->_get_installed($name, $arch);
+    my @installed = $self->_get_installed("$name.$arch");
 
     # Search installed rpms matching <name>.<arch>
     my $found = 0;
@@ -955,7 +1339,7 @@ sub _get_deppaths
                     my ($name, undef, undef, undef, $arch) =
                         $self->_get_nevra($path);
 
-                    my @installed = $self->_get_installed($name, $arch);
+                    my @installed = $self->_get_installed("$name.$arch");
 
                     if (@installed > 0) {
                         $required{$path} = 1;
@@ -1056,7 +1440,7 @@ sub _rpmvercmp
 
 =item remove_application(name)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+Uninstall an application.
 
 =cut
 
@@ -1347,94 +1731,6 @@ sub prepare_bootable
 
                 $found = 1;
                 last;
-            }
-        }
-
-        # grubby can sometimes fail to correctly update grub.conf when run from
-        # libguestfs. If it looks like this happened, install a new grub config
-        # here.
-        if (!$found) {
-            # Check that an appropriately named kernel and initrd exist
-            if ($g->exists("/boot/vmlinuz-$version") &&
-                $g->exists("/boot/initrd-$version.img"))
-            {
-                $initrd = "$prefix/initrd-$version.img";
-
-                my $title;
-                # No point in dying if /etc/redhat-release can't be read
-                eval {
-                    ($title) = $g->read_lines('/etc/redhat-release');
-                };
-                $title ||= 'Linux';
-
-                # This is how new-kernel-pkg does it
-                $title =~ s/ release.*//;
-                $title .= " ($version)";
-
-                my $default;
-                eval {
-                    $default = $g->aug_get('/files/boot/grub/menu.lst/default');
-                };
-
-                if (defined($default)) {
-                    $g->aug_defvar('template',
-                         '/files/boot/grub/menu.lst/title['.($default + 1).']');
-                }
-
-                # If there's no default, take the first entry with a kernel
-                else {
-                    my ($match) =
-                        $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
-
-                    die("No template kernel found in grub")
-                        unless(defined($match));
-
-                    $match =~ s/\/kernel$//;
-                    $g->aug_defvar('template', $match);
-                }
-
-                # Add a new title node at the end
-                $g->aug_defnode('new',
-                                '/files/boot/grub/menu.lst/title[last()+1]',
-                                $title);
-
-                # N.B. Don't change the order of root, kernel and initrd below,
-                # or the guest will not boot.
-
-                # Copy root from the template
-                $g->aug_set('$new/root', $g->aug_get('$template/root'));
-
-                # Set kernel and initrd to the new values
-                $g->aug_set('$new/kernel', "$prefix/vmlinuz-$version");
-                $g->aug_set('$new/initrd', "$prefix/initrd-$version.img");
-
-                # Copy all kernel command-line arguments
-                foreach my $arg ($g->aug_match('$template/kernel/*')) {
-                    # kernel arguments don't necessarily have values
-                    my $val;
-                    eval {
-                        $val = $g->aug_get($arg);
-                    };
-
-                    $arg =~ /([^\/]*)$/;
-                    $arg = $1;
-
-                    if (defined($val)) {
-                        $g->aug_set('$new/kernel/'.$arg, $val);
-                    } else {
-                        $g->aug_clear('$new/kernel/'.$arg);
-                    }
-                }
-
-                my ($new) = $g->aug_match('$new');
-                $new =~ /\[(\d+)\]$/;
-
-                $g->aug_set('/files/boot/grub/menu.lst/default',
-                            defined($1) ? $1 - 1 : 0);
-            }
-
-            else {
-                die("Didn't find a grub entry for kernel version $version");
             }
         }
 
