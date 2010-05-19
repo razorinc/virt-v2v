@@ -38,7 +38,6 @@ t/001-pod.t
 t/002-pod-coverage.t
 t/003-syntax.t
 t/004-ExecHelper.t
-TODO
 v2v/run-v2v-locally
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
