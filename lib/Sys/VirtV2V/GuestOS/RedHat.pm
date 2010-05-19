@@ -1453,7 +1453,7 @@ sub prepare_bootable
         $initrd = $self->{desc}->{boot}->{grub_fs}.$initrd;
 
         # Backup the original initrd
-        $g->mv("$initrd", "$initrd.pre-v2v");
+        $g->mv($initrd, "$initrd.pre-v2v") if ($g->exists($initrd));
 
         # Create a new initrd which probes the required kernel modules
         my @module_args = ();
