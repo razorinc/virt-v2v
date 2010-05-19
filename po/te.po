@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-14 17:18+0100\n"
+"POT-Creation-Date: 2010-05-19 18:16+0100\n"
 "PO-Revision-Date: 2010-01-28 17:09+0530\n"
 "Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
 "Language-Team: Telugu <en@li.org>\n"
@@ -52,38 +52,45 @@ msgstr ""
 "బదిలీకరణ iso సృష్టించుటలో విఫలమైంది. ఆదేశపు అవుట్పుట్:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:233
-#, perl-brace-format
-msgid "No config specified. No app match for {search}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Config.pm:243
-msgid "Didn't detect operating system"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Config.pm:269
-#, perl-brace-format
-msgid "No app in config matches {search}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Config.pm:275
+#: ../lib/Sys/VirtV2V/Config.pm:236
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:330
+#: ../lib/Sys/VirtV2V/Config.pm:293
+#, perl-brace-format
+msgid ""
+"Capability in config contains a dependency with no {property} attribute: "
+"{xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:326
+#, perl-brace-format
+msgid "No config specified. No {type} match for {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:337
+msgid "Didn't detect operating system"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:371
+#, perl-brace-format
+msgid "No {type} in config matches {search}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:402
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:347
+#: ../lib/Sys/VirtV2V/Config.pm:419
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:355
+#: ../lib/Sys/VirtV2V/Config.pm:427
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -164,20 +171,38 @@ msgid ""
 "module."
 msgstr "హెచ్చరిక: {module} ను యెలా నవీకరించాలో తెలియదు, ఏది {modulename} మాడ్యూల్ లోడుచేస్తుంది."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:314
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
+#, fuzzy
 msgid ""
-"No bootable kernels installed, and no replacement specified in "
-"configuration.\n"
+"No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
 msgstr ""
 "ఎటువంటి బుట్ చేయదగు కెర్నల్సు సంస్థాపించబడలేదు, మరియు ఆకృతీకరణనందు యెటువంటి పునఃస్థాపన "
 "తెలుపబడలేదు.\n"
 "కొనసాగించుట సాధ్యపడదు."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:456
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:426
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "/etc/rc.local తెరువలేక పోయింది: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:173
+msgid ""
+"You must specify the configuration file (-f) when converting Windows guests."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:219
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:318
+#, perl-brace-format
+msgid ""
+"Could not download the SYSTEM registry from this Windows guest.  The exact "
+"error message was: {errmsg}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:278
+#, perl-brace-format
+msgid "Guest is not a supported version of Windows ({major}.{minor})"
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter.pm:157
 msgid ""
@@ -223,37 +248,52 @@ msgstr ""
 msgid "Unable to find any valid modprobe configuration"
 msgstr "ఎటువంటి విలువైన modprobe ఆకృతీకరణ కనుగొనలేక పోయింది"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:448
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:459
 #, perl-brace-format
 msgid "WARNING: grub refers to {path}, which doesn't exist."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:455
-msgid "Unable to find a default kernel"
-msgstr "అప్రమేయ కెర్నల్‌ను కనుగొనలేక పోయింది"
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:505
+#, perl-brace-format
+msgid "{name} capability not found in configuration"
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:588
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:524
+#, perl-brace-format
+msgid ""
+"Unrecognised format for {field} in config: {value}. {field} must be in the "
+"format [epoch:]version[-release]."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:781
+#, perl-brace-format
+msgid "Failed to install packages using up2date. Error message was: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:848
 #, fuzzy, perl-brace-format
-msgid "{path} doesn't contain a valid kernel"
-msgstr "{filename} చెల్లునటువంటి కెర్నల్‌ను కలిగిలేదు"
+msgid "Failed to install packages using yum. Output was: {output}"
+msgstr ""
+"బదిలీకరణ iso సృష్టించుటలో విఫలమైంది. ఆదేశపు అవుట్పుట్:\n"
+"{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:606
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1078
 #, perl-brace-format
 msgid ""
 "Conversion cannot proceed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:655
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1133
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "ఈ గెస్టు కొరకు కెర్నల్ ఆకృతిని నిర్ధారించలేక పోయింది"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:776
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1220
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "{path} మూసివేయుటలో దోషము: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1382
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "హెచ్చరిక: కెర్నల్ వర్షన్ {version} అనునది grub నందు initrd ప్రవేశాన్ని కలిగిలేదు"
@@ -459,74 +499,81 @@ msgstr ""
 msgid "{identifier}: {message}\n"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:228
+#: ../v2v/virt-v2v.pl:230
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:242
+#: ../v2v/virt-v2v.pl:244
 msgid "--network may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:250
+#: ../v2v/virt-v2v.pl:252
 msgid "--bridge may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:268
+#: ../v2v/virt-v2v.pl:270
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:277
+#: ../v2v/virt-v2v.pl:279
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:286
+#: ../v2v/virt-v2v.pl:288
 #, fuzzy, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{input} అనునది చెల్లునటువంటి యిన్పుట్ ఫార్మాట్ కాదు"
 
-#: ../v2v/virt-v2v.pl:295
+#: ../v2v/virt-v2v.pl:297
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "{modulename} వుపయోగించునప్పుడు మీరు తప్పక ఫైలునామాన్ని తెలుపవలెను"
 
-#: ../v2v/virt-v2v.pl:301
+#: ../v2v/virt-v2v.pl:303
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "హెచ్చరిక: {modulename} వొంటరి ఫైలునామాన్ని మాత్రమే తీసుకొంటుంది."
 
-#: ../v2v/virt-v2v.pl:310
+#: ../v2v/virt-v2v.pl:312
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:319
+#: ../v2v/virt-v2v.pl:321
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "హెచ్చరిక: {modulename} వొంటరి ఫైలునామాన్ని మాత్రమే తీసుకొంటుంది."
 
-#: ../v2v/virt-v2v.pl:325
+#: ../v2v/virt-v2v.pl:327
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} అనునది చెల్లునటువంటి యిన్పుట్ ఫార్మాట్ కాదు"
 
-#: ../v2v/virt-v2v.pl:385
+#: ../v2v/virt-v2v.pl:387
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} virtio డ్రైవర్లతో ఆకృతీకరించబడింది"
 
-#: ../v2v/virt-v2v.pl:388
+#: ../v2v/virt-v2v.pl:390
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} virtio డ్రైవర్లు లేకుండా ఆకృతీకరించబడింది"
 
-#: ../v2v/virt-v2v.pl:465
+#: ../v2v/virt-v2v.pl:467
 msgid "no root device found in this operating system image"
 msgstr "ఈ ఆపరేటింగి సిస్టమ్ ప్రతిబింబమునందు ఏ root పరికరము కనబడలేదు"
 
-#: ../v2v/virt-v2v.pl:471
+#: ../v2v/virt-v2v.pl:473
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v చేత multiboot ఆపరేటింగ్ సిస్టమ్సు మద్దతించబడవు"
+
+#~ msgid "Unable to find a default kernel"
+#~ msgstr "అప్రమేయ కెర్నల్‌ను కనుగొనలేక పోయింది"
+
+#, fuzzy
+#~ msgid "{path} doesn't contain a valid kernel"
+#~ msgstr "{filename} చెల్లునటువంటి కెర్నల్‌ను కలిగిలేదు"
 
 #, fuzzy
 #~ msgid "Unable to stat iso file {path}: {error}"
