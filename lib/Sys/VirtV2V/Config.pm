@@ -194,7 +194,7 @@ sub get_transfer_iso
     return $iso_path;
 }
 
-sub _get_app_search
+sub _get_search
 {
     my ($desc, $name, $arch) = @_;
 
@@ -208,7 +208,7 @@ sub _get_app_search
     $search .= " distro='$distro'" if (defined ($distro));
     $search .= " major='$major'" if (defined($major));
     $search .= " minor='$minor'" if (defined($minor));
-    $search .= " arch='$arch'";
+    $search .= " arch='$arch'" if (defined($arch));
 
     return $search;
 }
@@ -225,50 +225,11 @@ the app's listed dependencies.
 sub match_app
 {
     my $self = shift;
-
     my ($desc, $name, $arch) = @_;
 
     my $dom = $self->{dom};
 
-    die(user_message(__x("No config specified. No app match for {search}",
-                         search => _get_app_search($desc, $name, $arch))))
-        unless (defined($dom));
-
-    my $os     = $desc->{os};
-    my $distro = $desc->{distro};
-    my $major  = $desc->{major_version};
-    my $minor  = $desc->{minor_version};
-
-    # Check we've got at least the {os} field from OS detection.
-    die(user_message(__"Didn't detect operating system"))
-        unless defined $os;
-
-    # Create a list of xpath queries against the config which look for a
-    # matching <app> config entry in descending order of specificity
-    my @queries;
-    if (defined($major)) {
-        if (defined($minor)) {
-            push(@queries, _app_query($name, $os, $distro, $major, $minor, $arch));
-            push(@queries, _app_query($name, $os, $distro, $major, $minor, undef));
-        }
-
-        push(@queries, _app_query($name, $os, $distro, $major, undef, $arch));
-        push(@queries, _app_query($name, $os, $distro, $major, undef, undef));
-    }
-
-    push(@queries, _app_query($name, $os, $distro, undef, undef, $arch));
-    push(@queries, _app_query($name, $os, $distro, undef, undef, undef));
-
-    # Use the results of the first query which returns a result
-    my $app;
-    foreach my $query (@queries) {
-        ($app) = $dom->findnodes($query);
-        last if (defined($app));
-    }
-
-    die(user_message(__x("No app in config matches {search}",
-                         search => _get_app_search($desc, $name, $arch))))
-        unless (defined($app));
+    my $app = $self->_match_element('app', $desc, $name, $arch);
 
     my %app;
     my ($path) = $app->findnodes('path/text()');
@@ -284,11 +245,11 @@ sub match_app
     return ($path, \@deps);
 }
 
-sub _app_query
+sub _match_query
 {
-    my ($name, $os, $distro, $major, $minor, $arch) = @_;
+    my ($type, $name, $os, $distro, $major, $minor, $arch) = @_;
 
-    my $query = "/virt-v2v/app[\@name='$name' and \@os='$os' and ";
+    my $query = "/virt-v2v/".$type."[\@name='$name' and \@os='$os' and ";
     $query .= defined($distro) ? "\@distro='$distro'" : 'not(@distro)';
     $query .= ' and ';
     $query .= defined($major) ? "\@major='$major'" : 'not(@major)';
@@ -299,6 +260,63 @@ sub _app_query
     $query .= ']';
 
     return $query;
+}
+
+sub _match_element
+{
+    my $self = shift;
+    my ($type, $desc, $name, $arch) = @_;
+
+    my $dom = $self->{dom};
+
+    die(user_message(__x("No config specified. No {type} match for {search}",
+                         type => $type,
+                         search => _get_search($desc, $name, $arch))))
+        unless (defined($dom));
+
+    my $os     = $desc->{os};
+    my $distro = $desc->{distro};
+    my $major  = $desc->{major_version};
+    my $minor  = $desc->{minor_version};
+
+    # Check we've got at least the {os} field from OS detection.
+    die(user_message(__"Didn't detect operating system"))
+        unless (defined $os);
+
+    # Create a list of xpath queries against the config which look for a
+    # matching <app> config entry in descending order of specificity
+    my @queries;
+    if (defined($major)) {
+        if (defined($minor)) {
+            push(@queries, _match_query($type, $name, $os, $distro,
+                                        $major, $minor, $arch))
+                if (defined($arch));
+            push(@queries, _match_query($type, $name, $os, $distro,
+                                        $major, $minor, undef));
+        }
+
+        push(@queries, _match_query($type, $name, $os, $distro,
+                                    $major, undef, $arch))
+            if (defined($arch));
+        push(@queries, _match_query($type, $name, $os, $distro,
+                                    $major, undef, undef));
+    }
+
+    push(@queries, _match_query($type, $name, $os, $distro,
+                                undef, undef, $arch))
+        if (defined($arch));
+    push(@queries, _match_query($type, $name, $os, $distro,
+                                undef, undef, undef));
+
+    # Use the results of the first query which returns a result
+    foreach my $query (@queries) {
+        my ($element) = $dom->findnodes($query);
+        return $element if (defined($element));
+    }
+
+    die(user_message(__x("No {type} in config matches {search}",
+                         type => $type,
+                         search => _get_search($desc, $name, $arch))));
 }
 
 =item map_network(oldname, oldtype)
