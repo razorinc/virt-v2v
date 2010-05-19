@@ -394,7 +394,7 @@ sub _upload_service
         $config->match_app ($desc, "firstbootapp", $desc->{arch});
     $app = _transfer_path ($transfer_mount, $app);
     $g->cp ($app, $path);
-    
+
     ($app, $depnames) =
         $config->match_app ($desc, "rhsrvany", $desc->{arch});
     $app = _transfer_path ($transfer_mount, $app);
