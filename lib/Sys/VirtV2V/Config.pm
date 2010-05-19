@@ -104,6 +104,8 @@ sub get_transfer_iso
 
     return undef unless (defined($dom));
 
+    return $self->{iso} if (exists($self->{iso}));
+
     # path-root doesn't have to be defined
     my ($root) = $dom->findnodes('/virt-v2v/path-root/text()');
     $root = $root->getData() if (defined($root));
@@ -131,7 +133,10 @@ sub get_transfer_iso
     }
 
     # Nothing further to do if there are no paths
-    return if (keys(%path_args) == 0);
+    if (keys(%path_args) == 0) {
+        $self->{iso} = undef;
+        return undef;
+    }
 
     # Get the path of the transfer iso
     my ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
@@ -177,7 +182,10 @@ sub get_transfer_iso
                 }
             }
 
-            return $iso_path if (!$rebuild);
+            if (!$rebuild) {
+                $self->{iso} = $iso_path;
+                return $iso_path;
+            }
         }
     }
 
@@ -191,6 +199,7 @@ sub get_transfer_iso
                          "Command output was:\n{output}",
                          output => $eh->output()))) unless ($eh->status() == 0);
 
+    $self->{iso} = $iso_path;
     return $iso_path;
 }
 

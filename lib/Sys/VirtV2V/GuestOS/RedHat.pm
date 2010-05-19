@@ -1524,12 +1524,22 @@ sub _ensure_transfer_mounted
 
     my $g = $self->{g};
 
-    # Find the transfer device
-    my @devices = $g->list_devices();
-    my $transfer = $devices[$#devices];
+    # Code in this file expects the mount to exist, but handles the case where
+    # files in it don't exist. Therefore we always create the mount point, but
+    # only mount anything on it if there's actually a transfer iso.
 
+    # Create the transfer mount point
     $self->{transfer_mount} = $g->mkdtemp("/tmp/transferXXXXXX");
-    $g->mount_ro($transfer, $self->{transfer_mount});
+
+    # Only mount the transfer iso if there is one
+    if (defined($self->{config}->get_transfer_iso())) {
+        # Find the transfer device
+        my @devices = $g->list_devices();
+        my $transfer = $devices[$#devices];
+
+        $g->mount_ro($transfer, $self->{transfer_mount});
+        $self->{transfer_mounted} = 1;
+    }
 }
 
 =item remap_block_devices(devices, virtio)
@@ -1833,10 +1843,10 @@ sub DESTROY
     my $g = $self->{g};
 
     # Remove the transfer mount point if it was used
-    if(defined($self->{transfer_mount})) {
-        $g->umount($self->{transfer_mount});
-        $g->rmdir($self->{transfer_mount});
-    }
+    $g->umount($self->{transfer_mount})
+        if(defined($self->{transfer_mounted}));
+    $g->rmdir($self->{transfer_mount})
+        if(defined($self->{transfer_mount}));
 }
 
 =back
