@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-19 19:44+0100\n"
-"PO-Revision-Date: 2010-04-27 21:12+0200\n"
+"POT-Creation-Date: 2010-05-14 17:18+0100\n"
+"PO-Revision-Date: 2010-05-21 00:42+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -28,17 +28,17 @@ msgstr "Brak uprawnień do odczytania {path}"
 msgid "Unable to parse config file {path}: {error}"
 msgstr "Nie można przetworzyć pliku konfiguracji {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:145
+#: ../lib/Sys/VirtV2V/Config.pm:140
 msgid "<iso-path> must be specified in the configuration file"
 msgstr "<ścieżka-do-pliku-ISO> musi zostać podana w pliku konfiguracji"
 
-#: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
+#: ../lib/Sys/VirtV2V/Config.pm:147 ../lib/Sys/VirtV2V/Config.pm:151
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
 #, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "Nie można wykonać stat na {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:198
+#: ../lib/Sys/VirtV2V/Config.pm:190
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -47,34 +47,26 @@ msgstr ""
 "Utworzenie pliku ISO przesyłania nie powiodło się. Wyjście polecenia:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:245
+#: ../lib/Sys/VirtV2V/Config.pm:233
+#, perl-brace-format
+msgid "No config specified. No app match for {search}"
+msgstr "Nie podano konfiguracji. Brak aplikacji pasującej do {search}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:243
+msgid "Didn't detect operating system"
+msgstr "Nie wykryto systemu operacyjnego"
+
+#: ../lib/Sys/VirtV2V/Config.pm:269
+#, perl-brace-format
+msgid "No app in config matches {search}"
+msgstr "Brak aplikacji w konfiguracji pasującej do {search}"
+
+#: ../lib/Sys/VirtV2V/Config.pm:275
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr "wpis aplikacji w konfiguracji nie zawiera ścieżki: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:302
-#, perl-brace-format
-msgid ""
-"Capability in config contains a dependency with no {property} attribute: "
-"{xml}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Config.pm:335
-#, fuzzy, perl-brace-format
-msgid "No config specified. No {type} match for {search}"
-msgstr "Nie podano konfiguracji. Brak aplikacji pasującej do {search}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:346
-#, fuzzy
-msgid "Didn't detect operating system"
-msgstr "Nie wykryto dystrybucji systemu operacyjnego"
-
-#: ../lib/Sys/VirtV2V/Config.pm:380
-#, fuzzy, perl-brace-format
-msgid "No {type} in config matches {search}"
-msgstr "Brak aplikacji w konfiguracji pasującej do {search}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:411
+#: ../lib/Sys/VirtV2V/Config.pm:330
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
@@ -84,12 +76,12 @@ msgstr ""
 "konfiguracji. Przekonwertowany gość może się nie uruchamiać, dopóki jego "
 "interfejs sieciowy nie zostanie zaktualizowany."
 
-#: ../lib/Sys/VirtV2V/Config.pm:428
+#: ../lib/Sys/VirtV2V/Config.pm:347
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci w konfiguracji: {config}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:436
+#: ../lib/Sys/VirtV2V/Config.pm:355
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -174,38 +166,20 @@ msgstr ""
 "OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
 "{modulename}"
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
-#, fuzzy
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:314
 msgid ""
-"No bootable kernels installed, and no replacement is available.\n"
+"No bootable kernels installed, and no replacement specified in "
+"configuration.\n"
 "Unable to continue."
 msgstr ""
 "Nie zainstalowano startowych jąder i nie podano żadnych zamienników w "
 "konfiguracji.\n"
 "Nie można kontynuować."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:426
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:456
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:173
-msgid ""
-"You must specify the configuration file (-f) when converting Windows guests."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:219
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:318
-#, perl-brace-format
-msgid ""
-"Could not download the SYSTEM registry from this Windows guest.  The exact "
-"error message was: {errmsg}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:278
-#, perl-brace-format
-msgid "Guest is not a supported version of Windows ({major}.{minor})"
-msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter.pm:157
 msgid ""
@@ -214,6 +188,12 @@ msgid ""
 "without manual reconfiguration. The domain will present all storage devices "
 "as IDE, all network interfaces as e1000 and the host as x86_64."
 msgstr ""
+"OSTRZEŻENIE: nie można przekonwertować tego goszczącego systemu "
+"operacyjnego. Jego pamięci masowe zostaną przeniesione i zostanie utworzona "
+"dla niego domena, ale może nie działać poprawnie bez ręcznego ponownego "
+"skonfigurowania. Domena będzie przedstawiała wszystkie urządzenia pamięci "
+"masowych jako IDE, wszystkie interfejsy sieciowe jako e1000, a gospodarza "
+"jako x86_64."
 
 #: ../lib/Sys/VirtV2V/Converter.pm:347
 #, perl-brace-format
@@ -230,75 +210,62 @@ msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr "Nieznany typ interfejsu {type} w pliku XML domeny: {domain}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:120
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "augeas error for {file}: {error}"
-msgstr "Nie można przetworzyć domeny z pliku {path}: {error}"
+msgstr "błąd augeas dla {file}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:124
 #, perl-brace-format
 msgid "augeas error for {file}"
-msgstr ""
+msgstr "błąd augeas dla {file}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
 #, perl-brace-format
 msgid "error at line {line}, char {char}, file position {pos}"
-msgstr ""
+msgstr "błąd w wierszu {line}, znaku {char}, pozycji pliku {pos}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:139
 #, perl-brace-format
 msgid "augeas lens: {lens}"
-msgstr ""
+msgstr "soczewki augeas: {lens}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:204
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:459
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:448
 #, perl-brace-format
 msgid "WARNING: grub refers to {path}, which doesn't exist."
-msgstr ""
+msgstr "OSTRZEŻENIE: program GRUB odwołuje się do {path}, który nie istnieje."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:505
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:455
+msgid "Unable to find a default kernel"
+msgstr "Nie można odnaleźć domyślnego jądra"
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:588
 #, perl-brace-format
-msgid "{name} capability not found in configuration"
-msgstr ""
+msgid "{path} doesn't contain a valid kernel"
+msgstr "{path} nie zawiera prawidłowego jądra"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:524
-#, perl-brace-format
-msgid ""
-"Unrecognised format for {field} in config: {value}. {field} must be in the "
-"format [epoch:]version[-release]."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:781
-#, perl-brace-format
-msgid "Failed to install packages using up2date. Error message was: {error}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:848
-#, fuzzy, perl-brace-format
-msgid "Failed to install packages using yum. Output was: {output}"
-msgstr ""
-"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
-"{status}. Wyjście: {output}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:899
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:606
 #, perl-brace-format
 msgid ""
-"Installation failed because the following files referenced in the "
+"Conversion cannot proceed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
 msgstr ""
+"Nie można kontynuować konwersji, ponieważ następujące pliki wspomniane w "
+"pliku konfiguracji są wymagane, ale ich nie ma: {list}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1127
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:655
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1214
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:776
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1747
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1382
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr ""
@@ -529,93 +496,74 @@ msgstr "Nieoczekiwany błąd podczas otrzymywania {path}: {output}"
 msgid "{identifier}: {message}\n"
 msgstr "{identifier}: {message}\n"
 
-#: ../v2v/virt-v2v.pl:230
+#: ../v2v/virt-v2v.pl:228
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Należy użyć -ic lub -oc, aby podać połączenie wejściowe lub wyjściowe"
 
-#: ../v2v/virt-v2v.pl:244
+#: ../v2v/virt-v2v.pl:242
 msgid "--network may only be specified once"
-msgstr ""
+msgstr "--network można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:252
+#: ../v2v/virt-v2v.pl:250
 msgid "--bridge may only be specified once"
-msgstr ""
+msgstr "--bridge można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:270
+#: ../v2v/virt-v2v.pl:268
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "biblioteki libvirt"
 
-#: ../v2v/virt-v2v.pl:279
+#: ../v2v/virt-v2v.pl:277
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "rhev"
 
-#: ../v2v/virt-v2v.pl:288
+#: ../v2v/virt-v2v.pl:286
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} nie jest prawidłową metodą wyjścia"
 
-#: ../v2v/virt-v2v.pl:297
+#: ../v2v/virt-v2v.pl:295
 msgid "You must specify a filename"
 msgstr "Należy podać nazwę pliku"
 
-#: ../v2v/virt-v2v.pl:303
+#: ../v2v/virt-v2v.pl:301
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
 
-#: ../v2v/virt-v2v.pl:312
+#: ../v2v/virt-v2v.pl:310
 msgid "You must specify a guest"
 msgstr "Należy podać gościa"
 
-#: ../v2v/virt-v2v.pl:321
+#: ../v2v/virt-v2v.pl:319
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę domeny."
 
-#: ../v2v/virt-v2v.pl:327
+#: ../v2v/virt-v2v.pl:325
 #, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} nie jest prawidłową metodą wprowadzania"
 
-#: ../v2v/virt-v2v.pl:387
+#: ../v2v/virt-v2v.pl:385
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} jest skonfigurowane ze sterownikami virtio"
 
-#: ../v2v/virt-v2v.pl:390
+#: ../v2v/virt-v2v.pl:388
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} jest skonfigurowane bez sterowników virtio"
 
-#: ../v2v/virt-v2v.pl:467
+#: ../v2v/virt-v2v.pl:465
 msgid "no root device found in this operating system image"
 msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 
-#: ../v2v/virt-v2v.pl:473
+#: ../v2v/virt-v2v.pl:471
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "Unable to find a default kernel"
-#~ msgstr "Nie można odnaleźć domyślnego jądra"
-
-#~ msgid "{path} doesn't contain a valid kernel"
-#~ msgstr "{path} nie zawiera prawidłowego jądra"
-
-#~ msgid "Unable to access {path} referenced in the config file"
-#~ msgstr ""
-#~ "Nie można uzyskać dostępu do {path} wspomnianego w pliku konfiguracji"
-
-#~ msgid "Unable to stat iso file {path}: {error}"
-#~ msgstr "Nie można wykonać stat na pliku ISO {path}: {error}"
-
-#~ msgid "Unable to stat config file {path}: {error}"
-#~ msgstr "Nie można wykonać stat na pliku konfiguracji {path}: {error}"
-
-#~ msgid "Unable to find a module to convert this guest"
-#~ msgstr "Nie można odnaleźć modułu do przekonwertowania tego gościa"
