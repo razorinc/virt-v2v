@@ -383,7 +383,7 @@ my $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
 
 close_guest_handle();
 
-$target->create_guest($dom, $guestcaps);
+$target->create_guest($os, $dom, $guestcaps);
 
 my ($name) = $dom->findnodes('/domain/name/text()');
 $name = $name->getNodeValue();

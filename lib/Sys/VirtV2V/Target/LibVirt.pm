@@ -298,7 +298,7 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($dom, $guestcaps) = @_;
+    my ($desc, $dom, $guestcaps) = @_;
 
     my $vmm = $self->{vmm};
 

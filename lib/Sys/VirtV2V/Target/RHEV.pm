@@ -618,7 +618,7 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($dom, $guestcaps) = @_;
+    my ($desc, $dom, $guestcaps) = @_;
 
     # Get the name of the guest
     my ($name) = $dom->findnodes('/domain/name/text()');
