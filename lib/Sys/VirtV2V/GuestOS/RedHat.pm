@@ -889,7 +889,9 @@ sub _install_config
     }
 
     my @missing;
-    if (defined($kernel) && !$g->exists($self->_transfer_path($kernel))) {
+    if (defined($kernel) &&
+        !$g->exists($self->{config}->get_transfer_path($g, $kernel)))
+    {
         push(@missing, $kernel);
     }
 
@@ -1167,7 +1169,7 @@ sub _get_nevra
 
     my $g = $self->{g};
 
-    $rpm = $self->_transfer_path($rpm);
+    $rpm = $self->{config}->get_transfer_path($g, $rpm);
 
     # Get NEVRA for the rpm to be installed
     my $nevra = $g->command(['rpm', '-qp', '--qf',
@@ -1292,7 +1294,8 @@ sub _get_deppaths
     foreach my $app (@apps) {
         my ($path, $deps) = $config->match_app($desc, $app, $arch);
 
-        my $exists = $self->{g}->exists($self->_transfer_path($path));
+        my $g = $self->{g};
+        my $exists = $g->exists($self->{config}->get_transfer_path($g, $path));
 
         if (!$exists) {
             push(@$missing, $path);
@@ -1319,7 +1322,10 @@ sub _get_deppaths
             };
 
             if (defined($path)) {
-                if (!$self->{g}->exists($self->_transfer_path($path))) {
+                my $g = $self->{g};
+
+                if (!$g->exists($self->{config}->get_transfer_path($g, $path)))
+                {
                     push(@$missing, $path);
 
                     foreach my $deppath ($self->_get_deppaths($missing,
@@ -1482,10 +1488,11 @@ sub _install_rpms
     # Nothing to do if we got an empty set
     return if(scalar(@rpms) == 0);
 
-    # All paths are relative to the transfer mount. Need to make them absolute.
-    @rpms = map { $_ = $self->_transfer_path($_) } @rpms;
-
     my $g = $self->{g};
+
+    # All paths are relative to the transfer mount. Need to make them absolute.
+    @rpms = map { $_ = $self->{config}->get_transfer_path($g, $_) } @rpms;
+
     $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
 
     # Reload augeas in case the rpm installation changed anything
@@ -1494,46 +1501,6 @@ sub _install_rpms
     };
 
     $self->_augeas_error($@) if($@);
-}
-
-# Get full, local path of a file on the transfer mount
-sub _transfer_path
-{
-    my $self = shift;
-
-    my ($path) = @_;
-
-    $self->_ensure_transfer_mounted();
-
-    return File::Spec->catfile($self->{transfer_mount}, $path);
-}
-
-# Ensure that the transfer device is mounted. If not, mount it.
-sub _ensure_transfer_mounted
-{
-    my $self = shift;
-
-    # Return immediately if it's already mounted
-    return if(exists($self->{transfer_mount}));
-
-    my $g = $self->{g};
-
-    # Code in this file expects the mount to exist, but handles the case where
-    # files in it don't exist. Therefore we always create the mount point, but
-    # only mount anything on it if there's actually a transfer iso.
-
-    # Create the transfer mount point
-    $self->{transfer_mount} = $g->mkdtemp("/tmp/transferXXXXXX");
-
-    # Only mount the transfer iso if there is one
-    if (defined($self->{config}->get_transfer_iso())) {
-        # Find the transfer device
-        my @devices = $g->list_devices();
-        my $transfer = $devices[$#devices];
-
-        $g->mount_ro($transfer, $self->{transfer_mount});
-        $self->{transfer_mounted} = 1;
-    }
 }
 
 =item remap_block_devices(devices, virtio)
@@ -1828,19 +1795,6 @@ sub supports_virtio
     }
 
     return 1;
-}
-
-sub DESTROY
-{
-    my $self = shift;
-
-    my $g = $self->{g};
-
-    # Remove the transfer mount point if it was used
-    $g->umount($self->{transfer_mount})
-        if(defined($self->{transfer_mounted}));
-    $g->rmdir($self->{transfer_mount})
-        if(defined($self->{transfer_mount}));
 }
 
 =back

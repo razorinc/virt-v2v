@@ -181,21 +181,10 @@ sub _preconvert
     eval { $g->mkdir ("/temp"); };
     eval { $g->mkdir ("/temp/v2v"); };
 
-    # Find the transfer device
-    my @devices = $g->list_devices();
-    my $transfer = $devices[$#devices];
-
-    my $transfer_mount = $g->mkdtemp ("/temp/transferXXXXXX");
-    $g->mount_ro ($transfer, $transfer_mount);
-
-    _upload_viostor ($g, $tmpdir, $desc, $devices, $config,
-                     $transfer_mount);
-    _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config,
-                              $transfer_mount);
-    _upload_service ($g, $tmpdir, $desc, $devices, $config,
-                     $transfer_mount);
-    _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config,
-                              $transfer_mount);
+    _upload_viostor ($g, $tmpdir, $desc, $devices, $config);
+    _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
+    _upload_service ($g, $tmpdir, $desc, $devices, $config);
+    _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
 }
 
 # See http://rwmj.wordpress.com/2010/04/30/tip-install-a-device-driver-in-a-windows-vm/
@@ -206,7 +195,6 @@ sub _add_viostor_to_registry
     my $desc = shift;
     my $devices = shift;
     my $config = shift;
-    my $transfer_mount = shift;
 
     # Locate and download the system registry.
     my $system_filename;
@@ -305,7 +293,6 @@ sub _add_service_to_registry
     my $desc = shift;
     my $devices = shift;
     my $config = shift;
-    my $transfer_mount = shift;
 
     # Locate and download the system registry.
     my $system_filename;
@@ -363,13 +350,12 @@ sub _upload_viostor
     my $desc = shift;
     my $devices = shift;
     my $config = shift;
-    my $transfer_mount = shift;
 
     my $driverpath = "/windows/system32/drivers";
     $driverpath = $g->case_sensitive_path ($driverpath);
 
     my ($app, $depnames) = $config->match_app ($desc, "viostor", $desc->{arch});
-    $app = _transfer_path ($transfer_mount, $app);
+    $app = $config->get_transfer_path ($g, $app);
     $g->cp ($app, $driverpath);
 }
 
@@ -380,34 +366,24 @@ sub _upload_service
     my $desc = shift;
     my $devices = shift;
     my $config = shift;
-    my $transfer_mount = shift;
 
     my $path = "/temp/v2v";
     $path = $g->case_sensitive_path ($path);
 
     my ($app, $depnames) =
         $config->match_app ($desc, "firstboot", $desc->{arch});
-    $app = _transfer_path ($transfer_mount, $app);
+    $app = $config->get_transfer_path ($g, $app);
     $g->cp ($app, $path);
 
     ($app, $depnames) =
         $config->match_app ($desc, "firstbootapp", $desc->{arch});
-    $app = _transfer_path ($transfer_mount, $app);
+    $app = $config->get_transfer_path ($g, $app);
     $g->cp ($app, $path);
 
     ($app, $depnames) =
         $config->match_app ($desc, "rhsrvany", $desc->{arch});
-    $app = _transfer_path ($transfer_mount, $app);
+    $app = $config->get_transfer_path ($g, $app);
     $g->cp ($app, $path);
-}
-
-# Get full, local path of a file on the transfer mount
-sub _transfer_path
-{
-    my $transfer_mount = shift;
-    my $path = shift;
-
-    return File::Spec->catfile ($transfer_mount, $path);
 }
 
 =back

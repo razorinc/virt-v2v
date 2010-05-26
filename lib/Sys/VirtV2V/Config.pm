@@ -203,6 +203,46 @@ sub get_transfer_iso
     return $iso_path;
 }
 
+=item get_transfer_path(path)
+
+Return the path to I<path> as accessible by the libguestfs appliance. This
+function will also ensure that the transfer iso is mounted.
+
+=cut
+
+sub get_transfer_path
+{
+    my $self = shift;
+    my ($g, $path) = @_;
+
+    # Check that the transfer iso is mounted
+    if (!exists($self->{transfer_mount})) {
+        # Existing code expects the mount to exist, but handles the case where
+        # files in it don't exist. Therefore we always create the mount point,
+        # but only mount anything on it if there's actually a transfer iso.
+
+        # Create the transfer mount point
+        # We create this under / because it's guaranteed to exist in the
+        # appliance, regardless of the guest OS.
+        $self->{transfer_mount} = $g->mkdtemp("/transferXXXXXX");
+
+        # Only mount the transfer iso if there is one
+        if (defined($self->get_transfer_iso())) {
+            # Find the transfer device
+            my @devices = $g->list_devices();
+            my $transfer = $devices[$#devices];
+
+            $g->mount_ro($transfer, $self->{transfer_mount});
+            $self->{transfer_mounted} = 1;
+
+            # We'll need this to unmount in DESTROY
+            $self->{g} = $g;
+        }
+    }
+
+    return File::Spec->catfile($self->{transfer_mount}, $path);
+}
+
 sub _get_search
 {
     my ($desc, $name, $arch) = @_;
@@ -456,6 +496,19 @@ sub set_default_net_mapping
     my ($name, $type) = @_;
 
     $self->{default_net_mapping} = [ $name, $type ];
+}
+
+sub DESTROY
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+
+    # Remove the transfer mount point if it was used
+    $g->umount($self->{transfer_mount})
+        if(defined($self->{transfer_mounted}));
+    $g->rmdir($self->{transfer_mount})
+        if(defined($self->{transfer_mount}));
 }
 
 =back
