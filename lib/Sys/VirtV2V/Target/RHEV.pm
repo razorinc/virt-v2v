@@ -638,6 +638,8 @@ sub create_guest
 
     my $vmuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
 
+    my $ostype = _get_os_type($desc);
+
     my $ovf = new XML::DOM::Parser->parse(<<EOF);
 <ovf:Envelope
     xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData"
@@ -673,7 +675,7 @@ sub create_guest
 
         <Section ovf:id="$vmuuid" ovf:required="false" xsi:type="ovf:OperatingSystemSection_Type">
           <Info>Guest Operating System</Info>
-          <Description>Unassigned</Description>
+          <Description>$ostype</Description>
         </Section>
 
         <Section xsi:type="ovf:VirtualHardwareSection_Type">
@@ -737,6 +739,144 @@ EOF
         print $vm $ovf->toString();
     });
     $nfs->check_exit();
+}
+
+# Work out how to describe the guest OS to RHEV. Possible values are:
+#  Other
+#   Not used
+#
+#  RHEL3
+#  RHEL3x64
+#   os = linux
+#   distro = rhel
+#   major_version = 3
+#
+#  RHEL4
+#  RHEL4x64
+#   os = linux
+#   distro = rhel
+#   major_version = 4
+#
+#  RHEL5
+#  RHEL5x64
+#   os = linux
+#   distro = rhel
+#   major_version = 5
+#
+#  OtherLinux
+#   os = linux
+#
+#  WindowsXP
+#   os = windows
+#   root->os_major_version = 5
+#   root->os_minor_version = 1
+#
+#  Windows2003
+#  Windows2003x64
+#   os = windows
+#   root->os_major_version = 5
+#   root->os_minor_version = 2
+#   N.B. This also matches Windows 2003 R2, which there's no option for
+#
+#  Windows2008
+#  Windows2008x64
+#   os = windows
+#   root->os_major_version = 6
+#   root->os_minor_version = 0
+#   N.B. This also matches Vista, which there's no option for
+#
+#  Windows7
+#  Windows7x64
+#   os = windows
+#   root->os_major_version = 6
+#   root->os_minor_version = 1
+#   root->windows_installation_type = 'Client'
+#
+#  Windows2008R2x64
+#   os = windows
+#   root->os_major_version = 6
+#   root->os_minor_version = 1
+#   root->windows_installation_type != 'Client'
+#
+#  Unassigned
+#   None of the above
+#
+# N.B. We deliberately fall through to Unassigned rather than Other, because
+# this represents a failure to match. We don't want to assert that the OS is not
+# one of the above values in case we're wrong.
+sub _get_os_type
+{
+    my ($desc) = @_;
+
+    my $root = $desc->{root};
+    die ("No root device: ".Dumper($desc)) unless defined($root);
+
+    my $arch_suffix = '';
+    if ($root->{arch} eq 'x86_64') {
+        $arch_suffix = 'x64';
+    } elsif ($root->{arch} ne 'i386') {
+        warn (_user_message(__x("Unsupported architecture: {arch}",
+                                arch => $root->{arch})));
+        return undef;
+    }
+
+    my $type;
+
+    $type = _get_os_type_linux($root, $arch_suffix)
+        if ($desc->{os} eq 'linux');
+    $type = _get_os_type_windows($root, $arch_suffix)
+        if ($desc->{os} eq 'windows');
+
+    return 'Unassigned' if (!defined($type));
+    return $type;
+}
+
+sub _get_os_type_windows
+{
+    my ($root, $arch_suffix) = @_;
+
+    my $major = $root->{os_major_version};
+    my $minor = $root->{os_major_version};
+
+    if ($major == 5 && $minor == 1) {
+        # RHEV doesn't differentiate Windows XP by architecture
+        return "WindowsXP";
+    }
+
+    if ($major == 5 && $minor == 2) {
+        return "Windows2003".$arch_suffix;
+    }
+
+    if ($major == 6 && $minor == 0) {
+        return "Windows2008".$arch_suffix;
+    }
+
+    if ($major == 6 && $minor == 1) {
+        if ($root->{windows_installation_type} eq 'Client') {
+            return "Windows7".$arch_suffix;
+        }
+
+        return "Windows2008R2".$arch_suffix;
+    }
+
+    warn (_user_message(__x("Unknown Windows version: {major}.{minor}",
+                            major => $major, minor => $minor)));
+    return undef;
+}
+
+sub _get_os_type_linux
+{
+    my ($root, $arch_suffix) = @_;
+
+    my $distro = $root->{osdistro};
+    my $major = $root->{os_major_version};
+
+    if ($distro eq 'rhel') {
+        return "RHEL".$major.$arch_suffix;
+    }
+
+    # Unlike Windows, Linux has its own fall-through option
+    return "OtherLinux";
 }
 
 sub _format_time
