@@ -181,9 +181,8 @@ sub _preconvert
     eval { $g->mkdir ("/temp"); };
     eval { $g->mkdir ("/temp/v2v"); };
 
-    _upload_viostor ($g, $tmpdir, $desc, $devices, $config);
+    _upload_files ($g, $tmpdir, $desc, $devices, $config);
     _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
-    _upload_service ($g, $tmpdir, $desc, $devices, $config);
     _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
 }
 
@@ -343,7 +342,7 @@ sub _add_service_to_registry
     $g->upload ($tmpdir . "/system", $system_filename);
 }
 
-sub _upload_viostor
+sub _upload_files
 {
     my $g = shift;
     my $tmpdir = shift;
@@ -351,39 +350,35 @@ sub _upload_viostor
     my $devices = shift;
     my $config = shift;
 
+    # Check we have all required files
+    my @missing;
+    my %files;
+
+    for my $file ("viostor", "firstboot", "firstbootapp", "rhsrvany") {
+        my ($path) = $config->match_app ($desc, $file, $desc->{arch});
+        my $local = $config->get_transfer_path ($g, $path);
+        push (@missing, $path) unless ($g->exists($local));
+
+        $files{$file} = $local;
+    }
+
+    # We can't proceed if there are any files missing
+    die(user_message(__x("Installation failed because the following ".
+                         "files referenced in the configuration file are ".
+                         "required, but missing: {list}",
+                         list => join(' ', @missing)))) if (@missing > 0);
+
+    # Copy viostor into place
     my $driverpath = "/windows/system32/drivers";
     $driverpath = $g->case_sensitive_path ($driverpath);
+    $g->cp ($files{viostor}, $driverpath);
 
-    my ($app, $depnames) = $config->match_app ($desc, "viostor", $desc->{arch});
-    $app = $config->get_transfer_path ($g, $app);
-    $g->cp ($app, $driverpath);
-}
-
-sub _upload_service
-{
-    my $g = shift;
-    my $tmpdir = shift;
-    my $desc = shift;
-    my $devices = shift;
-    my $config = shift;
-
+    # Copy other files into a temp directory
     my $path = "/temp/v2v";
     $path = $g->case_sensitive_path ($path);
-
-    my ($app, $depnames) =
-        $config->match_app ($desc, "firstboot", $desc->{arch});
-    $app = $config->get_transfer_path ($g, $app);
-    $g->cp ($app, $path);
-
-    ($app, $depnames) =
-        $config->match_app ($desc, "firstbootapp", $desc->{arch});
-    $app = $config->get_transfer_path ($g, $app);
-    $g->cp ($app, $path);
-
-    ($app, $depnames) =
-        $config->match_app ($desc, "rhsrvany", $desc->{arch});
-    $app = $config->get_transfer_path ($g, $app);
-    $g->cp ($app, $path);
+    $g->cp ($files{firstboot}, $path);
+    $g->cp ($files{firstbootapp}, $path);
+    $g->cp ($files{rhsrvany}, $path);
 }
 
 =back
