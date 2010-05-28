@@ -1,5 +1,5 @@
 # Sys::VirtV2V::GuestOS::RedHat
-# Copyright (C) 2009 Red Hat Inc.
+# Copyright (C) 2009,2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -263,8 +263,8 @@ sub enable_kernel_module
     my $g = $self->{g};
 
     eval {
-        $g->aug_set("/files/".$self->{modules}."/alias[last()+1]", $device);
-        $g->aug_set("/files/".$self->{modules}."/alias[last()]/modulename",
+        $g->aug_set("/files".$self->{modules}."/alias[last()+1]", $device);
+        $g->aug_set("/files".$self->{modules}."/alias[last()]/modulename",
                     $module);
         $g->aug_save();
     };
@@ -1801,7 +1801,7 @@ sub supports_virtio
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Red Hat Inc.
+Copyright (C) 2009,2010 Red Hat Inc.
 
 =head1 LICENSE
 
