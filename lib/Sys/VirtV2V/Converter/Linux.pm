@@ -1,5 +1,5 @@
 # Sys::VirtV2V::Converter::Linux
-# Copyright (C) 2009 Red Hat Inc.
+# Copyright (C) 2009,2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
