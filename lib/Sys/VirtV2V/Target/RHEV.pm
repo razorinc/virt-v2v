@@ -562,7 +562,7 @@ sub create_guest
     # Generate a creation date
     my $vmcreation = _format_time(gmtime());
 
-    my $osuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
+    my $vmuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
 
     my $ovf = new XML::DOM::Parser->parse(<<EOF);
 <ovf:Envelope
@@ -597,7 +597,7 @@ sub create_guest
         <VmType>1</VmType>
         <DefaultDisplayType>0</DefaultDisplayType>
 
-        <Section ovf:id="$osuuid" ovf:required="false" xsi:type="ovf:OperatingSystemSection_Type">
+        <Section ovf:id="$vmuuid" ovf:required="false" xsi:type="ovf:OperatingSystemSection_Type">
           <Info>Guest Operating System</Info>
           <Description>Unassigned</Description>
         </Section>
@@ -643,8 +643,6 @@ EOF
     my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
         my $mountdir = $self->{mountdir};
         my $domainuuid = $self->{domainuuid};
-
-        my $vmuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
 
         my $dir = $mountdir.'/'.$domainuuid.'/master/vms/'.$vmuuid;
         mkdir($dir)
