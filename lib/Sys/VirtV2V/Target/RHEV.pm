@@ -274,9 +274,10 @@ sub open
         # Write out the .meta file
         my $meta;
         open($meta, '>', "$path.meta")
-            or die(__x("Unable to open {path} for writing: {error}",
-                       path => "$path.meta",
-                       error => $!));
+            or die(user_message(__x("Unable to open {path} for writing: ".
+                                    "{error}",
+                                    path => "$path.meta",
+                                    error => $!)));
 
         print $meta "DOMAIN=".$self->{domainuuid}."\n";
         print $meta "VOLTYPE=LEAF\n";
