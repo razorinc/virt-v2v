@@ -171,12 +171,16 @@ our %vols_by_path;
 sub _new
 {
     my $class = shift;
-    my ($mountdir, $domainuuid, $size) = @_;
+    my ($mountdir, $domainuuid, $insize) = @_;
 
     my $self = {};
     bless($self, $class);
 
-    $self->{size} = $size;
+    $self->{insize} = $insize;
+    # RHEV needs disks to be a multiple of 512 in size. Additionally, SIZE in
+    # the disk meta file has units of kilobytes. To ensure everything matches up
+    # exactly, we will pad to to a 1024 byte boundary.
+    $self->{outsize} = ceil($insize/1024) * 1024;
 
     my $imageuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
     my $voluuid   = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
@@ -206,7 +210,7 @@ sub _get_size
 {
     my $self = shift;
 
-    return $self->{size};
+    return $self->{outsize};
 }
 
 sub _get_imageuuid
@@ -256,6 +260,7 @@ sub open
     my $self = shift;
 
     my $now = $self->{creation};
+    $self->{written} = 0;
 
     $self->{writer} = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
         my $dir = $self->{dir};
@@ -283,7 +288,7 @@ sub open
         print $meta "LEGALITY=LEGAL\n";
         print $meta "MTIME=$now\n";
         print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
-        print $meta "SIZE=".ceil($self->{size}/1024)."\n";
+        print $meta "SIZE=".($self->{outsize} / 1024)."\n";
         print $meta "TYPE=SPARSE\n";
         print $meta "DESCRIPTION=Exported by virt-v2v\n";
         print $meta "EOF\n";
@@ -316,11 +321,24 @@ sub write
         # die() explicitly in case the above didn't
         die("Error writing to helper: $!");
     }
+
+    $self->{written} += length($data);
 }
 
 sub close
 {
     my $self = shift;
+
+    # Check we wrote the full file
+    die(user_message(__x("Didn't write full volume. Expected {expected} ".
+                         "bytes, wrote {actual} bytes.",
+                         expected => $self->{insize},
+                         actual => $self->{written})))
+        unless ($self->{written} == $self->{insize});
+
+    # Pad the output up to outsize
+    my $pad = $self->{outsize} - $self->{insize};
+    $self->write("\0" x $pad) if ($pad);
 
     # Close the writer pipe, which will cause the child to exit
     close($self->{writer}->{tochild})
@@ -330,6 +348,7 @@ sub close
     $self->{writer}->check_exit();
 
     delete($self->{writer});
+    delete($self->{written});
 }
 
 package Sys::VirtV2V::Target::RHEV;
