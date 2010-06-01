@@ -809,11 +809,11 @@ sub _install_yum
         # Don't modify the contents of $install and $upgrade in case we fall
         # through and they're reused in another function
         if (@installed == 0 || defined($kernel->[2])) {
-            my @tmp = @$install;
+            my @tmp = defined($install) ? @$install : ();
             push(@tmp, $kernel);
             $install = \@tmp;
         } else {
-            my @tmp = @$upgrade;
+            my @tmp = defined($upgrade) ? @$upgrade : ();
             push(@tmp, $kernel);
             $upgrade = \@tmp;
         }
