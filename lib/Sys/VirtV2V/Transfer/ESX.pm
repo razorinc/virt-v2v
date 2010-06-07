@@ -143,6 +143,8 @@ sub get_volume
         my $died = $r->header('X-Died');
         die($died) if (defined($died));
 
+        $self->verify_certificate($r) unless ($self->{_v2v_noverify});
+
         # It reports success even if we didn't receive the whole file
         die(user_message(__x("Didn't receive full volume. Received {received} ".
                              "of {total} bytes.",
