@@ -102,9 +102,7 @@ sub get_volume
     my $datastore = $1;
     my $vmdk = $2;
 
-    my $url = URI->new("https://".$self->{_v2v_server});
-    $url->path("/folder/$vmdk-flat.vmdk");
-    $url->query_form(dcPath => "ha-datacenter", dsName => $datastore);
+    my $url = _get_vol_url($self->{_v2v_server}, $vmdk, $datastore);
 
     # Replace / with _ so the vmdk name can be used as a volume name
     my $volname = $vmdk;
@@ -125,16 +123,39 @@ sub get_volume
     # We could do this with a single GET request. The problem with this is that
     # you have to create the volume before writing to it. If the volume creation
     # takes a very long time, the transfer may fail in the mean time.
-    my $r = $self->head($url);
-    if ($r->is_success) {
-        $self->verify_certificate($r) unless ($self->{_v2v_noverify});
-        $self->create_volume($r);
-    } else {
-        $self->report_error($r);
+    my $retried = 0;
+    SIZE: for(;;) {
+        my $r = $self->head($url);
+        if ($r->is_success) {
+            $self->verify_certificate($r) unless ($self->{_v2v_noverify});
+            $self->create_volume($r);
+            last SIZE;
+        }
+
+        # If a disk is actually a snapshot image it will have '-00000n'
+        # appended to its name, e.g.:
+        #  [yellow:storage1] RHEL4-X/RHEL4-X-000003.vmdk
+        # The flat storage is still called RHEL4-X-flat, however.
+        # If we got a 404 and the vmdk name looks like it might be a snapshot,
+        # try again without the snapshot suffix.
+        # XXX: We're in flaky heuristic territory here. When the libvirt ESX
+        # driver implements the volume apis we should look for this information
+        # there instead.
+        elsif ($r->code == 404 && $retried == 0) {
+            $retried = 1;
+            if ($vmdk =~ /^(.*)-\d+$/) {
+                $vmdk = $1;
+                $url = _get_vol_url($self->{_v2v_server}, $vmdk, $datastore);
+            }
+        }
+
+        else {
+            $self->report_error($r);
+        }
     }
 
     $self->{_v2v_received} = 0;
-    $r = $self->get($url,
+    my $r = $self->get($url,
                     ':content_cb' => sub { $self->handle_data(@_); },
                     ':read_size_hint' => 64 * 1024);
 
@@ -158,6 +179,17 @@ sub get_volume
     }
 
     $self->report_error($r);
+}
+
+sub _get_vol_url
+{
+    my ($server, $vmdk, $datastore) = @_;
+
+    my $url = URI->new("https://".$server);
+    $url->path("/folder/$vmdk-flat.vmdk");
+    $url->query_form(dcPath => "ha-datacenter", dsName => $datastore);
+
+    return $url;
 }
 
 sub report_error
