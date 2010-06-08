@@ -476,21 +476,20 @@ sub DESTROY
 
     my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
     if ($eh->status() != 0) {
-        print STDERR user_message(__x("Failed to unmount {path}. Command ".
-                                      "exited with status {status}. Output ".
-                                      "was: {output}",
-                                      path => $self->{domain_path},
-                                      status => $eh->status(),
-                                      output => $eh->output()));
+        warn user_message(__x("Failed to unmount {path}. Command exited with ".
+                              "status {status}. Output was: {output}",
+                              path => $self->{domain_path},
+                              status => $eh->status(),
+                              output => $eh->output()));
         # Exit with an error if the child failed.
         $retval ||= $eh->status();
     }
 
-    rmdir($self->{mountdir})
-        or print STDERR user_message(__x("Failed to remove mount directory ".
-                                         "{dir}: {error}",
-                                         dir => $self->{mountdir},
-                                         error => $!));
+    unless (rmdir($self->{mountdir})) {
+        warn user_message(__x("Failed to remove mount directory {dir}: {error}",
+                              dir => $self->{mountdir}, error => $!));
+        $retval ||= 1;
+    }
 
     $? = $retval;
 }
