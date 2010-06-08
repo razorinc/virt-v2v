@@ -214,6 +214,14 @@ Display version number and exit.
 
 =cut
 
+$SIG{'INT'} = \&signal_exit;
+$SIG{'QUIT'} = \&signal_exit;
+
+# SIGPIPE will cause an untidy exit of the perl process, without calling
+# destructors. We don't rely on it anywhere, as we check for errors when reading
+# from or writing to a pipe.
+$SIG{'PIPE'} = 'IGNORE';
+
 # Initialise the message output prefix
 Sys::VirtV2V::UserMessage->set_identifier('virt-v2v');
 
@@ -362,9 +370,6 @@ if ($output_method eq 'rhev') {
     $> = "0";
 }
 
-$SIG{'INT'} = \&close_guest_handle;
-$SIG{'QUIT'} = \&close_guest_handle;
-
 # Inspect the guest
 my $os = inspect_guest($g);
 
@@ -423,6 +428,12 @@ sub close_guest_handle
         # may update $?, so we preserve it here.
         $? ||= $retval;
     }
+}
+
+sub signal_exit
+{
+    close_guest_handle();
+    exit(1);
 }
 
 sub get_guestfs_handle
