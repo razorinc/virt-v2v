@@ -160,6 +160,8 @@ sub DESTROY
 
 package Sys::VirtV2V::Target::RHEV::Vol;
 
+use File::Path;
+use File::Temp qw(tempdir);
 use POSIX;
 
 use Sys::VirtV2V::UserMessage qw(user_message);
@@ -167,6 +169,8 @@ use Sys::VirtV2V::UserMessage qw(user_message);
 use Locale::TextDomain 'virt-v2v';
 
 our %vols_by_path;
+our @vols;
+our $tmpdir;
 
 sub _new
 {
@@ -188,12 +192,25 @@ sub _new
     $self->{voluuid}    = $voluuid;
     $self->{domainuuid} = $domainuuid;
 
-    $self->{dir}  = "$mountdir/$domainuuid/images/$imageuuid";
-    $self->{path} = $self->{dir}."/$voluuid";
+    my $root = "$mountdir/$domainuuid";
+    unless (defined($tmpdir)) {
+        my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
+            print tempdir("v2v.XXXXXXXX", DIR => $root);
+        });
+        my $fromchild = $nfs->{fromchild};
+        ($tmpdir) = <$fromchild>;
+        $nfs->check_exit();
+    }
+
+    $self->{dir}  = "$root/images/$imageuuid";
+    $self->{tmpdir} = "$tmpdir/$imageuuid";
+
+    $self->{path} = $self->{tmpdir}."/$voluuid";
 
     $self->{creation} = time();
 
     $vols_by_path{$self->{path}} = $self;
+    push(@vols, $self);
 
     return $self;
 }
@@ -263,7 +280,7 @@ sub open
     $self->{written} = 0;
 
     $self->{writer} = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
-        my $dir = $self->{dir};
+        my $dir = $self->{tmpdir};
         my $path = $self->{path};
 
         mkdir($dir)
@@ -350,6 +367,33 @@ sub close
 
     delete($self->{writer});
     delete($self->{written});
+}
+
+sub _move_vols
+{
+    my $class = shift;
+
+    foreach my $vol (@vols) {
+        rename($vol->{tmpdir}, $vol->{dir})
+            or die(user_message(__x("Unable to move volume from temporary ".
+                                    "location {tmpdir} to {dir}",
+                                    tmpdir => $vol->{tmpdir},
+                                    dir => $vol->{dir})));
+    }
+
+    $class->_cleanup();
+}
+
+sub _cleanup
+{
+    my $class = shift;
+
+    return unless (defined($tmpdir));
+
+    rmtree($tmpdir) or warn(user_message(__x("Unable to remove temporary ".
+                                            "directory {dir}",
+                                            dir => $tmpdir)));
+    $tmpdir = undef;
 }
 
 package Sys::VirtV2V::Target::RHEV;
@@ -473,6 +517,17 @@ sub DESTROY
     # when the helper process exits. We need to preserve it for our own exit
     # status.
     my $retval = $?;
+
+    eval {
+        my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
+            Sys::VirtV2V::Target::RHEV::Vol->_cleanup();
+        });
+        $nfs->check_exit();
+    };
+    if ($@) {
+        warn($@);
+        $retval ||= 1;
+    }
 
     my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
     if ($eh->status() != 0) {
@@ -668,6 +723,8 @@ EOF
             or die(user_message(__x("Failed to create directory {dir}: {error}",
                                     dir => $dir,
                                     error => $!)));
+
+        return Sys::VirtV2V::Target::RHEV::Vol->_move_vols();
 
         my $vm;
         my $ovfpath = $dir.'/'.$vmuuid.'.ovf';
