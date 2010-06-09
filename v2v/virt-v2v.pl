@@ -370,16 +370,29 @@ if ($output_method eq 'rhev') {
     $> = "0";
 }
 
-# Inspect the guest
-my $os = inspect_guest($g);
+my $os;
+my $guestcaps;
+eval {
+    # Inspect the guest
+    $os = inspect_guest($g);
 
-# Instantiate a GuestOS instance to manipulate the guest
-my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
+    # Instantiate a GuestOS instance to manipulate the guest
+    my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
 
-# Modify the guest and its metadata
-my $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
-                                                 $config, $dom, $os,
-                                                 $conn->get_storage_devices());
+    # Modify the guest and its metadata
+    $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
+                                                  $config, $dom, $os,
+                                                  $conn->get_storage_devices());
+};
+
+# If any of the above commands result in failure, we need to ensure that the
+# guestfs qemu process is cleaned up before further cleanup. Failure to do this
+# can result in failure to umount RHEV export's temporary mount point.
+if ($@) {
+    my $err = $@;
+    close_guest_handle();
+    die($err);
+}
 
 close_guest_handle();
 
@@ -397,11 +410,8 @@ if($guestcaps->{virtio}) {
 
 exit(0);
 
-# We should always attempt to shut down the guest gracefully
+# die() sets $? to 255, which is untidy.
 END {
-    close_guest_handle();
-
-    # die() sets $? to 255, which is untidy.
     $? = $? == 255 ? 1 : $?;
 }
 
@@ -410,8 +420,8 @@ END {
 
 sub close_guest_handle
 {
-    # Perform GuestOS cleanup before closing the handle
-    $guestos = undef;
+    # Config may cache the guestfs handle, preventing cleanup below
+    $config = undef;
 
     if (defined($g)) {
         my $retval = $?;
