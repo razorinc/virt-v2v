@@ -414,10 +414,17 @@ sub close_guest_handle
     $guestos = undef;
 
     if (defined($g)) {
-        $g->umount_all();
-        $g->sync();
-
         my $retval = $?;
+
+        eval {
+            $g->umount_all();
+            $g->sync();
+        };
+        if ($@) {
+            warn(user_message(__x("Error cleaning up guest handle: {error}",
+                                  error => $@)));
+            $retval ||= 1;
+        }
 
         # Note that this undef is what actually causes the underlying handle to
         # be closed. This is required to allow the RHEV target's temporary mount
