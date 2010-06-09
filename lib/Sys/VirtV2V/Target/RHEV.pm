@@ -726,7 +726,7 @@ EOF
                                     dir => $dir,
                                     error => $!)));
 
-        return Sys::VirtV2V::Target::RHEV::Vol->_move_vols();
+        Sys::VirtV2V::Target::RHEV::Vol->_move_vols();
 
         my $vm;
         my $ovfpath = $dir.'/'.$vmuuid.'.ovf';
