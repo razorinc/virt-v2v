@@ -815,7 +815,7 @@ sub _get_os_type
     if ($root->{arch} eq 'x86_64') {
         $arch_suffix = 'x64';
     } elsif ($root->{arch} ne 'i386') {
-        warn (_user_message(__x("Unsupported architecture: {arch}",
+        warn (user_message(__x("Unsupported architecture: {arch}",
                                 arch => $root->{arch})));
         return undef;
     }
@@ -859,8 +859,8 @@ sub _get_os_type_windows
         return "Windows2008R2".$arch_suffix;
     }
 
-    warn (_user_message(__x("Unknown Windows version: {major}.{minor}",
-                            major => $major, minor => $minor)));
+    warn (user_message(__x("Unknown Windows version: {major}.{minor}",
+                           major => $major, minor => $minor)));
     return undef;
 }
 
