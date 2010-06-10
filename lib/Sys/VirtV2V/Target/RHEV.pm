@@ -390,9 +390,18 @@ sub _cleanup
 
     return unless (defined($tmpdir));
 
-    rmtree($tmpdir) or warn(user_message(__x("Unable to remove temporary ".
-                                            "directory {dir}",
-                                            dir => $tmpdir)));
+    eval {
+        rmtree($tmpdir) or warn(user_message(__x("Unable to remove temporary ".
+                                                 "directory {dir}",
+                                                 dir => $tmpdir)));
+    };
+
+    if ($@) {
+        warn(user_message(__x("Error removing temporary directory {dir}: ".
+                              "{error}",
+                              dir => $tmpdir, error => $@)));
+    }
+
     $tmpdir = undef;
 }
 
