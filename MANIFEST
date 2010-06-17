@@ -4,6 +4,7 @@ COPYING
 COPYING.LIB
 lib/Sys/VirtV2V.pm
 lib/Sys/VirtV2V/ExecHelper.pm
+lib/Sys/VirtV2V/GuestfsHandle.pm
 lib/Sys/VirtV2V/GuestOS.pm
 lib/Sys/VirtV2V/GuestOS/RedHat.pm
 lib/Sys/VirtV2V/Config.pm

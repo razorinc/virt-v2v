@@ -233,10 +233,13 @@ sub get_transfer_path
             my $transfer = $devices[$#devices];
 
             $g->mount_ro($transfer, $self->{transfer_mount});
-            $self->{transfer_mounted} = 1;
 
-            # We'll need this to unmount in DESTROY
-            $self->{g} = $g;
+            # Umount and remove the transfer mount point before the guestfs
+            # handle is closed
+            $g->add_on_close(sub {
+                $g->umount($self->{transfer_mount});
+                $g->rmdir($self->{transfer_mount});
+            });
         }
     }
 
@@ -496,19 +499,6 @@ sub set_default_net_mapping
     my ($name, $type) = @_;
 
     $self->{default_net_mapping} = [ $name, $type ];
-}
-
-sub DESTROY
-{
-    my $self = shift;
-
-    my $g = $self->{g};
-
-    # Remove the transfer mount point if it was used
-    $g->umount($self->{transfer_mount})
-        if(defined($self->{transfer_mounted}));
-    $g->rmdir($self->{transfer_mount})
-        if(defined($self->{transfer_mount}));
 }
 
 =back

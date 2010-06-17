@@ -25,7 +25,7 @@ use Getopt::Long;
 use Locale::TextDomain 'virt-v2v';
 
 use Sys::Guestfs;
-use Sys::Guestfs::Lib qw(open_guest get_partitions inspect_all_partitions
+use Sys::Guestfs::Lib qw(get_partitions inspect_all_partitions
                          inspect_operating_systems mount_operating_system
                          inspect_in_detail);
 
@@ -37,6 +37,7 @@ use Sys::VirtV2V::Connection::LibVirtXML;
 use Sys::VirtV2V::Target::LibVirt;
 use Sys::VirtV2V::Target::RHEV;
 use Sys::VirtV2V::ExecHelper;
+use Sys::VirtV2V::GuestfsHandle;
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
@@ -357,18 +358,9 @@ my $storage = $conn->get_storage_paths();
 my $transferiso;
 $transferiso = $config->get_transfer_iso();
 
-if ($output_method eq 'rhev') {
-    $) = "36 36";
-    $> = "36";
-}
-
 # Open a libguestfs handle on the guest's storage devices
-my $g = get_guestfs_handle($storage, $transferiso);
-
-if ($output_method eq 'rhev') {
-    $) = "0";
-    $> = "0";
-}
+my $g = new Sys::VirtV2V::GuestfsHandle($storage, $transferiso,
+                                        $output_method eq 'rhev');
 
 my $os;
 my $guestcaps;
@@ -390,11 +382,11 @@ eval {
 # can result in failure to umount RHEV export's temporary mount point.
 if ($@) {
     my $err = $@;
-    close_guest_handle();
+    $g->close();
     die($err);
 }
 
-close_guest_handle();
+$g->close();
 
 $target->create_guest($os, $dom, $guestcaps);
 
@@ -418,58 +410,10 @@ END {
 ###############################################################################
 ## Helper functions
 
-sub close_guest_handle
-{
-    # Config may cache the guestfs handle, preventing cleanup below
-    $config = undef;
-
-    if (defined($g)) {
-        my $retval = $?;
-
-        eval {
-            $g->umount_all();
-            $g->sync();
-        };
-        if ($@) {
-            warn(user_message(__x("Error cleaning up guest handle: {error}",
-                                  error => $@)));
-            $retval ||= 1;
-        }
-
-        # Note that this undef is what actually causes the underlying handle to
-        # be closed. This is required to allow the RHEV target's temporary mount
-        # directory to be unmounted and deleted prior to exit.
-        $g = undef;
-
-        # The above undef causes libguestfs's qemu process to be killed. This
-        # may update $?, so we preserve it here.
-        $? ||= $retval;
-    }
-}
-
 sub signal_exit
 {
-    close_guest_handle();
-    exit(1);
-}
-
-sub get_guestfs_handle
-{
-    my ($storage, $transferiso) = @_;
-    my $interface = "ide";
-
-    my $g = open_guest($storage, rw => 1, interface => $interface);
-
-    # Add the transfer iso if there is one
-    $g->add_drive_ro_with_if($transferiso, $interface)
-        if(defined($transferiso));
-
-    # Enable autosync to defend against data corruption on unclean shutdown
-    $g->set_autosync(1);
-
-    $g->launch();
-
-    return $g;
+    $g->close() if (defined($g));
+    die(user_message(__x("Received signal {sig}. Exiting.", sig => shift)));
 }
 
 # Inspect the guest's storage. Returns an OS hashref as returned by
