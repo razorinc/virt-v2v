@@ -845,7 +845,7 @@ sub _get_os_type_windows
     my ($root, $arch_suffix) = @_;
 
     my $major = $root->{os_major_version};
-    my $minor = $root->{os_major_version};
+    my $minor = $root->{os_minor_version};
 
     if ($major == 5 && $minor == 1) {
         # RHEV doesn't differentiate Windows XP by architecture
