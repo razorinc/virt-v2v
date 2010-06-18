@@ -135,6 +135,9 @@ sub convert
     $guestcaps{arch}   = $desc->{arch};
     $guestcaps{acpi}   = 1; # XXX
 
+    # We want an i686 guest for i[345]86
+    $guestcaps{arch} =~ s/^i[345]86/i686/;
+
     return \%guestcaps;
 }
 

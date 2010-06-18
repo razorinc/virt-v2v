@@ -334,8 +334,8 @@ sub _get_os_arch
     # Default to i686 if we didn't find an architecture
     return 'i686' if(!defined($arch));
 
-    # i386 should really be i686
-    return 'i686' if($arch eq 'i386');
+    # We want an i686 guest for i[345]86
+    return 'i686' if($arch =~ /^i[345]86$/);
 
     return $arch;
 }
