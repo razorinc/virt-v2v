@@ -186,6 +186,9 @@ sub _storage_iterate
         $source_e->setAttribute($source->getName(), '');
     }
 
+    die(user_message(__("Guest doesn't define any recognised storage devices")))
+        unless (@paths > 0);
+
     $self->{paths} = \@paths;
     $self->{devices} = \@devices;
 }

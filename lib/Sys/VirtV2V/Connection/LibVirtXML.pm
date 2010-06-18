@@ -95,6 +95,11 @@ sub _get_dom
     # Display any parse errors
     die(user_message(__x("Unable to parse domain from file {path}: {error}",
                          path => $self->{path}, error => $@))) if ($@);
+
+    # Check it looks like domain XML
+    my ($dummy) = $self->{dom}->findnodes('/domain/name');
+    die(user_message(__x("{path} doesn't look like a libvirt domain XML file",
+                         path => $self->{path}))) unless (defined($dummy));
 }
 
 =back
