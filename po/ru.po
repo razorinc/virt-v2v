@@ -9,10 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-05-19 19:44+0100\n"
+"POT-Creation-Date: 2010-06-21 09:51-0400\n"
 "PO-Revision-Date: 2010-03-14 20:21+0300\n"
 "Last-Translator: Igor Gorbounov <igor.gorbounov@gmail.com>\n"
 "Language-Team: Russian <fedora-trans-ru@redhat.com>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,46 +53,46 @@ msgstr ""
 "Не удалось создать ISO для передачи. Вывод команды:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:245
+#: ../lib/Sys/VirtV2V/Config.pm:288
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr "запись для приложения в конфигурации не содержит пути: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:302
+#: ../lib/Sys/VirtV2V/Config.pm:345
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:335
+#: ../lib/Sys/VirtV2V/Config.pm:378
 #, fuzzy, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr "Не задана конфигурация. Нет приложений, соответствующих {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:346
+#: ../lib/Sys/VirtV2V/Config.pm:389
 #, fuzzy
 msgid "Didn't detect operating system"
 msgstr "Не обнаружен дистрибутив ОС"
 
-#: ../lib/Sys/VirtV2V/Config.pm:380
+#: ../lib/Sys/VirtV2V/Config.pm:423
 #, fuzzy, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr "В конфигурации нет приложений, соответствующих {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:411
+#: ../lib/Sys/VirtV2V/Config.pm:454
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:428
+#: ../lib/Sys/VirtV2V/Config.pm:471
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr "ВНИМАНИЕ: Неверная топология сети в конфигурации: {config}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:436
+#: ../lib/Sys/VirtV2V/Config.pm:479
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr "ВНИМАНИЕ: Неверный тип интерфейса {type} в топологии сети: {config}"
@@ -162,10 +163,19 @@ msgstr "Не удалось открыть {path}: {error}"
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "Не удалось извлечь домен из файла {path}: {error}"
 
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:101
+#, perl-brace-format
+msgid "{path} doesn't look like a libvirt domain XML file"
+msgstr ""
+
 #: ../lib/Sys/VirtV2V/Connection.pm:135
 #, fuzzy
 msgid "No output target was specified"
 msgstr "Не указаны пулы вывода"
+
+#: ../lib/Sys/VirtV2V/Connection.pm:189
+msgid "Guest doesn't define any recognised storage devices"
+msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
@@ -190,22 +200,30 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Не удалось открыть /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:173
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:176
 msgid ""
 "You must specify the configuration file (-f) when converting Windows guests."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:219
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:318
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:209
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:307
 #, perl-brace-format
 msgid ""
 "Could not download the SYSTEM registry from this Windows guest.  The exact "
 "error message was: {errmsg}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:278
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:268
 #, perl-brace-format
 msgid "Guest is not a supported version of Windows ({major}.{minor})"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:369
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:901
+#, perl-brace-format
+msgid ""
+"Installation failed because the following files referenced in the "
+"configuration file are required, but missing: {list}"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Converter.pm:157
@@ -283,23 +301,16 @@ msgstr ""
 "Не удалось создать ISO для передачи. Вывод команды:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:899
-#, perl-brace-format
-msgid ""
-"Installation failed because the following files referenced in the "
-"configuration file are required, but missing: {list}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1127
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1129
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Не удалось определить архитектуру ядра для данной гостевой системы"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1214
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1216
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Ошибка при работе {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1747
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1715
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
 msgstr "ВНИМАНИЕ: Нет вхождений initrd в grub для версии ядра {version}"
@@ -363,71 +374,102 @@ msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr "Цель на поддерживает acpi под KVM. ACPI будет отключен."
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:265 ../lib/Sys/VirtV2V/Target/RHEV.pm:651
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:287 ../lib/Sys/VirtV2V/Target/RHEV.pm:734
 #, fuzzy, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
 msgstr "Не удалось создать каталог данных {dir}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:272 ../lib/Sys/VirtV2V/Target/RHEV.pm:658
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:294 ../lib/Sys/VirtV2V/Target/RHEV.pm:743
 #, fuzzy, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
 msgstr "Не удалось открыть {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:292
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:315
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
 msgstr "Ошибка при попытке закрыть {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:386
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:351
+#, fuzzy, perl-brace-format
+msgid ""
+"Didn't write full volume. Expected {expected} bytes, wrote {actual} bytes."
+msgstr "Получен не весь том. Получено {received} из {total} байт."
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:378
+#, perl-brace-format
+msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:394
+#, fuzzy, perl-brace-format
+msgid "Unable to remove temporary directory {dir}"
+msgstr "Не удалось создать каталог данных {dir}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:400
+#, fuzzy, perl-brace-format
+msgid "Error removing temporary directory {dir}: {error}"
+msgstr "Не удалось создать каталог данных {dir}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
 msgid "You must be root to output to RHEV"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:393
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:466
 #, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to 36:36"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:402
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:475
 #, perl-brace-format
 msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:411
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:484
 #, fuzzy, perl-brace-format
 msgid "Unable to open {mountdir}: {error}"
 msgstr "Не удалось открыть {file}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:427
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:500
 #, perl-brace-format
 msgid "{mountdir} contains multiple possible domains. It may only contain one."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:438
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:511
 #, perl-brace-format
 msgid "{mountdir} does not contain an initialised storage domain"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:543
 #, perl-brace-format
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:470
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:553
 #, fuzzy, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
 msgstr "Не удалось создать каталог данных {dir}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:866
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:827
+#, perl-brace-format
+msgid "Unsupported architecture: {arch}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:871
+#, perl-brace-format
+msgid "Unknown Windows version: {major}.{minor}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:1090
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:116
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:114
 #, fuzzy, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT fetching it "
@@ -436,13 +478,13 @@ msgstr ""
 "ВНИМАНИЕ: том хранилища {name} уже существует в целевом пуле. НЕ извлекается "
 "еще раз. Удалите том и попробуйте загрузить снова."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:147
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:170
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:102
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr "Получен не весь том. Получено {received} из {total} байт."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:167
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:201
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
@@ -451,26 +493,26 @@ msgstr ""
 "Ошибка проверки прав доступа при подключении к {server}. Используются "
 "учетные данные для {username} из .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:208
 #, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "Не удалось подключиться к ESX-серверу: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:234
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:268
 msgid "Server response didn't include an SSL subject"
 msgstr "Ответ сервера не содержит темы SSL"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:238
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:272
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr "В теме сертификации SSL не содержится общего имени: {subject}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:244
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:278
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr "Сервер {server} представил SSL-сертификат для {commonname}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:297
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:331
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -515,71 +557,76 @@ msgstr ""
 msgid "{identifier}: {message}\n"
 msgstr "{identifier}: {message}\n"
 
-#: ../v2v/virt-v2v.pl:230
+#: ../v2v/virt-v2v.pl:239
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Используйте -ic или -oc для задания входного или выходного подключения"
 
-#: ../v2v/virt-v2v.pl:244
+#: ../v2v/virt-v2v.pl:253
 msgid "--network may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:252
+#: ../v2v/virt-v2v.pl:261
 msgid "--bridge may only be specified once"
-msgstr ""
-
-#: ../v2v/virt-v2v.pl:270
-msgid ""
-"You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 
 #: ../v2v/virt-v2v.pl:279
 msgid ""
-"You must specify an output storage domain when using the rhev output method"
+"You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 
 #: ../v2v/virt-v2v.pl:288
+msgid ""
+"You must specify an output storage domain when using the rhev output method"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:297
 #, fuzzy, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "Недопустимый метод ввода: {input}"
 
-#: ../v2v/virt-v2v.pl:297
+#: ../v2v/virt-v2v.pl:306
 msgid "You must specify a filename"
 msgstr "Необходимо указать имя файла"
 
-#: ../v2v/virt-v2v.pl:303
+#: ../v2v/virt-v2v.pl:312
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя файла."
 
-#: ../v2v/virt-v2v.pl:312
+#: ../v2v/virt-v2v.pl:321
 msgid "You must specify a guest"
 msgstr "Необходимо указать гостевую систему"
 
-#: ../v2v/virt-v2v.pl:321
+#: ../v2v/virt-v2v.pl:330
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "ВНИМАНИЕ: {modulename} может принимать только одно имя домена."
 
-#: ../v2v/virt-v2v.pl:327
+#: ../v2v/virt-v2v.pl:336
 #, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "Недопустимый метод ввода: {input}"
 
-#: ../v2v/virt-v2v.pl:387
+#: ../v2v/virt-v2v.pl:397
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} настроен с драйверами virtio"
 
-#: ../v2v/virt-v2v.pl:390
+#: ../v2v/virt-v2v.pl:400
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} настроен без драйверов virtio"
 
-#: ../v2v/virt-v2v.pl:467
+#: ../v2v/virt-v2v.pl:416
+#, perl-brace-format
+msgid "Received signal {sig}. Exiting."
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:439
 msgid "no root device found in this operating system image"
 msgstr "Не найдено корневое устройство для этого образа операционной системы"
 
-#: ../v2v/virt-v2v.pl:473
+#: ../v2v/virt-v2v.pl:445
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v не поддерживает многозагрузочные операционные системы"
 
