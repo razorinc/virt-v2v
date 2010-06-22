@@ -6,13 +6,13 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-06-21 09:51-0400\n"
-"PO-Revision-Date: 2010-05-21 00:51+0200\n"
+"PO-Revision-Date: 2010-06-22 21:34+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
-"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: pl\n"
 
 #: ../lib/Sys/VirtV2V/Config.pm:75
 #, perl-brace-format
@@ -165,7 +165,7 @@ msgstr "Nie można przetworzyć domeny z pliku {path}: {error}"
 #: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:101
 #, perl-brace-format
 msgid "{path} doesn't look like a libvirt domain XML file"
-msgstr ""
+msgstr "{path} nie jest plikiem XML domeny biblioteki libvirt"
 
 #: ../lib/Sys/VirtV2V/Connection.pm:135
 msgid "No output target was specified"
@@ -174,6 +174,7 @@ msgstr "Nie podano docelowego wyjścia"
 #: ../lib/Sys/VirtV2V/Connection.pm:189
 msgid "Guest doesn't define any recognised storage devices"
 msgstr ""
+"Gość nie określa żadnych rozpoznanych urządzeń do przechowywania danych"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
@@ -408,25 +409,28 @@ msgid "Error closing {path}: {error}"
 msgstr "Błąd podczas zamykania {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:351
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "Didn't write full volume. Expected {expected} bytes, wrote {actual} bytes."
-msgstr "Nie odebrano pełnego woluminu. Odebrano {received} z {total} bajtów."
+msgstr ""
+"Nie zapisano pełnego woluminu. Oczekiwano {expected} bajtów, zapisano "
+"{actual} bajtów."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:378
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
 msgstr ""
+"Nie można przenieść woluminu z położenia tymczasowego {tmpdir} do {dir}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:394
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to remove temporary directory {dir}"
-msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
+msgstr "Nie można usunąć katalogu tymczasowego {dir}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:400
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error removing temporary directory {dir}: {error}"
-msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
+msgstr "Błąd podczas usuwania katalogu tymczasowego {dir}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
 msgid "You must be root to output to RHEV"
@@ -478,12 +482,12 @@ msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:827
 #, perl-brace-format
 msgid "Unsupported architecture: {arch}"
-msgstr ""
+msgstr "Nieobsługiwana architektura: {arch}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:871
 #, perl-brace-format
 msgid "Unknown Windows version: {major}.{minor}"
-msgstr ""
+msgstr "Nieznana wersja systemu Windows: {major}.{minor}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:1090
 #, perl-brace-format
@@ -652,7 +656,7 @@ msgstr "{name} jest skonfigurowane bez sterowników virtio"
 #: ../v2v/virt-v2v.pl:416
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
-msgstr ""
+msgstr "Odebrano sygnał {sig}. Kończenie działania."
 
 #: ../v2v/virt-v2v.pl:439
 msgid "no root device found in this operating system image"
