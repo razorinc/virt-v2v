@@ -1540,13 +1540,29 @@ sub remap_block_devices
     # that all Fedora distributions in use use libata.
 
     if ($libata) {
-        # Look for IDE and SCSI devices in fstab for the guest
+        # Look for IDE and SCSI devices in guest config files
         my %guestif;
         eval {
+            my @guestdevs;
+
             foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
                 my $device = $g->aug_get($spec);
 
-                next unless($device =~ m{^/dev/(sd|hd)([a-z]+)});
+                push(@guestdevs, $device);
+            }
+
+            foreach my $key ($g->aug_match('/files/boot/grub/device.map/*')) {
+                $key =~ m{/files/boot/grub/device.map/(.*)} or die;
+                my $gdev = $1;
+
+                next if ($gdev =~ /^#comment/);
+
+                my $odev = $g->aug_get($key);
+                push(@guestdevs, $odev);
+            }
+
+            foreach my $dev (@guestdevs) {
+                next unless($dev =~ m{^/dev/(sd|hd)([a-z]+)});
                 $guestif{$1} ||= {};
                 $guestif{$1}->{$1.$2} = 1;
             }
@@ -1554,8 +1570,8 @@ sub remap_block_devices
 
         $self->_augeas_error($@) if ($@);
 
-        # If fstab contains references to sdX, these could refer to IDE or SCSI
-        # devices. We may need to update them.
+        # If guest config contains references to sdX, these could refer to IDE
+        # or SCSI devices. We may need to update them.
         if (exists($guestif{sd})) {
             # Look for IDE and SCSI devices from the domain definition
             my %domainif;
@@ -1613,7 +1629,7 @@ sub remap_block_devices
     }
 
     eval {
-        # Go through fstab again, updating bare device references
+        # Update bare device references in fstab
         foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
             my $device = $g->aug_get($spec);
 
@@ -1624,6 +1640,23 @@ sub remap_block_devices
             next unless(exists($map{$name}));
 
             $g->aug_set($spec, "/dev/".$map{$name}.$part);
+        }
+        # Update device.map
+        foreach my $key ($g->aug_match('/files/boot/grub/device.map/*')) {
+            $key =~ m{/files/boot/grub/device.map/(.*)} or die;
+            my $gdev = $1;
+
+            next if ($gdev =~ /^#comment/);
+
+            my $odev = $g->aug_get($key);
+
+            next unless($odev =~ m{^/dev/([a-z]+)(\d*)});
+            my $name = $1;
+            my $part = $2;
+
+            next unless(exists($map{$name}));
+
+            $g->aug_set($key, "/dev/".$map{$name}.$part);
         }
         $g->aug_save();
     };
