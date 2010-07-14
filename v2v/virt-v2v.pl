@@ -49,12 +49,13 @@ virt-v2v - Convert a guest to use KVM
 
 =head1 SYNOPSIS
 
- virt-v2v -f virt-v2v.conf -i libvirtxml -op transfer guest-domain.xml
+ virt-v2v -i libvirtxml -op imported --network default guest-domain.xml
 
- virt-v2v -f virt-v2v.conf -ic esx://esx.server/ -op transfer esx_guest
+ virt-v2v -ic esx://esx.server/ -op imported --network default esx_guest
 
- virt-v2v -f virt-v2v.conf -ic esx://esx.server/ \
-          -o rhev -osd rhev.nfs.storage:/export_domain guest esx_guest
+ virt-v2v -ic esx://esx.server/ \
+          -o rhev -osd rhev.nfs.storage:/export_domain --network rhevm \
+          esx_guest
 
 =head1 DESCRIPTION
 
@@ -517,22 +518,29 @@ storage referred to in the domain XML is available locally at the same paths.
 
 To perform the conversion, run:
 
- virt-v2v -f virt-v2v.conf -i libvirtxml -op <pool> <domain>.xml
+ virt-v2v -i libvirtxml -op <pool> [--network <network name>] \
+          <domain>.xml
 
 where C<< <domain>.xml >> is the path to the exported guest domain's xml, and
 C<< <pool> >> is the local storage pool where copies of the guest's disks will
-be created. See L<virt-v2v.conf(5)> for a details of virt-v2v.conf.
+be created.
+
+The I<--network> option may be provided for simple network mappings. For more
+complex mappings, see L<virt-v2v.conf(5)>.
 
 If it is not possible to provide software updates over the network in your
-environment, it is still possible to avoid specifying replacement kernels in the
-virt-v2v config file by ensuring that the guest has an appropriate kernel
-installed prior to conversion. If your guest uses a Xen paravirtualised kernel
-(it would be called something like kernel-xen or kernel-xenU), you can install a
-regular kernel, which won't reference a hypervisor in its name, alongside it.
-You shouldn't make this newly installed kernel your default kernel because Xen
-may not boot it.  virt-v2v will make it the default during conversion.
+environment, software will be installed as specified in virt-v2v.conf. See
+L<virt-v2v.conf(5)> for a details.
 
-=head2 CONVERTING A GUEST FROM VMWARE ESX
+It is possible to avoid specifying replacement kernels in the virt-v2v config
+file by ensuring that the guest has an appropriate kernel installed prior to
+conversion. If your guest uses a Xen paravirtualised kernel (it would be called
+something like kernel-xen or kernel-xenU), you can install a regular kernel,
+which won't reference a hypervisor in its name, alongside it.  You shouldn't
+make this newly installed kernel your default kernel because Xen may not boot
+it. virt-v2v will make it the default during conversion.
+
+=head1 CONVERTING A GUEST FROM VMWARE ESX
 
 B<N.B.> libvirt version 0.7.0 or greater is required to connect to ESX.
 
@@ -545,7 +553,8 @@ storage is transferred.
 The guest MUST be shut down in ESX before conversion starts. virt-v2v will not
 proceed if the guest is still running. To convert the guest, run:
 
- virt-v2v -f virt-v2v.conf -ic esx://<esx.server>/ -op <pool> <domain>
+ virt-v2v -ic esx://<esx.server>/ -op <pool> [--network <network name>] \
+          <domain>
 
 where:
 
@@ -571,9 +580,10 @@ converted.
 
 =back
 
-See L<virt-v2v.conf(5)> for a details of virt-v2v.conf.
+The I<--network> option may be provided for simple network mappings. For more
+complex mappings, see L<virt-v2v.conf(5)>.
 
-=head3 Authenticating to the ESX server
+=head2 Authenticating to the ESX server
 
 Connecting to the ESX server will require authentication. virt-v2v supports
 password authentication when connecting to ESX. It reads passwords from
@@ -584,7 +594,7 @@ entry is:
 
 B<N.B.> The permissions of .netrc MUST be set to 0600, or it will be ignored.
 
-=head3 Connecting to an ESX server with an invalid certificate
+=head2 Connecting to an ESX server with an invalid certificate
 
 In non-production environments, the ESX server may have an invalid certificate,
 for example a self-signed certificate. In this case, certificate checking can be
@@ -623,19 +633,21 @@ on the command line in place of I<-op> as in the following examples:
 
 =item Exporting a local Xen guest to RHEV
 
-virt-v2v -f virt-v2v.conf -i libvirtxml -o rhev -osd <export_sd> <domain>.xml
+ virt-v2v -i libvirtxml -o rhev -osd <export_sd> \
+          [--network <network name>] <domain>.xml
 
 =item Export a VMWare ESX guest to RHEV
 
-virt-v2v -f virt-v2v.conf -ic esx://<esx.server>/ -o rhev -osd <export_sd> <domain>
+ virt-v2v -ic esx://<esx.server>/ -o rhev -osd <export_sd> \
+          [--network <network name>] <domain>
 
 =item Export a local libvirt/KVM guest to RHEV
 
-virt-v2v -f virt-v2v.conf -o rhev -osd <export_sd> <domain>
+ virt-v2v -o rhev -osd <export_sd> [--network <network name>] \
+          <domain>
 
 =back
 
-See L<virt-v2v.conf(5)> for details of virt-v2v.conf.
 
 =head1 RUNNING THE CONVERTED GUEST
 
