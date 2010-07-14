@@ -61,7 +61,7 @@ virt-v2v - Convert a guest to use KVM
 
 virt-v2v converts guests from a foreign hypervisor to run on KVM, managed by
 libvirt or Red Hat Enterprise Virtualisation (RHEV) version 2.2 or later. It can
-currently convert Red Hat Enterprise Linux and Fedora guests running on Xen and
+currently convert Red Hat Enterprise Linux and Windows guests running on Xen and
 VMware ESX. It will enable VirtIO drivers in the converted guest if possible.
 
 =head1 OPTIONS
@@ -511,6 +511,16 @@ type is 'NFS'. See the RHEV documentation for details. The NFS storage domain mu
 
 B<N.B.> When exporting to RHEV, virt-v2v must run as root.
 
+=head3 Import the appropriate Guest Tools ISO
+
+Conversion of Windows guests requires that the Guest Tools ISO has been
+installed B<before> the guest is converted. This must be done using the ISO
+Uploader, which can be found on your RHEV-M system under Start->Red Hat->RHEV
+Manager->ISO Uploader.
+
+Failure to do this will result in drivers not being correctly installed in the
+guest after conversion.
+
 =head1 CONVERTING A LOCAL XEN GUEST
 
 The following requires that the domain XML is available locally, and that the
@@ -648,6 +658,37 @@ on the command line in place of I<-op> as in the following examples:
 
 =back
 
+=head2 CONVERTING A WINDOWS GUEST
+
+When exporting to RHEV, virt-v2v can additionally convert Windows guests. In
+this case, the conversion process is split into 2 stages:
+
+=over
+
+=item 1
+
+Offline conversion.
+
+=item 2
+
+First boot.
+
+=back
+
+The guest will be bootable after the offline conversion stage, but will not yet
+have all necessary drivers installed to work correctly in RHEV. These will be
+installed automatically the first time the guest boots.
+
+B<N.B.> The first boot stage can take several minutes to run, and must not be
+interrupted. It will run automatically without any administrator intervention
+other than powering on the guest. To ensure the process is not interrupted, we
+strongly recommend that nobody logs in to the machine until it has quiesced the
+first time it is booted after conversion. You can check for this in the RHEV
+Manager UI.
+
+B<N.B.> Driver installation on first boot requires that the Guest Tools ISO has
+been previously uploaded using RHEV Manager's ISO Uploader tool. RHEV will
+present this ISO to the guest automatically the first time it is booted.
 
 =head1 RUNNING THE CONVERTED GUEST
 
