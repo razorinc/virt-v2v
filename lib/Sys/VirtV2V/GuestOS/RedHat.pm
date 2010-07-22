@@ -1728,7 +1728,9 @@ sub prepare_bootable
     #   require manual intervention, or
     #   disable the network interface
     # Neither of these behaviours is desirable.
-    $g->command(['/sbin/chkconfig', 'kudzu', 'off']);
+    if ($g->exists('/etc/init.d/kudzu')) {
+        $g->command(['/sbin/chkconfig', 'kudzu', 'off']);
+    }
 }
 
 =item supports_virtio(kernel)
