@@ -1694,33 +1694,39 @@ sub prepare_bootable
         # Backup the original initrd
         $g->mv($initrd, "$initrd.pre-v2v") if ($g->exists($initrd));
 
-        # Create a new initrd which probes the required kernel modules
-        my @module_args = ();
-        foreach my $module (@modules) {
-            push(@module_args, "--with=$module");
+        if ($g->exists('/sbin/dracut')) {
+            $g->command(['/sbin/dracut', '--add-drivers', join(" ", @modules),
+                         $initrd, $version]);
         }
 
-        # mkinitrd reads configuration which we've probably changed
-        eval {
-            $g->aug_save();
-        };
+        elsif ($g->exists('/sbin/mkinitrd')) {
+            # Create a new initrd which probes the required kernel modules
+            my @module_args = ();
+            foreach my $module (@modules) {
+                push(@module_args, "--with=$module");
+            }
 
-        augeas_error($g, $@) if ($@);
+            # We explicitly modprobe ext2 here. This is required by mkinitrd on
+            # RHEL 3, and shouldn't hurt on other OSs. We don't care if this
+            # fails.
+            eval {
+                $g->modprobe('ext2');
+            };
 
-        # We explicitly modprobe ext2 here. This is required by mkinitrd on RHEL
-        # 3, and shouldn't hurt on other OSs. We don't care if this fails.
-        eval {
-            $g->modprobe("ext2");
-        };
+            # loop is a module in RHEL 5. Try to load it. Doesn't matter for
+            # other OSs if it doesn't exist, but RHEL 5 will complain:
+            #   All of your loopback devices are in use.
+            eval {
+                $g->modprobe('loop');
+            };
 
-        # loop is a module in RHEL 5. Try to load it. Doesn't matter for other
-        # OSs if it doesn't exist, but RHEL 5 will complain:
-        #   All of your loopback devices are in use.
-        eval {
-            $g->modprobe("loop");
-        };
+            $g->command(['/sbin/mkinitrd', @module_args, $initrd, $version]);
+        }
 
-        $g->command(["/sbin/mkinitrd", @module_args, $initrd, $version]);
+        else {
+            die user_message(__"Didn't find mkinitrd or dracut. Unable to ".
+                               "update initrd");
+        }
     }
 
     # Disable kudzu in the guest
