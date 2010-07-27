@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-06-21 09:51-0400\n"
-"PO-Revision-Date: 2010-06-22 21:34+0200\n"
+"PO-Revision-Date: 2010-07-27 21:21+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
@@ -179,11 +179,11 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {name} "
+"WARNING: Don't know how to update {module}, which loads the {modulename} "
 "module."
 msgstr ""
 "OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
-"{name}"
+"{modulename}."
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
 msgid ""
