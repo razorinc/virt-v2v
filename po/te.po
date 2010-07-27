@@ -177,9 +177,9 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"WARNING: Don't know how to update {module}, which loads the {name} "
 "module."
-msgstr "హెచ్చరిక: {module} ను యెలా నవీకరించాలో తెలియదు, ఏది {modulename} మాడ్యూల్ లోడుచేస్తుంది."
+msgstr "హెచ్చరిక: {module} ను యెలా నవీకరించాలో తెలియదు, ఏది {name} మాడ్యూల్ లోడుచేస్తుంది."
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
 #, fuzzy

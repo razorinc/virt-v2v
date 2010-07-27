@@ -185,11 +185,11 @@ sub _configure_kernel_modules
     # Warn if any old-HV specific kernel modules weren't updated
     foreach my $module (keys(%hvs_modules)) {
         if(!defined($hvs_modules{$module})) {
-            print STDERR user_message
-                (__x("WARNING: Don't know how to update {module}, which loads ".
-                     "the {modulename} module.",
-                     module => $module,
-                     modulename => $modules->{$module}->{modulename}));
+            warn user_message(__x("WARNING: Don't know how to update ".
+                                  "{module}, which loads the {name} ".
+                                  "module.",
+                                  module => $module,
+                                  name => $modules->{$module}->{modulename}));
         }
     }
 }
@@ -423,8 +423,8 @@ sub _unconfigure_xen
         };
 
         if($@) {
-            print STDERR user_message(__x("Unable to open /etc/rc.local: ".
-                                          "{error}", error => $@));
+            warn user_message(__x("Unable to open /etc/rc.local: ".
+                                  "{error}", error => $@));
         }
 
         else {

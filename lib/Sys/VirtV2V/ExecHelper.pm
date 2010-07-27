@@ -37,7 +37,7 @@ Sys::VirtV2V::ExecHelper - Execute a command with output suppression
  $eh = Sys::VirtV2V::ExecHelper->run('rpm', '-V', 'bash');
 
  if($eh->status() != 0) {
-     print STDERR $eh->output();
+     warn $eh->output();
  }
 
 =head1 DESCRIPTION

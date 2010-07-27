@@ -87,9 +87,8 @@ sub new
     my $username = $self->{username} = $1;
     my $hostname = $self->{hostname} = $3;
 
-    print STDERR user_message(__("WARNING: Specifying a password in the ".
-                                 "connection URI is not supported. It has ".
-                                 "been ignored.")) if (defined($2));
+    warn user_message(__"WARNING: Specifying a password in the connection URI ".
+                        "is not supported. It has been ignored.") if (defined($2));
 
     # Look for credentials in .netrc if the URI contains a hostname
     if (defined($hostname)) {

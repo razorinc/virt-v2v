@@ -171,8 +171,8 @@ msgstr "El invitado no tiene definido ningún dispositivo de almacenamiento reco
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
-msgid "WARNING: Don't know how to update {module}, which loads the {modulename} module."
-msgstr "ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el módulo {modulename}. "
+msgid "WARNING: Don't know how to update {module}, which loads the {name} module."
+msgstr "ADVERTENCIA: No se sabe cómo actualizar {module}, encargado de cargar el módulo {name}. "
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
 msgid ""

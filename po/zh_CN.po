@@ -176,9 +176,9 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"WARNING: Don't know how to update {module}, which loads the {name} "
 "module."
-msgstr "警告：不知道如何更新 {module}，它可载入 {modulename} 模块。"
+msgstr "警告：不知道如何更新 {module}，它可载入 {name} 模块。"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
 #, fuzzy

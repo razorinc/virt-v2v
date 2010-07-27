@@ -176,11 +176,11 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"WARNING: Don't know how to update {module}, which loads the {name} "
 "module."
 msgstr ""
 "ATTENZIONE: impossibile determinare come aggiornare {module}, che esegue il "
-"caricamento del modulo {modulename}."
+"caricamento del modulo {name}."
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
 #, fuzzy

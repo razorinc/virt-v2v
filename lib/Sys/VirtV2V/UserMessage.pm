@@ -41,8 +41,8 @@ Sys::VirtV2V::UserMessage - Create consistent user messages
 
  Sys::VirtV2V::UserMessage->set_identifier(__'virt-v2v');
 
- print STDERR user_message(__x("Couldn't open {file}: {error}",
-                               file => $file, error => $error));
+ warn user_message(__x("Couldn't open {file}: {error}",
+                       file => $file, error => $error));
 
 =head1 DESCRIPTION
 

@@ -1027,7 +1027,7 @@ sub _check_grub
             my ($match) =
                 $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
 
-            die("No template kernel found in grub") unless(defined($match));
+            die("No template kernel found in grub.") unless(defined($match));
 
             $match =~ s/\/kernel$//;
             $g->aug_defvar('template', $match);
@@ -1745,9 +1745,9 @@ sub prepare_bootable
     $self->_augeas_error($@) if ($@);
 
     if(!defined($initrd)) {
-        print STDERR user_message(__x("WARNING: Kernel version {version} ".
-                                      "doesn't have an initrd entry in grub",
-                                      version => $version));
+        warn user_message(__x("WARNING: Kernel version {version} ".
+                              "doesn't have an initrd entry in grub.",
+                              version => $version));
     } else {
         # Initrd as returned by grub may be relative to /boot
         $initrd = $self->{desc}->{boot}->{grub_fs}.$initrd;

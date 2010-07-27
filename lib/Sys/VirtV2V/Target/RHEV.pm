@@ -1087,12 +1087,11 @@ sub _networks
         } elsif ($driver eq 'virtio') {
             $e->addText('3');
         } else {
-            print STDERR (user_message(__x("Unknown NIC model {driver} for ".
-                                           "{dev}. NIC will be {default} ".
-                                           "when imported",
-                                           driver => $driver,
-                                           dev => $dev,
-                                           default => 'e1000')));
+            warn user_message(__x("Unknown NIC model {driver} for {dev}. ".
+                                  "NIC will be {default} when imported.",
+                                  driver => $driver,
+                                  dev => $dev,
+                                  default => 'e1000'));
             $e->addText('1');
         }
         $item->appendChild($e);

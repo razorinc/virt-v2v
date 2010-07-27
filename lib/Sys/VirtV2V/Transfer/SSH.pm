@@ -61,11 +61,10 @@ sub transfer
     my (undef, undef, $name) = File::Spec->splitpath($path);
 
     if ($target->volume_exists($name)) {
-        print STDERR user_message(__x("WARNING: storage volume {name} ".
-                                      "already exists on the target. NOT ".
-                                      "copying it again. Delete the volume ".
-                                      "and retry to copy again.",
-                                      name => $name));
+        warn user_message(__x("WARNING: storage volume {name} already exists ".
+                              "on the target. NOT copying it again. Delete ".
+                              "the volume and retry to copy again.",
+                              name => $name));
         return $target->get_volume($name);
     }
 

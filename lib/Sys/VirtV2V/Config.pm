@@ -451,13 +451,12 @@ sub map_network
         return @{$self->{default_net_mapping}}
             if (defined($self->{default_net_mapping}));
 
-        print STDERR user_message(__x("WARNING: No mapping found for ".
-                                      "{type} interface {name} in config ".
-                                      "file. The converted guest may not ".
-                                      "start until its network interface is ".
-                                      "updated.",
-                                      type => $oldtype,
-                                      name => $oldname));
+        warn user_message(__x("WARNING: No mapping found for {type} interface ".
+                              "{name} in config file. The converted guest may ".
+                              "not start until its network interface is ".
+                              "updated.",
+                              type => $oldtype,
+                              name => $oldname));
         return;
     }
 
@@ -468,18 +467,18 @@ sub map_network
 
     # Check type and name are defined for the mapping
     unless (defined($newtype) && defined($newname)) {
-        print STDERR user_message(__x("WARNING: Invalid network ".
-                                      "mapping in config: {config}",
-                                      config => $mapping->toString()));
+        warn user_message(__x("WARNING: Invalid network ".
+                              "mapping in config: {config}",
+                              config => $mapping->toString()));
         return;
     }
 
     # Check type is something we recognise
     unless ($newtype eq 'network' || $newtype eq 'bridge') {
-        print STDERR user_message(__x("WARNING: Unknown interface type ".
-                                      "{type} in network mapping: {config}",
-                                      type => $newtype,
-                                      config => $mapping->toString()));
+        warn user_message(__x("WARNING: Unknown interface type ".
+                              "{type} in network mapping: {config}",
+                              type => $newtype,
+                              config => $mapping->toString()));
     }
 
     return ($newname, $newtype);

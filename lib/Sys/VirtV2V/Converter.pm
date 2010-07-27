@@ -154,14 +154,13 @@ sub convert
     }
 
     unless (defined($guestcaps)) {
-        print STDERR user_message(__x("WARNING: Unable to convert this guest ".
-                                      "operating system. Its storage will be ".
-                                      "transfered and a domain created for ".
-                                      "it, but it may not operate correctly ".
-                                      "without manual reconfiguration. The ".
-                                      "domain will present all storage ".
-                                      "devices as IDE, all network interfaces ".
-                                      "as e1000 and the host as x86_64."));
+        warn user_message(__x("WARNING: Unable to convert this guest ".
+                              "operating system. Its storage will be ".
+                              "transfered and a domain created for it, but ".
+                              "it may not operate correctly without manual ".
+                              "reconfiguration. The domain will present all ".
+                              "storage devices as IDE, all network interfaces ".
+                              "as e1000 and the host as x86_64."));
 
         # Set some conservative defaults
         $guestcaps = {
@@ -454,11 +453,10 @@ sub _map_networks
         } elsif ($type eq 'network') {
             ($name) = $if->findnodes('source/@network');
         } else {
-            print STDERR user_message (__x("Unknown interface type {type} in ".
-                                           "domain XML: {domain}",
-                                           type => $type,
-                                           domain => $dom->toString()));
-            exit(1);
+            die user_message(__x("Unknown interface type {type} in ".
+                                 "domain XML: {domain}",
+                                 type => $type,
+                                 domain => $dom->toString()));
         }
 
         my ($newname, $newtype) = $config->map_network($name->getValue(),

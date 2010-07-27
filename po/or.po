@@ -177,10 +177,10 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {modulename} "
+"WARNING: Don't know how to update {module}, which loads the {name} "
 "module."
 msgstr ""
-"WARNING: {module} କୁ କିପରି ଅଦ୍ୟତନ କରାଯିବ ତାହା ଜଣାନାହିଁ, ଯାହାକି {modulename} ଏକକାଂଶକୁ "
+"WARNING: {module} କୁ କିପରି ଅଦ୍ୟତନ କରାଯିବ ତାହା ଜଣାନାହିଁ, ଯାହାକି {name} ଏକକାଂଶକୁ "
 "ଧାରଣ କରିଥାଏ।"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287

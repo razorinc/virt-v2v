@@ -262,11 +262,10 @@ sub volume_exists
     if ($@) {
         # Warn if we got any other error
         if ($@->code != Sys::Virt::Error::ERR_NO_STORAGE_VOL) {
-            print STDERR user_message(__x("WARNING: Unexpected error ".
-                                          "accessing storage pool {name}: ".
-                                          "{error}",
-                                          name => $pool->get_name(),
-                                          error => $@->stringify()));
+            warn user_message(__x("WARNING: Unexpected error accessing ".
+                                  "storage pool {name}: {error}",
+                                  name => $pool->get_name(),
+                                  error => $@->stringify()));
         }
 
         return 0;
@@ -321,7 +320,7 @@ sub _configure_capabilities
         ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
 
     die(user_message(__x("The connected hypervisor does not support a {arch} ".
-                         "kvm guest",
+                         "kvm guest.",
                          arch => $arch))) unless(defined($guestcap));
 
     # Ensure that /domain/@type = 'kvm'
@@ -351,11 +350,10 @@ sub _configure_capabilities
 
         # If the machine isn't listed as a capability, warn and remove it
         if(!$found) {
-            print STDERR user_message
-                (__x("The connected hypervisor does not support a ".
-                     "machine type of {machine}. It will be set to the ".
-                     "current default.",
-                     machine => $machine->getValue()));
+            warn user_message(__x("The connected hypervisor does not support ".
+                                  "a machine type of {machine}. It will be ".
+                                  "set to the current default.",
+                                  machine => $machine->getValue()));
 
             my ($type) = $dom->findnodes('/domain/os/type');
             $type->getAttributes()->removeNamedItem('machine');
@@ -377,16 +375,15 @@ sub _configure_capabilities
             my $name = $feature->getNodeName();
 
             if (!exists($features{$name})) {
-                print STDERR user_message
-                    (__x("The connected hypervisor does not support ".
-                         "feature {feature}", feature => $name));
+                warn user_message(__x("The connected hypervisor does not ".
+                                      "support feature {feature}.",
+                                      feature => $name));
                 $feature->getParentNode()->removeChild($feature);
             }
 
             if ($name eq 'acpi' && !$guestcaps->{acpi}) {
-                print STDERR user_message
-                   (__"The target guest does not support acpi under KVM. ACPI ".
-                      "will be disabled.");
+                warn user_message (__"The target guest does not support acpi ".
+                                     "under KVM. ACPI will be disabled.");
                 $feature->getParentNode()->removeChild($feature);
             }
         }
