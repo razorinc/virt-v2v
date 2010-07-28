@@ -195,27 +195,34 @@ sub _configure_kernel_modules
 }
 
 # We configure a console on ttyS0. Make sure existing console references use it.
+# N.B. Note that the RHEL 6 xen guest kernel presents a console device called
+# /dev/hvc0, whereas previous xen guest kernels presented /dev/xvc0. The regular
+# kernel running under KVM also presents a virtio console device called
+# /dev/hvc0, so ideally we would just leave it alone. However, RHEL 6 libvirt
+# doesn't yet support this device so we can't attach to it. We therefore use
+# /dev/ttyS0 for RHEL 6 anyway.
 sub _configure_console
 {
     my ($g) = @_;
 
-    # Look for gettys which use xvc0
+    # Look for gettys which use xvc0 or hvc0
+    # RHEL 6 doesn't use /etc/inittab, but this doesn't hurt
     foreach my $augpath ($g->aug_match("/files/etc/inittab/*/process")) {
         my $proc = $g->aug_get($augpath);
 
         # If the process mentions xvc0, change it to ttyS0
-        if ($proc =~ /\bxvc0\b/) {
-            $proc =~ s/\bxvc0\b/ttyS0/g;
+        if ($proc =~ /\b(x|h)vc0\b/) {
+            $proc =~ s/\b(x|h)vc0\b/ttyS0/g;
             $g->aug_set($augpath, $proc);
         }
     }
 
-    # Replace any mention of xvc0 in /etc/securetty with ttyS0
+    # Replace any mention of xvc0 or hvc0 in /etc/securetty with ttyS0
     my $size = 0;
     my @lines = ();
 
     foreach my $line ($g->read_lines('/etc/securetty')) {
-        if($line eq "xvc0") {
+        if($line eq "xvc0" || $line eq "hvc0") {
             $line = "ttyS0";
         }
 
@@ -230,8 +237,8 @@ sub _configure_console
         ($g->aug_match("/files/boot/grub/menu.lst/title/kernel/console"))
     {
         my $console = $g->aug_get($augpath);
-        if ($console =~ /\bxvc0\b/) {
-            $console =~ s/\bxvc0\b/ttyS0/g;
+        if ($console =~ /\b(x|h)vc0\b/) {
+            $console =~ s/\b(x|h)vc0\b/ttyS0/g;
             $g->aug_set($augpath, $console);
         }
     }
