@@ -24,9 +24,7 @@ use File::Spec;
 
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 use Sys::VirtV2V::GuestOS;
-use Sys::VirtV2V::UserMessage qw(user_message);
-
-use Sys::VirtV2V::Util qw(augeas_error);
+use Sys::VirtV2V::Util qw(augeas_error user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

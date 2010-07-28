@@ -25,7 +25,7 @@ use Sys::Virt;
 use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::Transfer::LocalCopy;
 use Sys::VirtV2V::Transfer::SSH;
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

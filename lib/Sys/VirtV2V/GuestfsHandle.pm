@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use Sys::Guestfs::Lib qw(open_guest);
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

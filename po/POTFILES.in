@@ -3,9 +3,10 @@
 ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm
 ../lib/Sys/VirtV2V/Connection.pm
 ../lib/Sys/VirtV2V/Converter/Linux.pm
-../lib/Sys/VirtV2V/Converter/Windows.pm
 ../lib/Sys/VirtV2V/Converter.pm
+../lib/Sys/VirtV2V/Converter/Windows.pm
 ../lib/Sys/VirtV2V/ExecHelper.pm
+../lib/Sys/VirtV2V/GuestfsHandle.pm
 ../lib/Sys/VirtV2V/GuestOS.pm
 ../lib/Sys/VirtV2V/GuestOS/RedHat.pm
 ../lib/Sys/VirtV2V.pm
@@ -14,5 +15,5 @@
 ../lib/Sys/VirtV2V/Transfer/ESX.pm
 ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm
 ../lib/Sys/VirtV2V/Transfer/SSH.pm
-../lib/Sys/VirtV2V/UserMessage.pm
+../lib/Sys/VirtV2V/Util.pm
 ../v2v/virt-v2v.pl

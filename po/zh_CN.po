@@ -535,7 +535,7 @@ msgstr ""
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
-msgid "{identifier}: {message}\n"
+msgid "virt-v2v: {message}\n"
 msgstr ""
 
 #: ../v2v/virt-v2v.pl:240

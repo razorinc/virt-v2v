@@ -25,7 +25,7 @@ use File::Spec;
 use File::Temp;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Module::Pluggable sub_name => 'modules',
                       search_path => 'Sys::VirtV2V::GuestOS',

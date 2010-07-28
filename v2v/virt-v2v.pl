@@ -39,7 +39,7 @@ use Sys::VirtV2V::Target::RHEV;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestfsHandle;
 use Sys::VirtV2V::GuestOS;
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 =encoding utf8
 
@@ -223,9 +223,6 @@ $SIG{'QUIT'} = \&signal_exit;
 # destructors. We don't rely on it anywhere, as we check for errors when reading
 # from or writing to a pipe.
 $SIG{'PIPE'} = 'IGNORE';
-
-# Initialise the message output prefix
-Sys::VirtV2V::UserMessage->set_identifier('virt-v2v');
 
 GetOptions ("help|?"      => sub {
                 pod2usage(0);

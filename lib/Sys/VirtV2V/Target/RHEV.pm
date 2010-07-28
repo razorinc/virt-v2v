@@ -41,7 +41,7 @@ use Carp;
 use File::Temp qw(tempfile);
 use POSIX qw(:sys_wait_h setuid setgid);
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -164,7 +164,7 @@ use File::Path;
 use File::Temp qw(tempdir);
 use POSIX;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -411,7 +411,7 @@ use File::Temp qw(tempdir);
 use Time::gmtime;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

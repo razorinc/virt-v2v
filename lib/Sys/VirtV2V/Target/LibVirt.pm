@@ -22,7 +22,7 @@ package Sys::VirtV2V::Target::LibVirt::Vol;
 
 use POSIX;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -145,7 +145,7 @@ sub close
 
 package Sys::VirtV2V::Target::LibVirt;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

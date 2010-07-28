@@ -26,8 +26,7 @@ use Locale::TextDomain 'virt-v2v';
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
-use Sys::VirtV2V::Util qw(augeas_error);
+use Sys::VirtV2V::Util qw(augeas_error user_message);
 
 use Carp;
 

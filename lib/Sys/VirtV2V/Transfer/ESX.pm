@@ -24,7 +24,7 @@ use Sys::Virt::Error;
 
 use Sys::VirtV2V;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -284,7 +284,7 @@ package Sys::VirtV2V::Transfer::ESX;
 
 use Sys::Virt;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

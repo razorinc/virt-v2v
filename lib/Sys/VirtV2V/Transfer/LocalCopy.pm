@@ -21,7 +21,7 @@ use POSIX;
 use File::Spec;
 use File::stat;
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

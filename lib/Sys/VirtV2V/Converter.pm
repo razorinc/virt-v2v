@@ -28,7 +28,7 @@ use Module::Pluggable sub_name => 'modules',
 
 use Locale::TextDomain 'virt-v2v';
 
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 =pod
 

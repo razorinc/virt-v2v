@@ -19,7 +19,6 @@ lib/Sys/VirtV2V/Target/RHEV.pm
 lib/Sys/VirtV2V/Transfer/ESX.pm
 lib/Sys/VirtV2V/Transfer/LocalCopy.pm
 lib/Sys/VirtV2V/Transfer/SSH.pm
-lib/Sys/VirtV2V/UserMessage.pm
 lib/Sys/VirtV2V/Util.pm
 MANIFEST.SKIP
 MANIFEST			This list of files

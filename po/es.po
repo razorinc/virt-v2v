@@ -499,8 +499,8 @@ msgstr "Error no esperado obteniendo {path}: {output}"
 
 #: ../lib/Sys/VirtV2V/UserMessage.pm:88
 #, perl-brace-format
-msgid "{identifier}: {message}\n"
-msgstr "{identifier}: {message}\n"
+msgid "virt-v2v: {message}\n"
+msgstr "virt-v2v: {message}\n"
 
 #: ../v2v/virt-v2v.pl:239
 msgid "Use -ic or -oc to specify an input or an output connection"

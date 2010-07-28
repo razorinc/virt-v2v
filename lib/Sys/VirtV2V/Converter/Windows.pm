@@ -32,7 +32,7 @@ use Win::Hivex;
 use Win::Hivex::Regedit qw(reg_import);
 
 use Locale::TextDomain 'virt-v2v';
-use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Carp;
 
