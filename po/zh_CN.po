@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-06-21 09:51-0400\n"
+"POT-Creation-Date: 2010-07-28 10:10+0100\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -38,7 +38,7 @@ msgid "<iso-path> must be specified in the configuration file"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:79
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:78
 #, fuzzy, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "无法写入 {path}：{error}"
@@ -85,12 +85,12 @@ msgid ""
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:471
+#: ../lib/Sys/VirtV2V/Config.pm:470
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:479
+#: ../lib/Sys/VirtV2V/Config.pm:478
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
@@ -106,46 +106,46 @@ msgid ""
 "has been ignored."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:138
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:137
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "删除 {uri} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:176
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:175
 #, fuzzy, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "必须首先关闭客户端 {name}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:189
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
 #, fuzzy
 msgid "idle"
 msgstr "文件"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:191
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
 msgid "running"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:193
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
 msgid "blocked"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:195
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:194
 msgid "paused"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:197
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:196
 msgid "shutting down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:199
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:198
 msgid "shut down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:201
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:200
 msgid "crashed"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:224
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:223
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} 不是有效客户端名"
@@ -173,11 +173,10 @@ msgstr ""
 msgid "Guest doesn't define any recognised storage devices"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:189
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {name} "
-"module."
+"WARNING: Don't know how to update {module}, which loads the {name} module."
 msgstr "警告：不知道如何更新 {module}，它可载入 {name} 模块。"
 
 #: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
@@ -228,14 +227,14 @@ msgid ""
 "as IDE, all network interfaces as e1000 and the host as x86_64."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:347
+#: ../lib/Sys/VirtV2V/Converter.pm:346
 #, perl-brace-format
 msgid ""
 "WARNING: Only 4 IDE devices are supported. The following drives have been "
 "removed: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter.pm:457
+#: ../lib/Sys/VirtV2V/Converter.pm:456
 #, perl-brace-format
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr ""
@@ -302,9 +301,9 @@ msgstr "无法为这个客户端确定内核构架"
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1715
-#, perl-brace-format
-msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub"
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1748
+#, fuzzy, perl-brace-format
+msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:58
@@ -342,24 +341,24 @@ msgstr ""
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:323
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest"
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:322
+#, fuzzy, perl-brace-format
+msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr "连接的管理程序不支持 {arch} kvm 客户端"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:355
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:353
 #, fuzzy, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
 "will be set to the current default."
 msgstr "连接的管理程序不支持机器类型 {machine}。"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:381
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}"
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
+#, fuzzy, perl-brace-format
+msgid "The connected hypervisor does not support feature {feature}."
 msgstr "连接的管理程序不支持特性 {feature}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:388
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
@@ -456,7 +455,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:1090
 #, perl-brace-format
 msgid ""
-"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported"
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:114
@@ -466,39 +465,39 @@ msgid ""
 "again. Delete the volume and retry to download again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:170
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:102
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:169
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:101
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:201
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
 "from .netrc."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:208
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:207
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:268
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:267
 msgid "Server response didn't include an SSL subject"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:272
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:271
 #, perl-brace-format
 msgid "SSL Certification Subject doesn't contain a common name: {subject}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:278
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:331
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:330
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -513,23 +512,23 @@ msgid ""
 "again. Delete the volume and retry to copy again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:74
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:73
 #, fuzzy, perl-brace-format
 msgid "Unable to open {path} for reading: {error}"
 msgstr "打开 {path} 失败：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:119
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:90
+#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:118
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
 #, fuzzy, perl-brace-format
 msgid "Error reading data from {path}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:114
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:113
 #, perl-brace-format
 msgid "Unexpected error copying {path} from {host}. Command output: {output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:182
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:181
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
 msgstr ""
@@ -539,77 +538,77 @@ msgstr ""
 msgid "{identifier}: {message}\n"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:239
+#: ../v2v/virt-v2v.pl:240
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:253
+#: ../v2v/virt-v2v.pl:254
 msgid "--network may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:261
+#: ../v2v/virt-v2v.pl:262
 msgid "--bridge may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:279
+#: ../v2v/virt-v2v.pl:280
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:288
+#: ../v2v/virt-v2v.pl:289
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:297
+#: ../v2v/virt-v2v.pl:298
 #, fuzzy, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{input} 不是有效输入格式"
 
-#: ../v2v/virt-v2v.pl:306
+#: ../v2v/virt-v2v.pl:307
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "使用 {modulename} 时必须指定文件名"
 
-#: ../v2v/virt-v2v.pl:312
+#: ../v2v/virt-v2v.pl:313
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "警告：{modulename} 只使用单一文件名。"
 
-#: ../v2v/virt-v2v.pl:321
+#: ../v2v/virt-v2v.pl:322
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:330
+#: ../v2v/virt-v2v.pl:331
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "警告：{modulename} 只使用单一文件名。"
 
-#: ../v2v/virt-v2v.pl:336
+#: ../v2v/virt-v2v.pl:337
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} 不是有效输入格式"
 
-#: ../v2v/virt-v2v.pl:397
+#: ../v2v/virt-v2v.pl:398
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "virtio 驱动程序配置的 {name}"
 
-#: ../v2v/virt-v2v.pl:400
+#: ../v2v/virt-v2v.pl:401
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "非 virtio 驱动程序配置的 {name}"
 
-#: ../v2v/virt-v2v.pl:416
+#: ../v2v/virt-v2v.pl:417
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:439
+#: ../v2v/virt-v2v.pl:440
 msgid "no root device found in this operating system image"
 msgstr "在这个操作系统映像中没有找到 root 设备"
 
-#: ../v2v/virt-v2v.pl:445
+#: ../v2v/virt-v2v.pl:446
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v 不支持多重引导操作系统"
 
