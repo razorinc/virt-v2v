@@ -27,6 +27,7 @@ use XML::DOM;
 use XML::DOM::XPath;
 
 use Sys::VirtV2V::UserMessage qw(user_message);
+use Sys::VirtV2V::Util qw(augeas_error);
 
 use Carp;
 
@@ -236,7 +237,10 @@ sub _configure_console
         }
     }
 
-    $g->aug_save();
+    eval {
+        $g->aug_save();
+    };
+    augeas_error($g, $@) if ($@);
 }
 
 sub _configure_display_driver

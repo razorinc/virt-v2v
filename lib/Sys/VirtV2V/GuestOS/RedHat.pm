@@ -26,6 +26,8 @@ use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::UserMessage qw(user_message);
 
+use Sys::VirtV2V::Util qw(augeas_error);
+
 use Locale::TextDomain 'virt-v2v';
 
 @Sys::VirtV2V::GuestOS::RedHat::ISA = qw(Sys::VirtV2V::GuestOS);
@@ -91,67 +93,6 @@ sub new
     $self->_init_augeas();
 
     return $self;
-}
-
-sub _augeas_error
-{
-    my $self = shift;
-    my ($err) = @_; # The original error message. We will emit this if there
-                    # were no augeas errors.
-
-    my $g = $self->{g};
-
-    my $msg = "";
-
-    eval {
-        foreach my $error ($g->aug_match('/augeas/files//error')) {
-            $error =~ /^\/augeas\/files(\/.*)\/error$/
-                or die("Unexpected return from aug_match: $error");
-            my $file = $1;
-
-            my %detail;
-            foreach my $detail_path ($g->aug_match("$error//*")) {
-                $detail_path =~ /^$error\/(.*)$/
-                    or die("Unexpected return from aug_match: $detail_path");
-                $detail{$1} = $g->aug_get($detail_path);
-            }
-
-            if (defined($detail{message})) {
-                $msg .= __x("augeas error for {file}: {error}",
-                           file => $file,
-                           error => $detail{message})."\n";
-            } else {
-                $msg .= __x("augeas error for {file}",
-                           file => $file)."\n";
-            }
-
-            if (defined($detail{pos}) && defined($detail{line}) &&
-                defined($detail{char}))
-            {
-                $msg .= __x("error at line {line}, char {char}, file ".
-                                 "position {pos}",
-                                 line => $detail{line},
-                                 char => $detail{char},
-                                 pos => $detail{pos})."\n";
-            }
-
-            if (defined($detail{lens})) {
-                $msg .= __x("augeas lens: {lens}",
-                            lens => $detail{lens})."\n";
-            }
-        }
-    };
-
-    # Check for failures above
-    if ($@) {
-        die("error generating pretty augeas error: $@\n".
-            "Original error was: $err");
-    }
-
-    chomp($msg);
-
-    die(user_message($msg)) if (length($msg) > 0);
-    die($err);
 }
 
 # Handle SELinux for the guest
@@ -246,7 +187,7 @@ sub _init_augeas
     };
 
     # The augeas calls will die() on any error.
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 =item enable_kernel_module(device, module)
@@ -270,7 +211,7 @@ sub enable_kernel_module
     };
 
     # Propagate augeas errors
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 =item update_kernel_module(device, module)
@@ -303,7 +244,7 @@ sub update_kernel_module
     };
 
     # Propagate augeas errors
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 =item disable_kernel_module(device)
@@ -336,7 +277,7 @@ sub disable_kernel_module
     };
 
     # Propagate augeas errors
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 =item update_display_driver(driver)
@@ -364,7 +305,7 @@ sub update_display_driver
     };
 
     # Propagate augeas errors
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 # We can't rely on the index in the augeas path because it will change if
@@ -394,7 +335,7 @@ sub _check_augeas_device
     };
 
     # Propagate augeas errors
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     return $augeas;
 }
@@ -430,7 +371,7 @@ sub list_kernels
             if defined($default);
         push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
     };
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     my @kernels;
     my %checked;
@@ -442,7 +383,7 @@ sub list_kernels
         eval {
             $kernel = $g->aug_get($path);
         };
-        $self->_augeas_error($@) if ($@);
+        augeas_error($g, $@) if ($@);
 
         # Prepend the grub filesystem to the kernel path
         $kernel = "$grub$kernel" if(defined($grub));
@@ -737,7 +678,7 @@ sub _install_any
     eval {
         $g->aug_load();
     };
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     return $success;
 }
@@ -986,7 +927,7 @@ sub _check_grub
             return if ($g->aug_get($augpath) eq $kernel);
         }
     };
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     my $prefix;
     if ($self->{desc}->{boot}->{grub_fs} eq "/boot") {
@@ -1074,7 +1015,7 @@ sub _check_grub
 
         $g->aug_save();
     };
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 # Inspect the guest description to work out what kernel package is in use
@@ -1159,7 +1100,7 @@ sub remove_kernel
     eval {
         $g->aug_load();
     };
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 sub _get_nevra
@@ -1457,7 +1398,7 @@ sub remove_application
         $g->aug_load();
     };
 
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 }
 
 =item get_application_owner(file)
@@ -1500,7 +1441,7 @@ sub _install_rpms
         $g->aug_load();
     };
 
-    $self->_augeas_error($@) if($@);
+    augeas_error($g, $@) if($@);
 }
 
 =item remap_block_devices(devices, virtio)
@@ -1568,7 +1509,7 @@ sub remap_block_devices
             }
         };
 
-        $self->_augeas_error($@) if ($@);
+        augeas_error($g, $@) if ($@);
 
         # If guest config contains references to sdX, these could refer to IDE
         # or SCSI devices. We may need to update them.
@@ -1661,7 +1602,7 @@ sub remap_block_devices
         $g->aug_save();
     };
 
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     # Delete cached (and now out of date) blkid info if it exists
     foreach my $blkidtab ('/etc/blkid/blkid.tab', '/etc/blkid.tab') {
@@ -1742,7 +1683,7 @@ sub prepare_bootable
     };
 
     # Propagate augeas failure
-    $self->_augeas_error($@) if ($@);
+    augeas_error($g, $@) if ($@);
 
     if(!defined($initrd)) {
         warn user_message(__x("WARNING: Kernel version {version} ".
@@ -1766,7 +1707,7 @@ sub prepare_bootable
             $g->aug_save();
         };
 
-        $self->_augeas_error($@) if ($@);
+        augeas_error($g, $@) if ($@);
 
         # We explicitly modprobe ext2 here. This is required by mkinitrd on RHEL
         # 3, and shouldn't hurt on other OSs. We don't care if this fails.
