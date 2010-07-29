@@ -6,13 +6,13 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-07-28 10:10+0100\n"
-"PO-Revision-Date: 2010-06-22 21:34+0200\n"
+"PO-Revision-Date: 2010-07-28 15:09+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
-"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: pl\n"
 
 #: ../lib/Sys/VirtV2V/Config.pm:75
 #, perl-brace-format
@@ -324,10 +324,11 @@ msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1748
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
-"OSTRZEŻENIE: wersja jądra {version} nie posiada wpisu initrd w programie GRUB"
+"OSTRZEŻENIE: wersja jądra {version} nie posiada wpisu initrd w programie "
+"GRUB."
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:58
 #, perl-brace-format
@@ -369,9 +370,9 @@ msgstr ""
 "masowej {name}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:322
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest."
-msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}"
+msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}."
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:353
 #, perl-brace-format
@@ -383,9 +384,9 @@ msgstr ""
 "ustawiony na domyślny."
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}."
-msgstr "Połączony nadzorca nie obsługuje funkcji {feature}"
+msgstr "Połączony nadzorca nie obsługuje funkcji {feature}."
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
@@ -489,12 +490,12 @@ msgid "Unknown Windows version: {major}.{minor}"
 msgstr "Nieznana wersja systemu Windows: {major}.{minor}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:1090
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
 msgstr ""
 "Nieznany model NIC {driver} dla {dev}. NIC będzie wynosić {default} po "
-"zaimportowaniu"
+"zaimportowaniu."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:114
 #, perl-brace-format
