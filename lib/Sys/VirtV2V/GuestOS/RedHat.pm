@@ -1639,13 +1639,14 @@ sub prepare_bootable
     my @modules = @_;
 
     my $g = $self->{g};
+    my $desc = $self->{desc};
 
     # Find the grub entry for the given kernel
     my $initrd;
     my $found = 0;
     eval {
         my $prefix;
-        if ($self->{desc}->{boot}->{grub_fs} eq "/boot") {
+        if ($desc->{boot}->{grub_fs} eq "/boot") {
             $prefix = '';
         } else {
             $prefix = '/boot';
@@ -1720,7 +1721,23 @@ sub prepare_bootable
                 $g->modprobe('loop');
             };
 
-            $g->command(['/sbin/mkinitrd', @module_args, $initrd, $version]);
+            my @env;
+
+            # RHEL 4 mkinitrd determines if the root filesystem is on LVM by
+            # checking if the device name (after following symlinks) starts with
+            # /dev/mapper. However, on recent kernels/udevs, /dev/mapper/foo is
+            # just a symlink to /dev/dm-X. This means that RHEL 4 mkinitrd
+            # running in the appliance fails to detect root on LVM. We check
+            # ourselves if root is on LVM, and frig RHEL 4's mkinitrd if it is
+            # by setting root_lvm=1 in its environment. This overrides an
+            # internal variable in mkinitrd, and is therefore extremely nasty
+            # and applicable only to a particular version of mkinitrd.
+            if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+                push(@env, 'root_lvm=1') if ($g->is_lv($desc->{root_device}));
+            }
+
+            $g->sh(join(' ', @env).' /sbin/mkinitrd '.join(' ', @module_args).
+                   " $initrd $version");
         }
 
         else {
