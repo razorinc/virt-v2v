@@ -138,7 +138,21 @@ sub _connect
         push(@command, 'ssh');
         push(@command, '-l', $username) if (defined($username));
         push(@command, $host);
-        push(@command, "stat -c %s $path; cat $path");
+
+        # Return the size of the remote path on the first line, followed by its
+        # contents.
+        # The bit arithmetic with the output of stat is a translation into shell
+        # of the S_ISBLK macro. If the remote device is a block device, stat
+        # will simply return the size of the block device inode. In this case,
+        # we use the output of blockdev --getsize64 instead.
+        push(@command,
+            "dev=$path; ".
+            'if [[ $(((0x$(stat -L -c %f $dev)&0170000)>>12)) == 6 ]]; then '.
+              'blockdev --getsize64 $dev; '.
+            'else '.
+              'stat -L -c %s $dev; '.
+            'fi; '.
+            'cat $dev');
 
         # Close the ends of the pipes we don't need
         close($stdin_write);
