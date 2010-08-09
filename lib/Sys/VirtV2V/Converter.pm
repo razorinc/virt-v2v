@@ -210,6 +210,9 @@ sub _convert_metadata
 
     # Add a default os section if none exists
     _configure_os($dom, $default_dom, $arch);
+
+    # Check for weird configs and sanitise them
+    _sanity_check($dom);
 }
 
 sub _configure_os
@@ -472,6 +475,27 @@ sub _map_networks
 
         # Update the type of the interface
         $if->setAttribute('type', $newtype);
+    }
+}
+
+sub _sanity_check
+{
+    my ($dom) = shift;
+
+    # Check for multiple boot devices of the same type, which will cause KVM not
+    # to start
+    # Seen on RHEL 5 Xen
+    my %devs;
+    foreach my $boot ($dom->findnodes('/domain/os/boot')) {
+        my $dev = $boot->getAttribute('dev');
+
+        if (defined($dev) && !exists($devs{$dev})) {
+            $devs{$dev} = 1;
+            next;
+        }
+
+        # Delete nodes with no dev attribute, or that we've seen before
+        $boot->getParentNode()->removeChild($boot);
     }
 }
 
