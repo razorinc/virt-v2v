@@ -5,6 +5,7 @@
 LINGUAS = \
     es \
     it \
+    nl \
     or \
     pl \
     ru \
