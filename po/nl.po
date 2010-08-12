@@ -18,7 +18,7 @@ msgstr ""
 "X-Generator: Virtaal 0.6.1\n"
 
 #: ../lib/Sys/VirtV2V/Config.pm:75
-#, perl-brace-format, fuzzy
+#, fuzzy, perl-brace-format
 msgid "Config file {path} doesn't exist"
 msgstr "cc"
 
