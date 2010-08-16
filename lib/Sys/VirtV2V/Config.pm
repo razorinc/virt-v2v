@@ -118,12 +118,14 @@ sub get_transfer_iso
     foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
         $path = $path->getData();
 
-        # Get the absolute path if iso-root was defined
         my $abs;
-        if (defined($root)) {
-            $abs = File::Spec->catfile($root, $path);
-        } else {
+        if (File::Spec->file_name_is_absolute($path) || !defined($root)) {
             $abs = $path;
+        }
+
+        # Make relative paths relative to iso-root if it was defined
+        else {
+            $abs = File::Spec->catfile($root, $path);
         }
 
         if (-r $abs) {
