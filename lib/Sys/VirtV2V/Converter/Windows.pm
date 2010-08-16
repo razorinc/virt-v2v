@@ -23,6 +23,7 @@ use warnings;
 use Carp qw(carp);
 use File::Temp qw(tempdir);
 use Data::Dumper;
+use Encode qw(encode decode);
 use IO::String;
 use XML::DOM;
 use XML::DOM::XPath;
@@ -188,6 +189,7 @@ sub _preconvert
     _upload_files ($g, $tmpdir, $desc, $devices, $config);
     _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
     _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
+    _prepare_virtio_drivers ($g, $tmpdir, $desc, $devices, $config);
 }
 
 # See http://rwmj.wordpress.com/2010/04/30/tip-install-a-device-driver-in-a-windows-vm/
@@ -344,6 +346,81 @@ sub _add_service_to_registry
 
     # Upload the new registry.
     $g->upload ($tmpdir . "/system", $system_filename);
+}
+
+# We copy the VirtIO drivers to a directory on the guest and add this directory
+# to HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DevicePath so that it will
+# be searched automatically when automatically installing drivers.
+sub _prepare_virtio_drivers
+{
+    my $g = shift;
+    my $tmpdir = shift;
+    my $desc = shift;
+    my $devices = shift;
+    my $config = shift;
+
+    # Copy the target VirtIO drivers to the guest
+    my $driverdir = File::Spec->catdir($g->case_sensitive_path("/windows"), "Drivers/VirtIO");
+
+    $g->mkdir_p($driverdir);
+
+    my ($virtio) = $config->match_app ($desc, 'virtio', $desc->{arch});
+    $virtio = $config->get_transfer_path($g, $virtio);
+
+    foreach my $src ($g->ls($virtio)) {
+        my $name = $src;
+        $src = File::Spec->catfile($virtio);
+        my $dst = File::Spec->catfile($driverdir, $name);
+        $g->cp_a($src, $dst);
+    }
+
+    # Locate and download the SOFTWARE hive
+    my $sw_local = File::Spec->catfile($tmpdir, 'software');
+    my $sw_guest = $g->case_sensitive_path('/windows/system32/config/software');
+
+    $g->download($sw_guest, $sw_local);
+
+    # Open the registry hive.
+    my $h = Win::Hivex->open($sw_local, write => 1)
+        or die "open hive $sw_local: $!";
+
+    # Find the node \Microsoft\Windows\CurrentVersion
+    my $node = $h->root();
+    foreach ('Microsoft', 'Windows', 'CurrentVersion') {
+        $node = $h->node_get_child($node, $_);
+    }
+
+    # Update DevicePath, but leave everything else as is
+    my @new;
+    my $append = ';%SystemRoot%\Drivers\VirtIO';
+    foreach my $v ($h->node_values($node)) {
+        my $key = $h->value_key($v);
+        my ($type, $data) = $h->value_value($v);
+
+        # Decode the string from utf16le to perl native
+        my $value = decode('UTF-16LE', $data);
+
+        # Append the driver location if it's not there already
+        if ($key eq 'DevicePath' && index($value, $append) == -1) {
+            # Remove the explicit trailing NULL
+            chop($value);
+
+            # Append the new path and a new explicit trailing NULL
+            $value .= $append."\0";
+
+            # Re-encode the string back to utf16le
+            $data = encode('UTF-16LE', $value);
+        }
+
+        push (@new, { key => $key, t => $type, value => $data });
+    }
+    $h->node_set_values($node, \@new);
+
+    $h->commit(undef);
+    undef $h;
+
+    # Upload the new registry.
+    $g->upload($sw_local, $sw_guest);
 }
 
 sub _upload_files
