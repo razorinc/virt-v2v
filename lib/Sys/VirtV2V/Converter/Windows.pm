@@ -358,7 +358,7 @@ sub _upload_files
     my @missing;
     my %files;
 
-    for my $file ("viostor", "firstboot", "firstbootapp", "rhsrvany") {
+    for my $file ("virtio", "firstboot", "firstbootapp", "rhsrvany") {
         my ($path) = $config->match_app ($desc, $file, $desc->{arch});
         my $local = $config->get_transfer_path ($g, $path);
         push (@missing, $path) unless ($g->exists($local));
@@ -372,10 +372,9 @@ sub _upload_files
                          "required, but missing: {list}",
                          list => join(' ', @missing)))) if (@missing > 0);
 
-    # Copy viostor into place
-    my $driverpath = "/windows/system32/drivers";
-    $driverpath = $g->case_sensitive_path ($driverpath);
-    $g->cp ($files{viostor}, $driverpath);
+    # Copy viostor directly into place as it's a critical boot device
+    $g->cp (File::Spec->catfile($files{virtio}, 'viostor.sys'),
+            $g->case_sensitive_path ("/windows/system32/drivers"));
 
     # Copy other files into a temp directory
     my $path = "/temp/v2v";
