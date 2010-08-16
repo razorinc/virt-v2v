@@ -34,7 +34,6 @@ use Win::Hivex::Regedit qw(reg_import);
 use Locale::TextDomain 'virt-v2v';
 use Sys::VirtV2V::Util qw(user_message);
 
-use Carp;
 
 =pod
 
@@ -100,7 +99,7 @@ A libguestfs handle to the target.
 
 =item guestos
 
-An initialised Sys::VirtV2V::GuestOS for manipulating the guest OS>.
+Not used by Converter::Windows.
 
 =item desc
 
@@ -111,6 +110,10 @@ A description of the guest OS as returned by Sys::Guestfs::Lib.
 An arrayref of libvirt storage device names, in the order they will be
 presented to the guest.
 
+=item config
+
+An initialised Sys::VirtV2V::Config object.
+
 =back
 
 =cut
@@ -119,14 +122,13 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $guestos, $desc, $devices, $config) = @_;
+    my ($g, undef, $desc, $devices, $config) = @_;
     carp "convert called without g argument" unless defined $g;
-    #carp "convert called without guestos argument" unless defined $guestos;
     carp "convert called without desc argument" unless defined $desc;
     carp "convert called without devices argument" unless defined $devices;
     carp "convert called without config argument" unless defined $config;
 
-    _preconvert ($g, $guestos, $desc, $devices, $config);
+    _preconvert ($g, $desc, $devices, $config);
 
     # Return guest capabilities.
     my %guestcaps;
@@ -161,7 +163,6 @@ boot.
 sub _preconvert
 {
     my $g = shift;
-    my $guestos = shift;
     my $desc = shift;
     my $devices = shift;
     my $config = shift;
