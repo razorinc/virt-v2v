@@ -263,6 +263,9 @@ GetOptions ("help|?"      => sub {
             },
 ) or pod2usage(2);
 
+# Set the umask to a reasonable default for virt-v2v
+umask(0022);
+
 # Read the config file if one was given
 my $config = Sys::VirtV2V::Config->new($config_file);
 
