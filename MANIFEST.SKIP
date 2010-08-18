@@ -17,3 +17,6 @@
 ^.gitignore$
 ^.gitmodules$
 ^git2cl/
+
+# Eclipse
+^.project$
