@@ -880,7 +880,11 @@ sub _get_os_type_linux
     my $distro = $root->{osdistro};
     my $major = $root->{os_major_version};
 
-    if ($distro eq 'rhel') {
+    # XXX: RHEV 2.2 doesn't support a RHEL 6 target, however RHEV 2.3+ will.
+    # For the moment, we set RHEL 6 to be 'OtherLinux', however we will need to
+    # distinguish in future between RHEV 2.2 target and RHEV 2.3 target to know
+    # what is supported.
+    if ($distro eq 'rhel' && $major < 6) {
         return "RHEL".$major.$arch_suffix;
     }
 
