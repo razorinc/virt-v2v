@@ -2,7 +2,7 @@
 ^_build/
 ^Build$
 ^blib/
-^virt-v2v-(\d+(\.\d+)*)(\.tar\.gz$|/)
+^virt-v2v-v(\d+(\.\d+)*)(\.tar\.gz$|/)
 
 # Built translations
 ^po/.*\.mo$
