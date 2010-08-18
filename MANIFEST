@@ -47,3 +47,5 @@ v2v/run-v2v-locally
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
 v2v/virt-v2v.pl
+windows/firstboot.bat
+windows/README.txt
