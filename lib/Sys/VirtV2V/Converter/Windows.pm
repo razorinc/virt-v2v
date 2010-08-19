@@ -369,9 +369,9 @@ sub _prepare_virtio_drivers
 
     foreach my $src ($g->ls($virtio)) {
         my $name = $src;
-        $src = File::Spec->catfile($virtio);
+        $src = File::Spec->catfile($virtio, $src);
         my $dst = File::Spec->catfile($driverdir, $name);
-        $g->cp_a($src, $dst);
+        $g->cp($src, $dst);
     }
 
     # Locate and download the SOFTWARE hive
