@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-07-28 10:10+0100\n"
-"PO-Revision-Date: 2010-08-16 15:41+0200\n"
+"POT-Creation-Date: 2010-08-12 10:06+0100\n"
+"PO-Revision-Date: 2010-08-25 14:18+0200\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Fedora\n"
 "Language: nl\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Generator: Virtaal 0.6.1\n"
 
 #: ../lib/Sys/VirtV2V/Config.pm:75
-#, perl-brace-format,
+#, perl-brace-format
 msgid "Config file {path} doesn't exist"
 msgstr "Config bestand {path} bestaat niet"
 
@@ -188,7 +188,7 @@ msgstr ""
 "WAARSCHUWING: Weet niet hoe {module} vernieuwd kan worden, welke de {name} "
 "module inlaadt."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:287
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:297
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
@@ -197,10 +197,37 @@ msgstr ""
 "beschikbaar.\n"
 "Kan niet verder gaan."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:426
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:436
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Kan /etc/rc.local niet openen: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:157
+msgid ""
+"WARNING: Unable to convert this guest operating system. Its storage will be "
+"transfered and a domain created for it, but it may not operate correctly "
+"without manual reconfiguration. The domain will present all storage devices "
+"as IDE, all network interfaces as e1000 and the host as x86_64."
+msgstr ""
+"WAARSCHUWING: Kan dit gast besturingssysteem niet converteren. Zijn opslag "
+"zullen overgebracht worden en er zal een domein aangemaakt worden, maar het "
+"zal niet correct werken zonder opnieuw handmatig te configureren. Het domein "
+"zal alle opslag apparaten als IDE presenteren, alle netwerk interfaces als "
+"e1000 en de host als x86_64."
+
+#: ../lib/Sys/VirtV2V/Converter.pm:349
+#, perl-brace-format
+msgid ""
+"WARNING: Only 4 IDE devices are supported. The following drives have been "
+"removed: {list}"
+msgstr ""
+"WAARSCHUWING: Slechts 4 IDE apparatenworden ondersteund. De volgende "
+"apparaten zijn verwijderd: {list}"
+
+#: ../lib/Sys/VirtV2V/Converter.pm:459
+#, perl-brace-format
+msgid "Unknown interface type {type} in domain XML: {domain}"
+msgstr "Onbekend interface type {type} in domein XML: {domain}"
 
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:176
 msgid ""
@@ -225,7 +252,7 @@ msgid "Guest is not a supported version of Windows ({major}.{minor})"
 msgstr "Gast is geen ondersteunde versie van Windows ({major}.{minor})"
 
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:369
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:901
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:840
 #, perl-brace-format
 msgid ""
 "Installation failed because the following files referenced in the "
@@ -234,68 +261,25 @@ msgstr ""
 "De installatie mislukte omdat de volgende bestanden waarnaar wordt verwezen "
 "in het configuratiebestand vereist zijn, maar deze ontbreken: {list}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:157
-msgid ""
-"WARNING: Unable to convert this guest operating system. Its storage will be "
-"transfered and a domain created for it, but it may not operate correctly "
-"without manual reconfiguration. The domain will present all storage devices "
-"as IDE, all network interfaces as e1000 and the host as x86_64."
-msgstr ""
-"WAARSCHUWING: Kan dit gast besturingssysteem niet converteren. Zijn opslag "
-"zullen overgebracht worden en er zal een domein aangemaakt worden, maar het "
-"zal niet correct werken zonder opnieuw handmatig te configureren. Het domein "
-"zal alle opslag apparaten als IDE presenteren, alle netwerk interfaces als "
-"e1000 en de host als x86_64."
+#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:167
+msgid "libguestfs did not shut down cleanly"
+msgstr "libguestfs werd niet netjes afgesloten"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:346
-#, perl-brace-format
-msgid ""
-"WARNING: Only 4 IDE devices are supported. The following drives have been "
-"removed: {list}"
-msgstr ""
-"WAARSCHUWING: Slechts 4 IDE apparatenworden ondersteund. De volgende "
-"apparaten zijn verwijderd: {list}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:456
-#, perl-brace-format
-msgid "Unknown interface type {type} in domain XML: {domain}"
-msgstr "Onbekend interface type {type} in domein XML: {domain}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:120
-#, perl-brace-format
-msgid "augeas error for {file}: {error}"
-msgstr "augeas fout voor {file}: {error}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:124
-#, perl-brace-format
-msgid "augeas error for {file}"
-msgstr "augeas fout voor {file}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:131
-#, perl-brace-format
-msgid "error at line {line}, char {char}, file position {pos}"
-msgstr "fout in regel {line}, karakter {char}, bestand positie {pos}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:139
-#, perl-brace-format
-msgid "augeas lens: {lens}"
-msgstr "augeas lens: {lens}"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:204
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Kan geen geldige modprobe configuratie vinden"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:459
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:398
 #, perl-brace-format
 msgid "WARNING: grub refers to {path}, which doesn't exist."
 msgstr "WAARSCHUWING: grub refereert naar {path}, welke niet bestaat."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:505
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:444
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr "{name} mogelijkheid werd niet in de configuratie gevonden"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:524
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:463
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
@@ -304,30 +288,35 @@ msgstr ""
 "Onbekend formaat voor {field} in config: {value}. {field} moet het formaat "
 "[epoch:]versie[-release] hebben."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:781
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:720
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 "Pakketten installeren met up2date mislukte. De fout boodschap was: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:848
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:787
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr "Pakketten installeren met yum mislukte. Output was: {output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1129
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1068
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Kan geen kernel architectuur bepalen voor deze gast"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1216
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1155
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Fout bij het draaien van {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1748
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1688
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
-msgstr "WAARSCHUWING: Kernel versie {version} heeft geen initrd ingang in grub."
+msgstr ""
+"WAARSCHUWING: Kernel versie {version} heeft geen initrd ingang in grub."
+
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
+msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
+msgstr "Kan mkinitrd of dracut niet vinden. Kan initrd niet vernieuwen."
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:58
 #, perl-brace-format
@@ -386,7 +375,8 @@ msgstr "De verbonden hypervisor ondersteunt eigenschap {feature} niet."
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr "De doel gast ondersteunt acpi niet onder KVM. ACPI zal uitgezet worden."
+msgstr ""
+"De doel gast ondersteunt acpi niet onder KVM. ACPI zal uitgezet worden."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:287 ../lib/Sys/VirtV2V/Target/RHEV.pm:734
 #, perl-brace-format
@@ -507,8 +497,7 @@ msgstr ""
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
-"Ontving geen volledig volume. {received} van de {total} bytes zijn "
-"ontvangen."
+"Ontving geen volledig volume. {received} van de {total} bytes zijn ontvangen."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
 #, perl-brace-format
@@ -575,91 +564,111 @@ msgstr ""
 "Onverwachte fout het kopiëren van {path} naar {host}. Commando output: "
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:181
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:195
 #, perl-brace-format
 msgid "Unexpected error getting {path}: {output}"
 msgstr "Onverwachte fout bij het verkrijgen van {path}: {output}"
 
-#: ../lib/Sys/VirtV2V/UserMessage.pm:88
+#: ../lib/Sys/VirtV2V/Util.pm:80
+#, perl-brace-format
+msgid "augeas error for {file}: {error}"
+msgstr "augeas fout voor {file}: {error}"
+
+#: ../lib/Sys/VirtV2V/Util.pm:84
+#, perl-brace-format
+msgid "augeas error for {file}"
+msgstr "augeas fout voor {file}"
+
+#: ../lib/Sys/VirtV2V/Util.pm:91
+#, perl-brace-format
+msgid "error at line {line}, char {char}, file position {pos}"
+msgstr "fout in regel {line}, karakter {char}, bestand positie {pos}"
+
+#: ../lib/Sys/VirtV2V/Util.pm:99
+#, perl-brace-format
+msgid "augeas lens: {lens}"
+msgstr "augeas lens: {lens}"
+
+#: ../lib/Sys/VirtV2V/Util.pm:128
 #, perl-brace-format
 msgid "virt-v2v: {message}\n"
 msgstr "virt-v2v: {message}\n"
 
-#: ../v2v/virt-v2v.pl:240
+#: ../v2v/virt-v2v.pl:237
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 "Gebruik -ic of -oc om een input of een output verbinding te specificeren."
 
-#: ../v2v/virt-v2v.pl:254
+#: ../v2v/virt-v2v.pl:251
 msgid "--network may only be specified once"
 msgstr "--network kan slechts eenmaal gespecificeerd worden"
 
-#: ../v2v/virt-v2v.pl:262
+#: ../v2v/virt-v2v.pl:259
 msgid "--bridge may only be specified once"
 msgstr "--bridge kan slechts eenmaal gespecificeerd worden"
 
-#: ../v2v/virt-v2v.pl:280
+#: ../v2v/virt-v2v.pl:277
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 "Je moet een output opslag pool specificeren bij gebruik van de libvirt "
 "output methode"
 
-#: ../v2v/virt-v2v.pl:289
+#: ../v2v/virt-v2v.pl:286
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 "Je moet een output opslag domein specificeren bij gebruik van de rhev output "
 "methode"
 
-#: ../v2v/virt-v2v.pl:298
+#: ../v2v/virt-v2v.pl:295
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} is geen geldige output methode"
 
-#: ../v2v/virt-v2v.pl:307
+#: ../v2v/virt-v2v.pl:304
 msgid "You must specify a filename"
 msgstr "Je moet een bestandsnaam specificeren"
 
-#: ../v2v/virt-v2v.pl:313
+#: ../v2v/virt-v2v.pl:310
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "WAARSCHUWING: {modulename} accepteert slechts een enkele bestandsnaam."
 
-#: ../v2v/virt-v2v.pl:322
+#: ../v2v/virt-v2v.pl:319
 msgid "You must specify a guest"
 msgstr "Je moet een gast specificeren"
 
-#: ../v2v/virt-v2v.pl:331
+#: ../v2v/virt-v2v.pl:328
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "WAARSCHUWING: {modulename} accepteert slechts een enkele domeinnaam. "
 
-#: ../v2v/virt-v2v.pl:337
+#: ../v2v/virt-v2v.pl:334
 #, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} is geen geldige input methode"
 
-#: ../v2v/virt-v2v.pl:398
+#: ../v2v/virt-v2v.pl:395
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} geconfigureerd met virtio drivers"
 
-#: ../v2v/virt-v2v.pl:401
+#: ../v2v/virt-v2v.pl:398
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} geconfigureerd zonder virtio drivers"
 
-#: ../v2v/virt-v2v.pl:417
+#: ../v2v/virt-v2v.pl:414
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr "Signaal {sig} ontvangen. Afsluiten."
 
-#: ../v2v/virt-v2v.pl:440
+#: ../v2v/virt-v2v.pl:437
 msgid "no root device found in this operating system image"
 msgstr "in dit besturingssysteem image werd geen root apparaat gevonden"
 
-#: ../v2v/virt-v2v.pl:446
+#: ../v2v/virt-v2v.pl:443
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr ""
 "opstarten van meerdere besturingssystemen wordt niet ondersteund door virt-"
