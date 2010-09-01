@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection
-# Copyright (C) 2009 Red Hat Inc.
+# Sys::VirtV2V::Connection::Source
+# Copyright (C) 2009,2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,16 +15,13 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection;
+package Sys::VirtV2V::Connection::Source;
 
 use strict;
 use warnings;
 
 use Sys::Virt;
 
-use Sys::VirtV2V::Transfer::ESX;
-use Sys::VirtV2V::Transfer::LocalCopy;
-use Sys::VirtV2V::Transfer::SSH;
 use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -37,21 +34,21 @@ Sys::VirtV2V::Connection - Obtain domain metadata
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection::LibVirt;
+ use Sys::VirtV2V::Connection::LibVirtSource;
 
- $conn = Sys::VirtV2V::Connection::LibVirt->new($uri, $name, $target);
+ $conn = Sys::VirtV2V::Connection::LibVirtSource->new($uri, $name, $target);
  $dom = $conn->get_dom();
  $storage = $conn->get_storage_paths();
  $devices = $conn->get_storage_devices();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection describes a connection to a, possibly remote, source of
-guest metadata and storage. It is a virtual superclass and can't be instantiated
-directly. Use one of the subclasses:
+Sys::VirtV2V::Source provides access to a source of guest metadata and storage.
+It is a virtual superclass and can't be instantiated directly. Use one of the
+subclasses:
 
- Sys::VirtV2V::Connection::LibVirt
- Sys::VirtV2V::Connection::LibVirtXML
+ Sys::VirtV2V::Target::LibVirtSource
+ Sys::VirtV2V::Source::LibVirtXML
 
 =head1 METHODS
 
@@ -102,14 +99,58 @@ sub get_dom
     return $self->{dom};
 }
 
+sub _volume_copy
+{
+    my ($src, $dst) = @_;
 
-# Iterate over returned storage. Transfer it and update DOM as necessary. To be
-# called by subclasses.
-sub _storage_iterate
+    my $src_s;
+    my $dst_s;
+
+    # Can we just do a straight copy?
+    if ($src->get_format() eq $dst->get_format()) {
+        $src_s = $src->get_read_stream();
+        $dst_s = $dst->get_write_stream();
+    }
+
+    else {
+        die("Different formats");
+    }
+
+    # Copy the contents of the source stream to the destination stream
+    my $total = 0;
+    for (;;) {
+        my $buf = $src_s->read(4 * 1024 * 1024);
+        last if (length($buf) == 0);
+
+        $total += length($buf);
+
+        $dst_s->write($buf);
+    }
+
+    # This would be closed implicitly, but we want to report read/write errors
+    # before checking for a short volume
+    $dst_s->close();
+
+    die(user_message(__x("Didn't receive full volume. Received {received} ".
+                         "of {total} bytes.",
+                         received => $total,
+                         total => $src->get_size())))
+        unless ($total == $src->get_size());
+
+    return $dst;
+}
+
+=item copy_storage(target)
+
+Copy all of a guests storage devices to I<target>. Update the guest metadata to
+reflect their new locations and properties.
+
+=cut
+
+sub copy_storage
 {
     my $self = shift;
-
-    my ($transfer, $target) = @_;
+    my ($target) = @_;
 
     my $dom = $self->get_dom();
 
@@ -118,7 +159,8 @@ sub _storage_iterate
     # A list of libvirt target device names
     my @devices;
 
-    foreach my $disk ($dom->findnodes("/domain/devices/disk[\@device='disk']")) {
+    foreach my $disk ($dom->findnodes("/domain/devices/disk[\@device='disk']"))
+    {
         my ($source_e) = $disk->findnodes('source');
 
         my ($source) = $source_e->findnodes('@file | @dev');
@@ -129,17 +171,30 @@ sub _storage_iterate
         defined($dev) or die("disk does not have a target device: \n".
                              $dom->toString());
 
-        my $path = $source->getValue();
+        my $src = $self->get_volume($source->getValue());
+        my $dst;
+        if ($target->volume_exists($src->get_name())) {
+            warn user_message(__x("WARNING: storage volume {name} already ".
+                                  "exists on the target. NOT copying it ".
+                                  "again. Delete the volume and retry to ".
+                                  "copy again.",
+                                  name => $src->get_name()));
+            $dst = $target->get_volume($src->get_name());;
+        } else {
+            $dst = $target->create_volume($src->get_name(),
+                                          $src->get_format(),
+                                          $src->get_size(),
+                                          $src->is_sparse());
+        }
 
-        # Die if transfer required and no output target
-        die (user_message(__"No output target was specified"))
-            unless (defined($target));
+        # This will die if libguestfs can't use the result directly, so we do it
+        # before copying all the data.
+        push(@paths, $dst->get_local_path());
 
-        # Fetch the remote storage
-        my $vol = $transfer->transfer($self, $path, $target);
+        _volume_copy($src, $dst);
 
         # Export the new path
-        $path = $vol->get_path();
+        my $path = $dst->get_path();
 
         # Find any existing driver element.
         my ($driver) = $disk->findnodes('driver');
@@ -151,13 +206,13 @@ sub _storage_iterate
             $disk->appendChild($driver);
         }
         $driver->setAttribute('name', 'qemu');
-        $driver->setAttribute('type', $vol->get_format());
+        $driver->setAttribute('type', $dst->get_format());
 
         # Remove the @file or @dev attribute before adding a new one
         $source_e->removeAttributeNode($source);
 
         # Set @file or @dev as appropriate
-        if ($vol->is_block()) {
+        if ($dst->is_block()) {
             $disk->setAttribute('type', 'block');
             $source_e->setAttribute('dev', $path);
         } else {
@@ -165,7 +220,6 @@ sub _storage_iterate
             $source_e->setAttribute('file', $path);
         }
 
-        push(@paths, $path);
         push(@devices, $dev->getNodeValue());
     }
 
@@ -205,8 +259,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection::LibVirt(3pm)>,
-L<Sys::VirtV2V::Connection::LibVirtXML(3pm)>,
+L<Sys::VirtV2V::Source::LibVirt(3pm)>,
+L<Sys::VirtV2V::Source::LibVirtXML(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

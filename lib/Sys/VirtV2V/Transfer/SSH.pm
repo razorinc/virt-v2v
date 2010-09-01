@@ -15,114 +15,21 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Transfer::SSH;
+use strict;
+use warnings;
 
-use POSIX;
-use File::Spec;
-use File::stat;
+package Sys::VirtV2V::Transfer::SSH::Stream;
 
 use Sys::VirtV2V::Util qw(user_message);
-
 use Locale::TextDomain 'virt-v2v';
 
-=pod
-
-=head1 NAME
-
-Sys::VirtV2V::Transfer::SSH - Copy a remote guest's storage via ssh
-
-=head1 SYNOPSIS
-
- use Sys::VirtV2V::Transfer::SSH;
-
- $vol = Sys::VirtV2V::Transfer::SSH->transfer($conn, $path, $target);
-
-=head1 DESCRIPTION
-
-Sys::VirtV2V::Transfer::SSH retrieves guest storage devices from a remote server
-via SSH.
-
-=head1 METHODS
-
-=over
-
-=item transfer(conn, path, target)
-
-Transfer <path> from the remove server. Storage will be created using <target>.
-
-=cut
-
-sub transfer
+sub new
 {
     my $class = shift;
+    my ($hostname, $username, $command) = @_;
 
-    my ($conn, $path, $target) = @_;
-
-    my (undef, undef, $name) = File::Spec->splitpath($path);
-
-    if ($target->volume_exists($name)) {
-        warn user_message(__x("WARNING: storage volume {name} already exists ".
-                              "on the target. NOT copying it again. Delete ".
-                              "the volume and retry to copy again.",
-                              name => $name));
-        return $target->get_volume($name);
-    }
-
-    my $uri      = $conn->{uri};
-    my $username = $conn->{username};
-    my $password = $conn->{password};
-    my $host     = $conn->{hostname};
-
-    die("URI not defined for connection") unless (defined($uri));
-
-    my ($pid, $size, $fh, $error) =
-        _connect($host, $username, $path);
-
-    my $vol = $target->create_volume($name, $size);
-    $vol->open();
-
-    my $written = 0;
-    for (;;) {
-        my $buffer;
-        # Transfer in 8k chunks
-        my $in = read($fh, $buffer, 8 * 1024);
-        die(user_message(__x("Error reading data from {path}: {error}",
-                             path => $path,
-                             error => $!))) if (!defined($in));
-
-        last if ($in == 0);
-
-        $vol->write($buffer);
-        $written += length($buffer);
-    }
-
-    $vol->close();
-
-    die(user_message(__x("Didn't receive full volume. Received {received} ".
-                         "of {total} bytes.",
-                         received => $written,
-                         total => $size))) unless ($written == $size);
-
-    waitpid($pid, 0) == $pid or die("error reaping child: $!");
-    # If the child returned an error, check for anything on its stderr
-    if ($? != 0) {
-        my $msg = "";
-        while (<$error>) {
-            $msg .= $_;
-        }
-        die(user_message(__x("Unexpected error copying {path} from {host}. ".
-                             "Command output: {output}",
-                             path => $path,
-                             host => $uri->host,
-                             output => $msg)));
-    }
-
-    return $vol;
-}
-
-sub _connect
-{
-    my ($host, $username, $path) = @_;
+    my $self = {};
+    bless($self, $class);
 
     my ($stdin_read, $stdin_write);
     my ($stdout_read, $stdout_write);
@@ -137,22 +44,8 @@ sub _connect
         my @command;
         push(@command, 'ssh');
         push(@command, '-l', $username) if (defined($username));
-        push(@command, $host);
-
-        # Return the size of the remote path on the first line, followed by its
-        # contents.
-        # The bit arithmetic with the output of stat is a translation into shell
-        # of the S_ISBLK macro. If the remote device is a block device, stat
-        # will simply return the size of the block device inode. In this case,
-        # we use the output of blockdev --getsize64 instead.
-        push(@command,
-            "dev=$path; ".
-            'if [[ $(((0x$(stat -L -c %f $dev)&0170000)>>12)) == 6 ]]; then '.
-              'blockdev --getsize64 $dev; '.
-            'else '.
-              'stat -L -c %s $dev; '.
-            'fi; '.
-            'cat $dev');
+        push(@command, $hostname);
+        push(@command, $command);
 
         # Close the ends of the pipes we don't need
         close($stdin_write);
@@ -176,36 +69,271 @@ sub _connect
     close($stdout_write);
     close($stderr_write);
 
-    # Check that we don't get output on stderr before we read the file size
-    for(;;) {
-        my ($rin, $rout);
-        $rin = '';
-        vec($rin, fileno($stdout_read), 1) = 1;
-        vec($rin, fileno($stderr_read), 1) = 1;
+    $self->{pid}    = $pid;
+    $self->{stdin}  = $stdin_write;
+    $self->{stdout} = $stdout_read;
+    $self->{stderr} = $stderr_read;
 
-        my $nfound = select($rout=$rin, undef, undef, undef);
-        die("select failed: $!") if ($nfound < 0);
+    $self->{hostname} = $hostname;
 
-        if (vec($rout, fileno($stderr_read), 1) == 1) {
-            my $stderr = '';
-            while(<$stderr_read>) {
-                $stderr .= $_;
-            }
+    return $self;
+}
 
-            die(user_message(__x("Unexpected error getting {path}: ".
-                                 "{output}",
-                                 path => $path, output => $stderr)));
+sub close
+{
+    my $self = shift;
+
+    # Nothing to do if it's already closed.
+    return unless (exists($self->{pid}));
+
+    my $pid    = $self->{pid};
+    my $stderr = $self->{stderr};
+
+    # Must close stdin before waitpid, or process will not exit when writing
+    close($self->{stdin});
+    close($self->{stdout});
+
+    waitpid($pid, 0) == $pid or die("error reaping child: $!");
+    # If the child returned an error, check for anything on its stderr
+    if ($? != 0) {
+        my $msg = "";
+        while (<$stderr>) {
+            $msg .= $_;
         }
-
-        if (vec($rout, fileno($stdout_read), 1) == 1) {
-            last;
-        }
+        die(user_message(__x("Unexpected error copying {path} from {host}. ".
+                             "Command output: {output}",
+                             path => $self->{path},
+                             host => $self->{hostname},
+                             output => $msg)));
     }
 
-    # First line returned is the output of stat
-    my $size = <$stdout_read>;
+    close($self->{stderr});
 
-    return ($pid, $size, $stdout_read, $stderr_read);
+    delete($self->{pid});
+    delete($self->{stdin});
+    delete($self->{stdout});
+    delete($self->{stderr});
+}
+
+sub DESTROY
+{
+    my $self = shift;
+    $self->close();
+}
+
+sub _check_stderr
+{
+    my $self = shift;
+    my ($rw, $errfun) = @_;
+
+    for(;;) {
+        my ($rin, $rout, $win, $wout);
+        $rin = '';
+        vec($rin, fileno($self->{stderr}), 1) = 1;
+
+        # Waiting to read from stdout
+        if ($rw == 0) {
+            $win = undef;
+            vec($rin, fileno($self->{stdout}), 1) = 1;
+        }
+
+        # Waiting to write to stdin
+        else {
+            $win = '';
+            vec($win, fileno($self->{stdin}), 1) = 1;
+        }
+
+        my $nfound = select($rout=$rin, $wout=$win, undef, undef);
+        die("select failed: $!") if ($nfound < 0);
+
+        my $stderr = $self->{stderr};
+        if (vec($rout, fileno($stderr), 1) == 1) {
+            my $error = '';
+            while(<$stderr>) {
+                $error .= $_;
+            }
+
+            &$errfun($error);
+        }
+
+        last if (vec($rout, fileno($self->{stdout}), 1) == 1 ||
+                 vec($wout, fileno($self->{stdin}), 1) == 1);
+    }
+}
+
+package Sys::VirtV2V::Transfer::SSH::ReadStream;
+
+use Sys::VirtV2V::Util qw(user_message);
+use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::Transfer::SSH::ReadStream::ISA =
+    qw(Sys::VirtV2V::Transfer::SSH::Stream);
+
+sub new
+{
+    my $class = shift;
+    my ($path, $hostname, $username, $is_sparse) = @_;
+
+    my $self = $class->SUPER::new($hostname, $username, "dd if=$path");
+
+    $self->{path} = $path;
+
+    # Check that the stream becomes readable without anything on stderr
+    $self->SUPER::_check_stderr(0, sub { $self->_read_error(@_) } );
+
+    return $self;
+}
+
+sub read
+{
+    my $self = shift;
+    my ($size) = @_;
+
+    my $buf;
+    my $in = read($self->{stdout}, $buf, $size);
+    $self->_read_error($!) unless (defined($in));
+
+    return "" if ($in == 0);
+    return $buf;
+}
+
+sub _read_error
+{
+    my $self = shift;
+    my ($error) = @_;
+
+    die(user_message(__x("Error reading from {path}: {error}",
+                         path => $self->{path},
+                         error => $error)));
+}
+
+package Sys::VirtV2V::Transfer::SSH::WriteStream;
+
+use Sys::VirtV2V::Util qw(user_message);
+use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::Transfer::SSH::WriteStream::ISA =
+    qw(Sys::VirtV2V::Transfer::SSH::Stream);
+
+sub new
+{
+    my $class = shift;
+    my ($path, $hostname, $username, $is_sparse) = @_;
+
+    my $self = $class->SUPER::new($hostname, $username, "dd of=$path");
+
+    $self->{path} = $path;
+
+    # Check that the stream becomes writable without anything on stderr
+    $self->SUPER::_check_stderr(1, sub { $self->_write_error(@_) });
+
+    return $self;
+}
+
+sub write
+{
+    my $self = shift;
+    my ($buf) = @_;
+
+    print { $self->{stdin} } $buf or $self->_write_error($!);
+}
+
+sub _write_error
+{
+    my $self = shift;
+    my ($error) = @_;
+
+    die(user_message(__x("Error writing data to {path}: {error}",
+                         path => $self->{path},
+                         error => $error)));
+}
+
+package Sys::VirtV2V::Transfer::SSH;
+
+use POSIX;
+use File::Spec;
+use File::stat;
+
+use Sys::VirtV2V::Util qw(user_message);
+use Locale::TextDomain 'virt-v2v';
+
+=pod
+
+=head1 NAME
+
+Sys::VirtV2V::Transfer::SSH - Transfer data over an SSH connection
+
+=head1 METHODS
+
+=over
+
+=item new(path, hostname, username, is_sparse)
+
+Create a new SSH transfer object.
+
+=cut
+
+sub new
+{
+    my $class = shift;
+    my ($path, $hostname, $username, $is_sparse) = @_;
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{path}      = $path;
+    $self->{hostname}  = $hostname;
+    $self->{username}  = $username;
+    $self->{is_sparse} = $is_sparse;
+
+    return $self;
+}
+
+=item local_path
+
+SSH cannot currently return a local path. This function will die().
+
+=cut
+
+sub local_path
+{
+    die(user_message(__"virt-v2v cannot yet write to an SSH connection"));
+}
+
+=item get_read_stream
+
+Get a stream to read from a file over an SSH connection.
+
+=cut
+
+sub get_read_stream
+{
+    my $self = shift;
+
+    return new Sys::VirtV2V::Transfer::SSH::ReadStream(
+        $self->{path},
+        $self->{hostname},
+        $self->{username},
+        $self->{is_sparse}
+    );
+}
+
+=item get_write_stream
+
+Get a stream to write to a file over an SSH connection.
+
+=cut
+
+sub get_write_stream
+{
+    my $self = shift;
+
+    return new Sys::VirtV2V::Transfer::SSH::WriteStream(
+        $self->{path},
+        $self->{hostname},
+        $self->{username},
+        $self->{is_sparse}
+    );
 }
 
 =back

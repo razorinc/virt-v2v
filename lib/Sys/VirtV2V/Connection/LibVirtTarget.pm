@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Target::LibVirt
+# Sys::VirtV2V::Connection::LibVirtTarget
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -18,155 +18,34 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Target::LibVirt::Vol;
-
-use POSIX;
-use Sys::Virt;
-
-use Sys::VirtV2V::Util qw(user_message);
-
-use Locale::TextDomain 'virt-v2v';
-
-sub _new
-{
-    my $class = shift;
-    my ($vol) = @_;
-
-    my $self = {};
-    bless($self, $class);
-
-    $self->{vol} = $vol;
-
-    return $self;
-}
-
-sub _create
-{
-    my $class = shift;
-    my ($pool, $name, $size) = @_;
-
-    my $vol_xml = "
-        <volume>
-            <name>$name</name>
-            <capacity>$size</capacity>
-        </volume>
-    ";
-
-    my $vol;
-    eval {
-        $vol = $pool->create_volume($vol_xml);
-    };
-    die(user_message(__x("Failed to create storage volume: {error}",
-                         error => $@->stringify()))) if ($@);
-
-    return $class->_new($vol);
-}
-
-sub _get
-{
-    my $class = shift;
-    my ($pool, $name) = @_;
-
-    my $vol;
-    eval {
-        $vol = $pool->get_volume_by_name($name);
-    };
-    die(user_message(__x("Failed to get storage volume: {error}",
-                          error => $@->stringify()))) if ($@);
-
-    return $class->_new($vol);
-}
-
-sub get_path
-{
-    my $self = shift;
-
-    return $self->{vol}->get_path();
-}
-
-sub get_format
-{
-    my $self = shift;
-
-    my $vol = $self->{vol};
-    my $voldom = new XML::DOM::Parser->parse($vol->get_xml_description());
-
-    my ($format) = $voldom->findnodes('/volume/target/format/@type');
-    $format = $format->getValue() if (defined($format));
-    $format ||= 'auto';
-
-    return $format;
-}
-
-sub is_block
-{
-    my $self = shift;
-
-    my $type = $self->{vol}->get_info()->{type};
-    return $type == Sys::Virt::StorageVol::TYPE_BLOCK;
-}
-
-sub open
-{
-    my $self = shift;
-
-    my $path = $self->get_path();
-
-    # We want to open the existing volume without truncating it
-    sysopen(my $fd, $path, O_WRONLY)
-        or die(user_message(__x("Error opening storage volume {path} ".
-                                "for writing: {error}", error => $!)));
-
-    $self->{fd} = $fd;
-}
-
-sub write
-{
-    my $self = shift;
-    my ($data) = @_;
-
-    defined($self->{fd}) or die("write called without open");
-
-    syswrite($self->{fd}, $data)
-        or die(user_message(__x("Error writing to {path}: {error}",
-                                path => $self->get_path(),
-                                error => $!)));
-}
-
-sub close
-{
-    my $self = shift;
-
-    close($self->{fd})
-        or die(user_message(__x("Error closing volume handle: {error}",
-                                error => $!)));
-
-    delete($self->{fd});
-}
-
-package Sys::VirtV2V::Target::LibVirt;
+package Sys::VirtV2V::Connection::LibVirtTarget;
 
 use Sys::Virt;
 use Sys::Virt::Error;
 use Sys::Virt::StorageVol;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Connection::LibVirt;
+use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
+
 use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtV2V::Connection::LibVirtTarget::ISA =
+    qw(Sys::VirtV2V::Connection::LibVirt);
 
 =head1 NAME
 
-Sys::VirtV2V::Target::LibVirt - Output to libvirt
+Sys::VirtV2V::Connection::LibVirtTarget - Output to libvirt
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Target::LibVirt;
+ use Sys::VirtV2V::Connection::LibVirtTarget;
 
- my $target = new Sys::VirtV2V::Target::LibVirt($uri, $poolname);
+ my $target = new Sys::VirtV2V::Connection::LibVirtTarget($uri, $poolname);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Target::LibVirt creates a new libvirt domain using the given
-target URI. New storage will be created in the target pool.
+Sys::VirtV2V::Connection::LibVirtTarget creates a new libvirt domain using the
+given target URI. New storage will be created in the target pool.
 
 =cut
 
@@ -178,9 +57,9 @@ our @cleanup_vols;
 
 =over
 
-=item Sys::VirtV2V::Target::LibVirt->new(uri, poolname)
+=item Sys::VirtV2V::Connection::LibVirtTarget->new(uri, poolname)
 
-Create a new Sys::VirtV2V::Target::LibVirt object.
+Create a new LibVirtTarget object.
 
 =over
 
@@ -201,20 +80,14 @@ sub new
     my $class = shift;
     my ($uri, $poolname) = @_;
 
-    my $self = {};
-    bless($self, $class);
-
-    $self->{vmm} = Sys::Virt->new(auth => 1, uri => $uri);
+    my $self = $class->SUPER::_libvirt_new($uri);
 
     eval {
         $self->{pool} = $self->{vmm}->get_storage_pool_by_name($poolname);
     };
-
-    if ($@) {
-        die(user_message(__x("Output pool {poolname} is not a valid ".
-                             "storage pool",
-                             poolname => $poolname)));
-    }
+    die(user_message(__x("Output pool {poolname} is not a valid ".
+                         "storage pool",
+                         poolname => $poolname))) if ($@);
 
     return $self;
 }
@@ -229,27 +102,60 @@ Create a new volume in the pool whose name was passed to new().
 
 The name of the volume which is being created.
 
+=item format
+
+The file format of the new volume.
+
 =item size
 
 The size of the volume which is being created in bytes.
 
+=item sparse
+
+1 if the output should be sparse if possible, 0 otherwise.
+
 =back
 
-create_volume() returns a Sys::VirtV2V::Target::LibVirt::Vol object.
+create_volume() returns a Sys::VirtV2V::Connection::Volume object.
 
 =cut
 
 sub create_volume
 {
     my $self = shift;
-    my ($name, $size) = @_;
+    my ($name, $format, $size, $sparse) = @_;
 
     # Store the volume before creation so we can catch an interruption during or
     # very shortly after volume creation
     push(@cleanup_vols, [$self->{pool}, $name]);
 
-    return Sys::VirtV2V::Target::LibVirt::Vol->_create($self->{pool},
-                                                       $name, $size);
+    my $allocation = $sparse ? 0 : $size;
+    my $vol_xml = "
+        <volume>
+            <name>$name</name>
+            <capacity>$size</capacity>
+            <allocation>$allocation</allocation>
+            <target>
+                <format>$format</format>
+            </target>
+        </volume>
+    ";
+
+    my $vol;
+    eval {
+        $vol = $self->{pool}->create_volume($vol_xml);
+    };
+    die(user_message(__x("Failed to create storage volume: {error}",
+                         error => $@->stringify()))) if ($@);
+
+    my $info = $vol->get_info();
+    my $is_block = $info->{type} == Sys::Virt::StorageVol::TYPE_BLOCK ? 1 : 0;
+
+    my $transfer = $self->_get_transfer($vol->get_path(), $sparse);
+    return new Sys::VirtV2V::Connection::Volume($name, $format,
+                                                $vol->get_path(), $size,
+                                                $sparse, $is_block,
+                                                $transfer);
 }
 
 =item volume_exists (name)
@@ -290,7 +196,8 @@ sub volume_exists
 
 =item get_volume (name)
 
-Get a reference to an existing volume. See L<create_volume> for return value.
+Get a reference to an existing volume. get_volume returns a
+Sys::VirtV2V::Connection::Volume object.
 
 =cut
 
@@ -299,7 +206,24 @@ sub get_volume
     my $self = shift;
     my ($name) = @_;
 
-    return Sys::VirtV2V::Target::LibVirt::Vol->_get($self->{pool}, $name);
+    my $uri = $self->{uri};
+    my $pool = $self->{pool};
+
+    my $vol;
+    eval {
+        $vol = $pool->get_volume_by_name($name);
+    };
+    die(user_message(__x("Failed to get storage volume: {error}",
+                          error => $@->stringify()))) if ($@);
+
+    my (undef, $format, $size, $is_sparse, $is_block) =
+        parse_libvirt_volinfo($vol);
+
+    my $transfer = $self->_get_transfer($vol->get_path(), $is_sparse);
+    return new Sys::VirtV2V::Connection::Volume($name, $format,
+                                                $vol->get_path(), $size,
+                                                $is_sparse, $is_block,
+                                                $transfer);
 }
 
 =item guest_exists(name)
@@ -329,7 +253,7 @@ sub guest_exists
     return 1;
 }
 
-=item create_guest(dom)
+=item create_guest(desc, dom, guestcaps)
 
 Create the guest in the target
 

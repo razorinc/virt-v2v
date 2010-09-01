@@ -32,10 +32,10 @@ use Sys::Guestfs::Lib qw(get_partitions inspect_all_partitions
 use Sys::VirtV2V;
 use Sys::VirtV2V::Config;
 use Sys::VirtV2V::Converter;
-use Sys::VirtV2V::Connection::LibVirt;
-use Sys::VirtV2V::Connection::LibVirtXML;
-use Sys::VirtV2V::Target::LibVirt;
-use Sys::VirtV2V::Target::RHEV;
+use Sys::VirtV2V::Connection::LibVirtSource;
+use Sys::VirtV2V::Connection::LibVirtTarget;
+use Sys::VirtV2V::Connection::LibVirtXMLSource;
+use Sys::VirtV2V::Connection::RHEVTarget;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestfsHandle;
 use Sys::VirtV2V::GuestOS;
@@ -282,7 +282,8 @@ if ($output_method eq "libvirt") {
                 -exitval => 1 })
         unless (defined($output_pool));
 
-    $target = new Sys::VirtV2V::Target::LibVirt($output_uri, $output_pool);
+    $target = new Sys::VirtV2V::Connection::LibVirtTarget($output_uri,
+                                                          $output_pool);
 }
 
 elsif ($output_method eq "rhev") {
@@ -291,7 +292,7 @@ elsif ($output_method eq "rhev") {
                 -exitval => 1 })
         unless (defined($output_storage_domain));
 
-    $target = new Sys::VirtV2V::Target::RHEV($output_storage_domain);
+    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage_domain);
 }
 
 else {
@@ -299,48 +300,41 @@ else {
                          output => $output_method)));
 }
 
-# Get an appropriate Connection
-my $conn;
-eval {
-    if ($input_method eq "libvirtxml") {
-        my $path = shift(@ARGV) or
-            pod2usage({ -message => user_message(__"You must specify a filename"),
-                        -exitval => 1 });
+# Get an appropriate Source
+my $source;
+if ($input_method eq "libvirtxml") {
+    my $path = shift(@ARGV) or
+        pod2usage({ -message => user_message(__"You must specify a filename"),
+                    -exitval => 1 });
 
-        # Warn if we were given more than 1 argument
-        if(scalar(@_) > 0) {
-            print STDERR user_message
-                (__x("WARNING: {modulename} only takes a single filename.",
-                     modulename => 'libvirtxml'));
-        }
-
-        $conn = Sys::VirtV2V::Connection::LibVirtXML->new($path, $target);
+    # Warn if we were given more than 1 argument
+    if(scalar(@_) > 0) {
+        warn user_message
+            (__x("WARNING: {modulename} only takes a single filename.",
+                 modulename => 'libvirtxml'));
     }
 
-    elsif ($input_method eq "libvirt") {
-        my $name = shift(@ARGV) or
-            pod2usage({ -message => user_message(__"You must specify a guest"),
-                        -exitval => 1 });
+    $source = Sys::VirtV2V::Connection::LibVirtXMLSource->new($path);
+}
 
-        $conn = Sys::VirtV2V::Connection::LibVirt->new($input_uri, $name,
-                                                       $target);
+elsif ($input_method eq "libvirt") {
+    my $name = shift(@ARGV) or
+        pod2usage({ -message => user_message(__"You must specify a guest"),
+                    -exitval => 1 });
 
-        # Warn if we were given more than 1 argument
-        if(scalar(@_) > 0) {
-            print STDERR user_message
-                (__x("WARNING: {modulename} only takes a single domain name.",
-                     modulename => 'libvirt'));
-        }
+    $source = Sys::VirtV2V::Connection::LibVirtSource->new($input_uri, $name);
+
+    # Warn if we were given more than 1 argument
+    if(scalar(@_) > 0) {
+        warn user_message
+            (__x("WARNING: {modulename} only takes a single domain name.",
+                 modulename => 'libvirt'));
     }
+}
 
-    else {
-        print STDERR user_message __x("{input} is not a valid input method",
-                                      input => $input_method);
-        exit(1);
-    }
-};
-if ($@) {
-    print STDERR $@;
+else {
+    warn user_message(__x("{input} is not a valid input method",
+                                  input => $input_method));
     exit(1);
 }
 
@@ -348,12 +342,20 @@ if ($@) {
 ###############################################################################
 ## Start of processing
 
+# Check that the guest doesn't already exist on the target
+die(user_message(__x("Domain {name} already exists on the target.",
+                     name => $source->get_name)))
+    if ($target->guest_exists($source->get_name()));
+
+# Copy source storage to target
+$source->copy_storage($target);
+
 # Get a libvirt configuration for the guest
-my $dom = $conn->get_dom();
+my $dom = $source->get_dom();
 exit(1) unless(defined($dom));
 
 # Get a list of the guest's transfered storage devices
-my $storage = $conn->get_storage_paths();
+my $storage = $source->get_storage_paths();
 
 # Create the transfer iso if required
 my $transferiso;
@@ -375,7 +377,7 @@ eval {
     # Modify the guest and its metadata
     $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
                                                   $config, $dom, $os,
-                                                  $conn->get_storage_devices());
+                                                  $source->get_storage_devices());
 };
 
 # If any of the above commands result in failure, we need to ensure that the

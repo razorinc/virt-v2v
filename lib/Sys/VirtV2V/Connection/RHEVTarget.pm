@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Target::RHEV
+# Sys::VirtV2V::Connection::RHEVTarget
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -18,7 +18,15 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Target::RHEV::UUIDHelper;
+package rhev_util;
+
+use Exporter 'import';
+our @EXPORT = qw(nfs_helper get_uuid);
+
+sub nfs_helper
+{
+    return Sys::VirtV2V::Connection::RHEVTarget::NFSHelper->new(@_);
+}
 
 sub get_uuid
 {
@@ -35,13 +43,12 @@ sub get_uuid
     return $uuid;
 }
 
-package Sys::VirtV2V::Target::RHEV::NFSHelper;
+
+package Sys::VirtV2V::Connection::RHEVTarget::NFSHelper;
 
 use Carp;
 use File::Temp qw(tempfile);
 use POSIX qw(:sys_wait_h setuid setgid);
-
-use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -83,13 +90,14 @@ sub new
         close($tochild_read);
         close($fromchild_write);
 
-        # Set EUID and EGID to RHEV magic values 36:36
+        # Set EUID and EGID to RHEV magic values
         # execute the wrapped function, trapping errors
         eval {
             setgid(36) or die("setgid failed: $!");
             setuid(36) or die("setuid failed: $!");
 
-            &$sub();
+            # Print out the values returned, 1 per line
+            print join("\n", &$sub());
         };
 
         # Don't exit, which would cause destructors to be called in the child.
@@ -113,9 +121,27 @@ sub new
     return $self;
 }
 
+sub values
+{
+    my $self = shift;
+
+    my @values;
+    my $fromchild = $self->{fromchild};
+    while(<$fromchild>) {
+        chomp;
+        push(@values, $_);
+    }
+
+    $self->check_exit();
+    return @values;
+}
+
 sub check_exit
 {
     my $self = shift;
+
+    # Make sure it's not waiting on more input
+    close($self->{tochild});
 
     my $ret = waitpid($self->{pid}, 0);
 
@@ -158,58 +184,241 @@ sub DESTROY
     $? = $retval;
 }
 
-package Sys::VirtV2V::Target::RHEV::Vol;
+
+package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
+
+use File::Spec::Functions qw(splitpath);
+
+use Sys::VirtV2V::Util qw(user_message);
+use Locale::TextDomain 'virt-v2v';
+
+sub new
+{
+    my $class = shift;
+    my ($volume) = @_;
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{volume} = $volume;
+    $self->{writer} = rhev_util::nfs_helper(sub {
+        my $path = $self->{volume}->get_path();
+
+        # Create the output directory
+        my (undef, $dir, undef) = splitpath($path);
+        mkdir($dir)
+            or die(user_message(__x("Failed to create directory {dir}: {error}",
+                                    dir => $dir,
+                                    error => $!)));
+
+        # Write data using dd in 2MB chunks
+        # XXX - mbooth@redhat.com 06/04/2010 (Fedora 12 writing to RHEL 5 NFS)
+        # Use direct IO as writing a large amount of data to NFS regularly
+        # crashes my machine.  Using direct io doesn't.
+        exec('dd', 'obs=2M', 'oflag=direct', 'of='.$path)
+            or die("Unable to execute dd: $!");
+    });
+    $self->{written} = 0;
+
+    return $self;
+}
+
+sub _write_metadata
+{
+    my $self = shift;
+
+    my $nfs = rhev_util::nfs_helper(sub {
+        my $volume = $self->{volume};
+
+        my $path = $volume->get_path().'.meta';
+
+        my $sizek = $self->{written} / 1024;
+
+        # Write out the .meta file
+        my $meta;
+        open($meta, '>', $path)
+            or die(user_message(__x("Unable to open {path} for writing: ".
+                                    "{error}",
+                                    path => $path,
+                                    error => $!)));
+
+        print $meta "DOMAIN=".$volume->_get_domainuuid()."\n";
+        print $meta "VOLTYPE=LEAF\n";
+        print $meta "CTIME=".$volume->_get_creation()."\n";
+        print $meta "FORMAT=".$volume->_get_rhev_format()."\n";
+        print $meta "IMAGE=".$volume->_get_imageuuid()."\n";
+        print $meta "DISKTYPE=1\n";
+        print $meta "PUUID=00000000-0000-0000-0000-000000000000\n";
+        print $meta "LEGALITY=LEGAL\n";
+        print $meta "MTIME=".$volume->_get_creation()."\n";
+        print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
+        print $meta "SIZE=$sizek\n";
+        print $meta "TYPE=".uc($volume->_get_rhev_type())."\n";
+        print $meta "DESCRIPTION=Exported by virt-v2v\n";
+        print $meta "EOF\n";
+
+        close($meta)
+            or die(user_message(__x("Error closing {path}: {error}",
+                                    path => $path,
+                                    error => $!)));
+    });
+    $nfs->check_exit();
+}
+
+sub write
+{
+    my $self = shift;
+    my ($buf) = @_;
+
+    print { $self->{writer}->{tochild} } $buf
+        or die(user_message(__x("Writing to {path} failed: {error}",
+                                path => $self->{volume}->get_path(),
+                                error => $!)));
+
+    $self->{written} += length($buf);
+}
+
+sub close
+{
+    my $self = shift;
+
+    # Pad the file up to a 1K boundary
+    my $pad = (1024 - ($self->{written} % 1024)) % 1024;
+    $self->write("\0" x $pad) if ($pad);
+
+    $self->{writer}->check_exit();
+    $self->_write_metadata();
+}
+
+sub DESTROY
+{
+    my $self = shift;
+
+    $self->close() if (exists($self->{pid}));
+}
+
+
+package Sys::VirtV2V::Connection::RHEVTarget::Transfer;
+
+use Carp;
+use Locale::TextDomain 'virt-v2v';
+
+sub new
+{
+    my $class = shift;
+    my ($volume) = @_;
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{volume} = $volume;
+
+    return $self;
+}
+
+sub local_path
+{
+    return shift->{volume}->get_path();
+}
+
+sub get_read_stream
+{
+    die(user_message(__"Unable to read data from RHEV"));
+}
+
+sub get_write_stream
+{
+    my $volume = shift->{volume};
+    return new Sys::VirtV2V::Connection::RHEVTarget::WriteStream($volume);
+}
+
+sub DESTROY
+{
+    # Remove circular reference
+    delete(shift->{volume});
+}
+
+
+package Sys::VirtV2V::Connection::RHEVTarget::Vol;
 
 use File::Path;
+use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use POSIX;
 
 use Sys::VirtV2V::Util qw(user_message);
-
 use Locale::TextDomain 'virt-v2v';
 
 our %vols_by_path;
 our @vols;
 our $tmpdir;
 
-sub _new
+@Sys::VirtV2V::Connection::RHEVTarget::Vol::ISA =
+    qw(Sys::VirtV2V::Connection::Volume);
+
+sub new
 {
     my $class = shift;
-    my ($mountdir, $domainuuid, $insize) = @_;
+    my ($mountdir, $domainuuid, $format, $insize, $sparse) = @_;
 
-    my $self = {};
-    bless($self, $class);
+    my $root = catdir($mountdir, $domainuuid);
 
-    $self->{insize} = $insize;
+    # Initialise the package-wide temp directory if required
+    unless (defined($tmpdir)) {
+        my $nfs = rhev_util::nfs_helper(sub {
+            return tempdir("v2v.XXXXXXXX", DIR => $root);
+        });
+        ($tmpdir) = $nfs->values();
+    }
+
+    my $imageuuid = rhev_util::get_uuid();
+    my $voluuid   = rhev_util::get_uuid();
+
+    my $imagedir    = catdir($root, 'images', $imageuuid);
+    my $imagetmpdir = catdir($tmpdir, $imageuuid);
+    my $volpath     = catfile($imagetmpdir, $voluuid);
+
     # RHEV needs disks to be a multiple of 512 in size. Additionally, SIZE in
     # the disk meta file has units of kilobytes. To ensure everything matches up
     # exactly, we will pad to to a 1024 byte boundary.
-    $self->{outsize} = ceil($insize/1024) * 1024;
+    my $outsize = ceil($insize/1024) * 1024;
 
-    my $imageuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
-    my $voluuid   = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
+    my $creation = time();
+
+    my $self = $class->SUPER::new($imageuuid, $format, $volpath, $outsize,
+                                  $sparse, 0);
+    $self->{transfer} =
+        new Sys::VirtV2V::Connection::RHEVTarget::Transfer($self);
+
+    $self->{insize}  = $insize;
+    $self->{outsize} = $outsize;
+
     $self->{imageuuid}  = $imageuuid;
     $self->{voluuid}    = $voluuid;
     $self->{domainuuid} = $domainuuid;
 
-    my $root = "$mountdir/$domainuuid";
-    unless (defined($tmpdir)) {
-        my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
-            print tempdir("v2v.XXXXXXXX", DIR => $root);
-        });
-        my $fromchild = $nfs->{fromchild};
-        ($tmpdir) = <$fromchild>;
-        $nfs->check_exit();
+    $self->{imagedir}    = $imagedir;
+    $self->{imagetmpdir} = $imagetmpdir;
+
+    $self->{creation} = $creation;
+
+    # Convert format into something RHEV understands
+    my $rhev_format;
+    if ($format eq 'raw') {
+        $self->{rhev_format} = 'RAW';
+    } elsif ($format eq 'qcow2') {
+        $self->{rhev_format} = 'COW';
+    } else {
+        die(user_message(__x("RHEV cannot handle volumes of format {format}",
+                             format => $format)));
     }
 
-    $self->{dir}  = "$root/images/$imageuuid";
-    $self->{tmpdir} = "$tmpdir/$imageuuid";
+    # Generate the RHEV type
+    # N.B. This must be in mixed case in the OVF, but in upper case in the .meta
+    # file. We store it in mixed case and convert to upper when required.
+    $self->{rhev_type} = $sparse ? 'Sparse' : 'Preallocated';
 
-    $self->{path} = $self->{tmpdir}."/$voluuid";
-
-    $self->{creation} = time();
-
-    $vols_by_path{$self->{path}} = $self;
+    $vols_by_path{$volpath} = $self;
     push(@vols, $self);
 
     return $self;
@@ -223,150 +432,34 @@ sub _get_by_path
     return $vols_by_path{$path};
 }
 
-sub _get_size
+sub _get_domainuuid
 {
-    my $self = shift;
-
-    return $self->{outsize};
+    return shift->{domainuuid};
 }
 
 sub _get_imageuuid
 {
-    my $self = shift;
-
-    return $self->{imageuuid};
+    return shift->{imageuuid};
 }
 
 sub _get_voluuid
 {
-    my $self = shift;
-
-    return $self->{voluuid};
+    return shift->{voluuid};
 }
 
 sub _get_creation
 {
-    my $self = shift;
-
-    return $self->{creation};
+    return shift->{creation};
 }
 
-sub get_path
+sub _get_rhev_format
 {
-    my $self = shift;
-
-    return $self->{path};
+    return shift->{rhev_format};
 }
 
-sub get_format
+sub _get_rhev_type
 {
-    my $self = shift;
-
-    return "raw";
-}
-
-sub is_block
-{
-    my $self = shift;
-
-    return 0;
-}
-
-sub open
-{
-    my $self = shift;
-
-    my $now = $self->{creation};
-    $self->{written} = 0;
-
-    $self->{writer} = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
-        my $dir = $self->{tmpdir};
-        my $path = $self->{path};
-
-        mkdir($dir)
-            or die(user_message(__x("Failed to create directory {dir}: {error}",
-                                    dir => $dir,
-                                    error => $!)));
-
-        # Write out the .meta file
-        my $meta;
-        open($meta, '>', "$path.meta")
-            or die(user_message(__x("Unable to open {path} for writing: ".
-                                    "{error}",
-                                    path => "$path.meta",
-                                    error => $!)));
-
-        print $meta "DOMAIN=".$self->{domainuuid}."\n";
-        print $meta "VOLTYPE=LEAF\n";
-        print $meta "CTIME=$now\n";
-        print $meta "FORMAT=RAW\n";
-        print $meta "IMAGE=".$self->{imageuuid}."\n";
-        print $meta "DISKTYPE=1\n";
-        print $meta "PUUID=00000000-0000-0000-0000-000000000000\n";
-        print $meta "LEGALITY=LEGAL\n";
-        print $meta "MTIME=$now\n";
-        print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
-        print $meta "SIZE=".($self->{outsize} / 1024)."\n";
-        print $meta "TYPE=SPARSE\n";
-        print $meta "DESCRIPTION=Exported by virt-v2v\n";
-        print $meta "EOF\n";
-
-        close($meta)
-            or die(user_message(__x("Error closing {path}: {error}",
-                                    path => "$path.meta",
-                                    error => $!)));
-
-        # Write the remainder of the data using dd in 2MB chunks
-        # XXX - mbooth@redhat.com 06/04/2010 (Fedora 12 writing to RHEL 5 NFS)
-        # Use direct IO as writing a large amount of data to NFS regularly
-        # crashes my machine.  Using direct io crashes less.
-        exec('dd', 'obs='.1024*1024*2, 'oflag=direct', 'of='.$path)
-            or die("Unable to execute dd: $!");
-    });
-}
-
-sub write
-{
-    my $self = shift;
-    my ($data) = @_;
-
-    defined($self->{writer}) or die("write called without open");
-
-    unless(print {$self->{writer}->{tochild}} $data) {
-        # This should only have failed if there was an error from the helper
-        $self->{writer}->check_exit();
-
-        # die() explicitly in case the above didn't
-        die("Error writing to helper: $!");
-    }
-
-    $self->{written} += length($data);
-}
-
-sub close
-{
-    my $self = shift;
-
-    # Check we wrote the full file
-    die(user_message(__x("Didn't write full volume. Expected {expected} ".
-                         "bytes, wrote {actual} bytes.",
-                         expected => $self->{insize},
-                         actual => $self->{written})))
-        unless ($self->{written} == $self->{insize});
-
-    # Pad the output up to outsize
-    my $pad = $self->{outsize} - $self->{insize};
-    $self->write("\0" x $pad) if ($pad);
-
-    # Close the writer pipe, which will cause the child to exit
-    close($self->{writer}->{tochild})
-        or die("Error closing tochild pipe");
-
-    # Wait for the child to exit
-    $self->{writer}->check_exit();
-
-    delete($self->{writer});
-    delete($self->{written});
+    return shift->{rhev_type};
 }
 
 sub _move_vols
@@ -374,11 +467,11 @@ sub _move_vols
     my $class = shift;
 
     foreach my $vol (@vols) {
-        rename($vol->{tmpdir}, $vol->{dir})
+        rename($vol->{imagetmpdir}, $vol->{imagedir})
             or die(user_message(__x("Unable to move volume from temporary ".
                                     "location {tmpdir} to {dir}",
-                                    tmpdir => $vol->{tmpdir},
-                                    dir => $vol->{dir})));
+                                    tmpdir => $vol->{imagetmpdir},
+                                    dir => $vol->{imagedir})));
     }
 
     $class->_cleanup();
@@ -405,9 +498,10 @@ sub _cleanup
     $tmpdir = undef;
 }
 
-package Sys::VirtV2V::Target::RHEV;
+package Sys::VirtV2V::Connection::RHEVTarget;
 
 use File::Temp qw(tempdir);
+use File::Spec::Functions;
 use Time::gmtime;
 
 use Sys::VirtV2V::ExecHelper;
@@ -417,26 +511,15 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Target::RHEV - Output to a RHEV Export storage domain
-
-=head1 SYNOPSIS
-
- use Sys::VirtV2V::Target::RHEV;
-
- my $target = new Sys::VirtV2V::Target::RHEV($domain_path);
-
-=head1 DESCRIPTION
-
-Sys::VirtV2V::Target::RHEV write the converted guest to a RHEV Export storage
-domain. This can later be imported to RHEV by the user.
+Sys::VirtV2V::Connection::RHEVTarget - Output to a RHEV Export storage domain
 
 =head1 METHODS
 
 =over
 
-=item Sys::VirtV2V::Target::RHEV->new(domain_path)
+=item Sys::VirtV2V::Connection::RHEVTarget->new(domain_path)
 
-Create a new Sys::VirtV2V::Target::RHEV object.
+Create a new Sys::VirtV2V::Connection::RHEVTarget object.
 
 =over
 
@@ -479,60 +562,46 @@ sub new
                              output => $eh->output())));
     }
 
-    my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
+    my $nfs = rhev_util::nfs_helper(sub {
         opendir(my $dir, $mountdir)
             or die(user_message(__x("Unable to open {mountdir}: {error}",
                                     mountdir => $mountdir,
                                     error => $!)));
 
+        my @entries;
         foreach my $entry (readdir($dir)) {
             # return entries which look like uuids
-            print "$entry\n"
+            push(@entries, $entry)
                 if ($entry =~ /^[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}$/);
         }
+
+        return @entries;
     });
+    my @entries = $nfs->values();
 
-    # Get the UUID of the storage domain
-    my $domainuuid;
-    my $fromchild = $nfs->{fromchild};
-    while (<$fromchild>) {
-        if (defined($domainuuid)) {
-            die(user_message(__x("{domain_path} contains multiple possible ".
-                                 "domains. It may only contain one.",
-                                 domain_path => $domain_path)));
-        }
-        chomp;
-        $domainuuid = $_;
-    }
-    $nfs->check_exit();
+    die(user_message(__x("{domain_path} contains multiple possible ".
+                         "domains. It may only contain one.",
+                         domain_path => $domain_path))) if (@entries > 1);
 
-    if (!defined($domainuuid)) {
-        die(user_message(__x("{domain_path} does not contain an initialised ".
-                             "storage domain",
-                             domain_path => $domain_path)));
-    }
+    my ($domainuuid) = @entries;
+    die(user_message(__x("{domain_path} does not contain an initialised ".
+                         "storage domain",
+                         domain_path => $domain_path)))
+        unless (defined($domainuuid));
     $self->{domainuuid} = $domainuuid;
 
     # Check that the domain has been attached to a Data Center by checking that
     # the master/vms directory exists
-    my $vms_rel = $domainuuid.'/master/vms';
-    my $vms_abs = $mountdir.'/'.$vms_rel;
-    $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
-        if (-d $vms_abs) {
-            print "1\n";
-        } else {
-            print "0\n";
-        }
+    my $vms_rel = catdir($domainuuid, 'master', 'vms');
+    my $vms_abs = catdir($mountdir, $vms_rel);
+    $nfs = rhev_util::nfs_helper(sub {
+        return -d $vms_abs ? 1 : 0;
     });
-    $fromchild = $nfs->{fromchild};
-    while (<$fromchild>) {
-        chomp;
-        die(user_message(__x("{domain_path} has not been attached to a RHEV ".
-                             "data center ({path} does not exist).",
-                             domain_path => $domain_path,
-                             path => $vms_rel))) if ($_ eq "0");
-    }
-    $nfs->check_exit();
+    my ($attached) = $nfs->values();
+    die(user_message(__x("{domain_path} has not been attached to a RHEV ".
+                         "data center ({path} does not exist).",
+                         domain_path => $domain_path,
+                         path => $vms_rel))) unless ($attached);
 
     return $self;
 }
@@ -547,8 +616,8 @@ sub DESTROY
     my $retval = $?;
 
     eval {
-        my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
-            Sys::VirtV2V::Target::RHEV::Vol->_cleanup();
+        my $nfs = rhev_util::nfs_helper(sub {
+            Sys::VirtV2V::Connection::RHEVTarget::Vol->_cleanup();
         });
         $nfs->check_exit();
     };
@@ -577,7 +646,7 @@ sub DESTROY
     $? = $retval;
 }
 
-=item create_volume(name, size)
+=item create_volume(name, format, size, is_sparse)
 
 Create a new volume in the export storage domain
 
@@ -587,27 +656,37 @@ Create a new volume in the export storage domain
 
 The name of the volume which is being created.
 
+=item format
+
+The file format of the target volume, as returned by qemu.
+
 =item size
 
 The size of the volume which is being created in bytes.
 
+=item is_sparse
+
+1 if the target volume is sparse, 0 otherwise.
+
 =back
 
-create_volume() returns a Sys::VirtV2V::Target::RHEV::Vol object.
+create_volume() returns a Sys::VirtV2V::Connection::RHEVTarget::Vol object.
 
 =cut
 
 sub create_volume
 {
     my $self = shift;
-    my ($name, $size) = @_;
+    my ($name, $format, $size, $is_sparse) = @_;
 
-    return Sys::VirtV2V::Target::RHEV::Vol->_new($self->{mountdir},
-                                                 $self->{domainuuid},
-                                                 $size);
+    return Sys::VirtV2V::Connection::RHEVTarget::Vol->new($self->{mountdir},
+                                                          $self->{domainuuid},
+                                                          $format,
+                                                          $size,
+                                                          $is_sparse);
 }
 
-=item volume_exists (name)
+=item volume_exists(name)
 
 Check if volume I<name> exists in the target storage domain.
 
@@ -617,13 +696,10 @@ Always returns 0, as RHEV storage domains don't have names
 
 sub volume_exists
 {
-    my $self = shift;
-    my ($name) = @_;
-
     return 0;
 }
 
-=item get_volume (name)
+=item get_volume(name)
 
 Not defined for RHEV output
 
@@ -675,7 +751,7 @@ sub create_guest
     # Generate a creation date
     my $vmcreation = _format_time(gmtime());
 
-    my $vmuuid = Sys::VirtV2V::Target::RHEV::UUIDHelper::get_uuid();
+    my $vmuuid = rhev_util::get_uuid();
 
     my $ostype = _get_os_type($desc);
 
@@ -755,20 +831,20 @@ EOF
     $self->_disks($ovf, $dom);
     $self->_networks($ovf, $dom);
 
-    my $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
+    my $nfs = rhev_util::nfs_helper(sub {
         my $mountdir = $self->{mountdir};
         my $domainuuid = $self->{domainuuid};
 
-        my $dir = $mountdir.'/'.$domainuuid.'/master/vms/'.$vmuuid;
+        my $dir = catdir($mountdir, $domainuuid, 'master', 'vms', $vmuuid);
         mkdir($dir)
             or die(user_message(__x("Failed to create directory {dir}: {error}",
                                     dir => $dir,
                                     error => $!)));
 
-        Sys::VirtV2V::Target::RHEV::Vol->_move_vols();
+        Sys::VirtV2V::Connection::RHEVTarget::Vol->_move_vols();
 
         my $vm;
-        my $ovfpath = $dir.'/'.$vmuuid.'.ovf';
+        my $ovfpath = catfile($dir, $vmuuid.'.ovf');
         open($vm, '>', $ovfpath)
             or die(user_message(__x("Unable to open {path} for writing: ".
                                     "{error}",
@@ -958,13 +1034,13 @@ sub _disks
         my ($bus) = $disk->findnodes('target/@bus');
         $bus = $bus->getNodeValue();
 
-        my $vol = Sys::VirtV2V::Target::RHEV::Vol->_get_by_path($path);
+        my $vol = Sys::VirtV2V::Connection::RHEVTarget::Vol->_get_by_path($path);
 
         die("dom contains path not written by virt-v2v: $path\n".
             $dom->toString()) unless (defined($vol));
 
-        my $fileref = $vol->_get_imageuuid().'/'.$vol->_get_voluuid();
-        my $size_gb = int($vol->_get_size()/1024/1024/1024);
+        my $fileref = catdir($vol->_get_imageuuid(), $vol->_get_voluuid());
+        my $size_gb = int($vol->get_size()/1024/1024/1024);
 
         # Add disk to References
         my $file = $ovf->createElement("File");
@@ -972,7 +1048,7 @@ sub _disks
 
         $file->setAttribute('ovf:href', $fileref);
         $file->setAttribute('ovf:id', $vol->_get_voluuid());
-        $file->setAttribute('ovf:size', $vol->_get_size());
+        $file->setAttribute('ovf:size', $vol->get_size());
         $file->setAttribute('ovf:description', 'imported by virt-v2v');
 
         # Add disk to DiskSection
@@ -986,8 +1062,8 @@ sub _disks
         $diske->setAttribute('ovf:parentRef', '');
         $diske->setAttribute('ovf:vm_snapshot_id',
                              '00000000-0000-0000-0000-000000000000');
-        $diske->setAttribute('ovf:volume-format', 'RAW');
-        $diske->setAttribute('ovf:volume-type', 'Sparse');
+        $diske->setAttribute('ovf:volume-format', $vol->_get_rhev_format());
+        $diske->setAttribute('ovf:volume-type', $vol->_get_rhev_type());
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
         # IDE = 0, SCSI = 1, VirtIO = 2
         $diske->setAttribute('ovf:disk-interface', $bus eq 'virtio' ? 2 : 0);

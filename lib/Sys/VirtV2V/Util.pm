@@ -20,13 +20,16 @@ package Sys::VirtV2V::Util;
 use strict;
 use warnings;
 
+use Sys::Virt;
+use XML::DOM;
+
 use Locale::TextDomain 'virt-v2v';
 
 require Exporter;
 use vars qw(@EXPORT_OK @ISA);
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(augeas_error user_message);
+@EXPORT_OK = qw(augeas_error user_message parse_libvirt_volinfo);
 
 =pod
 
@@ -126,6 +129,42 @@ sub user_message
     my ($msg) = (@_);
 
     return __x("virt-v2v: {message}\n", message => $msg);
+}
+
+=item parse_libvirt_volinfo(vol)
+
+Return name, format, size, is_sparse, is_block for a given a libvirt volume.
+
+=cut
+
+sub parse_libvirt_volinfo
+{
+    my ($vol) = @_;
+
+    my $voldom = new XML::DOM::Parser->parse($vol->get_xml_description());
+
+    my ($name, $format, $size, $is_sparse, $is_block);
+
+    ($name) = $voldom->findnodes('/volume/name/text()');
+    $name = $name->getData();
+
+    ($format) = $voldom->findnodes('/volume/target/format/@type');
+    $format = $format->getValue();
+
+    my $info = $vol->get_info();
+
+    $size = $info->{capacity};
+
+    my $allocation = $info->{allocation};
+    if ($allocation < $size) {
+        $is_sparse = 1;
+    } else {
+        $is_sparse = 0;
+    }
+
+    $is_block = $info->{type} == Sys::Virt::StorageVol::TYPE_BLOCK ? 1 : 0;
+
+    return ($name, $format, $size, $is_sparse, $is_block);
 }
 
 =back
