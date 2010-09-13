@@ -618,6 +618,17 @@ sub get_volume
     die("Cannot retrieve an existing RHEV storage volume by name");
 }
 
+=item guest_exists(name)
+
+This always returns 0 for a RHEV target.
+
+=cut
+
+sub guest_exists
+{
+    return 0;
+}
+
 =item create_guest(dom)
 
 Create the guest in the target

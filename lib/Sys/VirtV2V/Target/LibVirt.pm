@@ -145,8 +145,10 @@ sub close
 
 package Sys::VirtV2V::Target::LibVirt;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::Virt;
+use Sys::Virt::Error;
 
+use Sys::VirtV2V::Util qw(user_message);
 use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
@@ -286,6 +288,33 @@ sub get_volume
     my ($name) = @_;
 
     return Sys::VirtV2V::Target::LibVirt::Vol->_get($self->{pool}, $name);
+}
+
+=item guest_exists(name)
+
+Return 1 if a guest with I<name> already exists, 0 otherwise.
+
+=cut
+
+sub guest_exists
+{
+    my $self = shift;
+    my ($name) = @_;
+
+    eval {
+        $self->{vmm}->get_domain_by_name($name);
+    };
+
+    if ($@) {
+        if ($@->code == Sys::Virt::Error::ERR_NO_DOMAIN) {
+            return 0;
+        }
+
+        die(user_message(__x("Error checking for domain: {error}",
+                             error => $@->stringify())));
+    }
+
+    return 1;
 }
 
 =item create_guest(dom)

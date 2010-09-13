@@ -79,6 +79,10 @@ sub new
     $self->{uri} = URI->new($uri);
     $self->{name} = $name;
 
+    # Check that the guest doesn't already exist on the target
+    die(user_message(__x("Domain {name} already exists on the target.",
+                         name => $name))) if ($target->guest_exists($name));
+
     # Parse uri authority for hostname and username
     $self->{uri}->authority() =~ /^(?:([^:]*)(?::([^@]*))?@)?(.*)$/
         or die(user_message(__x("Unable to parse URI authority: {auth}",
