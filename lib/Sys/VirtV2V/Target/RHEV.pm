@@ -497,23 +497,42 @@ sub new
     my $fromchild = $nfs->{fromchild};
     while (<$fromchild>) {
         if (defined($domainuuid)) {
-            die(user_message(__x("{mountdir} contains multiple possible ".
+            die(user_message(__x("{domain_path} contains multiple possible ".
                                  "domains. It may only contain one.",
-                                 mountdir => $mountdir)));
+                                 domain_path => $domain_path)));
         }
         chomp;
         $domainuuid = $_;
     }
-
     $nfs->check_exit();
 
     if (!defined($domainuuid)) {
-        die(user_message(__x("{mountdir} does not contain an initialised ".
+        die(user_message(__x("{domain_path} does not contain an initialised ".
                              "storage domain",
-                             mountdir => $mountdir)));
+                             domain_path => $domain_path)));
     }
-
     $self->{domainuuid} = $domainuuid;
+
+    # Check that the domain has been attached to a Data Center by checking that
+    # the master/vms directory exists
+    my $vms_rel = $domainuuid.'/master/vms';
+    my $vms_abs = $mountdir.'/'.$vms_rel;
+    $nfs = Sys::VirtV2V::Target::RHEV::NFSHelper->new(sub {
+        if (-d $vms_abs) {
+            print "1\n";
+        } else {
+            print "0\n";
+        }
+    });
+    $fromchild = $nfs->{fromchild};
+    while (<$fromchild>) {
+        chomp;
+        die(user_message(__x("{domain_path} has not been attached to a RHEV ".
+                             "data center ({path} does not exist).",
+                             domain_path => $domain_path,
+                             path => $vms_rel))) if ($_ eq "0");
+    }
+    $nfs->check_exit();
 
     return $self;
 }
