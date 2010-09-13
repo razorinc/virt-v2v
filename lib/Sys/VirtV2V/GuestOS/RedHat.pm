@@ -299,6 +299,14 @@ sub update_display_driver
             $g->aug_set($path, $driver);
         }
 
+        # Remove VendorName and BoardName if present
+        foreach my $path
+            ($g->aug_match('/files'.$self->{xorg}.'/Device/VendorName'),
+             $g->aug_match('/files'.$self->{xorg}.'/Device/BoardName'))
+        {
+            $g->aug_rm($path);
+        }
+
         $g->aug_save();
     };
 
