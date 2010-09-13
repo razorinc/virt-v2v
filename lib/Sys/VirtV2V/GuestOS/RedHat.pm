@@ -654,6 +654,23 @@ sub _install_any
 
     my $g = $self->{g};
 
+    # If we're updating the kernel, make sure DEFAULTKERNEL is updated in case
+    # the kernel package has changed
+    if (defined($kernel)) {
+        eval {
+            foreach my $path
+                ($g->aug_match('/files/etc/sysconfig/kernel/DEFAULTKERNEL/value'))
+            {
+                $g->aug_set($path, $kernel->[0]);
+            }
+
+            $g->aug_save();
+        };
+
+        # Propagate augeas errors
+        augeas_error($g, $@) if ($@);
+    };
+
     my $resolv_bak = $g->exists('/etc/resolv.conf');
     $g->mv('/etc/resolv.conf', '/etc/resolv.conf.v2vtmp') if ($resolv_bak);
 
