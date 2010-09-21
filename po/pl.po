@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-08-12 10:06+0100\n"
+"POT-Creation-Date: 2010-09-21 14:19+0100\n"
 "PO-Revision-Date: 2010-08-25 14:45+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
@@ -13,7 +13,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pl\n"
 
 #: ../lib/Sys/VirtV2V/Config.pm:75
 #, perl-brace-format
@@ -30,17 +29,17 @@ msgstr "Brak uprawnień do odczytania {path}"
 msgid "Unable to parse config file {path}: {error}"
 msgstr "Nie można przetworzyć pliku konfiguracji {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:145
+#: ../lib/Sys/VirtV2V/Config.pm:147
 msgid "<iso-path> must be specified in the configuration file"
 msgstr "<ścieżka-do-pliku-ISO> musi zostać podana w pliku konfiguracji"
 
-#: ../lib/Sys/VirtV2V/Config.pm:152 ../lib/Sys/VirtV2V/Config.pm:156
+#: ../lib/Sys/VirtV2V/Config.pm:154 ../lib/Sys/VirtV2V/Config.pm:158
 #: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:78
 #, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "Nie można wykonać stat na {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:198
+#: ../lib/Sys/VirtV2V/Config.pm:200
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -49,12 +48,12 @@ msgstr ""
 "Utworzenie pliku ISO przesyłania nie powiodło się. Wyjście polecenia:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:288
+#: ../lib/Sys/VirtV2V/Config.pm:290
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr "wpis aplikacji w konfiguracji nie zawiera ścieżki: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:345
+#: ../lib/Sys/VirtV2V/Config.pm:347
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
@@ -62,21 +61,21 @@ msgid ""
 msgstr ""
 "Możliwość w konfiguracji zawiera zależność bez atrybutu {property}: {xml}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:378
+#: ../lib/Sys/VirtV2V/Config.pm:380
 #, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr "Nie podano konfiguracji. Brak aplikacji {type} pasującej do {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:389
+#: ../lib/Sys/VirtV2V/Config.pm:391
 msgid "Didn't detect operating system"
 msgstr "Nie wykryto systemu operacyjnego"
 
-#: ../lib/Sys/VirtV2V/Config.pm:423
+#: ../lib/Sys/VirtV2V/Config.pm:425
 #, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr "Brak {type} w konfiguracji pasującej do {search}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:454
+#: ../lib/Sys/VirtV2V/Config.pm:456
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
@@ -86,23 +85,28 @@ msgstr ""
 "konfiguracji. Przekonwertowany gość może się nie uruchamiać, dopóki jego "
 "interfejs sieciowy nie zostanie zaktualizowany."
 
-#: ../lib/Sys/VirtV2V/Config.pm:470
+#: ../lib/Sys/VirtV2V/Config.pm:472
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci w konfiguracji: {config}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:478
+#: ../lib/Sys/VirtV2V/Config.pm:480
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
 "OSTRZEŻENIE: nieznany typ interfejsu {type} w mapowaniu sieciowym: {config}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:84
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:83
+#, perl-brace-format
+msgid "Domain {name} already exists on the target."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:88
 #, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "Nie można przetworzyć upoważnienia adresu URI: {auth}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:90
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:94
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
@@ -110,45 +114,45 @@ msgstr ""
 "OSTRZEŻENIE: podanie hasła w adresie URI połączenia nie jest obsługiwane. "
 "Zostanie zignorowane."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:137
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:141
 #, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "Połączenie z {uri} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:175
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:179
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "Gość {name} jest obecnie {state}. Musi zostać najpierw wyłączony."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:188
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
 msgid "idle"
 msgstr "bezczynny"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:190
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:194
 msgid "running"
 msgstr "uruchomiony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:196
 msgid "blocked"
 msgstr "zablokowany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:194
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:198
 msgid "paused"
 msgstr "wstrzymany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:196
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:200
 msgid "shutting down"
 msgstr "wyłączany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:198
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:202
 msgid "shut down"
 msgstr "wyłączony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:200
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:204
 msgid "crashed"
 msgstr "zawieszony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:223
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:227
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} nie jest prawidłową nazwą gościa"
@@ -226,15 +230,15 @@ msgstr ""
 msgid "Unknown interface type {type} in domain XML: {domain}"
 msgstr "Nieznany typ interfejsu {type} w pliku XML domeny: {domain}"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:176
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:178
 msgid ""
 "You must specify the configuration file (-f) when converting Windows guests."
 msgstr ""
 "Należy podać plik konfiguracji (-f) podczas konwertowania gości systemu "
 "Windows."
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:209
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:307
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:212
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:310
 #, perl-brace-format
 msgid ""
 "Could not download the SYSTEM registry from this Windows guest.  The exact "
@@ -243,13 +247,13 @@ msgstr ""
 "Nie można pobrać rejestru SYSTEM z tego gościa systemu Windows. Dokładny "
 "komunikat błędu: {errmsg}"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:268
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:271
 #, perl-brace-format
 msgid "Guest is not a supported version of Windows ({major}.{minor})"
 msgstr "Gość nie jest obsługiwaną wersją systemu Windows ({major}.{minor})"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:369
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:840
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:447
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:865
 #, perl-brace-format
 msgid ""
 "Installation failed because the following files referenced in the "
@@ -266,17 +270,17 @@ msgstr "Biblioteka libguestfs nie została poprawnie zakończona"
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:398
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:406
 #, perl-brace-format
 msgid "WARNING: grub refers to {path}, which doesn't exist."
 msgstr "OSTRZEŻENIE: program GRUB odwołuje się do {path}, który nie istnieje."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:444
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:452
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr "Nie odnaleziono możliwości {name} w konfiguracji"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:463
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:471
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
@@ -285,37 +289,37 @@ msgstr ""
 "Nierozpoznany format dla {field} w konfiguracji: {value}. {field} musi być w "
 "formacie [epoch:]version[-release]."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:720
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:745
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 "Zainstalowanie pakietów używając programu up2date nie powiodło się. "
 "Komunikat błędu: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:787
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:812
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 "Zainstalowanie pakietów używając programu yum nie powiodło się. Wyjście: "
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1068
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1093
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1155
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1180
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1688
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1713
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
 "OSTRZEŻENIE: wersja jądra {version} nie posiada wpisu initrd w programie "
 "GRUB."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1744
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1769
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
 msgstr ""
 "Nie odnaleziono polecenia mkinitrd lub dracut. Nie można zaktualizować "
@@ -348,24 +352,29 @@ msgstr "Błąd podczas zapisywania do {path}: {error}"
 msgid "Error closing volume handle: {error}"
 msgstr "Błąd podczas zamykania obsługi woluminu: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:204
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:206
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid storage pool"
 msgstr "Pula wyjściowa {poolname} nie jest prawidłową pulą pamięci masowej"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:265
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:267
 #, perl-brace-format
 msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr ""
 "OSTRZEŻENIE: nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci "
 "masowej {name}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:322
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:313
+#, fuzzy, perl-brace-format
+msgid "Error checking for domain: {error}"
+msgstr "Błąd podczas wykonywania {command}: {error}"
+
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:353
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:382
 #, perl-brace-format
 msgid ""
 "The connected hypervisor does not support a machine type of {machine}. It "
@@ -374,22 +383,22 @@ msgstr ""
 "Połączony nadzorca nie obsługuje typu komputera {machine}. Zostanie "
 "ustawiony na domyślny."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:378
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:407
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}."
 msgstr "Połączony nadzorca nie obsługuje funkcji {feature}."
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:385
+#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:414
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:287 ../lib/Sys/VirtV2V/Target/RHEV.pm:734
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:287 ../lib/Sys/VirtV2V/Target/RHEV.pm:764
 #, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
 msgstr "Utworzenie katalogu {dir} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:294 ../lib/Sys/VirtV2V/Target/RHEV.pm:743
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:294 ../lib/Sys/VirtV2V/Target/RHEV.pm:773
 #, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
 msgstr "Nie można otworzyć {path} do zapisania: {error}"
@@ -447,16 +456,24 @@ msgid "Unable to open {mountdir}: {error}"
 msgstr "Nie można otworzyć {mountdir}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:500
-#, perl-brace-format
-msgid "{mountdir} contains multiple possible domains. It may only contain one."
+#, fuzzy, perl-brace-format
+msgid ""
+"{domain_path} contains multiple possible domains. It may only contain one."
 msgstr "{mountdir} zawiera wiele możliwych domen. Może zawierać tylko jedną."
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:511
-#, perl-brace-format
-msgid "{mountdir} does not contain an initialised storage domain"
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:510
+#, fuzzy, perl-brace-format
+msgid "{domain_path} does not contain an initialised storage domain"
 msgstr "{mountdir} nie zawiera zainicjowanej domeny pamięci masowej"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:543
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:530
+#, perl-brace-format
+msgid ""
+"{domain_path} has not been attached to a RHEV data center ({path} does not "
+"exist)."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:562
 #, perl-brace-format
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
@@ -465,22 +482,22 @@ msgstr ""
 "Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
 "{status}. Wyjście: {output}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:553
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:572
 #, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
 msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:827
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:857
 #, perl-brace-format
 msgid "Unsupported architecture: {arch}"
 msgstr "Nieobsługiwana architektura: {arch}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:871
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:901
 #, perl-brace-format
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr "Nieznana wersja systemu Windows: {major}.{minor}"
 
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:1090
+#: ../lib/Sys/VirtV2V/Target/RHEV.pm:1124
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
@@ -612,67 +629,67 @@ msgstr "--network można podać tylko raz"
 msgid "--bridge may only be specified once"
 msgstr "--bridge można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:277
+#: ../v2v/virt-v2v.pl:280
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "biblioteki libvirt"
 
-#: ../v2v/virt-v2v.pl:286
+#: ../v2v/virt-v2v.pl:289
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "rhev"
 
-#: ../v2v/virt-v2v.pl:295
+#: ../v2v/virt-v2v.pl:298
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} nie jest prawidłową metodą wyjścia"
 
-#: ../v2v/virt-v2v.pl:304
+#: ../v2v/virt-v2v.pl:307
 msgid "You must specify a filename"
 msgstr "Należy podać nazwę pliku"
 
-#: ../v2v/virt-v2v.pl:310
+#: ../v2v/virt-v2v.pl:313
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
 
-#: ../v2v/virt-v2v.pl:319
+#: ../v2v/virt-v2v.pl:322
 msgid "You must specify a guest"
 msgstr "Należy podać gościa"
 
-#: ../v2v/virt-v2v.pl:328
+#: ../v2v/virt-v2v.pl:331
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę domeny."
 
-#: ../v2v/virt-v2v.pl:334
+#: ../v2v/virt-v2v.pl:337
 #, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} nie jest prawidłową metodą wprowadzania"
 
-#: ../v2v/virt-v2v.pl:395
+#: ../v2v/virt-v2v.pl:398
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} jest skonfigurowane ze sterownikami virtio"
 
-#: ../v2v/virt-v2v.pl:398
+#: ../v2v/virt-v2v.pl:401
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} jest skonfigurowane bez sterowników virtio"
 
-#: ../v2v/virt-v2v.pl:414
+#: ../v2v/virt-v2v.pl:417
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr "Odebrano sygnał {sig}. Kończenie działania."
 
-#: ../v2v/virt-v2v.pl:437
+#: ../v2v/virt-v2v.pl:440
 msgid "no root device found in this operating system image"
 msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 
-#: ../v2v/virt-v2v.pl:443
+#: ../v2v/virt-v2v.pl:446
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
