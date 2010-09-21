@@ -22,13 +22,15 @@ use warnings;
 use Test::More;
 
 use Module::Build;
-use Module::Find;
+
+eval "use Module::Find";
+plan skip_all => "Module::Find required for testing syntax" if $@;
 
 # Add the Sys::VirtV2V module
 my @modules = ('Sys::VirtV2V');
 
 # Add all modules under Sys::VirtV2V
-push(@modules, findallmod(Sys::VirtV2V));
+push(@modules, findallmod('Sys::VirtV2V'));
 
 plan tests => scalar(@modules) + 1;
 
