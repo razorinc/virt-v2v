@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-09-21 14:19+0100\n"
-"PO-Revision-Date: 2010-08-25 14:45+0200\n"
+"PO-Revision-Date: 2010-09-23 15:33+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "Language: pl\n"
@@ -99,7 +99,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:83
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
-msgstr ""
+msgstr "Domena {name} już istnieje w celu."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:88
 #, perl-brace-format
@@ -365,9 +365,9 @@ msgstr ""
 "masowej {name}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:313
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error checking for domain: {error}"
-msgstr "Błąd podczas wykonywania {command}: {error}"
+msgstr "Błąd podczas sprawdzania domeny: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
 #, perl-brace-format
@@ -456,15 +456,16 @@ msgid "Unable to open {mountdir}: {error}"
 msgstr "Nie można otworzyć {mountdir}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:500
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
-msgstr "{mountdir} zawiera wiele możliwych domen. Może zawierać tylko jedną."
+msgstr ""
+"{domain_path} zawiera wiele możliwych domen. Może zawierać tylko jedną."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:510
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{domain_path} does not contain an initialised storage domain"
-msgstr "{mountdir} nie zawiera zainicjowanej domeny pamięci masowej"
+msgstr "{domain_path} nie zawiera zainicjowanej domeny pamięci masowej"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:530
 #, perl-brace-format
@@ -472,6 +473,8 @@ msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
 "exist)."
 msgstr ""
+"{domain_path} nie została dołączona do centrum danych RHEV ({path} nie "
+"istnieje)."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:562
 #, perl-brace-format
