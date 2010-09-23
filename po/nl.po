@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-09-21 14:19+0100\n"
-"PO-Revision-Date: 2010-08-25 14:18+0200\n"
+"PO-Revision-Date: 2010-09-23 10:27+0200\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Fedora\n"
 "Language: nl\n"
@@ -103,7 +103,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:83
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
-msgstr ""
+msgstr "Domein {name} bestaat al op dit doel."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:88
 #, perl-brace-format
@@ -359,9 +359,9 @@ msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
 msgstr "WAARSCHUWING: Onverwachte fout bij toegang naar pool {name}: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:313
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error checking for domain: {error}"
-msgstr "Fout bij het draaien van {command}: {error}"
+msgstr "Fout bij het controleren van domein: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
 #, perl-brace-format
@@ -451,16 +451,17 @@ msgid "Unable to open {mountdir}: {error}"
 msgstr "Kan {mountdir} niet openen: {error}"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:500
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
 msgstr ""
-"{mountdir} bevat meerdere mogelijke domeinen. Het kan slechts een bevatten."
+"{domain_path} bevat meerdere mogelijke domeinen. Het kan slechts een "
+"bevatten."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:510
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "{domain_path} does not contain an initialised storage domain"
-msgstr "{mountdir} bevat geen geïnitialiseerd opslag domein"
+msgstr "{domain_path} bevat geen geïnitialiseerd opslag domein"
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:530
 #, perl-brace-format
@@ -468,6 +469,8 @@ msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
 "exist)."
 msgstr ""
+"{domain_path} is niet gekoppeld aan een RHEV data centrum ({path} bestaat "
+"niet)."
 
 #: ../lib/Sys/VirtV2V/Target/RHEV.pm:562
 #, perl-brace-format
