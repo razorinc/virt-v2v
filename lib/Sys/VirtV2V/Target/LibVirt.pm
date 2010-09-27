@@ -330,9 +330,25 @@ sub create_guest
 
     my $vmm = $self->{vmm};
 
+    _unconfigure_incompatible_devices($dom);
     _configure_capabilities($vmm, $dom, $guestcaps);
 
     $vmm->define_domain($dom->toString());
+}
+
+sub _unconfigure_incompatible_devices
+{
+    my ($dom) = @_;
+
+    foreach my $path (
+        # We have replaced the SCSI controller with either VirtIO or IDE.
+        # Additionally, attempting to start a guest converted from ESX, which
+        # has an lsilogic SCSI controller, will fail on RHEL 5.
+        $dom->findnodes("/domain/devices/controller[\@type='scsi']")
+    )
+    {
+        $path->getParentNode()->removeChild($path);
+    }
 }
 
 # Configure guest according to target hypervisor's capabilities
