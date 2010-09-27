@@ -344,7 +344,13 @@ sub _unconfigure_incompatible_devices
         # We have replaced the SCSI controller with either VirtIO or IDE.
         # Additionally, attempting to start a guest converted from ESX, which
         # has an lsilogic SCSI controller, will fail on RHEL 5.
-        $dom->findnodes("/domain/devices/controller[\@type='scsi']")
+        $dom->findnodes("/domain/devices/controller[\@type='scsi']"),
+
+        # XXX: We have no current way of detecting which sound card models are
+        # supported by the target hypervisor. As an unsupported sound card model
+        # can prevent the guest from starting, we simply remove sound cards for
+        # the moment.
+        $dom->findnodes("/domain/devices/sound")
     )
     {
         $path->getParentNode()->removeChild($path);
