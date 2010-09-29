@@ -92,7 +92,7 @@ sub new
     return $self;
 }
 
-=item create_volume(name, size)
+=item create_volume(name, format, size, sparse)
 
 Create a new volume in the pool whose name was passed to new().
 
@@ -136,7 +136,7 @@ sub create_volume
             <capacity>$size</capacity>
             <allocation>$allocation</allocation>
             <target>
-                <format>$format</format>
+                <format type='$format'/>
             </target>
         </volume>
     ";
