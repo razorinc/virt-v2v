@@ -21,6 +21,7 @@ use strict;
 use warnings;
 
 use Sys::Virt;
+use Term::ProgressBar;
 
 use Sys::VirtV2V::Util qw(user_message);
 
@@ -119,16 +120,36 @@ sub _volume_copy
                              dst => $dst->get_format())));
     }
 
+    my $expected;
+    # We expect to read all data for raw volumes, even if they're sparse
+    if ($src->get_format() eq "raw") {
+        $expected = $src->get_size();
+    }
+
+    # ... but only allocated data for other formats
+    else {
+        $expected = $src->get_usage();
+    }
+
     # Copy the contents of the source stream to the destination stream
     my $total = 0;
+    my $progress = new Term::ProgressBar({name => $src->get_name(),
+                                          count => $expected,
+                                          ETA => 'linear' });
+    my $next_update = 0;
     for (;;) {
         my $buf = $src_s->read(4 * 1024 * 1024);
         last if (length($buf) == 0);
 
         $total += length($buf);
-
         $dst_s->write($buf);
+
+        $next_update = $progress->update($total) if ($total > $next_update);
     }
+    # Indicate that we finished regardless of how much data was written
+    $progress->update($expected);
+    # The progress bar doesn't print a newline on completion
+    print STDERR "\n";
 
     # This would be closed implicitly, but we want to report read/write errors
     # before checking for a short volume
