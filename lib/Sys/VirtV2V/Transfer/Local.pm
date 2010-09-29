@@ -98,6 +98,7 @@ sub new
                                 path => $path,
                                 error => $!)));
 
+    $self->{path} = $path;
     $self->{fh} = $fh;
     $self->{is_sparse} = $is_sparse;
 
@@ -115,7 +116,11 @@ sub write
 sub close
 {
     my $self = shift;
+
+    return unless (defined($self->{fh}));
+
     close($self->{fh}) or $self->_write_error($!);
+    delete($self->{fh});
 }
 
 sub _write_error
