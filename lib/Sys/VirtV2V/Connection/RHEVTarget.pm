@@ -218,7 +218,8 @@ sub new
                                     dir => $dir,
                                     error => $!)));
 
-        if ($volume->is_sparse()) {
+        # Sparse copy raw, sparse files
+        if ($volume->get_format() eq "raw" && $volume->is_sparse()) {
             return sparsecopy(*STDIN, $path);
         }
 
@@ -245,7 +246,7 @@ sub _write_metadata
 
         my $path = $volume->get_path().'.meta';
 
-        my $sizek = $self->{written} / 1024;
+        my $sizek = ceil($volume->get_size() / 1024);
 
         # Write out the .meta file
         my $meta;
@@ -307,7 +308,23 @@ sub close
     my ($usage) = $self->{writer}->values();
 
     # Update the volume's disk usage
-    $self->{volume}->{usage} = $usage;
+    my $volume = $self->{volume};
+
+    # For raw volumes, return the amount of data written by $self->{writer},
+    # which may be less than the amount of data we sent due to sparse writes
+    if ($volume->get_format() eq "raw") {
+        $volume->{usage} = $usage;
+    }
+
+    # For other volumes, return the amount of data we sent to $self->{writer},
+    # which may be less than the total size of the volume for intrinsically
+    # sparse formats, like qcow2.
+    # N.B. This is only an approximation of usage, as it takes no account of
+    # format overhead.
+    else {
+        $volume->{usage} = $self->{written};
+    }
+
     $self->_write_metadata();
 }
 
@@ -524,6 +541,7 @@ package Sys::VirtV2V::Connection::RHEVTarget;
 use Data::Dumper;
 use File::Temp qw(tempdir);
 use File::Spec::Functions;
+use POSIX;
 use Time::gmtime;
 
 use Sys::VirtV2V::ExecHelper;
@@ -768,7 +786,7 @@ sub create_guest
     # Get the amount of memory in MB
     my ($memsize) = $dom->findnodes('/domain/memory/text()');
     $memsize = $memsize->getNodeValue();
-    $memsize = int($memsize / 1024);
+    $memsize = ceil($memsize / 1024);
 
     # Generate a creation date
     my $vmcreation = _format_time(gmtime());
@@ -1062,8 +1080,8 @@ sub _disks
             $dom->toString()) unless (defined($vol));
 
         my $fileref = catdir($vol->_get_imageuuid(), $vol->_get_voluuid());
-        my $size_gb = int($vol->get_size()/1024/1024/1024);
-        my $usage_gb = int($vol->get_usage()/1024/1024/1024);
+        my $size_gb = ceil($vol->get_size()/1024/1024/1024);
+        my $usage_gb = ceil($vol->get_usage()/1024/1024/1024);
 
         # Add disk to References
         my $file = $ovf->createElement("File");
