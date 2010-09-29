@@ -153,7 +153,8 @@ sub create_volume
 
     my $transfer = $self->_get_transfer($vol->get_path(), $sparse);
     return new Sys::VirtV2V::Connection::Volume($name, $format,
-                                                $vol->get_path(), $size,
+                                                $vol->get_path(),
+                                                $size, $allocation,
                                                 $sparse, $is_block,
                                                 $transfer);
 }
@@ -216,12 +217,13 @@ sub get_volume
     die(user_message(__x("Failed to get storage volume: {error}",
                           error => $@->stringify()))) if ($@);
 
-    my (undef, $format, $size, $is_sparse, $is_block) =
+    my (undef, $format, $size, $usage, $is_sparse, $is_block) =
         parse_libvirt_volinfo($vol);
 
     my $transfer = $self->_get_transfer($vol->get_path(), $is_sparse);
     return new Sys::VirtV2V::Connection::Volume($name, $format,
-                                                $vol->get_path(), $size,
+                                                $vol->get_path(),
+                                                $size, $usage,
                                                 $is_sparse, $is_block,
                                                 $transfer);
 }

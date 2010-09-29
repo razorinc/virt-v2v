@@ -119,13 +119,14 @@ sub get_volume
     my $vmm = Sys::Virt->new(uri => 'qemu:///session');
     my $vol = $vmm->get_storage_volume_by_path($path);
 
-    my ($name, $format, $size, $is_sparse, $is_block) =
+    my ($name, $format, $size, $usage, $is_sparse, $is_block) =
         parse_libvirt_volinfo($vol, $path);
 
     my $transfer = new Sys::VirtV2V::Transfer::Local($path, $is_sparse);
 
     return new Sys::VirtV2V::Connection::Volume($name, $format, $path,
-                                                $size, $is_sparse, $is_block,
+                                                $size, $usage,
+                                                $is_sparse, $is_block,
                                                 $transfer);
 }
 

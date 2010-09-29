@@ -194,8 +194,9 @@ sub DESTROY
 package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
 
 use File::Spec::Functions qw(splitpath);
+use POSIX;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(user_message sparsecopy);
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -217,12 +218,18 @@ sub new
                                     dir => $dir,
                                     error => $!)));
 
-        # Write data using dd in 2MB chunks
-        # XXX - mbooth@redhat.com 06/04/2010 (Fedora 12 writing to RHEL 5 NFS)
-        # Use direct IO as writing a large amount of data to NFS regularly
-        # crashes my machine.  Using direct io doesn't.
-        exec('dd', 'obs=2M', 'oflag=direct', 'of='.$path)
-            or die("Unable to execute dd: $!");
+        if ($volume->is_sparse()) {
+            return sparsecopy(*STDIN, $path);
+        }
+
+        else {
+            # Write data using dd in 2MB chunks
+            my $status = system('dd', 'obs=2M', 'of='.$path);
+            die(user_message(__x("Error writing to {path}", path => $path)))
+                unless ($status << 8 == 0);
+
+            return $volume->get_size();
+        }
     });
     $self->{written} = 0;
 
@@ -292,7 +299,15 @@ sub close
     my $pad = (1024 - ($self->{written} % 1024)) % 1024;
     $self->write("\0" x $pad) if ($pad);
 
-    $self->{writer}->check_exit();
+    # Signal the end of data by closing the child pipe
+    close($self->{writer}->{tochild})
+        or die(user_message(__x("Error closing pipe: {error}",
+                                error => $!)));
+
+    my ($usage) = $self->{writer}->values();
+
+    # Update the volume's disk usage
+    $self->{volume}->{usage} = $usage;
     $self->_write_metadata();
 }
 
@@ -392,7 +407,7 @@ sub new
     my $creation = time();
 
     my $self = $class->SUPER::new($imageuuid, $format, $volpath, $outsize,
-                                  $sparse, 0);
+                                  $sparse ? 0 : $outsize, $sparse, 0);
     $self->{transfer} =
         new Sys::VirtV2V::Connection::RHEVTarget::Transfer($self);
 
@@ -1048,6 +1063,7 @@ sub _disks
 
         my $fileref = catdir($vol->_get_imageuuid(), $vol->_get_voluuid());
         my $size_gb = int($vol->get_size()/1024/1024/1024);
+        my $usage_gb = int($vol->get_usage()/1024/1024/1024);
 
         # Add disk to References
         my $file = $ovf->createElement("File");
@@ -1064,7 +1080,7 @@ sub _disks
 
         $diske->setAttribute('ovf:diskId', $vol->_get_voluuid());
         $diske->setAttribute('ovf:size', $size_gb);
-        $diske->setAttribute('ovf:actual_size', $size_gb);
+        $diske->setAttribute('ovf:actual_size', $usage_gb);
         $diske->setAttribute('ovf:fileRef', $fileref);
         $diske->setAttribute('ovf:parentRef', '');
         $diske->setAttribute('ovf:vm_snapshot_id',

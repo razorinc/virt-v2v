@@ -108,7 +108,7 @@ sub get_volume
 
     my $uri = $self->{uri};
 
-    my ($name, $format, $size, $is_sparse, $is_block);
+    my ($name, $format, $size, $usage, $is_sparse, $is_block);
 
     # The libvirt storage APIs aren't yet reliably implemented for ESX, so we
     # need to get volume metadata some other way
@@ -119,6 +119,7 @@ sub get_volume
         $name = $transfer->esx_get_name();
         $format = "raw";
         $size = $transfer->esx_get_size();
+        $usage = $size;
         $is_sparse = 0;
         $is_block = 0;
     }
@@ -133,13 +134,14 @@ sub get_volume
                              path => $path,
                              error => $@->stringify()))) if($@);
 
-        ($name, $format, $size, $is_sparse, $is_block) =
+        ($name, $format, $size, $usage, $is_sparse, $is_block) =
             parse_libvirt_volinfo($vol);
 
         $transfer = $self->_get_transfer($path, $is_sparse);
     }
 
-    return new Sys::VirtV2V::Connection::Volume($name, $format, $path, $size,
+    return new Sys::VirtV2V::Connection::Volume($name, $format, $path,
+                                                $size, $usage,
                                                 $is_sparse, $is_block,
                                                 $transfer);
 }

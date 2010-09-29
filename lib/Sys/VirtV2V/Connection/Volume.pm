@@ -36,7 +36,7 @@ Sys::VirtV2V::Connection::Volume - Read and write storage volumes
 
 =over
 
-=item new(name, format, path, size, is_block, transfer)
+=item new(name, format, path, size, usage, is_block, transfer)
 
 Create a new Volume which returns the given metadata, and uses I<transfer> for
 transferring data.
@@ -46,7 +46,8 @@ transferring data.
 sub new
 {
     my $class = shift;
-    my ($name, $format, $path, $size, $is_sparse, $is_block, $transfer) = @_;
+    my ($name, $format, $path, $size, $usage,
+        $is_sparse, $is_block, $transfer) = @_;
 
     my $self = {};
     bless($self, $class);
@@ -55,7 +56,8 @@ sub new
     $self->{format}    = $format;
     $self->{path}      = $path;
     $self->{size}      = $size;
-    $self->{is_sparse} = $is_block;
+    $self->{usage}     = $usage;
+    $self->{is_sparse} = $is_sparse;
     $self->{is_block}  = $is_block;
     $self->{transfer}  = $transfer;
 
@@ -71,6 +73,17 @@ Return size for this Volume.
 sub get_size
 {
     return shift->{size};
+}
+
+=item get_usage
+
+Return the disk usage for this Volume.
+
+=cut
+
+sub get_usage
+{
+    return shift->{usage};
 }
 
 =item get_format
