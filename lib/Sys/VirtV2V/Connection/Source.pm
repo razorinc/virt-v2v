@@ -113,7 +113,10 @@ sub _volume_copy
     }
 
     else {
-        die("Different formats");
+        die(user_message(__x("Format conversion from {src} to {dst} is not  ".
+                             "supported",
+                             src => $src->get_format(),
+                             dst => $dst->get_format())));
     }
 
     # Copy the contents of the source stream to the destination stream
