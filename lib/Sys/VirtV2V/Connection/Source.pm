@@ -134,11 +134,14 @@ sub _volume_copy
     # before checking for a short volume
     $dst_s->close();
 
+    # Sanity check that we received all bytes of a raw volume
+    # TODO: Add similar check for other formats. How much data do we expect to
+    #       receive for a partially allocated qcow2 volume?
     die(user_message(__x("Didn't receive full volume. Received {received} ".
                          "of {total} bytes.",
                          received => $total,
                          total => $src->get_size())))
-        unless ($total == $src->get_size());
+        if ($src->get_format() eq "raw" && $total != $src->get_size());
 
     return $dst;
 }
