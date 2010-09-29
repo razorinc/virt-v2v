@@ -48,7 +48,7 @@ package Sys::VirtV2V::Connection::RHEVTarget::NFSHelper;
 
 use Carp;
 use File::Temp qw(tempfile);
-use POSIX qw(:sys_wait_h setuid setgid);
+use POSIX;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -85,6 +85,7 @@ sub new
         # Write stderr to our temp file
         open(STDERR, ">&".fileno($stderr))
             or die("dup stderr failed: $!");
+        close($stderr) or die("close stderr temp file failed: $!");
 
         # Close the original file handles
         close($tochild_read);
@@ -96,19 +97,24 @@ sub new
             setgid(36) or die("setgid failed: $!");
             setuid(36) or die("setuid failed: $!");
 
-            # Print out the values returned, 1 per line
-            print join("\n", &$sub());
+            foreach my $value (&$sub()) {
+                if (defined($value)) {
+                    print $value,"\n";
+                } else {
+                    print "\n";
+                }
+            }
         };
 
-        # Don't exit, which would cause destructors to be called in the child.
+        # Exit without doing any global cleanup in the child
         # Instead exec /bin/true or /bin/false as appropriate
         if ($@) {
-            print $stderr $@;
-            close($stderr);
-            exec('/bin/false');
+            print STDERR $@;
+            close(STDERR);
+            _exit(1);
         }
 
-        exec('/bin/true');
+        _exit(0);
     } else {
         close($tochild_read);
         close($fromchild_write);
@@ -500,6 +506,7 @@ sub _cleanup
 
 package Sys::VirtV2V::Connection::RHEVTarget;
 
+use Data::Dumper;
 use File::Temp qw(tempdir);
 use File::Spec::Functions;
 use Time::gmtime;
