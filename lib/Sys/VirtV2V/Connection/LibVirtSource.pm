@@ -28,6 +28,7 @@ use Sys::Virt;
 use Sys::VirtV2V;
 use Sys::VirtV2V::Connection::Source;
 use Sys::VirtV2V::Connection::LibVirt;
+use Sys::VirtV2V::Connection::Volume;
 use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
 

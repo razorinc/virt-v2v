@@ -28,7 +28,6 @@ use Sys::Virt;
 
 use Sys::VirtV2V;
 use Sys::VirtV2V::Connection;
-use Sys::VirtV2V::Connection::Volume;
 use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::Transfer::SSH;
 use Sys::VirtV2V::Transfer::Local;
