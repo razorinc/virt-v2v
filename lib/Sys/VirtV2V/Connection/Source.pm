@@ -188,13 +188,13 @@ sub copy_storage
                                           $src->get_format(),
                                           $src->get_size(),
                                           $src->is_sparse());
+
+            _volume_copy($src, $dst);
         }
 
         # This will die if libguestfs can't use the result directly, so we do it
         # before copying all the data.
         push(@paths, $dst->get_local_path());
-
-        _volume_copy($src, $dst);
 
         # Export the new path
         my $path = $dst->get_path();
