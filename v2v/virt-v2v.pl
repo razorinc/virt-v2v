@@ -414,7 +414,8 @@ END {
 sub signal_exit
 {
     $g->close() if (defined($g));
-    die(user_message(__x("Received signal {sig}. Exiting.", sig => shift)));
+    warn user_message(__x("Received signal {sig}. Exiting.", sig => shift));
+    exit(1);
 }
 
 # Inspect the guest's storage. Returns an OS hashref as returned by
