@@ -199,6 +199,8 @@ use POSIX;
 use Sys::VirtV2V::Util qw(user_message sparsecopy);
 use Locale::TextDomain 'virt-v2v';
 
+our @streams;
+
 sub new
 {
     my $class = shift;
@@ -206,6 +208,9 @@ sub new
 
     my $self = {};
     bless($self, $class);
+
+    # Store a reference to ourself
+    push(@streams, $self);
 
     $self->{volume} = $volume;
     $self->{writer} = rhev_util::nfs_helper(sub {
@@ -296,6 +301,9 @@ sub close
 {
     my $self = shift;
 
+    # Nothing to do if we've already closed the writer
+    return unless (defined($self->{writer}));
+
     # Pad the file up to a 1K boundary
     my $pad = (1024 - ($self->{written} % 1024)) % 1024;
     $self->write("\0" x $pad) if ($pad);
@@ -326,6 +334,8 @@ sub close
     }
 
     $self->_write_metadata();
+
+    $self->{writer} = undef;
 }
 
 sub DESTROY
@@ -334,9 +344,24 @@ sub DESTROY
 
     my $err = $?;
 
-    $self->close() if (exists($self->{pid}));
+    $self->close();
 
     $? |= $err;
+
+    # Remove the global reference
+    @streams = grep { defined($_) && $_ != $self } @streams;
+}
+
+# Immediately close all open WriteStreams
+sub _cleanup
+{
+    my $stream;
+    while ($stream = shift(@streams)) {
+        eval {
+            $stream->close();
+        };
+        warn($@) if ($@);
+    }
 }
 
 
@@ -668,6 +693,10 @@ sub DESTROY
 
     eval {
         my $nfs = rhev_util::nfs_helper(sub {
+            # Ensure there are no remaining writer processes
+            Sys::VirtV2V::Connection::RHEVTarget::WriteStream->_cleanup();
+
+            # Cleanup the volume temporary directory
             Sys::VirtV2V::Connection::RHEVTarget::Vol->_cleanup();
         });
         $nfs->check_exit();
