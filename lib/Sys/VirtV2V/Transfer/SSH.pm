@@ -118,7 +118,13 @@ sub close
 sub DESTROY
 {
     my $self = shift;
+
+    # Preserve error, which will be overwritten by waitpid
+    my $err = $?;
+
     $self->close();
+
+    $? |= $err;
 }
 
 sub _check_stderr

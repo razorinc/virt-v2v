@@ -59,7 +59,10 @@ sub read
 sub close
 {
     my $self = shift;
+    return unless(defined($self->{fh}));
+
     close($self->{fh}) or $self->_read_error($!);
+    delete($self->{fh});
 }
 
 sub DESTROY
@@ -116,7 +119,6 @@ sub write
 sub close
 {
     my $self = shift;
-
     return unless (defined($self->{fh}));
 
     close($self->{fh}) or $self->_write_error($!);

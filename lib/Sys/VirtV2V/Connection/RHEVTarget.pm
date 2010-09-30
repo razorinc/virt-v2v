@@ -184,10 +184,10 @@ sub DESTROY
 
         # waitpid() returns the status of the child process in $?, so we need to
         # preserve both this and the original $?
-        $retval ||= $?;
+        $retval |= $?;
     }
 
-    $? = $retval;
+    $? |= $retval;
 }
 
 
@@ -332,7 +332,11 @@ sub DESTROY
 {
     my $self = shift;
 
+    my $err = $?;
+
     $self->close() if (exists($self->{pid}));
+
+    $? |= $err;
 }
 
 
@@ -663,7 +667,7 @@ sub DESTROY
     };
     if ($@) {
         warn($@);
-        $retval ||= 1;
+        $retval |= 1;
     }
 
     my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
@@ -674,16 +678,16 @@ sub DESTROY
                               status => $eh->status(),
                               output => $eh->output()));
         # Exit with an error if the child failed.
-        $retval ||= $eh->status();
+        $retval |= $eh->status();
     }
 
     unless (rmdir($self->{mountdir})) {
         warn user_message(__x("Failed to remove mount directory {dir}: {error}",
                               dir => $self->{mountdir}, error => $!));
-        $retval ||= 1;
+        $retval |= 1;
     }
 
-    $? = $retval;
+    $? |= $retval;
 }
 
 =item create_volume(name, format, size, is_sparse)
