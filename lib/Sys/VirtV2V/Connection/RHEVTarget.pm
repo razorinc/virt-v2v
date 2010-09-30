@@ -383,7 +383,7 @@ sub DESTROY
 
 package Sys::VirtV2V::Connection::RHEVTarget::Vol;
 
-use File::Path;
+use File::Path qw(remove_tree);
 use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use POSIX;
@@ -525,16 +525,23 @@ sub _cleanup
 
     return unless (defined($tmpdir));
 
+    my $errors = [];
     eval {
-        rmtree($tmpdir) or warn(user_message(__x("Unable to remove temporary ".
-                                                 "directory {dir}",
-                                                 dir => $tmpdir)));
+        remove_tree($tmpdir, { error => \$errors });
     };
+    push(@$errors, $@) if ($@);
 
-    if ($@) {
-        warn(user_message(__x("Error removing temporary directory {dir}: ".
-                              "{error}",
-                              dir => $tmpdir, error => $@)));
+    if (@$errors > 0) {
+        foreach my $error (@$errors) {
+            foreach my $file (keys(%$error)) {
+                warn(user_message(__x("Error removing {file}: {error}",
+                                      file => $file,
+                                      error => $error->{$file})));
+            }
+        }
+
+        die(user_message(__x("Unable to remove temporary directory ".
+                             "{dir}", dir => $tmpdir)));
     }
 
     $tmpdir = undef;
