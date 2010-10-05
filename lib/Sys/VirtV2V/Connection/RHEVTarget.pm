@@ -289,10 +289,18 @@ sub write
     my $self = shift;
     my ($buf) = @_;
 
-    print { $self->{writer}->{tochild} } $buf
-        or die(user_message(__x("Writing to {path} failed: {error}",
-                                path => $self->{volume}->get_path(),
-                                error => $!)));
+    unless (print { $self->{writer}->{tochild} } $buf) {
+        # Stop writing to child
+        close($self->{writer}->{tochild});
+
+        # Check for error output from the child
+        $self->{writer}->check_exit();
+
+        # If that didn't return an error, die anyway
+        die(user_message(__x("Writing to {path} failed: {error}",
+                              path => $self->{volume}->get_path(),
+                              error => $!)));
+    }
 
     $self->{written} += length($buf);
 }
