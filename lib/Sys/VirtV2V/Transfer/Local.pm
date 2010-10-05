@@ -148,7 +148,9 @@ use POSIX;
 use File::Spec;
 use File::stat;
 
+use Sys::VirtV2V::SparseWriter;
 use Sys::VirtV2V::Util qw(user_message);
+
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -218,10 +220,14 @@ sub get_write_stream
 {
     my $self = shift;
 
-    return new Sys::VirtV2V::Transfer::Local::WriteStream(
-        $self->{path},
-        $self->{is_sparse}
-    );
+    if ($self->{is_sparse}) {
+        return new Sys::VirtV2V::SparseWriter($self->{path});
+    } else {
+        return new Sys::VirtV2V::Transfer::Local::WriteStream(
+            $self->{path},
+            $self->{is_sparse}
+        );
+    }
 }
 
 =back
