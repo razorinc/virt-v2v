@@ -196,7 +196,9 @@ package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
 use File::Spec::Functions qw(splitpath);
 use POSIX;
 
-use Sys::VirtV2V::Util qw(user_message sparsecopy);
+use Sys::VirtV2V::SparseWriter;
+use Sys::VirtV2V::Util qw(user_message);
+
 use Locale::TextDomain 'virt-v2v';
 
 our @streams;
@@ -225,7 +227,24 @@ sub new
 
         # Sparse copy raw, sparse files
         if ($volume->get_format() eq "raw" && $volume->is_sparse()) {
-            return sparsecopy(*STDIN, $path);
+            my $out = new Sys::VirtV2V::SparseWriter($path);
+
+            for(;;) {
+                my $buf;
+                my $read = read(STDIN, $buf, 1024*1024, 0);
+                die(user_message(__x("Error reading data wrile writing to ".
+                                     "{path}: {error}",
+                                     path => $path, error => $!)))
+                    unless (defined($read));
+
+                last if ($read == 0);
+
+                $out->write($buf);
+            }
+
+            $out->close();
+
+            return $out->get_usage();
         }
 
         else {
