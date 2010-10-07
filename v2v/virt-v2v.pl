@@ -174,6 +174,26 @@ The nfs export must be mountable and writable by the machine running virt-v2v.
 
 =cut
 
+my $output_format;
+
+=item B<-of format>
+
+Specifies the on-disk format which will be used for the converted guest.
+Currently supported options are I<raw> and I<qcow2>. If not specified, the
+converted guest will use the same format as the source guest.
+
+=cut
+
+my $output_sparse; # 1: sparse, 0: prealloc, undef: copy source
+
+=item B<-oa allocation>
+
+Specifies whether the converted guest should be I<sparse> or I<preallocated>. If
+not specified, the converted guest will use the same allocation scheme as the
+source.
+
+=cut
+
 my $config_file;
 $config_file = '/etc/virt-v2v.conf' if (-r '/etc/virt-v2v.conf');
 
@@ -244,6 +264,23 @@ GetOptions ("help|?"      => sub {
             "oc=s"        => \$output_uri,
             "op=s"        => \$output_pool,
             "osd=s"       => \$output_storage_domain,
+            "of=s"        => \$output_format,
+            "oa=s"        => sub {
+                my (undef, $value) = @_;
+
+                if ($value eq 'sparse') {
+                    $output_sparse = 1;
+                } elsif ($value eq 'preallocated') {
+                    $output_sparse = 0;
+                } else {
+                    pod2usage({ -message => __x("allocation scheme must be ".
+                                                "{sparse} or {preallocated}",
+                                                sparse => 'sparse',
+                                                preallocated => 'preallocated'),
+                                -exitval => 1 });
+
+                }
+            },
             "f|config=s"  => \$config_file,
             "n|network=s" => sub {
                 my (undef, $value) = @_;
@@ -348,7 +385,7 @@ die(user_message(__x("Domain {name} already exists on the target.",
     if ($target->guest_exists($source->get_name()));
 
 # Copy source storage to target
-$source->copy_storage($target);
+$source->copy_storage($target, $output_format, $output_sparse);
 
 # Get a libvirt configuration for the guest
 my $dom = $source->get_dom();

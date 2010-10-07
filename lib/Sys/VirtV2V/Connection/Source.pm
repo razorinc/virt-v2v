@@ -177,7 +177,7 @@ reflect their new locations and properties.
 sub copy_storage
 {
     my $self = shift;
-    my ($target) = @_;
+    my ($target, $output_format, $output_sparse) = @_;
 
     my $dom = $self->get_dom();
 
@@ -208,10 +208,12 @@ sub copy_storage
                                   name => $src->get_name()));
             $dst = $target->get_volume($src->get_name());;
         } else {
-            $dst = $target->create_volume($src->get_name(),
-                                          $src->get_format(),
-                                          $src->get_size(),
-                                          $src->is_sparse());
+            $dst = $target->create_volume(
+                $src->get_name(),
+                defined($output_format) ?  $output_format : $src->get_format(),
+                $src->get_size(),
+                defined($output_sparse) ? $output_sparse : $src->is_sparse()
+            );
 
             _volume_copy($src, $dst);
         }
