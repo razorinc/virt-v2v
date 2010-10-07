@@ -96,7 +96,7 @@ sub new
     bless($self, $class);
 
     my $fh;
-    open($fh, '>', $path)
+    open($fh, '+<', $path)
         or die(user_message(__x("Unable to open {path} for writing: {error}",
                                 path => $path,
                                 error => $!)));
