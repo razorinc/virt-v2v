@@ -21,6 +21,7 @@ use warnings;
 package Sys::VirtV2V::Target::LibVirt::Vol;
 
 use POSIX;
+use Sys::Virt;
 
 use Sys::VirtV2V::Util qw(user_message);
 
@@ -141,6 +142,17 @@ sub close
                                 error => $!)));
 
     delete($self->{fd});
+}
+
+sub DESTROY
+{
+    my  $self = shift;
+
+    # Check if the volume has been opened, but not closed
+    return unless (exists($self->{fd}));
+
+    # Assume the volume is incomplete and delete it
+    $self->{vol}->delete(Sys::Virt::StorageVol::DELETE_NORMAL);
 }
 
 package Sys::VirtV2V::Target::LibVirt;
