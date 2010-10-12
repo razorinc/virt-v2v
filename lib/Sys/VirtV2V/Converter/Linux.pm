@@ -218,19 +218,13 @@ sub _configure_console
     }
 
     # Replace any mention of xvc0 or hvc0 in /etc/securetty with ttyS0
-    my $size = 0;
-    my @lines = ();
+    foreach my $augpath ($g->aug_match('/files/etc/securetty/*')) {
+        my $tty = $g->aug_get($augpath);
 
-    foreach my $line ($g->read_lines('/etc/securetty')) {
-        if($line eq "xvc0" || $line eq "hvc0") {
-            $line = "ttyS0";
+        if($tty eq "xvc0" || $tty eq "hvc0") {
+            $g->aug_set($augpath, 'ttyS0');
         }
-
-        $size += length($line) + 1;
-        push(@lines, $line);
     }
-
-    $g->write_file('/etc/securetty', join("\n", @lines)."\n", $size);
 
     # Update any kernel console lines
     foreach my $augpath
