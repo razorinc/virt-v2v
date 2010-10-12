@@ -1567,7 +1567,18 @@ sub remap_block_devices
                 $letter++;
             }
 
-            map { $_ = $map{$_} } @$devices;
+            # Be careful not to modify the original device list
+            my @newdevices;
+            foreach my $device (@$devices) {
+                my $map = $map{$device};
+
+                unless (defined($map)) {
+                    warn ("No mapping for device $device");
+                    next;
+                }
+                push(@newdevices, $map);
+            }
+            $devices = \@newdevices;
         }
     }
 
