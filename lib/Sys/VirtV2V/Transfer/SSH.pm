@@ -94,22 +94,29 @@ sub close
     close($self->{stdout});
 
     waitpid($pid, 0) == $pid or die("error reaping child: $!");
-    # If the child returned an error, check for anything on its stderr
-    if ($? != 0) {
-        my $msg = "";
+    delete($self->{pid});
+
+    # Check if the child returned an error
+    # Don't report an error if we're exiting due to a user signal
+    # N.B. WIFSIGNALED($?) doesn't seem to work as expected here
+    if ($? != 0 && !$main::signal_exit) {
+        my $output = "";
         while (<$stderr>) {
-            $msg .= $_;
+            $output .= $_;
         }
-        die(user_message(__x("Unexpected error copying {path} from {host}. ".
-                             "Command output: {output}",
-                             path => $self->{path},
-                             host => $self->{hostname},
-                             output => $msg)));
+
+        my $msg = __x("Unexpected error copying {path} from {host}.",
+                      path => $self->{path},
+                      host => $self->{hostname});
+        if (length($output) > 0) {
+            $msg .= "\n";
+            $msg .= __x("Command output: {output}", output => $output);
+        }
+        die(user_message($msg));
     }
 
     close($self->{stderr});
 
-    delete($self->{pid});
     delete($self->{stdin});
     delete($self->{stdout});
     delete($self->{stderr});

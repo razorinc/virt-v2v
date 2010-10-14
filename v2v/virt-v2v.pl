@@ -236,6 +236,10 @@ Display version number and exit.
 
 =cut
 
+# Set to 1 if we're exiting due to a signal so cleanup handlers can potentially
+# modify their behaviour accordingly
+our $signal_exit = 0;
+
 $SIG{'INT'} = \&signal_exit;
 $SIG{'QUIT'} = \&signal_exit;
 
@@ -452,6 +456,9 @@ END {
 
 sub signal_exit
 {
+    # Tell cleanup handlers that we're exiting due to a signal
+    $signal_exit = 1;
+
     $g->close() if (defined($g));
     warn user_message(__x("Received signal {sig}. Exiting.", sig => shift));
     exit(1);
