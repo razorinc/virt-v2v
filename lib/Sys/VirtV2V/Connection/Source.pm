@@ -153,6 +153,7 @@ sub _volume_copy
 
     # This would be closed implicitly, but we want to report read/write errors
     # before checking for a short volume
+    $src_s->close();
     $dst_s->close();
 
     # Sanity check that we received all bytes of a raw volume
