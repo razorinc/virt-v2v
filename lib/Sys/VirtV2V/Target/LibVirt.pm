@@ -144,21 +144,11 @@ sub close
     delete($self->{fd});
 }
 
-sub DESTROY
-{
-    my  $self = shift;
-
-    # Check if the volume has been opened, but not closed
-    return unless (exists($self->{fd}));
-
-    # Assume the volume is incomplete and delete it
-    $self->{vol}->delete(Sys::Virt::StorageVol::DELETE_NORMAL);
-}
-
 package Sys::VirtV2V::Target::LibVirt;
 
 use Sys::Virt;
 use Sys::Virt::Error;
+use Sys::Virt::StorageVol;
 
 use Sys::VirtV2V::Util qw(user_message);
 use Locale::TextDomain 'virt-v2v';
@@ -177,6 +167,12 @@ Sys::VirtV2V::Target::LibVirt - Output to libvirt
 
 Sys::VirtV2V::Target::LibVirt creates a new libvirt domain using the given
 target URI. New storage will be created in the target pool.
+
+=cut
+
+# All volumes which have been created for this target. These will be
+# automatically deleted if the guest is not created successfully.
+our @cleanup_vols;
 
 =head1 METHODS
 
@@ -247,6 +243,10 @@ sub create_volume
 {
     my $self = shift;
     my ($name, $size) = @_;
+
+    # Store the volume before creation so we can catch an interruption during or
+    # very shortly after volume creation
+    push(@cleanup_vols, [$self->{pool}, $name]);
 
     return Sys::VirtV2V::Target::LibVirt::Vol->_create($self->{pool},
                                                        $name, $size);
@@ -346,6 +346,29 @@ sub create_guest
     _configure_capabilities($vmm, $dom, $guestcaps);
 
     $vmm->define_domain($dom->toString());
+
+    # Guest is successfully created, don't remove its volumes
+    @cleanup_vols = ();
+}
+
+sub DESTROY
+{
+    my $self = shift;
+
+    while (my $i = shift(@cleanup_vols)) {
+        my $pool = $i->[0];
+        my $name = $i->[1];
+
+        # Lookup the volume in the pool
+        my $vol;
+        eval {
+            $vol = $pool->get_volume_by_name($name);
+        };
+        # If the volume isn't present there's no need to delete it
+        next if ($@);
+
+        $vol->delete(Sys::Virt::StorageVol::DELETE_NORMAL);
+    }
 }
 
 sub _unconfigure_incompatible_devices
