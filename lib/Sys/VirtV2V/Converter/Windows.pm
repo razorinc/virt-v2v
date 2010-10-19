@@ -217,24 +217,29 @@ sub _add_viostor_to_registry
     my $h = Win::Hivex->open ($tmpdir . "/system", write => 1)
         or die "open system hive: $!";
 
+    # Get the 'Current' ControlSet. This is normally 001, but not always.
+    my $select = $h->node_get_child($h->root(), 'Select');
+    my $current_cs = $h->node_get_value($select, 'Current');
+    $current_cs = sprintf("ControlSet%03i", $h->value_dword($current_cs));
+
     # Make the changes.
-    my $regedits = '
+    my $regedits = <<REGEDITS;
 ; Edits to be made to a Windows guest to have
 ; it boot from viostor.
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1af4&dev_1001&subsys_00000000]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Control\\CriticalDeviceDatabase\\pci#ven_1af4&dev_1001&subsys_00000000]
 "Service"="viostor"
 "ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1af4&dev_1001&subsys_00020000]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Control\\CriticalDeviceDatabase\\pci#ven_1af4&dev_1001&subsys_00020000]
 "Service"="viostor"
 "ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\CriticalDeviceDatabase\pci#ven_1af4&dev_1001&subsys_00021af4]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Control\\CriticalDeviceDatabase\\pci#ven_1af4&dev_1001&subsys_00021af4]
 "Service"="viostor"
 "ClassGUID"="{4D36E97B-E325-11CE-BFC1-08002BE10318}"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor]
 "Type"=dword:00000001
 "Start"=dword:00000000
 "Group"="SCSI miniport"
@@ -242,27 +247,27 @@ sub _add_viostor_to_registry
 "ImagePath"="system32\\\\drivers\\\\viostor.sys"
 "Tag"=dword:00000021
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor\\Parameters]
 "BusType"=dword:00000001
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\MaxTransferSize]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor\\Parameters\\MaxTransferSize]
 "ParamDesc"="Maximum Transfer Size"
 "type"="enum"
 "default"="0"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\MaxTransferSize\enum]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor\\Parameters\\MaxTransferSize\\enum]
 "0"="64  KB"
 "1"="128 KB"
 "2"="256 KB"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Parameters\PnpInterface]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor\\Parameters\\PnpInterface]
 "5"=dword:00000001
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\viostor\Enum]
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\Services\\viostor\\Enum]
 "0"="PCI\\\\VEN_1AF4&DEV_1001&SUBSYS_00021AF4&REV_00\\\\3&13c0b0c5&0&20"
 "Count"=dword:00000001
 "NextInstance"=dword:00000001
-';
+REGEDITS
 
     my $io;
     if ($desc->{major_version} == 5 || $desc->{major_version} == 6) {
