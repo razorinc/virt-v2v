@@ -23,6 +23,9 @@ use warnings;
 use Fcntl qw(:seek);
 use File::stat;
 
+use Sys::VirtV2V::Util qw(user_message);
+use Locale::TextDomain 'virt-v2v';
+
 =pod
 
 =head1 NAME
@@ -49,7 +52,9 @@ sub new
 
     my $out;
     open($out, '>', $path)
-        or die(user_message(__x("Failed to open {path}", path => $path)));
+        or die(user_message(__x("Failed to open {path}: {error}",
+                                path => $path,
+                                error => $!)));
     binmode($out);
 
     # Stat the output handle to get its block size
