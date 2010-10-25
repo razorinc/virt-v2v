@@ -196,7 +196,6 @@ package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
 use File::Spec::Functions qw(splitpath);
 use POSIX;
 
-use Sys::VirtV2V::SparseWriter;
 use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -206,7 +205,7 @@ our @streams;
 sub new
 {
     my $class = shift;
-    my ($volume) = @_;
+    my ($volume, $convert) = @_;
 
     my $self = {};
     bless($self, $class);
@@ -216,7 +215,8 @@ sub new
 
     $self->{volume} = $volume;
     $self->{writer} = rhev_util::nfs_helper(sub {
-        my $path = $self->{volume}->get_path();
+        my $path = $volume->get_path();
+        my $format = $volume->get_format();
 
         # Create the output directory
         my (undef, $dir, undef) = splitpath($path);
@@ -225,36 +225,44 @@ sub new
                                     dir => $dir,
                                     error => $!)));
 
-        # Sparse copy raw, sparse files
-        if ($volume->get_format() eq "raw" && $volume->is_sparse()) {
-            my $out = new Sys::VirtV2V::SparseWriter($path);
-
-            for(;;) {
-                my $buf;
-                my $read = read(STDIN, $buf, 1024*1024, 0);
-                die(user_message(__x("Error reading data wrile writing to ".
-                                     "{path}: {error}",
-                                     path => $path, error => $!)))
-                    unless (defined($read));
-
-                last if ($read == 0);
-
-                $out->write($buf);
-            }
-
-            $out->close();
-
-            return $out->get_usage();
+        # Create the new volume with qemu-img
+        # Note that this will always create a sparse volume. We make it
+        # non-sparse if required by explicitly writing zeroes to it while
+        # copying.
+        my @qemuimg = ('qemu-img', 'create', '-f', $format);
+        # Preallocate qcow2 metadata
+        # N.B. If you don't do this, the performance penalty while writing is
+        # about a 8x slowdown.
+        if ($format eq 'qcow2') {
+            push (@qemuimg, '-o', 'preallocation=metadata');
         }
+        push (@qemuimg, $path, $volume->get_size());
 
-        else {
-            # Write data using dd in 2MB chunks
-            my $status = system('dd', 'obs=2M', 'of='.$path);
-            die(user_message(__x("Error writing to {path}", path => $path)))
-                unless ($status << 8 == 0);
+        my $retval = system(@qemuimg);
+        die(user_message(__x('Failed to create new volume {path} '.
+                             'with format {format}',
+                             path => $path,
+                             format => $format))) if ($retval != 0);
 
-            return $volume->get_size();
+        my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
+                                                         $volume->is_sparse());
+        my $writer = $transfer->get_write_stream($convert);
+
+        for (;;) {
+            my $buf;
+            my $read = read(STDIN, $buf, 1024*1024, 0);
+            die(user_message(__x("Error reading data while writing to ".
+                                 "{path}: {error}",
+                                 path => $path, error => $!)))
+                unless (defined($read));
+
+            last if ($read == 0);
+
+            $writer->write($buf);
         }
+        $writer->close();
+
+        return $writer->get_usage();
     });
     $self->{written} = 0;
 
@@ -340,25 +348,9 @@ sub close
         or die(user_message(__x("Error closing pipe: {error}",
                                 error => $!)));
 
-    my ($usage) = $self->{writer}->values();
-
     # Update the volume's disk usage
     my $volume = $self->{volume};
-
-    # For raw volumes, return the amount of data written by $self->{writer},
-    # which may be less than the amount of data we sent due to sparse writes
-    if ($volume->get_format() eq "raw") {
-        $volume->{usage} = $usage;
-    }
-
-    # For other volumes, return the amount of data we sent to $self->{writer},
-    # which may be less than the total size of the volume for intrinsically
-    # sparse formats, like qcow2.
-    # N.B. This is only an approximation of usage, as it takes no account of
-    # format overhead.
-    else {
-        $volume->{usage} = $self->{written};
-    }
+    $volume->{usage} = $self->{writer}->values();
 
     $self->_write_metadata();
 
@@ -422,8 +414,12 @@ sub get_read_stream
 
 sub get_write_stream
 {
-    my $volume = shift->{volume};
-    return new Sys::VirtV2V::Connection::RHEVTarget::WriteStream($volume);
+    my $self = shift;
+    my ($convert) = @_;
+
+    my $volume = $self->{volume};
+    return new Sys::VirtV2V::Connection::RHEVTarget::WriteStream($volume,
+                                                                 $convert);
 }
 
 sub DESTROY

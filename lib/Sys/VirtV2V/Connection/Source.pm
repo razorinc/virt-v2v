@@ -107,22 +107,15 @@ sub _volume_copy
     my $src_s;
     my $dst_s;
 
-    # Can we just do a straight copy?
-    if ($src->get_format() eq $dst->get_format()) {
-        $src_s = $src->get_read_stream();
-        $dst_s = $dst->get_write_stream();
-    }
-
-    else {
-        die(user_message(__x("Format conversion from {src} to {dst} is not  ".
-                             "supported",
-                             src => $src->get_format(),
-                             dst => $dst->get_format())));
-    }
+    # Do we need to do format conversion?
+    my $convert = $src->get_format() eq $dst->get_format() ? 0 : 1;
+    $src_s = $src->get_read_stream($convert);
+    $dst_s = $dst->get_write_stream($convert);
 
     my $expected;
-    # We expect to read all data for raw volumes, even if they're sparse
-    if ($src->get_format() eq "raw") {
+    # We expect to read all data for raw volumes or volume we're converting to
+    # raw
+    if ($src->get_format() eq "raw" || $convert) {
         $expected = $src->get_size();
     }
 

@@ -128,7 +128,7 @@ sub _libvirt_new
 sub _get_transfer
 {
     my $self = shift;
-    my ($path, $is_sparse) = @_;
+    my ($path, $format, $is_sparse) = @_;
 
     my $uri = $self->{uri};
 
@@ -152,7 +152,7 @@ sub _get_transfer
     }
 
     # Default to Local
-    return new Sys::VirtV2V::Transfer::Local($path, $is_sparse);
+    return new Sys::VirtV2V::Transfer::Local($path, $format, $is_sparse);
 }
 
 =head1 COPYRIGHT

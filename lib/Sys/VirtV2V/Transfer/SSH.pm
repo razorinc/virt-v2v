@@ -313,15 +313,21 @@ sub local_path
     die(user_message(__"virt-v2v cannot yet write to an SSH connection"));
 }
 
-=item get_read_stream
+=item get_read_stream(convert)
 
-Get a stream to read from a file over an SSH connection.
+Get a ReadStream for this volume. Data will be converted to raw format if
+I<convert> is 1.
 
 =cut
 
 sub get_read_stream
 {
     my $self = shift;
+    my ($convert) = @_;
+
+    die(user_message(__('When reading from an SSH connection, virt-v2v can '.
+                        'only currently convert raw volumes.')))
+        if ($convert && $self->get_format() ne 'raw');
 
     return new Sys::VirtV2V::Transfer::SSH::ReadStream(
         $self->{path},
@@ -331,15 +337,21 @@ sub get_read_stream
     );
 }
 
-=item get_write_stream
+=item get_write_stream(convert)
 
-Get a stream to write to a file over an SSH connection.
+Get a WriteStream for this volume. Data will be converted from raw format if
+I<convert> is 1.
 
 =cut
 
 sub get_write_stream
 {
     my $self = shift;
+    my ($convert) = @_;
+
+    die(user_message(__('When writing to an SSH connection, virt-v2v can only '.
+                        'currently convert volumes to raw format')))
+        if ($convert && $self->get_format ne 'raw');
 
     return new Sys::VirtV2V::Transfer::SSH::WriteStream(
         $self->{path},

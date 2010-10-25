@@ -122,7 +122,8 @@ sub get_volume
     my ($name, $format, $size, $usage, $is_sparse, $is_block) =
         parse_libvirt_volinfo($vol, $path);
 
-    my $transfer = new Sys::VirtV2V::Transfer::Local($path, $is_sparse);
+    my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
+                                                     $is_sparse);
 
     return new Sys::VirtV2V::Connection::Volume($name, $format, $path,
                                                 $size, $usage,

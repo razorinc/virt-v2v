@@ -151,7 +151,7 @@ sub create_volume
     my $info = $vol->get_info();
     my $is_block = $info->{type} == Sys::Virt::StorageVol::TYPE_BLOCK ? 1 : 0;
 
-    my $transfer = $self->_get_transfer($vol->get_path(), $sparse);
+    my $transfer = $self->_get_transfer($vol->get_path(), $format, $sparse);
     return new Sys::VirtV2V::Connection::Volume($name, $format,
                                                 $vol->get_path(),
                                                 $size, $allocation,
@@ -220,7 +220,7 @@ sub get_volume
     my (undef, $format, $size, $usage, $is_sparse, $is_block) =
         parse_libvirt_volinfo($vol);
 
-    my $transfer = $self->_get_transfer($vol->get_path(), $is_sparse);
+    my $transfer = $self->_get_transfer($vol->get_path(), $format, $is_sparse);
     return new Sys::VirtV2V::Connection::Volume($name, $format,
                                                 $vol->get_path(),
                                                 $size, $usage,

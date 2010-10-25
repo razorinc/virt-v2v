@@ -150,26 +150,34 @@ sub is_sparse
     return shift->{is_sparse};
 }
 
-=item get_read_stream
+=item get_read_stream(convert)
 
-Return a ReadStream for this volume.
+Return a ReadStream for this volume. Data will be converted to raw format if
+I<convert> is 1.
 
 =cut
 
 sub get_read_stream
 {
-    return shift->{transfer}->get_read_stream();
+    my $self = shift;
+    my ($convert) = @_;
+
+    return $self->{transfer}->get_read_stream($convert);
 }
 
-=item get_write_stream
+=item get_write_stream(convert)
 
-Return a WriteStream for this volume.
+Return a WriteStream for this volume. Data will be converted from raw format is
+I<convert> is 1.
 
 =cut
 
 sub get_write_stream
 {
-    return shift->{transfer}->get_write_stream();
+    my $self = shift;
+    my ($convert) = @_;
+
+    return $self->{transfer}->get_write_stream($convert);
 }
 
 =back

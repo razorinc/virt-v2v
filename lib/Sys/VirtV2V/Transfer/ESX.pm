@@ -396,15 +396,18 @@ sub local_path
     die(user_message(__"virt-v2v cannot write to an ESX connection"));
 }
 
-=item get_read_stream
+=item get_read_stream(convert).
 
-Get a read stream for this volume.
+Get a ReadStream for this volume. Data will be converted to raw format if
+I<convert> is 1.
 
 =cut
 
 sub get_read_stream
 {
     my $self = shift;
+    my ($convert) = @_; # Not required, as ESX connection always returns raw
+
     return new Sys::VirtV2V::Transfer::ESX::ReadStream(
         $self->{uri},
         $self->{username},
