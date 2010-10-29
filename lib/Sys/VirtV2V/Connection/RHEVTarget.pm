@@ -20,14 +20,6 @@ use warnings;
 
 package rhev_util;
 
-use Exporter 'import';
-our @EXPORT = qw(nfs_helper get_uuid);
-
-sub nfs_helper
-{
-    return Sys::VirtV2V::Connection::RHEVTarget::NFSHelper->new(@_);
-}
-
 sub get_uuid
 {
     my $uuidgen;
@@ -44,159 +36,12 @@ sub get_uuid
 }
 
 
-package Sys::VirtV2V::Connection::RHEVTarget::NFSHelper;
-
-use Carp;
-use File::Temp qw(tempfile);
-use POSIX;
-
-use Locale::TextDomain 'virt-v2v';
-
-sub new
-{
-    my $class = shift;
-    my ($sub) = @_;
-
-    my $self = {};
-    bless($self, $class);
-
-    my ($tochild_read, $tochild_write);
-    my ($fromchild_read, $fromchild_write);
-
-    pipe($tochild_read, $tochild_write);
-    pipe($fromchild_read, $fromchild_write);
-
-    # Capture stderr to a file
-    my ($stderr, undef) = tempfile(UNLINK => 1, SUFFIX => '.virt-v2v');
-    $self->{stderr} = $stderr;
-
-    my $pid = fork();
-    if ($pid == 0) {
-        # Close the ends of the pipes we don't need
-        close($tochild_write);
-        close($fromchild_read);
-
-        # dup2() stdin and stdout with the communication pipes
-        open(STDIN, "<&".fileno($tochild_read))
-            or die("dup stdin failed: $!");
-        open(STDOUT, ">&".fileno($fromchild_write))
-            or die("dup stdout failed: $!");
-
-        # Write stderr to our temp file
-        open(STDERR, ">&".fileno($stderr))
-            or die("dup stderr failed: $!");
-        close($stderr) or die("close stderr temp file failed: $!");
-
-        # Close the original file handles
-        close($tochild_read);
-        close($fromchild_write);
-
-        # Set EUID and EGID to RHEV magic values
-        # execute the wrapped function, trapping errors
-        eval {
-            setgid(36) or die("setgid failed: $!");
-            setuid(36) or die("setuid failed: $!");
-
-            foreach my $value (&$sub()) {
-                if (defined($value)) {
-                    print $value,"\n";
-                } else {
-                    print "\n";
-                }
-            }
-        };
-
-        # Exit without doing any global cleanup in the child
-        # Instead exec /bin/true or /bin/false as appropriate
-        if ($@) {
-            print STDERR $@;
-            close(STDERR);
-            _exit(1);
-        }
-
-        _exit(0);
-    } else {
-        close($tochild_read);
-        close($fromchild_write);
-    }
-
-    $self->{tochild} = $tochild_write;
-    $self->{fromchild} = $fromchild_read;
-
-    $self->{pid} = $pid;
-    return $self;
-}
-
-sub values
-{
-    my $self = shift;
-
-    my @values;
-    my $fromchild = $self->{fromchild};
-    while(<$fromchild>) {
-        chomp;
-        push(@values, $_);
-    }
-
-    $self->check_exit();
-    return @values;
-}
-
-sub check_exit
-{
-    my $self = shift;
-
-    # Make sure it's not waiting on more input
-    close($self->{tochild});
-
-    my $ret = waitpid($self->{pid}, 0);
-
-    # If the process terminated normally, check the exit status and stderr
-    if ($ret == $self->{pid}) {
-        delete($self->{pid});
-
-        # No error if the exit status was 0
-        return if ($? == 0);
-
-        # Otherwise return whatever went to stderr
-        my $stderr = $self->{stderr};
-        my $error = "";
-        seek($stderr, 0, 0);
-        while(<$stderr>) {
-            $error .= $_;
-        }
-        die($error);
-    }
-
-    confess("Error waiting for child process");
-}
-
-sub DESTROY
-{
-    my $self = shift;
-
-    my $retval = $?;
-
-    # Make certain the child process dies with the object
-    if (defined($self->{pid})) {
-        kill(9, $self->{pid});
-        waitpid($self->{pid}, WNOHANG);
-
-        # waitpid() returns the status of the child process in $?, so we need to
-        # preserve both this and the original $?
-        $retval |= $?;
-    }
-
-    $? |= $retval;
-}
-
-
 package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
 
 use File::Spec::Functions qw(splitpath);
 use POSIX;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(user_message rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -213,8 +58,9 @@ sub new
     # Store a reference to ourself
     push(@streams, $self);
 
+    $self->{written} = 0;
     $self->{volume} = $volume;
-    $self->{writer} = rhev_util::nfs_helper(sub {
+    rhev_helper(sub {
         my $path = $volume->get_path();
         my $format = $volume->get_format();
 
@@ -246,25 +92,8 @@ sub new
 
         my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
                                                          $volume->is_sparse());
-        my $writer = $transfer->get_write_stream($convert);
-
-        for (;;) {
-            my $buf;
-            my $read = read(STDIN, $buf, 1024*1024, 0);
-            die(user_message(__x("Error reading data while writing to ".
-                                 "{path}: {error}",
-                                 path => $path, error => $!)))
-                unless (defined($read));
-
-            last if ($read == 0);
-
-            $writer->write($buf);
-        }
-        $writer->close();
-
-        return $writer->get_usage();
+        $self->{writer} = $transfer->get_write_stream($convert);
     });
-    $self->{written} = 0;
 
     return $self;
 }
@@ -273,42 +102,39 @@ sub _write_metadata
 {
     my $self = shift;
 
-    my $nfs = rhev_util::nfs_helper(sub {
-        my $volume = $self->{volume};
+    my $volume = $self->{volume};
+    my $path = $volume->get_path().'.meta';
+    my $sizek = ceil($volume->get_size() / 1024);
 
-        my $path = $volume->get_path().'.meta';
-
-        my $sizek = ceil($volume->get_size() / 1024);
-
+    my $meta;
+    rhev_helper(sub {
         # Write out the .meta file
-        my $meta;
         open($meta, '>', $path)
             or die(user_message(__x("Unable to open {path} for writing: ".
                                     "{error}",
                                     path => $path,
                                     error => $!)));
-
-        print $meta "DOMAIN=".$volume->_get_domainuuid()."\n";
-        print $meta "VOLTYPE=LEAF\n";
-        print $meta "CTIME=".$volume->_get_creation()."\n";
-        print $meta "FORMAT=".$volume->_get_rhev_format()."\n";
-        print $meta "IMAGE=".$volume->_get_imageuuid()."\n";
-        print $meta "DISKTYPE=1\n";
-        print $meta "PUUID=00000000-0000-0000-0000-000000000000\n";
-        print $meta "LEGALITY=LEGAL\n";
-        print $meta "MTIME=".$volume->_get_creation()."\n";
-        print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
-        print $meta "SIZE=$sizek\n";
-        print $meta "TYPE=".uc($volume->_get_rhev_type())."\n";
-        print $meta "DESCRIPTION=Exported by virt-v2v\n";
-        print $meta "EOF\n";
-
-        close($meta)
-            or die(user_message(__x("Error closing {path}: {error}",
-                                    path => $path,
-                                    error => $!)));
     });
-    $nfs->check_exit();
+
+    print $meta "DOMAIN=".$volume->_get_domainuuid()."\n";
+    print $meta "VOLTYPE=LEAF\n";
+    print $meta "CTIME=".$volume->_get_creation()."\n";
+    print $meta "FORMAT=".$volume->_get_rhev_format()."\n";
+    print $meta "IMAGE=".$volume->_get_imageuuid()."\n";
+    print $meta "DISKTYPE=1\n";
+    print $meta "PUUID=00000000-0000-0000-0000-000000000000\n";
+    print $meta "LEGALITY=LEGAL\n";
+    print $meta "MTIME=".$volume->_get_creation()."\n";
+    print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
+    print $meta "SIZE=$sizek\n";
+    print $meta "TYPE=".uc($volume->_get_rhev_type())."\n";
+    print $meta "DESCRIPTION=Exported by virt-v2v\n";
+    print $meta "EOF\n";
+
+    close($meta)
+        or die(user_message(__x("Error closing {path}: {error}",
+                                path => $path,
+                                error => $!)));
 }
 
 sub write
@@ -316,19 +142,7 @@ sub write
     my $self = shift;
     my ($buf) = @_;
 
-    unless (print { $self->{writer}->{tochild} } $buf) {
-        # Stop writing to child
-        close($self->{writer}->{tochild});
-
-        # Check for error output from the child
-        $self->{writer}->check_exit();
-
-        # If that didn't return an error, die anyway
-        die(user_message(__x("Writing to {path} failed: {error}",
-                              path => $self->{volume}->get_path(),
-                              error => $!)));
-    }
-
+    $self->{writer}->write($buf);
     $self->{written} += length($buf);
 }
 
@@ -337,24 +151,33 @@ sub close
     my $self = shift;
 
     # Nothing to do if we've already closed the writer
-    return unless (defined($self->{writer}));
+    my $writer = $self->{writer};
+    return unless (defined($writer));
+    delete($self->{writer});
 
     # Pad the file up to a 1K boundary
     my $pad = (1024 - ($self->{written} % 1024)) % 1024;
-    $self->write("\0" x $pad) if ($pad);
+    $writer->write("\0" x $pad) if ($pad);
 
-    # Signal the end of data by closing the child pipe
-    close($self->{writer}->{tochild})
-        or die(user_message(__x("Error closing pipe: {error}",
-                                error => $!)));
+    $writer->close();
 
     # Update the volume's disk usage
     my $volume = $self->{volume};
-    $volume->{usage} = $self->{writer}->values();
+    $volume->{usage} = $writer->get_usage();
 
     $self->_write_metadata();
+}
 
-    $self->{writer} = undef;
+# Immediately close all open WriteStreams
+sub _cleanup
+{
+    my $stream;
+    while ($stream = shift(@streams)) {
+        eval {
+            delete($stream->{writer});
+        };
+        warn($@) if ($@);
+    }
 }
 
 sub DESTROY
@@ -369,18 +192,6 @@ sub DESTROY
 
     # Remove the global reference
     @streams = grep { defined($_) && $_ != $self } @streams;
-}
-
-# Immediately close all open WriteStreams
-sub _cleanup
-{
-    my $stream;
-    while ($stream = shift(@streams)) {
-        eval {
-            $stream->close();
-        };
-        warn($@) if ($@);
-    }
 }
 
 
@@ -436,7 +247,7 @@ use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use POSIX;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(user_message rhev_helper);
 use Locale::TextDomain 'virt-v2v';
 
 our %vols_by_path;
@@ -454,12 +265,9 @@ sub new
     my $root = catdir($mountdir, $domainuuid);
 
     # Initialise the package-wide temp directory if required
-    unless (defined($tmpdir)) {
-        my $nfs = rhev_util::nfs_helper(sub {
-            return tempdir("v2v.XXXXXXXX", DIR => $root);
-        });
-        ($tmpdir) = $nfs->values();
-    }
+    rhev_helper(sub {
+        $tmpdir = tempdir("v2v.XXXXXXXX", DIR => $root);
+    }) unless (defined($tmpdir));
 
     my $imageuuid = rhev_util::get_uuid();
     my $voluuid   = rhev_util::get_uuid();
@@ -552,6 +360,7 @@ sub _get_rhev_type
     return shift->{rhev_type};
 }
 
+# Must be called in rhev_helper context
 sub _move_vols
 {
     my $class = shift;
@@ -567,6 +376,7 @@ sub _move_vols
     $class->_cleanup();
 }
 
+# Must be called in rhev_helper context
 sub _cleanup
 {
     my $class = shift;
@@ -604,7 +414,7 @@ use POSIX;
 use Time::gmtime;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(user_message rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -661,22 +471,20 @@ sub new
                              output => $eh->output())));
     }
 
-    my $nfs = rhev_util::nfs_helper(sub {
-        opendir(my $dir, $mountdir)
+    my $dir;
+    rhev_helper(sub {
+        opendir($dir, $mountdir)
             or die(user_message(__x("Unable to open {mountdir}: {error}",
                                     mountdir => $mountdir,
                                     error => $!)));
-
-        my @entries;
-        foreach my $entry (readdir($dir)) {
-            # return entries which look like uuids
-            push(@entries, $entry)
-                if ($entry =~ /^[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}$/);
-        }
-
-        return @entries;
     });
-    my @entries = $nfs->values();
+
+    my @entries;
+    foreach my $entry (readdir($dir)) {
+        # return entries which look like uuids
+        push(@entries, $entry)
+            if ($entry =~ /^[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}$/);
+    }
 
     die(user_message(__x("{domain_path} contains multiple possible ".
                          "domains. It may only contain one.",
@@ -693,10 +501,10 @@ sub new
     # the master/vms directory exists
     my $vms_rel = catdir($domainuuid, 'master', 'vms');
     my $vms_abs = catdir($mountdir, $vms_rel);
-    $nfs = rhev_util::nfs_helper(sub {
-        return -d $vms_abs ? 1 : 0;
+    my $attached;
+    rhev_helper(sub {
+        $attached = -d $vms_abs ? 1 : 0;
     });
-    my ($attached) = $nfs->values();
     die(user_message(__x("{domain_path} has not been attached to a RHEV ".
                          "data center ({path} does not exist).",
                          domain_path => $domain_path,
@@ -715,14 +523,13 @@ sub DESTROY
     my $retval = $?;
 
     eval {
-        my $nfs = rhev_util::nfs_helper(sub {
-            # Ensure there are no remaining writer processes
-            Sys::VirtV2V::Connection::RHEVTarget::WriteStream->_cleanup();
+        # Ensure there are no remaining writer processes
+        Sys::VirtV2V::Connection::RHEVTarget::WriteStream->_cleanup();
 
+        rhev_helper(sub {
             # Cleanup the volume temporary directory
             Sys::VirtV2V::Connection::RHEVTarget::Vol->_cleanup();
         });
-        $nfs->check_exit();
     };
     if ($@) {
         warn($@);
@@ -934,11 +741,11 @@ EOF
     $self->_disks($ovf, $dom);
     $self->_networks($ovf, $dom);
 
-    my $nfs = rhev_util::nfs_helper(sub {
-        my $mountdir = $self->{mountdir};
-        my $domainuuid = $self->{domainuuid};
+    my $mountdir = $self->{mountdir};
+    my $domainuuid = $self->{domainuuid};
 
-        my $dir = catdir($mountdir, $domainuuid, 'master', 'vms', $vmuuid);
+    my $dir = catdir($mountdir, $domainuuid, 'master', 'vms', $vmuuid);
+    rhev_helper(sub {
         mkdir($dir)
             or die(user_message(__x("Failed to create directory {dir}: {error}",
                                     dir => $dir,
@@ -955,8 +762,8 @@ EOF
                                     error => $!)));
 
         print $vm $ovf->toString();
+        close($vm);
     });
-    $nfs->check_exit();
 }
 
 # Work out how to describe the guest OS to RHEV. Possible values are:

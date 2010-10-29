@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use Sys::Guestfs::Lib qw(open_guest);
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(user_message rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -70,27 +70,11 @@ sub new
 
     my $self = {};
 
-    my $interface = "ide";
-
-    # Don't respond to signals while we're running setuid. Cleanup operations
-    # can fail if they run as the wrong user.
-    my $sigint  = $SIG{'INT'};
-    my $sigquit = $SIG{'QUIT'};
-    my $sig_received;
-
-    $SIG{'INT'} = $SIG{'QUIT'} = sub {
-        $sig_received = shift;
-    };
-
-    if ($isrhev) {
-        $) = "36 36";
-        $> = "36";
-    }
-
     # Open a guest handle
     my $g;
+    my $open = sub {
+        my $interface = "ide";
 
-    eval {
         $g = open_guest($storage, rw => 1, interface => $interface);
 
         # Add the transfer iso if there is one
@@ -98,21 +82,13 @@ sub new
 
         $g->launch();
     };
-    my $err = $@;
 
+    # Open the guest seteuid if required for RHEV
     if ($isrhev) {
-        $) = "0 0";
-        $> = "0";
+        rhev_helper($open);
+    } else {
+        &$open();
     }
-
-    die($err) if ($err);
-
-    if (defined($sig_received)) {
-        &$sigint($sig_received)  if ($sig_received eq 'INT');
-        &$sigquit($sig_received) if ($sig_received eq 'QUIT');
-    }
-    $SIG{'INT'}  = $sigint;
-    $SIG{'QUIT'} = $sigquit;
 
     # Enable autosync to defend against data corruption on unclean shutdown
     $g->set_autosync(1);
@@ -204,7 +180,19 @@ sub AUTOLOAD
     croak("$methodname called on guestfs handle after handle was closed")
         unless (defined($g));
 
-    return $g->$methodname(@_);
+    if (wantarray()) {
+        my @ret = eval {
+            return $g->$methodname(@_);
+        };
+        die("$methodname: $@") if ($@);
+        return @ret;
+    } else {
+        my $ret = eval {
+            return $g->$methodname(@_);
+        };
+        die("$methodname: $@") if ($@);
+        return $ret;
+    }
 }
 
 

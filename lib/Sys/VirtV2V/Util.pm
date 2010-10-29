@@ -29,7 +29,7 @@ require Exporter;
 use vars qw(@EXPORT_OK @ISA);
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(augeas_error user_message parse_libvirt_volinfo);
+@EXPORT_OK = qw(augeas_error user_message parse_libvirt_volinfo rhev_helper);
 
 =pod
 
@@ -165,6 +165,53 @@ sub parse_libvirt_volinfo
     $is_block = $info->{type} == Sys::Virt::StorageVol::TYPE_BLOCK ? 1 : 0;
 
     return ($name, $format, $size, $allocation, $is_sparse, $is_block);
+}
+
+=item rhev_helper(sub)
+
+Execute I<sub> sete(u|g)id 36:36. Signals will be deferred until after I<sub>
+exits, and if it die()s, the die() will be thrown after resetting permissions to
+root.
+
+=cut
+
+sub rhev_helper
+{
+    my ($sub) = @_;
+
+    # Don't respond to signals while we're running setuid. Cleanup operations
+    # can fail if they run as the wrong user.
+    my $sigint  = $SIG{'INT'};
+    my $sigquit = $SIG{'QUIT'};
+    my $sig_received;
+
+    $SIG{'INT'} = $SIG{'QUIT'} = sub {
+        $sig_received = shift;
+    };
+
+    my $egid = $);
+    $) = "36 36";
+    $> = "36";
+
+    eval {
+        &$sub();
+    };
+    my $err = $@;
+
+    $) = $egid;
+    $> = "0";
+
+    die($err) if ($err);
+
+    # Restore the signal handlers
+    $SIG{'INT'}  = $sigint;
+    $SIG{'QUIT'} = $sigquit;
+
+    # Run any deferred signal handlers
+    if (defined($sig_received)) {
+        &$sigint($sig_received)  if ($sig_received eq 'INT');
+        &$sigquit($sig_received) if ($sig_received eq 'QUIT');
+    }
 }
 
 =back
