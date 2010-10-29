@@ -125,6 +125,26 @@ sub new
     return $self;
 }
 
+=item is_alive
+
+Return 1 if the underlying Sys::Guestfs handle is still connected to a running
+daemon, 0 otherwise.
+
+=cut
+
+sub is_alive
+{
+    my $self = shift;
+
+    my $alive = 0;
+    eval {
+        $self->{g}->ping_daemon(); # Will die() if the daemon doesn't respond
+        $alive = 1;
+    };
+
+    return $alive;
+}
+
 =item add_on_close
 
 Register a callback to be called before closing the underlying Sys::Guestfs

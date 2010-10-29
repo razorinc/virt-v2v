@@ -173,8 +173,10 @@ sub close
     return unless (defined($g));
     delete($self->{g});
 
-    $g->sync();
-    $g->close();
+    if ($g->is_alive()) {
+        $g->sync();
+        $g->close();
+    }
 }
 
 sub DESTROY
@@ -265,12 +267,17 @@ sub close
 
     my $bufref = \$self->{buf};
 
-    # If the buffer is larger than a single chunk, which might happen if we
-    # were interrupted during write(), flush the buffer first.
-    $self->write('') if (length($$bufref) > chunk);
+    # If the daemon isn't running, for example because it was killed by the same
+    # signal which is causing close() to be called here, there's no point in
+    # trying to flush anything to it.
+    if ($g->is_alive()) {
+        # If the buffer is larger than a single chunk, which might happen if we
+        # were interrupted during write(), flush the buffer first.
+        $self->write('') if (length($$bufref) > chunk);
 
-    $g->pwrite_device('/dev/sda', $$bufref, $self->{pos});
-    $self->{pos} += length($$bufref);
+        $g->pwrite_device('/dev/sda', $$bufref, $self->{pos});
+        $self->{pos} += length($$bufref);
+    }
     $$bufref = '';
 
     $self->SUPER::close();
