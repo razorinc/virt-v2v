@@ -41,6 +41,7 @@ package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
 use File::Spec::Functions qw(splitpath);
 use POSIX;
 
+use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::Util qw(user_message rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
@@ -84,11 +85,12 @@ sub new
         }
         push (@qemuimg, $path, $volume->get_size());
 
-        my $retval = system(@qemuimg);
+        my $eh = Sys::VirtV2V::ExecHelper->run(@qemuimg);
         die(user_message(__x('Failed to create new volume {path} '.
-                             'with format {format}',
+                             'with format {format}. Error was: {error}',
                              path => $path,
-                             format => $format))) if ($retval != 0);
+                             format => $format,
+                             error => $eh->output()))) if ($eh->status() != 0);
 
         my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
                                                          $volume->is_sparse());
