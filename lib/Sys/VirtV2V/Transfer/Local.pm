@@ -26,7 +26,7 @@ use Locale::TextDomain 'virt-v2v';
 sub new
 {
     my $class = shift;
-    my ($path, $is_sparse) = @_;
+    my ($path) = @_;
 
     my $self = {};
     bless($self, $class);
@@ -38,7 +38,6 @@ sub new
                                 error => $!)));
 
     $self->{fh} = $fh;
-    $self->{is_sparse} = $is_sparse;
 
     return $self;
 }
@@ -84,13 +83,16 @@ sub _read_error
 
 package Sys::VirtV2V::Transfer::Local::WriteStream;
 
+use Fcntl qw(:seek);
+use File::stat;
+
 use Sys::VirtV2V::Util qw(user_message);
 use Locale::TextDomain 'virt-v2v';
 
 sub new
 {
     my $class = shift;
-    my ($path, $is_sparse) = @_;
+    my ($path) = @_;
 
     my $self = {};
     bless($self, $class);
@@ -100,11 +102,12 @@ sub new
         or die(user_message(__x("Unable to open {path} for writing: {error}",
                                 path => $path,
                                 error => $!)));
+    binmode($fh);
 
     $self->{path} = $path;
     $self->{fh} = $fh;
-    $self->{is_sparse} = $is_sparse;
     $self->{usage} = 0;
+    $self->{truncate} = 0;
 
     return $self;
 }
@@ -116,6 +119,25 @@ sub write
 
     print { $self->{fh} } $buf or $self->_write_error($!);
     $self->{usage} += length($buf);
+
+    $self->{truncate} = 0;
+}
+
+sub _write_zeroes
+{
+    my $self = shift;
+    my ($size) = @_;
+
+    seek($self->{fh}, $size, SEEK_CUR) or self->_write_error($!);
+    $self->{truncate} = 1;
+}
+
+sub _get_blocksize
+{
+    my $self = shift;
+
+    my $st = stat($self->{fh});
+    return $st->blksize;
 }
 
 sub get_usage
@@ -127,6 +149,13 @@ sub close
 {
     my $self = shift;
     return unless (defined($self->{fh}));
+
+    # If we have seek()ed to the end of the file without writing anything, the
+    # file size won't have been correctly updated. In this case we need to
+    # truncate the file to the current file handle position.
+    truncate($self->{fh}, tell($self->{fh}))
+        or $self->_write_error($!)
+        if ($self->{truncate});
 
     close($self->{fh}) or $self->_write_error($!);
     delete($self->{fh});
@@ -154,13 +183,12 @@ package Sys::VirtV2V::Transfer::GuestfsStream;
 sub new
 {
     my $class = shift;
-    my ($path, $is_sparse) = @_;
+    my ($path) = @_;
 
     my $self = {};
     bless($self, $class);
 
     $self->{g} = new Sys::VirtV2V::GuestfsHandle([$path], undef, 0);
-    $self->{is_sparse} = $is_sparse;
 
     return $self;
 }
@@ -177,6 +205,8 @@ sub close
         $g->sync();
         $g->close();
     }
+
+    delete($self->{g});
 }
 
 sub DESTROY
@@ -224,6 +254,7 @@ sub new
 {
     my $self = shift->SUPER::new(@_);
     $self->{pos} = 0;
+    $self->{usage} = 0;
     $self->{buf} = '';
 
     return $self;
@@ -245,11 +276,44 @@ sub write
                                   $self->{pos});
         $split += chunk;
         $self->{pos} += chunk;
+        $self->{usage} += chunk;
     }
 
     if ($split > chunk) {
         $$bufref = substr($$bufref, $split - chunk);
     }
+}
+
+sub _flush
+{
+    my $self = shift;
+
+    my $bufref = \$self->{buf};
+
+    # If the buffer is larger than a single chunk, which might happen if we
+    # were interrupted during write(), flush the buffer first.
+    $self->write('') if (length($$bufref) > chunk);
+
+    $self->{g}->pwrite_device('/dev/sda', $$bufref, $self->{pos});
+    $self->{pos} += length($$bufref);
+    $self->{usage} += length($$bufref);
+
+    $self->{buf} = '';
+}
+
+sub _write_zeroes
+{
+    my $self = shift;
+    my ($size) = @_;
+
+    $self->_flush() if (length($self->{buf}) > 0);
+    $self->{pos} += $size;
+}
+
+sub _get_blocksize
+{
+    # This is the default chunksize created by qemu-img create.
+    return 64*1024;
 }
 
 sub get_usage
@@ -265,22 +329,122 @@ sub close
     return unless (defined($g));
     # Don't delete $self->{g} here because its used by SUPER
 
-    my $bufref = \$self->{buf};
-
     # If the daemon isn't running, for example because it was killed by the same
     # signal which is causing close() to be called here, there's no point in
     # trying to flush anything to it.
-    if ($g->is_alive()) {
-        # If the buffer is larger than a single chunk, which might happen if we
-        # were interrupted during write(), flush the buffer first.
-        $self->write('') if (length($$bufref) > chunk);
+    $self->_flush() if ($g->is_alive());
 
-        $g->pwrite_device('/dev/sda', $$bufref, $self->{pos});
-        $self->{pos} += length($$bufref);
-    }
-    $$bufref = '';
-
+    $self->{buf} = '';
     $self->SUPER::close();
+}
+
+
+package Sys::VirtV2V::Transfer::Local::SparseWriter;
+
+sub new
+{
+    my $class = shift;
+    my ($writer) = @_;
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{writer} = $writer;
+    $self->{blksize} = $writer->_get_blocksize();
+    $self->{sparse} = 0;
+    $self->{inbuf} = '';
+
+    return $self;
+}
+
+sub write
+{
+    my $self = shift;
+    my ($data) = @_;
+
+    my $inbufref = \$self->{inbuf};
+
+    $$inbufref .= $data;
+    my $blksize = $self->{blksize};
+    my $writer = $self->{writer};
+
+    my $align = length($$inbufref) % $blksize;
+
+    my $allocstart = 0;
+    my $alloc = 0;
+
+    # Process data in the input buffer in $blksize chunks, excluding any
+    # data in an incomplete final block
+    for (my $i = 0; $i + $align < length($$inbufref); $i += $blksize) {
+        if (substr($$inbufref, $i, $blksize) =~ /[^\0]/) { # Allocated
+            # Seek past any sparse section before writing
+            if ($self->{sparse} > 0) {
+                $writer->_write_zeroes($self->{sparse});
+                $self->{sparse} = 0;
+                $allocstart = $i;
+            }
+
+            $alloc += $blksize;
+        }
+
+        else { # Sparse
+            # Flush pending data before start of sparse section
+            if ($alloc > 0) {
+                $writer->write(substr($$inbufref, $allocstart, $alloc));
+                $alloc = 0;
+            }
+
+            $self->{sparse} += $blksize;
+        }
+    }
+
+    # Flush any identified allocated data from the input buffer
+    $writer->write(substr($$inbufref, $allocstart, $alloc)) if ($alloc > 0);
+
+    if ($align == 0) {
+        $$inbufref = '';
+    } else {
+        $$inbufref =  substr($$inbufref, length($$inbufref) - $align);
+    }
+}
+
+sub close
+{
+    my $self = shift;
+
+    return unless (exists($self->{inbuf}));
+
+    my $inbufref = \$self->{inbuf};
+    my $writer = $self->{writer};
+
+    # Check if the remaining input buffer is sparse
+    if (length($$inbufref) > 0 && $$inbufref !~ /[^\0]/) {
+        $self->{sparse} += length($$inbufref);
+        $$inbufref = '';
+    }
+
+    # If there's data left in the input buffer, write it out
+    if (length($$inbufref) > 0) {
+        $writer->_write_zeroes($self->{sparse})
+            if ($self->{sparse} > 0);
+
+        $writer->write($$inbufref);
+    }
+
+    $writer->close();
+
+    # Ensure DESTROY won't attempt to close again
+    delete($self->{inbuf});
+}
+
+sub get_usage
+{
+    return shift->{writer}->get_usage();
+}
+
+sub DESTROY
+{
+    shift->close();
 }
 
 
@@ -290,7 +454,6 @@ use POSIX;
 use File::Spec;
 use File::stat;
 
-use Sys::VirtV2V::SparseWriter;
 use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
@@ -351,13 +514,11 @@ sub get_read_stream
 
     return new Sys::VirtV2V::Transfer::Local::GuestfsReadStream(
         $self->{path},
-        $self->{format},
-        $self->{is_sparse}
+        $self->{format}
     ) if ($convert && $self->{format} ne 'raw');
 
     return new Sys::VirtV2V::Transfer::Local::ReadStream(
-        $self->{path},
-        $self->{is_sparse}
+        $self->{path}
     );
 }
 
@@ -373,19 +534,22 @@ sub get_write_stream
     my $self = shift;
     my ($convert) = @_;
 
-    return new Sys::VirtV2V::Transfer::Local::GuestfsWriteStream(
-        $self->{path},
-        $self->{format},
-        $self->{is_sparse}
-    ) if ($convert && $self->{format} ne 'raw');
+    my $writer;
+    if ($convert && $self->{format} ne 'raw') {
+        $writer = new Sys::VirtV2V::Transfer::Local::GuestfsWriteStream(
+            $self->{path},
+            $self->{format}
+        );
+    } else {
+        $writer = new Sys::VirtV2V::Transfer::Local::WriteStream(
+            $self->{path}
+        );
+    }
 
     if ($self->{is_sparse}) {
-        return new Sys::VirtV2V::SparseWriter($self->{path});
+        return new Sys::VirtV2V::Transfer::Local::SparseWriter($writer);
     } else {
-        return new Sys::VirtV2V::Transfer::Local::WriteStream(
-            $self->{path},
-            $self->{is_sparse}
-        );
+        return $writer;
     }
 }
 

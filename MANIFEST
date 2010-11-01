@@ -19,7 +19,6 @@ lib/Sys/VirtV2V/GuestfsHandle.pm
 lib/Sys/VirtV2V/GuestOS.pm
 lib/Sys/VirtV2V/GuestOS/RedHat.pm
 lib/Sys/VirtV2V.pm
-lib/Sys/VirtV2V/SparseWriter.pm
 lib/Sys/VirtV2V/Transfer/ESX.pm
 lib/Sys/VirtV2V/Transfer/Local.pm
 lib/Sys/VirtV2V/Transfer/SSH.pm
