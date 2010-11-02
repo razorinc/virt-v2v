@@ -286,7 +286,7 @@ sub new
     my $creation = time();
 
     my $self = $class->SUPER::new($imageuuid, $format, $volpath, $outsize,
-                                  $sparse ? 0 : $outsize, $sparse, 0);
+                                  undef, $sparse, 0);
     $self->{transfer} =
         new Sys::VirtV2V::Connection::RHEVTarget::Transfer($self);
 
