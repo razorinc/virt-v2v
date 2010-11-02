@@ -328,7 +328,7 @@ sub _get_blocksize
 
 sub get_usage
 {
-    return shift->{pos};
+    return shift->{usage};
 }
 
 sub close
