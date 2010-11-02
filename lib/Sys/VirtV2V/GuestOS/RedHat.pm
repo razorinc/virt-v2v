@@ -811,7 +811,7 @@ sub _install_yum
             if ($@) {
                 warn(user_message(__x("Failed to install packages using yum. ".
                                       "Output was: {output}",
-                                      error => $@)));
+                                      output => $@)));
                 $success = 0;
                 last YUM;
             }
