@@ -433,13 +433,14 @@ sub close
         $$inbufref = '';
     }
 
-    # If there's data left in the input buffer, write it out
-    if (length($$inbufref) > 0) {
-        $writer->_write_zeroes($self->{sparse})
-            if ($self->{sparse} > 0);
+    # Ordering doesn't matter here, as it shouldn't be possible for both to be
+    # true.
 
-        $writer->write($$inbufref);
-    }
+    # Write any remaining sparse section
+    $writer->_write_zeroes($self->{sparse}) if ($self->{sparse} > 0);
+
+    # Write any remaining data
+    $writer->write($$inbufref) if (length($$inbufref) > 0);
 
     $writer->close();
 
