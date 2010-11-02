@@ -248,7 +248,7 @@ package Sys::VirtV2V::Transfer::Local::GuestfsWriteStream;
 @Sys::VirtV2V::Transfer::Local::GuestfsWriteStream::ISA =
     qw(Sys::VirtV2V::Transfer::GuestfsStream);
 
-use constant chunk => 2*1024*1024;
+use constant chunksize => 2*1024*1024;
 
 sub new
 {
@@ -269,19 +269,19 @@ sub write
 
     $$bufref .= $data;
 
-    my $split = chunk;
-    while ($split <= length($$bufref)) {
-        $self->{g}->pwrite_device('/dev/sda',
-                                  substr($$bufref, $split - chunk, chunk),
-                                  $self->{pos});
-        $split += chunk;
-        $self->{pos} += chunk;
-        $self->{usage} += chunk;
+    my $chunk = 0;
+    while ($chunk + chunksize <= length($$bufref)) {
+        my $written = $self->{g}->pwrite_device(
+            '/dev/sda',
+            substr($$bufref, $chunk, chunksize),
+            $self->{pos}
+        );
+        $chunk += $written;
+        $self->{pos} += $written;
+        $self->{usage} += $written;
     }
 
-    if ($split > chunk) {
-        $$bufref = substr($$bufref, $split - chunk);
-    }
+    $$bufref = substr($$bufref, $chunk);
 }
 
 sub _flush
@@ -292,12 +292,22 @@ sub _flush
 
     # If the buffer is larger than a single chunk, which might happen if we
     # were interrupted during write(), flush the buffer first.
-    $self->write('') if (length($$bufref) > chunk);
+    $self->write('') if (length($$bufref) > chunksize);
 
-    $self->{g}->pwrite_device('/dev/sda', $$bufref, $self->{pos});
-    $self->{pos} += length($$bufref);
+    my $remaining = length($$bufref);
+    my $bufpos = 0;
+    while ($remaining > 0) {
+        my $written = $self->{g}->pwrite_device(
+            '/dev/sda',
+            substr($$bufref, $bufpos),
+            $self->{pos}
+        );
+        $self->{pos} += $written;
+        $bufpos += $written;
+        $remaining -= $written;
+    }
+
     $self->{usage} += length($$bufref);
-
     $self->{buf} = '';
 }
 
@@ -375,7 +385,7 @@ sub write
 
     # Process data in the input buffer in $blksize chunks, excluding any
     # data in an incomplete final block
-    for (my $i = 0; $i + $align < length($$inbufref); $i += $blksize) {
+    for (my $i = 0; $i < length($$inbufref) - $align; $i += $blksize) {
         if (substr($$inbufref, $i, $blksize) =~ /[^\0]/) { # Allocated
             # Seek past any sparse section before writing
             if ($self->{sparse} > 0) {
