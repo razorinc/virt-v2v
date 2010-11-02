@@ -145,7 +145,7 @@ sub _get_transfer
     }
 
     elsif ($uri->scheme =~ /\+ssh$/) {
-        return new Sys::VirtV2V::Transfer::SSH($path,
+        return new Sys::VirtV2V::Transfer::SSH($path, $format,
                                                $self->{hostname},
                                                $self->{username},
                                                $is_sparse);

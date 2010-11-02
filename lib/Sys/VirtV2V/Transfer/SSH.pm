@@ -289,12 +289,13 @@ Create a new SSH transfer object.
 sub new
 {
     my $class = shift;
-    my ($path, $hostname, $username, $is_sparse) = @_;
+    my ($path, $format, $hostname, $username, $is_sparse) = @_;
 
     my $self = {};
     bless($self, $class);
 
     $self->{path}      = $path;
+    $self->{format}    = $format;
     $self->{hostname}  = $hostname;
     $self->{username}  = $username;
     $self->{is_sparse} = $is_sparse;
@@ -327,7 +328,7 @@ sub get_read_stream
 
     die(user_message(__('When reading from an SSH connection, virt-v2v can '.
                         'only currently convert raw volumes.')))
-        if ($convert && $self->get_format() ne 'raw');
+        if ($convert && $self->{format} ne 'raw');
 
     return new Sys::VirtV2V::Transfer::SSH::ReadStream(
         $self->{path},
@@ -351,7 +352,7 @@ sub get_write_stream
 
     die(user_message(__('When writing to an SSH connection, virt-v2v can only '.
                         'currently convert volumes to raw format')))
-        if ($convert && $self->get_format ne 'raw');
+        if ($convert && $self->{format} ne 'raw');
 
     return new Sys::VirtV2V::Transfer::SSH::WriteStream(
         $self->{path},
