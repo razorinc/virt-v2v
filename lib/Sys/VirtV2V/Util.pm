@@ -149,7 +149,8 @@ sub parse_libvirt_volinfo
     $name = $name->getData();
 
     ($format) = $voldom->findnodes('/volume/target/format/@type');
-    $format = $format->getValue();
+    $format = $format->getValue() if (defined($format));
+    $format ||= 'raw';
 
     my $info = $vol->get_info();
 
