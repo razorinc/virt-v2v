@@ -80,6 +80,9 @@ sub new
         # Add the transfer iso if there is one
         $g->add_drive_ro_with_if($transfer, $interface) if (defined($transfer));
 
+        # Enable networking in the guest
+        $g->set_network(1);
+
         $g->launch();
     };
 
