@@ -502,24 +502,33 @@ sub install_capability
             if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
                 $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
 
-                # filter out xen/xenU from release field
-                if (defined($kernel_release) &&
-                    $kernel_release =~ /^(\S+?)(xen)?(U)?$/)
+                # Check if we've got already got an appropriate kernel
+                my ($installed) =
+                    $self->_get_installed("$kernel_pkg.$kernel_arch");
+
+                if (!defined($installed) ||
+                    _evr_cmp($installed->[0], $installed->[1], $installed->[2],
+                             $min_epoch, $min_version, $min_release) < 0)
                 {
-                    $kernel_release = $1;
-                }
+                    # filter out xen/xenU from release field
+                    if (defined($kernel_release) &&
+                        $kernel_release =~ /^(\S+?)(xen)?(U)?$/)
+                    {
+                        $kernel_release = $1;
+                    }
 
-                # If the guest kernel is new enough, but PV, try to replace it
-                # with an equivalent version FV kernel
-                if (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
-                             $min_epoch, $min_version, $min_release) >= 0) {
-                    $kernel = [$kernel_pkg, $kernel_arch,
-                               $kernel_epoch, $kernel_ver, $kernel_release];
-                }
+                    # If the guest kernel is new enough, but PV, try to replace
+                    # it with an equivalent version FV kernel
+                    if (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
+                                 $min_epoch, $min_version, $min_release) >= 0) {
+                        $kernel = [$kernel_pkg, $kernel_arch,
+                                   $kernel_epoch, $kernel_ver, $kernel_release];
+                    }
 
-                # Otherwise, just grab the latest
-                else {
-                    $kernel = [$kernel_pkg, $kernel_arch];
+                    # Otherwise, just grab the latest
+                    else {
+                        $kernel = [$kernel_pkg, $kernel_arch];
+                    }
                 }
             }
 
@@ -895,6 +904,11 @@ sub install_good_kernel
     # normal kernel replacement
     if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
         $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
+
+        # Check there isn't already one installed
+        my ($kernel) = $self->_get_installed("$kernel_pkg.$kernel_arch");
+        return $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
+            if (defined($kernel));
     }
 
     # List of kernels before the new kernel installation
@@ -1194,7 +1208,8 @@ sub _get_installed
         push(@installed, [$epoch, $version, $release]);
     }
 
-    return @installed;
+    return sort { _evr_cmp($a->[0], $a->[1], $a->[2],
+                           $b->[0], $b->[1], $b->[2]) } @installed;
 }
 
 sub _evr_cmp
@@ -1234,14 +1249,13 @@ sub _newer_installed
     my @installed = $self->_get_installed("$name.$arch");
 
     # Search installed rpms matching <name>.<arch>
-    my $found = 0;
     foreach my $pkg (@installed) {
         next if _evr_cmp($pkg->[0], $pkg->[1], $pkg->[2],
                          $epoch, $version, $release) < 0;
-        $found = 1;
+        return 1;
     }
 
-    return $found;
+    return 0;
 }
 
 # Return a list of dependency paths which need to be installed for the given
