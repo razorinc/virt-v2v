@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-09-21 14:19+0100\n"
+"POT-Creation-Date: 2010-11-03 14:25+0000\n"
 "PO-Revision-Date: 2010-09-23 15:33+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
@@ -34,7 +34,6 @@ msgid "<iso-path> must be specified in the configuration file"
 msgstr "<ścieżka-do-pliku-ISO> musi zostać podana w pliku konfiguracji"
 
 #: ../lib/Sys/VirtV2V/Config.pm:154 ../lib/Sys/VirtV2V/Config.pm:158
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:78
 #, perl-brace-format
 msgid "Unable to stat {path}: {error}"
 msgstr "Nie można wykonać stat na {path}: {error}"
@@ -96,17 +95,12 @@ msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
 "OSTRZEŻENIE: nieznany typ interfejsu {type} w mapowaniu sieciowym: {config}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:83
-#, perl-brace-format
-msgid "Domain {name} already exists on the target."
-msgstr "Domena {name} już istnieje w celu."
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:88
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:66
 #, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "Nie można przetworzyć upoważnienia adresu URI: {auth}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:94
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:69
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
@@ -114,69 +108,220 @@ msgstr ""
 "OSTRZEŻENIE: podanie hasła w adresie URI połączenia nie jest obsługiwane. "
 "Zostanie zignorowane."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:141
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:119
 #, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "Połączenie z {uri} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:179
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:133
+#, fuzzy, perl-brace-format
+msgid "Failed to retrieve storage volume {path}:{error}"
+msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:158
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "Gość {name} jest obecnie {state}. Musi zostać najpierw wyłączony."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:192
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:171
 msgid "idle"
 msgstr "bezczynny"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:194
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:173
 msgid "running"
 msgstr "uruchomiony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:196
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:175
 msgid "blocked"
 msgstr "zablokowany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:198
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:177
 msgid "paused"
 msgstr "wstrzymany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:200
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:179
 msgid "shutting down"
 msgstr "wyłączany"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:202
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:181
 msgid "shut down"
 msgstr "wyłączony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:204
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:183
 msgid "crashed"
 msgstr "zawieszony"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:227
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:206
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} nie jest prawidłową nazwą gościa"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:89
+#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:88
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool"
+msgstr "Pula wyjściowa {poolname} nie jest prawidłową pulą pamięci masowej"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:148
+#, perl-brace-format
+msgid "Failed to create storage volume: {error}"
+msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:90
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "Otwarcie {path} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:96
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:97
 #, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "Nie można przetworzyć domeny z pliku {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXML.pm:101
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:102
 #, perl-brace-format
 msgid "{path} doesn't look like a libvirt domain XML file"
 msgstr "{path} nie jest plikiem XML domeny biblioteki libvirt"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:135
-msgid "No output target was specified"
-msgstr "Nie podano docelowego wyjścia"
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:71
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:752
+#, perl-brace-format
+msgid "Failed to create directory {dir}: {error}"
+msgstr "Utworzenie katalogu {dir} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection.pm:189
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:89
+#, perl-brace-format
+msgid ""
+"Failed to create new volume {path} with format {format}. Error was: {error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:115
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:761
+#: ../lib/Sys/VirtV2V/Transfer/Local.pm:102
+#, perl-brace-format
+msgid "Unable to open {path} for writing: {error}"
+msgstr "Nie można otworzyć {path} do zapisania: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:137
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "Błąd podczas zamykania {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:225
+msgid "Unable to read data from RHEV"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:312
+#, perl-brace-format
+msgid "RHEV cannot handle volumes of format {format}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:372
+#, perl-brace-format
+msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
+msgstr ""
+"Nie można przenieść woluminu z położenia tymczasowego {tmpdir} do {dir}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:397
+#, fuzzy, perl-brace-format
+msgid "Error removing {file}: {error}"
+msgstr "Błąd podczas zamykania {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:403
+#, perl-brace-format
+msgid "Unable to remove temporary directory {dir}"
+msgstr "Nie można usunąć katalogu tymczasowego {dir}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
+msgid "You must be root to output to RHEV"
+msgstr "Należy być rootem, aby przekazać wyjście do RHEV"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:460
+#, perl-brace-format
+msgid "Unable to change ownership of {mountdir} to 36:36"
+msgstr "Nie można zmienić właściciela {mountdir} na 36:36"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:469
+#, perl-brace-format
+msgid ""
+"Failed to mount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:479
+#, perl-brace-format
+msgid "Unable to open {mountdir}: {error}"
+msgstr "Nie można otworzyć {mountdir}: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:491
+#, perl-brace-format
+msgid ""
+"{domain_path} contains multiple possible domains. It may only contain one."
+msgstr ""
+"{domain_path} zawiera wiele możliwych domen. Może zawierać tylko jedną."
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:496
+#, perl-brace-format
+msgid "{domain_path} does not contain an initialised storage domain"
+msgstr "{domain_path} nie zawiera zainicjowanej domeny pamięci masowej"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:510
+#, perl-brace-format
+msgid ""
+"{domain_path} has not been attached to a RHEV data center ({path} does not "
+"exist)."
+msgstr ""
+"{domain_path} nie została dołączona do centrum danych RHEV ({path} nie "
+"istnieje)."
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:543
+#, perl-brace-format
+msgid ""
+"Failed to unmount {path}. Command exited with status {status}. Output was: "
+"{output}"
+msgstr ""
+"Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:553
+#, perl-brace-format
+msgid "Failed to remove mount directory {dir}: {error}"
+msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:845
+#, perl-brace-format
+msgid "Unsupported architecture: {arch}"
+msgstr "Nieobsługiwana architektura: {arch}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:889
+#, perl-brace-format
+msgid "Unknown Windows version: {major}.{minor}"
+msgstr "Nieznana wersja systemu Windows: {major}.{minor}"
+
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1113
+#, perl-brace-format
+msgid ""
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
+msgstr ""
+"Nieznany model NIC {driver} dla {dev}. NIC będzie wynosić {default} po "
+"zaimportowaniu."
+
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:155
+#, perl-brace-format
+msgid "Didn't receive full volume. Received {received} of {total} bytes."
+msgstr "Nie odebrano pełnego woluminu. Odebrano {received} z {total} bajtów."
+
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:198
+#, perl-brace-format
+msgid ""
+"WARNING: storage volume {name} already exists on the target. NOT copying it "
+"again. Delete the volume and retry to copy again."
+msgstr ""
+"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
+"zostanie skopiowany ponownie. Należy usunąć wolumin i ponowić próbę "
+"skopiowania."
+
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:266
 msgid "Guest doesn't define any recognised storage devices"
 msgstr ""
 "Gość nie określa żadnych rozpoznanych urządzeń do przechowywania danych"
@@ -189,7 +334,7 @@ msgstr ""
 "OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
 "{name}."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:297
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:291
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
@@ -197,7 +342,7 @@ msgstr ""
 "Nie zainstalowano startowych jąder i żaden zamiennik nie jest dostępny.\n"
 "Nie można kontynuować."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:436
+#: ../lib/Sys/VirtV2V/Converter/Linux.pm:430
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
@@ -238,7 +383,7 @@ msgstr ""
 "Windows."
 
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:212
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:310
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:315
 #, perl-brace-format
 msgid ""
 "Could not download the SYSTEM registry from this Windows guest.  The exact "
@@ -247,13 +392,13 @@ msgstr ""
 "Nie można pobrać rejestru SYSTEM z tego gościa systemu Windows. Dokładny "
 "komunikat błędu: {errmsg}"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:271
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:276
 #, perl-brace-format
 msgid "Guest is not a supported version of Windows ({major}.{minor})"
 msgstr "Gość nie jest obsługiwaną wersją systemu Windows ({major}.{minor})"
 
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:447
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:865
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:452
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:874
 #, perl-brace-format
 msgid ""
 "Installation failed because the following files referenced in the "
@@ -262,7 +407,7 @@ msgstr ""
 "Instalacja nie powiodła się, ponieważ następujące pliki wspomniane w pliku "
 "konfiguracji są wymagane, ale ich nie ma: {list}"
 
-#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:167
+#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:166
 msgid "libguestfs did not shut down cleanly"
 msgstr "Biblioteka libguestfs nie została poprawnie zakończona"
 
@@ -289,270 +434,83 @@ msgstr ""
 "Nierozpoznany format dla {field} w konfiguracji: {value}. {field} musi być w "
 "formacie [epoch:]version[-release]."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:745
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:754
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 "Zainstalowanie pakietów używając programu up2date nie powiodło się. "
 "Komunikat błędu: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:812
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:821
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 "Zainstalowanie pakietów używając programu yum nie powiodło się. Wyjście: "
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1093
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1107
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Nie można określić architektury jądra dla tego gościa"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1180
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1194
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1713
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1738
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
 "OSTRZEŻENIE: wersja jądra {version} nie posiada wpisu initrd w programie "
 "GRUB."
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1769
+#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1794
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
 msgstr ""
 "Nie odnaleziono polecenia mkinitrd lub dracut. Nie można zaktualizować "
 "obrazu initrd"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:58
-#, perl-brace-format
-msgid "Failed to create storage volume: {error}"
-msgstr "Utworzenie woluminu pamięci masowej nie powiodło się: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:82
+#, fuzzy, perl-brace-format
+msgid "Failed to connect to {host}: {error}"
+msgstr "Połączenie z {uri} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:73
-#, perl-brace-format
-msgid "Failed to get storage volume: {error}"
-msgstr "Uzyskanie woluminu pamięci masowej nie powiodło się: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:89
+#, fuzzy, perl-brace-format
+msgid "Failed to send request to {host}: {error}"
+msgstr "Połączenie z {uri} nie powiodło się: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:116
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:109
 #, perl-brace-format
-msgid "Error opening storage volume {path} for writing: {error}"
+msgid "ESX Server didn't return content length for {uri}"
 msgstr ""
-"Błąd podczas otwierania woluminu pamięci masowej {path} do zapisywania: "
-"{error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:130
-#, perl-brace-format
-msgid "Error writing to {path}: {error}"
-msgstr "Błąd podczas zapisywania do {path}: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
+#, fuzzy, perl-brace-format
+msgid "Error reading data from {host}"
+msgstr "Błąd podczas odczytywania danych z {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:140
-#, perl-brace-format
-msgid "Error closing volume handle: {error}"
-msgstr "Błąd podczas zamykania obsługi woluminu: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:206
-#, perl-brace-format
-msgid "Output pool {poolname} is not a valid storage pool"
-msgstr "Pula wyjściowa {poolname} nie jest prawidłową pulą pamięci masowej"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:267
-#, perl-brace-format
-msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
-msgstr ""
-"OSTRZEŻENIE: nieoczekiwany błąd podczas uzyskiwania dostępu do puli pamięci "
-"masowej {name}: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:313
-#, perl-brace-format
-msgid "Error checking for domain: {error}"
-msgstr "Błąd podczas sprawdzania domeny: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:351
-#, perl-brace-format
-msgid "The connected hypervisor does not support a {arch} kvm guest."
-msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}."
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:382
-#, perl-brace-format
-msgid ""
-"The connected hypervisor does not support a machine type of {machine}. It "
-"will be set to the current default."
-msgstr ""
-"Połączony nadzorca nie obsługuje typu komputera {machine}. Zostanie "
-"ustawiony na domyślny."
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:407
-#, perl-brace-format
-msgid "The connected hypervisor does not support feature {feature}."
-msgstr "Połączony nadzorca nie obsługuje funkcji {feature}."
-
-#: ../lib/Sys/VirtV2V/Target/LibVirt.pm:414
-msgid ""
-"The target guest does not support acpi under KVM. ACPI will be disabled."
-msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:287 ../lib/Sys/VirtV2V/Target/RHEV.pm:764
-#, perl-brace-format
-msgid "Failed to create directory {dir}: {error}"
-msgstr "Utworzenie katalogu {dir} nie powiodło się: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:294 ../lib/Sys/VirtV2V/Target/RHEV.pm:773
-#, perl-brace-format
-msgid "Unable to open {path} for writing: {error}"
-msgstr "Nie można otworzyć {path} do zapisania: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:315
-#, perl-brace-format
-msgid "Error closing {path}: {error}"
-msgstr "Błąd podczas zamykania {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:351
-#, perl-brace-format
-msgid ""
-"Didn't write full volume. Expected {expected} bytes, wrote {actual} bytes."
-msgstr ""
-"Nie zapisano pełnego woluminu. Oczekiwano {expected} bajtów, zapisano "
-"{actual} bajtów."
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:378
-#, perl-brace-format
-msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
-msgstr ""
-"Nie można przenieść woluminu z położenia tymczasowego {tmpdir} do {dir}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:394
-#, perl-brace-format
-msgid "Unable to remove temporary directory {dir}"
-msgstr "Nie można usunąć katalogu tymczasowego {dir}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:400
-#, perl-brace-format
-msgid "Error removing temporary directory {dir}: {error}"
-msgstr "Błąd podczas usuwania katalogu tymczasowego {dir}: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:459
-msgid "You must be root to output to RHEV"
-msgstr "Należy być rootem, aby przekazać wyjście do RHEV"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:466
-#, perl-brace-format
-msgid "Unable to change ownership of {mountdir} to 36:36"
-msgstr "Nie można zmienić właściciela {mountdir} na 36:36"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:475
-#, perl-brace-format
-msgid ""
-"Failed to mount {path}. Command exited with status {status}. Output was: "
-"{output}"
-msgstr ""
-"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
-"{status}. Wyjście: {output}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:484
-#, perl-brace-format
-msgid "Unable to open {mountdir}: {error}"
-msgstr "Nie można otworzyć {mountdir}: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:500
-#, perl-brace-format
-msgid ""
-"{domain_path} contains multiple possible domains. It may only contain one."
-msgstr ""
-"{domain_path} zawiera wiele możliwych domen. Może zawierać tylko jedną."
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:510
-#, perl-brace-format
-msgid "{domain_path} does not contain an initialised storage domain"
-msgstr "{domain_path} nie zawiera zainicjowanej domeny pamięci masowej"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:530
-#, perl-brace-format
-msgid ""
-"{domain_path} has not been attached to a RHEV data center ({path} does not "
-"exist)."
-msgstr ""
-"{domain_path} nie została dołączona do centrum danych RHEV ({path} nie "
-"istnieje)."
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:562
-#, perl-brace-format
-msgid ""
-"Failed to unmount {path}. Command exited with status {status}. Output was: "
-"{output}"
-msgstr ""
-"Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
-"{status}. Wyjście: {output}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:572
-#, perl-brace-format
-msgid "Failed to remove mount directory {dir}: {error}"
-msgstr "Usunięcie katalogu montowania {dir} nie powiodło się: {error}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:857
-#, perl-brace-format
-msgid "Unsupported architecture: {arch}"
-msgstr "Nieobsługiwana architektura: {arch}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:901
-#, perl-brace-format
-msgid "Unknown Windows version: {major}.{minor}"
-msgstr "Nieznana wersja systemu Windows: {major}.{minor}"
-
-#: ../lib/Sys/VirtV2V/Target/RHEV.pm:1124
-#, perl-brace-format
-msgid ""
-"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
-msgstr ""
-"Nieznany model NIC {driver} dla {dev}. NIC będzie wynosić {default} po "
-"zaimportowaniu."
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:114
-#, perl-brace-format
-msgid ""
-"WARNING: storage volume {name} already exists on the target. NOT fetching it "
-"again. Delete the volume and retry to download again."
-msgstr ""
-"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
-"zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
-"pobrania."
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:169
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:101
-#, perl-brace-format
-msgid "Didn't receive full volume. Received {received} of {total} bytes."
-msgstr "Nie odebrano pełnego woluminu. Odebrano {received} z {total} bajtów."
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:200
-#, perl-brace-format
-msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
-msgstr ""
-"Błąd uwierzytelnienia podczas łączenia się z {server}. Użyto danych "
-"uwierzytelniających dla {username} z pliku .netrc."
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:207
-#, perl-brace-format
-msgid "Failed to connect to ESX server: {error}"
-msgstr "Połączenie się z serwerem ESX nie powiodło się: {error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:267
-msgid "Server response didn't include an SSL subject"
-msgstr "Odpowiedź serwera nie zawiera tematu SSL"
-
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:271
-#, perl-brace-format
-msgid "SSL Certification Subject doesn't contain a common name: {subject}"
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:164
+#, fuzzy, perl-brace-format
+msgid "SSL Certificate Subject from {host} doesn't contain a CN"
 msgstr "Temat certyfikatu SSL nie zawiera wspólnej nazwy: {subject}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:277
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:168
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr "Serwer {server} zaprezentował certyfikat SSL dla {commonname}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:330
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:179
+#, perl-brace-format
+msgid "SSL Certificate presented by {host} will not be valid until {date}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:186
+#, perl-brace-format
+msgid "SSL Certificate present by {host} expired on {date}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:296
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -561,138 +519,247 @@ msgstr ""
 "Wymagane jest uwierzytelnienie, aby połączyć się z {server}, a nie "
 "odnaleziono danych uwierzytelniających w pliku .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:64
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:64
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:396
+msgid "virt-v2v cannot write to an ESX connection"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:429
+msgid "Unable to write to an ESX connection"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:460
 #, perl-brace-format
 msgid ""
-"WARNING: storage volume {name} already exists on the target. NOT copying it "
-"again. Delete the volume and retry to copy again."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
-"OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
-"zostanie skopiowany ponownie. Należy usunąć wolumin i ponowić próbę "
-"skopiowania."
+"Błąd uwierzytelnienia podczas łączenia się z {server}. Użyto danych "
+"uwierzytelniających dla {username} z pliku .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:73
+#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:467
+#, perl-brace-format
+msgid "Failed to connect to ESX server: {error}"
+msgstr "Połączenie się z serwerem ESX nie powiodło się: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/Local.pm:36
 #, perl-brace-format
 msgid "Unable to open {path} for reading: {error}"
 msgstr "Nie można otworzyć {path} do odczytania: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/LocalCopy.pm:118
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:89
-#, perl-brace-format
-msgid "Error reading data from {path}: {error}"
+#: ../lib/Sys/VirtV2V/Transfer/Local.pm:78
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:218
+#, fuzzy, perl-brace-format
+msgid "Error reading from {path}: {error}"
 msgstr "Błąd podczas odczytywania danych z {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:113
+#: ../lib/Sys/VirtV2V/Transfer/Local.pm:169
 #, perl-brace-format
-msgid "Unexpected error copying {path} from {host}. Command output: {output}"
+msgid "Error writing to {path}: {error}"
+msgstr "Błąd podczas zapisywania do {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:108
+#, fuzzy, perl-brace-format
+msgid "Unexpected error copying {path} from {host}."
 msgstr ""
 "Nieoczekiwany błąd podczas kopiowania {path} z {host}. Wyjście polecenia: "
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:195
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:113
 #, perl-brace-format
-msgid "Unexpected error getting {path}: {output}"
-msgstr "Nieoczekiwany błąd podczas otrzymywania {path}: {output}"
+msgid "Command output: {output}"
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Util.pm:80
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:259
+#, fuzzy, perl-brace-format
+msgid "Error writing data to {path}: {error}"
+msgstr "Błąd podczas zapisywania do {path}: {error}"
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:314
+msgid "virt-v2v cannot yet write to an SSH connection"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:329
+msgid ""
+"When reading from an SSH connection, virt-v2v can only currently convert raw "
+"volumes."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:353
+msgid ""
+"When writing to an SSH connection, virt-v2v can only currently convert "
+"volumes to raw format"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Util.pm:83
 #, perl-brace-format
 msgid "augeas error for {file}: {error}"
 msgstr "błąd augeas dla {file}: {error}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:84
+#: ../lib/Sys/VirtV2V/Util.pm:87
 #, perl-brace-format
 msgid "augeas error for {file}"
 msgstr "błąd augeas dla {file}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:91
+#: ../lib/Sys/VirtV2V/Util.pm:94
 #, perl-brace-format
 msgid "error at line {line}, char {char}, file position {pos}"
 msgstr "błąd w wierszu {line}, znaku {char}, pozycji pliku {pos}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:99
+#: ../lib/Sys/VirtV2V/Util.pm:102
 #, perl-brace-format
 msgid "augeas lens: {lens}"
 msgstr "soczewki augeas: {lens}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:128
+#: ../lib/Sys/VirtV2V/Util.pm:131
 #, perl-brace-format
 msgid "virt-v2v: {message}\n"
 msgstr "virt-v2v: {message}\n"
 
-#: ../v2v/virt-v2v.pl:237
+#: ../v2v/virt-v2v.pl:261
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Należy użyć -ic lub -oc, aby podać połączenie wejściowe lub wyjściowe"
 
-#: ../v2v/virt-v2v.pl:251
+#: ../v2v/virt-v2v.pl:280
+#, perl-brace-format
+msgid "allocation scheme must be {sparse} or {preallocated}"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:292
 msgid "--network may only be specified once"
 msgstr "--network można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:259
+#: ../v2v/virt-v2v.pl:300
 msgid "--bridge may only be specified once"
 msgstr "--bridge można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:280
+#: ../v2v/virt-v2v.pl:321
 msgid ""
 "You must specify an output storage pool when using the libvirt output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "biblioteki libvirt"
 
-#: ../v2v/virt-v2v.pl:289
+#: ../v2v/virt-v2v.pl:331
 msgid ""
 "You must specify an output storage domain when using the rhev output method"
 msgstr ""
 "Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
 "rhev"
 
-#: ../v2v/virt-v2v.pl:298
+#: ../v2v/virt-v2v.pl:340
 #, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{output} nie jest prawidłową metodą wyjścia"
 
-#: ../v2v/virt-v2v.pl:307
+#: ../v2v/virt-v2v.pl:348
 msgid "You must specify a filename"
 msgstr "Należy podać nazwę pliku"
 
-#: ../v2v/virt-v2v.pl:313
+#: ../v2v/virt-v2v.pl:354
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę pliku."
 
-#: ../v2v/virt-v2v.pl:322
+#: ../v2v/virt-v2v.pl:363
 msgid "You must specify a guest"
 msgstr "Należy podać gościa"
 
-#: ../v2v/virt-v2v.pl:331
+#: ../v2v/virt-v2v.pl:371
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "OSTRZEŻENIE: {modulename} przyjmuje tylko jedną nazwę domeny."
 
-#: ../v2v/virt-v2v.pl:337
+#: ../v2v/virt-v2v.pl:377
 #, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} nie jest prawidłową metodą wprowadzania"
 
-#: ../v2v/virt-v2v.pl:398
+#: ../v2v/virt-v2v.pl:387
+#, perl-brace-format
+msgid "Domain {name} already exists on the target."
+msgstr "Domena {name} już istnieje w celu."
+
+#: ../v2v/virt-v2v.pl:441
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} jest skonfigurowane ze sterownikami virtio"
 
-#: ../v2v/virt-v2v.pl:401
+#: ../v2v/virt-v2v.pl:444
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} jest skonfigurowane bez sterowników virtio"
 
-#: ../v2v/virt-v2v.pl:417
+#: ../v2v/virt-v2v.pl:463
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr "Odebrano sygnał {sig}. Kończenie działania."
 
-#: ../v2v/virt-v2v.pl:440
+#: ../v2v/virt-v2v.pl:487
 msgid "no root device found in this operating system image"
 msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 
-#: ../v2v/virt-v2v.pl:446
+#: ../v2v/virt-v2v.pl:493
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
+
+#~ msgid "No output target was specified"
+#~ msgstr "Nie podano docelowego wyjścia"
+
+#~ msgid "Failed to get storage volume: {error}"
+#~ msgstr "Uzyskanie woluminu pamięci masowej nie powiodło się: {error}"
+
+#~ msgid "Error opening storage volume {path} for writing: {error}"
+#~ msgstr ""
+#~ "Błąd podczas otwierania woluminu pamięci masowej {path} do zapisywania: "
+#~ "{error}"
+
+#~ msgid "Error closing volume handle: {error}"
+#~ msgstr "Błąd podczas zamykania obsługi woluminu: {error}"
+
+#~ msgid "WARNING: Unexpected error accessing storage pool {name}: {error}"
+#~ msgstr ""
+#~ "OSTRZEŻENIE: nieoczekiwany błąd podczas uzyskiwania dostępu do puli "
+#~ "pamięci masowej {name}: {error}"
+
+#~ msgid "Error checking for domain: {error}"
+#~ msgstr "Błąd podczas sprawdzania domeny: {error}"
+
+#~ msgid "The connected hypervisor does not support a {arch} kvm guest."
+#~ msgstr "Połączony nadzorca nie obsługuje gościa KVM {arch}."
+
+#~ msgid ""
+#~ "The connected hypervisor does not support a machine type of {machine}. It "
+#~ "will be set to the current default."
+#~ msgstr ""
+#~ "Połączony nadzorca nie obsługuje typu komputera {machine}. Zostanie "
+#~ "ustawiony na domyślny."
+
+#~ msgid "The connected hypervisor does not support feature {feature}."
+#~ msgstr "Połączony nadzorca nie obsługuje funkcji {feature}."
+
+#~ msgid ""
+#~ "The target guest does not support acpi under KVM. ACPI will be disabled."
+#~ msgstr "Gość docelowy nie obsługuje ACPI w KVM. ACPI zostanie wyłączone."
+
+#~ msgid ""
+#~ "Didn't write full volume. Expected {expected} bytes, wrote {actual} bytes."
+#~ msgstr ""
+#~ "Nie zapisano pełnego woluminu. Oczekiwano {expected} bajtów, zapisano "
+#~ "{actual} bajtów."
+
+#~ msgid "Error removing temporary directory {dir}: {error}"
+#~ msgstr "Błąd podczas usuwania katalogu tymczasowego {dir}: {error}"
+
+#~ msgid ""
+#~ "WARNING: storage volume {name} already exists on the target. NOT fetching "
+#~ "it again. Delete the volume and retry to download again."
+#~ msgstr ""
+#~ "OSTRZEŻENIE: wolumin pamięci masowej {name} już istnieje w celu. NIE "
+#~ "zostanie przechwycony ponownie. Należy usunąć wolumin i ponowić próbę "
+#~ "pobrania."
+
+#~ msgid "Server response didn't include an SSL subject"
+#~ msgstr "Odpowiedź serwera nie zawiera tematu SSL"
+
+#~ msgid "Unexpected error getting {path}: {output}"
+#~ msgstr "Nieoczekiwany błąd podczas otrzymywania {path}: {output}"
