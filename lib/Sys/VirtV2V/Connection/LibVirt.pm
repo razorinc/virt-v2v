@@ -27,15 +27,12 @@ use XML::DOM;
 use Sys::Virt;
 
 use Sys::VirtV2V;
-use Sys::VirtV2V::Connection;
 use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::Transfer::SSH;
 use Sys::VirtV2V::Transfer::Local;
 use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
-
-@Sys::VirtV2V::Connection::LibVirt::ISA = qw(Sys::VirtV2V::Connection);
 
 =pod
 
@@ -165,7 +162,6 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection(3)>,
 L<Sys::VirtV2V::Connection::LibVirtSource(3)>,
 L<Sys::VirtV2V::Connection::LibVirtTarget(3)>,
 L<virt-v2v(1)>,
