@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2010-11-03 14:25+0000\n"
-"PO-Revision-Date: 2010-09-23 10:27+0200\n"
+"PO-Revision-Date: 2010-11-23 19:02+0200\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Fedora\n"
 "Language: nl\n"
@@ -118,9 +118,9 @@ msgid "Failed to connect to {uri}: {error}"
 msgstr "Verbinden met {uri} mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:133
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to retrieve storage volume {path}:{error}"
-msgstr "Opslag volume aanmaken mislukte: {error}"
+msgstr "Opslag volume {path} verkrijgen mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:158
 #, perl-brace-format
@@ -197,6 +197,8 @@ msgstr "Aanmaken van map {dir} mislukte: {error}"
 msgid ""
 "Failed to create new volume {path} with format {format}. Error was: {error}"
 msgstr ""
+"Aanmaken van nieuw volume {path} met formaat {format} mislukte. Fout was: "
+"{error}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:115
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:761
@@ -212,12 +214,12 @@ msgstr "Sluiten van {path} mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:225
 msgid "Unable to read data from RHEV"
-msgstr ""
+msgstr "Kan geen data van RHEV lezen"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:312
 #, perl-brace-format
 msgid "RHEV cannot handle volumes of format {format}"
-msgstr ""
+msgstr "RHEV kan volumes met formaat {format} niet afhandelen"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:372
 #, perl-brace-format
@@ -226,9 +228,9 @@ msgstr ""
 "Kon volume niet verplaatsen van de tijdelijke locatie {tmpdir} naar {dir}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:397
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error removing {file}: {error}"
-msgstr "Sluiten van {path} mislukte: {error}"
+msgstr "Fout bij verwijderen van bestand {file}: {error}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:403
 #, perl-brace-format
@@ -263,7 +265,7 @@ msgstr "Kan {mountdir} niet openen: {error}"
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
 msgstr ""
-"{domain_path} bevat meerdere mogelijke domeinen. Het kan slechts een "
+"{domain_path} bevat meerdere mogelijke domeinen. Het kan er slechts een "
 "bevatten."
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:496
@@ -316,7 +318,8 @@ msgstr ""
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
-"Ontving geen volledig volume. {received} van de {total} bytes zijn ontvangen."
+"Ontving geen volledig volume. {received} van de {total} bytes zijn "
+"ontvangen."
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:198
 #, perl-brace-format
@@ -372,7 +375,7 @@ msgid ""
 "WARNING: Only 4 IDE devices are supported. The following drives have been "
 "removed: {list}"
 msgstr ""
-"WAARSCHUWING: Slechts 4 IDE apparatenworden ondersteund. De volgende "
+"WAARSCHUWING: Slechts 4 IDE apparaten worden ondersteund. De volgende "
 "apparaten zijn verwijderd: {list}"
 
 #: ../lib/Sys/VirtV2V/Converter.pm:459
@@ -394,7 +397,7 @@ msgid ""
 "Could not download the SYSTEM registry from this Windows guest.  The exact "
 "error message was: {errmsg}"
 msgstr ""
-"Kan de SYSYEEM registratie van deze Windows gast niet downloaden. De exacte "
+"Kan de SYSTEEM registratie van deze Windows gast niet downloaden. De exacte "
 "fout melding was: {errmsg}"
 
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:276
@@ -462,37 +465,36 @@ msgstr "Fout bij het draaien van {command}: {error}"
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1738
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
-msgstr ""
-"WAARSCHUWING: Kernel versie {version} heeft geen initrd ingang in grub."
+msgstr "WAARSCHUWING: Kernel versie {version} heeft geen initrd ingang in grub."
 
 #: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1794
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
 msgstr "Kan mkinitrd of dracut niet vinden. Kan initrd niet vernieuwen."
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:82
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to connect to {host}: {error}"
-msgstr "Verbinden met {uri} mislukte: {error}"
+msgstr "Verbinden met {host} mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:89
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to send request to {host}: {error}"
-msgstr "Verbinden met {uri} mislukte: {error}"
+msgstr "Verzoek naar {host} sturen mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:109
 #, perl-brace-format
 msgid "ESX Server didn't return content length for {uri}"
-msgstr ""
+msgstr "ESX server gaf de lengte van de inhoud voor {uri} niet terug"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:145
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error reading data from {host}"
-msgstr "Fout bij lezen van {path}: {error}"
+msgstr "Fout bij lezen van data van {host}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:164
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "SSL Certificate Subject from {host} doesn't contain a CN"
-msgstr "SSL certificaat subject bevat geen algemene naam: {subject}"
+msgstr "SSL certificaat subject van {host} bevat geen CN"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:168
 #, perl-brace-format
@@ -502,12 +504,12 @@ msgstr "Server {server} presenteerde een SSL certificaat voor {commonname}"
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:179
 #, perl-brace-format
 msgid "SSL Certificate presented by {host} will not be valid until {date}"
-msgstr ""
+msgstr "SSL certificaat gepresenteerd door {host} is niet geldig tot {date}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:186
 #, perl-brace-format
 msgid "SSL Certificate present by {host} expired on {date}"
-msgstr ""
+msgstr "SSL certificaat gepresenteerd door {host} verloopt op {date}"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:296
 #, perl-brace-format
@@ -520,11 +522,11 @@ msgstr ""
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:396
 msgid "virt-v2v cannot write to an ESX connection"
-msgstr ""
+msgstr "virt-v2v kan niet naar een ESX verbinding schrijven"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:429
 msgid "Unable to write to an ESX connection"
-msgstr ""
+msgstr "Kan niet naar een ESX verbinding schrijven"
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:460
 #, perl-brace-format
@@ -547,7 +549,7 @@ msgstr "{path} openen om de lezen mislukte: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/Local.pm:78
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:218
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error reading from {path}: {error}"
 msgstr "Fout bij lezen van {path}: {error}"
 
@@ -557,37 +559,39 @@ msgid "Error writing to {path}: {error}"
 msgstr "Fout bij schrijven naar {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:108
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unexpected error copying {path} from {host}."
-msgstr ""
-"Onverwachte fout het kopiëren van {path} naar {host}. Commando output: "
-"{output}"
+msgstr "Onverwachte fout het kopiëren van {path} van {host}."
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:113
 #, perl-brace-format
 msgid "Command output: {output}"
-msgstr ""
+msgstr "Commando output: {output}"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:259
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error writing data to {path}: {error}"
-msgstr "Fout bij schrijven naar {path}: {error}"
+msgstr "Fout bij schrijven van data naar {path}: {error}"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:314
 msgid "virt-v2v cannot yet write to an SSH connection"
-msgstr ""
+msgstr "virt-v2v kan niet naar een SSH verbinding schrijven"
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:329
 msgid ""
 "When reading from an SSH connection, virt-v2v can only currently convert raw "
 "volumes."
 msgstr ""
+"Bij het lezen van een SSH verbinding, kan virt-v2v momenteel alleen raw "
+"volumes converteren."
 
 #: ../lib/Sys/VirtV2V/Transfer/SSH.pm:353
 msgid ""
 "When writing to an SSH connection, virt-v2v can only currently convert "
 "volumes to raw format"
 msgstr ""
+"Bij het schrijven naar een SSH verbinding, kan virt-v2v momenteel volumes "
+"alleen converteren naar raw formaat"
 
 #: ../lib/Sys/VirtV2V/Util.pm:83
 #, perl-brace-format
@@ -622,7 +626,7 @@ msgstr ""
 #: ../v2v/virt-v2v.pl:280
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
-msgstr ""
+msgstr "toewijzing schema moet {sparse} of {preallocated} zijn"
 
 #: ../v2v/virt-v2v.pl:292
 msgid "--network may only be specified once"
