@@ -38,11 +38,9 @@ Sys::VirtV2V::Converter - Convert a guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::GuestOS;
  use Sys::VirtV2V::Converter;
 
- my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
- Sys::VirtV2V::Converter->convert($guestos, $config, $dom, $os, $devices);
+ Sys::VirtV2V::Converter->convert($g, $config, $desc, $dom, $devices);
 
 =head1 DESCRIPTION
 
@@ -104,23 +102,27 @@ use constant KVM_XML_NOVIRTIO => "
 </domain>
 ";
 
-=item Sys::VirtV2V::Converter->convert(guestos, dom, desc)
+=item Sys::VirtV2V::Converter->convert(g, config, desc, dom, devices)
 
 Instantiate an appropriate backend and call convert on it.
 
 =over
 
-=item guestos
+=item g
 
-An initialised Sys::VirtV2V::GuestOS object for the guest.
+A libguestfs handle to the target.
 
-=item dom
+=item config
 
-An XML::DOM object resulting from parsing the guests's libvirt domain XML.
+An initialised Sys::VirtV2V::Config object.
 
 =item desc
 
 The OS description returned by Sys::Guestfs::Lib.
+
+=item dom
+
+An XML::DOM object resulting from parsing the guests's libvirt domain XML.
 
 =item devices
 
@@ -135,20 +137,19 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $guestos, $config, $dom, $desc, $devices) = @_;
-    # guestos may be undef if none was found
-    carp("convert called without config argument") unless defined($config);
-    carp("convert called without dom argument") unless defined($dom);
-    carp("convert called without desc argument") unless defined($desc);
-    carp("convert called without devices argument") unless defined($devices);
+    my ($g, $config, $desc, $dom, $devices) = @_;
+    croak("convert called without g argument") unless defined($g);
+    croak("convert called without config argument") unless defined($config);
+    croak("convert called without desc argument") unless defined($desc);
+    croak("convert called without dom argument") unless defined($dom);
+    croak("convert called without devices argument") unless defined($devices);
 
     my $guestcaps;
 
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle($desc)) {
-            $guestcaps = $module->convert($g, $guestos, $desc, $devices,
-                                          $config);
+            $guestcaps = $module->convert($g, $config, $desc, $dom, $devices);
             last;
         }
     }
@@ -512,7 +513,6 @@ Please see the file COPYING.LIB for the full license.
 =head1 SEE ALSO
 
 L<Sys::VirtV2V::Converter::Linux(3pm)>,
-L<Sys::VirtV2V::GuestOS(3pm)>,
 L<Sys::Guestfs::Lib(3pm)>,
 L<Sys::Virt(3pm)>,
 L<virt-v2v(1)>,

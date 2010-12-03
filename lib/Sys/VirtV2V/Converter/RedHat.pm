@@ -1,4 +1,4 @@
-# Sys::VirtV2V::GuestOS::RedHat
+# Sys::VirtV2V::Converter::Linux
 # Copyright (C) 2009,2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,49 +15,46 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::GuestOS::RedHat;
+package Sys::VirtV2V::Converter::Linux;
 
 use strict;
 use warnings;
 
-use File::Spec;
-
+use Data::Dumper;
+use Locale::TextDomain 'virt-v2v';
 use Sys::Guestfs::Lib qw(inspect_linux_kernel);
-use Sys::VirtV2V::GuestOS;
+
+use XML::DOM;
+use XML::DOM::XPath;
+
 use Sys::VirtV2V::Util qw(augeas_error user_message);
 
-use Locale::TextDomain 'virt-v2v';
-
-@Sys::VirtV2V::GuestOS::RedHat::ISA = qw(Sys::VirtV2V::GuestOS);
+use Carp;
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::GuestOS::RedHat - Manipulate and query a Red Hat based Linux guest
+Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::GuestOS;
+ use Sys::VirtV2V::Converter;
 
- $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $desc);
+ Sys::VirtV2V::Converter->convert($g, $dom, $os);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::GuestOS::RedHat provides an interface for manipulating and
-querying a Red Hat based Linux guest. Specifically it handles any Guest OS which
-Sys::Guestfs::Lib has identified as 'linux', which uses rpm as a package format.
+Sys::VirtV2V::Converter::Linux converts a Linux guest to use KVM.
 
 =head1 METHODS
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for a detailed description of
-exported methods.
-
 =over
 
-=item Sys::VirtV2V::GuestOS::RedHat->can_handle(desc)
+=item Sys::VirtV2V::Converter::Linux->can_handle(desc)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+Return 1 if Sys::VirtV2V::Converter::Linux can convert the guest described by
+I<desc>, 0 otherwise.
 
 =cut
 
@@ -66,39 +63,87 @@ sub can_handle
     my $class = shift;
 
     my $desc = shift;
+    carp("can_handle called without desc argument") unless defined($desc);
 
-    return ($desc->{os} eq 'linux') && ($desc->{package_format} eq 'rpm');
+    return ($desc->{os} eq 'linux' &&
+            $desc->{distro} =~ /^(rhel|fedora)$/);
 }
 
-=item Sys::VirtV2V::GuestOS::RedHat->new(self)
+=item Sys::VirtV2V::Converter::Linux->convert(g, config, dom, desc, $devices)
 
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
+Convert a Linux guest. Assume that can_handle has previously returned 1.
+
+=over
+
+=item g
+
+An initialised Sys::Guestfs handle
+
+=item config
+
+An initialised Sys::VirtV2V::Config
+
+=item desc
+
+A description of the guest OS as returned by Sys::Guestfs::Lib.
+
+=item dom
+
+A DOM representation of the guest's libvirt domain metadata
+
+=item devices
+
+An arrayref of libvirt storage device names, in the order they will be presented
+to the guest.
+
+=back
 
 =cut
 
-sub new
+sub convert
 {
     my $class = shift;
 
-    # Self object
-    my $self = shift;
-    carp("new called without self object") unless defined($self);
+    my ($g, $config, $desc, $dom, $devices) = @_;
+    croak("convert called without g argument") unless defined($g);
+    croak("convert called without config argument") unless defined($config);
+    croak("convert called without desc argument") unless defined($desc);
+    croak("convert called without dom argument") unless defined($dom);
+    croak("convert called without devices argument") unless defined($devices);
 
-    bless($self, $class);
+    _init_selinux($g);
+    _init_augeas($g);
+    my $modpath = _init_modpath($g);
 
-    $self->_init_selinux();
-    $self->_init_modules();
-    $self->_init_augeas();
+    # Un-configure HV specific attributes which don't require a direct
+    # replacement
+    _unconfigure_hv($g, $desc);
 
-    return $self;
+    # Try to install the virtio capability
+    my $virtio = _install_capability('virtio', $g, $config, $dom, $desc);
+
+    # Get an appropriate kernel, and remove non-bootable kernels
+    my $kernel = _configure_kernel($virtio, $g, $config, $desc, $dom);
+
+    # Configure the rest of the system
+    _configure_console($g);
+    _configure_display_driver($g);
+    _remap_block_devices($devices, $virtio, $g, $desc);
+    _configure_kernel_modules($g, $desc, $virtio, $modpath);
+    _configure_boot($kernel, $virtio, $g, $desc);
+
+    my %guestcaps;
+
+    $guestcaps{virtio} = $virtio;
+    $guestcaps{arch}   = _get_os_arch($desc);
+    $guestcaps{acpi}   = _supports_acpi($desc, $guestcaps{arch});
+
+    return \%guestcaps;
 }
 
-# Handle SELinux for the guest
 sub _init_selinux
 {
-    my $self = shift;
-
-    my $g = $self->{g};
+    my ($g) = @_;
 
     # Assume SELinux isn't in use if load_policy isn't available
     return if(!$g->exists('/usr/sbin/load_policy'));
@@ -108,46 +153,9 @@ sub _init_selinux
     $g->touch('/.autorelabel');
 }
 
-sub _init_modules
-{
-    my $self = shift;
-    my $g = $self->{g};
-
-    # Check how new modules should be configured. Possibilities, in descending
-    # order of preference, are:
-    #   modprobe.d/
-    #   modprobe.conf
-    #   modules.conf
-    #   conf.modules
-
-    # Note that we're checking in ascending order of preference so that the last
-    # discovered method will be chosen
-
-    # Files which the augeas Modprobe lens doesn't look for by default
-    foreach my $file qw(/etc/conf.modules /etc/modules.conf) {
-        if($g->exists($file)) {
-            $self->{modules} = $file;
-        }
-    }
-
-    if($g->exists("/etc/modprobe.conf")) {
-        $self->{modules} = "modprobe.conf";
-    }
-
-    # If the modprobe.d directory exists, create new entries in
-    # modprobe.d/virtv2v-added.conf
-    if($g->exists("/etc/modprobe.d")) {
-        $self->{modules} = "modprobe.d/virtv2v-added.conf";
-    }
-
-    die(user_message(__"Unable to find any valid modprobe configuration"))
-        unless(defined($self->{modules}));
-}
-
 sub _init_augeas
 {
-    my $self = shift;
-    my $g = $self->{g};
+    my ($g) = @_;
 
     # Initialise augeas
     eval {
@@ -169,17 +177,6 @@ sub _init_augeas
                         "/boot/grub/menu.lst");
         }
 
-        # If we have XF86Config instead of xorg.conf, use that instead.
-        if (! $g->exists('/etc/X11/xorg.conf') &&
-            $g->exists('/etc/X11/XF86Config'))
-        {
-            $g->aug_set('/augeas/load/Xorg/incl[last()+1]',
-                        '/etc/X11/XF86Config');
-            $self->{xorg} = '/etc/X11/XF86Config';
-        } else {
-            $self->{xorg} = '/etc/X11/xorg.conf';
-        }
-
         # Make augeas pick up the new configuration
         $g->aug_load();
     };
@@ -188,130 +185,43 @@ sub _init_augeas
     augeas_error($g, $@) if ($@);
 }
 
-=item enable_kernel_module(device, module)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub enable_kernel_module
+sub _init_modpath
 {
-    my $self = shift;
-    my ($device, $module) = @_;
+    my ($g) = @_;
 
-    my $g = $self->{g};
+    # Check how new modules should be configured. Possibilities, in descending
+    # order of preference, are:
+    #   modprobe.d/
+    #   modprobe.conf
+    #   modules.conf
+    #   conf.modules
 
-    eval {
-        $g->aug_set("/files".$self->{modules}."/alias[last()+1]", $device);
-        $g->aug_set("/files".$self->{modules}."/alias[last()]/modulename",
-                    $module);
-        $g->aug_save();
-    };
+    # Note that we're checking in ascending order of preference so that the last
+    # discovered method will be chosen
 
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
+    my $modpath;
 
-=item update_kernel_module(device, module)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub update_kernel_module
-{
-    my $self = shift;
-    my ($device, $module) = @_;
-
-    # We expect the module to have been discovered during inspection
-    my $desc = $self->{desc};
-    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
-
-    # Error if the module isn't defined
-    die("$augeas isn't defined") unless defined($augeas);
-
-    my $g = $self->{g};
-    $augeas = $self->_check_augeas_device($augeas, $device);
-
-    # If the module has mysteriously disappeared, just add a new one
-    return $self->enable_kernel_module($device, $module) if (!defined($augeas));
-
-    eval {
-        $g->aug_set($augeas."/modulename", $module);
-        $g->aug_save();
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
-
-=item disable_kernel_module(device)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub disable_kernel_module
-{
-    my $self = shift;
-    my $device = shift;
-
-    # We expect the module to have been discovered during inspection
-    my $desc = $self->{desc};
-    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
-
-    # Nothing to do if the module isn't defined
-    return if(!defined($augeas));
-
-    my $g = $self->{g};
-
-    $augeas = $self->_check_augeas_device($augeas, $device);
-
-    # Nothing to do if the module has gone away
-    return if (!defined($augeas));
-
-    eval {
-        $g->aug_rm($augeas);
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
-
-=item update_display_driver(driver)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub update_display_driver
-{
-    my $self = shift;
-    my $driver = shift;
-
-    my $g = $self->{g};
-
-    # Update the display driver if it exists
-    eval {
-        foreach my $path
-            ($g->aug_match('/files'.$self->{xorg}.'/Device/Driver'))
-        {
-            $g->aug_set($path, $driver);
+    # Files which the augeas Modprobe lens doesn't look for by default
+    foreach my $file qw(/etc/conf.modules /etc/modules.conf) {
+        if($g->exists($file)) {
+            $modpath = $file;
         }
+    }
 
-        # Remove VendorName and BoardName if present
-        foreach my $path
-            ($g->aug_match('/files'.$self->{xorg}.'/Device/VendorName'),
-             $g->aug_match('/files'.$self->{xorg}.'/Device/BoardName'))
-        {
-            $g->aug_rm($path);
-        }
+    if($g->exists("/etc/modprobe.conf")) {
+        $modpath = "modprobe.conf";
+    }
 
-        $g->aug_save();
-    };
+    # If the modprobe.d directory exists, create new entries in
+    # modprobe.d/virtv2v-added.conf
+    if($g->exists("/etc/modprobe.d")) {
+        $modpath = "modprobe.d/virtv2v-added.conf";
+    }
 
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
+    die(user_message(__"Unable to find any valid modprobe configuration"))
+        unless(defined($modpath));
+
+    return $modpath;
 }
 
 # We can't rely on the index in the augeas path because it will change if
@@ -320,10 +230,7 @@ sub update_display_driver
 # pass.
 sub _check_augeas_device
 {
-    my $self = shift;
-    my ($path, $device) = @_;
-
-    my $g = $self->{g};
+    my ($g, $device, $path) = @_;
 
     $path =~ m{^(.*)/alias(?:\[\d+\])?$}
         or die("Unexpected augeas modprobe alias path: $path");
@@ -346,18 +253,233 @@ sub _check_augeas_device
     return $augeas;
 }
 
-=item list_kernels()
-
-List all installed kernels. List the default kernel first, followed by the
-remaining kernels in the order they are listed in grub.
-
-=cut
-
-sub list_kernels
+sub _update_kernel_module
 {
-    my $self = shift;
+    my ($g, $device, $module, $modules, $desc) = @_;
 
-    my $g = $self->{g};
+    # We expect the module to have been discovered during inspection
+    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
+
+    # Error if the module isn't defined
+    die("$augeas isn't defined") unless defined($augeas);
+
+    $augeas = _check_augeas_device($g, $device, $augeas);
+
+    # If the module has mysteriously disappeared, just add a new one
+    return _enable_kernel_module($g, $device, $module, $modules)
+        if (!defined($augeas));
+
+    eval {
+        $g->aug_set($augeas."/modulename", $module);
+        $g->aug_save();
+    };
+
+    # Propagate augeas errors
+    augeas_error($g, $@) if ($@);
+}
+
+sub _enable_kernel_module
+{
+    my ($g, $device, $module, $modules) = @_;
+
+    eval {
+        $g->aug_set("/files".$modules."/alias[last()+1]", $device);
+        $g->aug_set("/files".$modules."/alias[last()]/modulename", $module);
+        $g->aug_save();
+    };
+
+    # Propagate augeas errors
+    augeas_error($g, $@) if ($@);
+}
+
+sub _disable_kernel_module
+{
+    my ($g, $device, $desc) = @_;
+
+    # We expect the module to have been discovered during inspection
+    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
+
+    # Nothing to do if the module isn't defined
+    return if(!defined($augeas));
+
+    $augeas = _check_augeas_device($g, $device, $augeas);
+
+    # Nothing to do if the module has gone away
+    return if (!defined($augeas));
+
+    eval {
+        $g->aug_rm($augeas);
+    };
+
+    # Propagate augeas errors
+    augeas_error($g, $@) if ($@);
+}
+
+
+sub _configure_kernel_modules
+{
+    my ($g, $desc, $virtio, $modpath) = @_;
+
+    # Get a list of all old-hypervisor specific kernel modules which need to be
+    # replaced or removed
+    my %hvs_devices;
+    foreach my $device (_find_hv_kernel_modules($desc)) {
+        $hvs_devices{$device} = undef;
+    }
+
+    # Go through all kernel modules looking for network or scsi devices
+    my $modules = $desc->{modprobe_aliases};
+
+    # Make a note of whether we've added scsi_hostadapter
+    # We need this on RHEL 4/virtio because mkinitrd can't detect root on
+    # virtio. For simplicity we always ensure this is set for virtio disks.
+    my $scsi_hostadapter = 0;
+
+    foreach my $device (keys(%$modules)) {
+        # Replace network modules with virtio_net
+        if($device =~ /^eth\d+$/) {
+            # Make a note that we updated an old-HV specific kernel module
+            if(exists($hvs_devices{$device})) {
+                $hvs_devices{$device} = 1;
+            }
+
+            _update_kernel_module($g, $device,
+                                  $virtio ? "virtio_net" : "e1000", $modpath,
+                                  $desc);
+        }
+
+        # Replace block drivers with virtio_blk
+        if($device =~ /^scsi_hostadapter/) {
+            # Make a note that we updated an old-HV specific kernel module
+            if(exists($hvs_devices{$device})) {
+                $hvs_devices{$device} = 1;
+            }
+
+            if ($virtio) {
+                _update_kernel_module($g, $device, 'virtio_blk', $modpath,
+                                      $desc);
+                $scsi_hostadapter = 1;
+            }
+
+            # IDE doesn't need scsi_hostadapter
+            else {
+                _disable_kernel_module($g, $device, $desc);
+            }
+        }
+    }
+
+    # Add an explicit scsi_hostadapter if it wasn't there before
+    if ($virtio && !$scsi_hostadapter) {
+        _enable_kernel_module($g, 'scsi_hostadapter', 'virtio_blk', $modpath);
+    }
+
+    # Warn if any old-HV specific kernel modules weren't updated
+    foreach my $device (keys(%hvs_devices)) {
+        if(!defined($hvs_devices{$device})) {
+            warn user_message(__x("WARNING: Don't know how to update ".
+                                  "{device}, which loads the {module} ".
+                                  "module.",
+                                  device => $device,
+                                  module => $modules->{$device}->{modulename}));
+        }
+    }
+}
+
+# We configure a console on ttyS0. Make sure existing console references use it.
+# N.B. Note that the RHEL 6 xen guest kernel presents a console device called
+# /dev/hvc0, whereas previous xen guest kernels presented /dev/xvc0. The regular
+# kernel running under KVM also presents a virtio console device called
+# /dev/hvc0, so ideally we would just leave it alone. However, RHEL 6 libvirt
+# doesn't yet support this device so we can't attach to it. We therefore use
+# /dev/ttyS0 for RHEL 6 anyway.
+sub _configure_console
+{
+    my ($g) = @_;
+
+    # Look for gettys which use xvc0 or hvc0
+    # RHEL 6 doesn't use /etc/inittab, but this doesn't hurt
+    foreach my $augpath ($g->aug_match("/files/etc/inittab/*/process")) {
+        my $proc = $g->aug_get($augpath);
+
+        # If the process mentions xvc0, change it to ttyS0
+        if ($proc =~ /\b(x|h)vc0\b/) {
+            $proc =~ s/\b(x|h)vc0\b/ttyS0/g;
+            $g->aug_set($augpath, $proc);
+        }
+    }
+
+    # Replace any mention of xvc0 or hvc0 in /etc/securetty with ttyS0
+    foreach my $augpath ($g->aug_match('/files/etc/securetty/*')) {
+        my $tty = $g->aug_get($augpath);
+
+        if($tty eq "xvc0" || $tty eq "hvc0") {
+            $g->aug_set($augpath, 'ttyS0');
+        }
+    }
+
+    # Update any kernel console lines
+    foreach my $augpath
+        ($g->aug_match("/files/boot/grub/menu.lst/title/kernel/console"))
+    {
+        my $console = $g->aug_get($augpath);
+        if ($console =~ /\b(x|h)vc0\b/) {
+            $console =~ s/\b(x|h)vc0\b/ttyS0/g;
+            $g->aug_set($augpath, $console);
+        }
+    }
+
+    eval {
+        $g->aug_save();
+    };
+    augeas_error($g, $@) if ($@);
+}
+
+sub _configure_display_driver
+{
+    my ($g) = @_;
+
+    # Update the display driver if it exists
+    eval {
+        my $xorg;
+
+        # Check which X configuration we have, and make augeas load it if
+        # necessary
+        if (! $g->exists('/etc/X11/xorg.conf') &&
+            $g->exists('/etc/X11/XF86Config'))
+        {
+            $g->aug_set('/augeas/load/Xorg/incl[last()+1]',
+                        '/etc/X11/XF86Config');
+
+            # Reload to pick up the new configuration
+            $g->aug_load();
+
+            $xorg = '/etc/X11/XF86Config';
+        } else {
+            $xorg = '/etc/X11/xorg.conf';
+        }
+
+        foreach my $path ($g->aug_match('/files'.$xorg.'/Device/Driver')) {
+            $g->aug_set($path, 'cirrus');
+        }
+
+        # Remove VendorName and BoardName if present
+        foreach my $path
+            ($g->aug_match('/files'.$xorg.'/Device/VendorName'),
+             $g->aug_match('/files'.$xorg.'/Device/BoardName'))
+        {
+            $g->aug_rm($path);
+        }
+
+        $g->aug_save();
+    };
+
+    # Propagate augeas errors
+    augeas_error($g, $@) if ($@);
+}
+
+sub _list_kernels
+{
+    my ($g, $desc) = @_;
 
     # Get the default kernel from grub if it's set
     my $default;
@@ -367,7 +489,7 @@ sub list_kernels
     # Doesn't matter if get fails
 
     # Get the grub filesystem
-    my $grub = $self->{desc}->{boot}->{grub_fs};
+    my $grub = $desc->{boot}->{grub_fs};
 
     # Look for a kernel, starting with the default
     my @paths;
@@ -412,32 +534,279 @@ sub list_kernels
     return @kernels;
 }
 
-sub _parse_evr
+sub _configure_kernel
 {
-    my ($evr) = @_;
+    my ($virtio, $g, $config, $desc, $dom) = @_;
 
-    $evr =~ /^(?:(\d+):)?([^-]+)(?:-(\S+))?$/ or die();
+    my @remove_kernels = ();
 
-    my $epoch = $1;
-    my $version = $2;
-    my $release = $3;
+    # Remove foreign hypervisor specific kernels from the list of available
+    # kernels
+    foreach my $kernel (_find_hv_kernels($desc)) {
+        # Don't actually try to remove them yet in case we remove them all. This
+        # might make your dependency checker unhappy.
+        push(@remove_kernels, $kernel);
+    }
 
-    return ($epoch, $version, $release);
+    # Pick first appropriate kernel returned by _list_kernels
+    my $boot_kernel;
+    foreach my $kernel (_list_kernels($g, $desc)) {
+        # Skip kernels we're going to remove
+        next if (grep(/^$kernel$/, @remove_kernels));
+
+        # If we're configuring virtio, check this kernel supports it
+        next if ($virtio && !_supports_virtio($kernel, $g));
+
+        $boot_kernel = $kernel;
+        last;
+    }
+
+    # There should be an installed virtio capable kernel if virtio was installed
+    die("virtio configured, but no virtio kernel found")
+        if ($virtio && !defined($boot_kernel));
+
+    # If none of the installed kernels are appropriate, install a new one
+    if(!defined($boot_kernel)) {
+        $boot_kernel = _install_good_kernel($g, $config, $desc, $dom);
+    }
+
+    # Check we have a bootable kernel. If we don't, we're probably about to
+    # remove all kernels, which will fail unpleasantly. Fail nicely instead.
+    die(user_message(__"No bootable kernels installed, and no replacement ".
+                       "is available.\nUnable to continue."))
+        unless(defined($boot_kernel));
+
+    # It's safe to remove kernels now
+    foreach my $kernel (@remove_kernels) {
+        # Uninstall the kernel from the guest
+        _remove_kernel($kernel, $g);
+    }
+
+    return $boot_kernel;
 }
 
-=item install_capability(name)
-
-Install a capability specified in the configuration file.
-
-=cut
-
-sub install_capability
+sub _configure_boot
 {
-    my $self = shift;
-    my ($name) = @_;
+    my ($kernel, $virtio, $g, $desc) = @_;
 
-    my $desc = $self->{desc};
-    my $config = $self->{config};
+    if($virtio) {
+        # The order of modules here is deliberately the same as the order
+        # specified in the postinstall script of kmod-virtio in RHEL3. The
+        # reason is that the probing order determines the major number of vdX
+        # block devices. If we change it, RHEL 3 KVM guests won't boot.
+        _prepare_bootable($g, $desc, $kernel, "virtio", "virtio_ring",
+                                              "virtio_blk", "virtio_net",
+                                              "virtio_pci");
+    } else {
+        _prepare_bootable($g, $desc, $kernel, "sym53c8xx");
+    }
+}
+
+# Get the target architecture from the default boot kernel
+sub _get_os_arch
+{
+    my ($desc) = @_;
+
+    my $boot = $desc->{boot};
+    my $default_boot = $boot->{default} if(defined($boot));
+
+    my $arch;
+    if(defined($default_boot)) {
+        my $config = $boot->{configs}->[$default_boot];
+
+        if(defined($config->{kernel})) {
+            $arch = $config->{kernel}->{arch};
+        }
+    }
+
+    # Default to i686 if we didn't find an architecture
+    return 'i686' if(!defined($arch));
+
+    # We want an i686 guest for i[345]86
+    return 'i686' if($arch =~ /^i[345]86$/);
+
+    return $arch;
+}
+
+# Return a list of foreign hypervisor specific kernels
+sub _find_hv_kernels
+{
+    my $desc = shift;
+
+    my $boot = $desc->{boot};
+    return () unless(defined($boot));
+
+    my $configs = $desc->{boot}->{configs};
+    return () unless(defined($configs));
+
+    # Xen PV kernels can be distinguished from other kernels by their inclusion
+    # of the xennet driver
+    my @kernels = ();
+    foreach my $config (@$configs) {
+        my $kernel = $config->{kernel};
+        next unless(defined($kernel));
+
+        my $modules = $kernel->{modules};
+        next unless(defined($modules));
+
+        # Look for the xennet driver in the modules list
+        if(grep(/^xennet$/, @$modules) > 0) {
+            push(@kernels, $kernel->{version});
+        }
+    }
+
+    return @kernels;
+}
+
+sub _remove_application
+{
+    my ($name, $g) = @_;
+
+    $g->command(['rpm', '-e', $name]);
+
+    # Make augeas reload in case the removal changed anything
+    eval {
+        $g->aug_load();
+    };
+
+    augeas_error($g, $@) if ($@);
+}
+
+sub _get_application_owner
+{
+    my ($file, $g) = @_;
+
+    eval {
+        return $g->command(['rpm', '-qf', $file]);
+    };
+    die($@) if($@);
+}
+
+sub _unconfigure_hv
+{
+    my ($g, $desc) = @_;
+
+    _unconfigure_xen($g, $desc);
+    _unconfigure_vmware($g, $desc);
+}
+
+# Unconfigure Xen specific guest modifications
+sub _unconfigure_xen
+{
+    my ($g, $desc) = @_;
+
+    my $found_kmod = 0;
+
+    # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
+    foreach my $app (@{$desc->{apps}}) {
+        my $name = $app->{name};
+
+        if($name =~ /^kmod-xenpv(-.*)?$/) {
+            _remove_application($name, $g);
+            $found_kmod = 1;
+        }
+    }
+
+    # Undo related nastiness if kmod-xenpv was installed
+    if($found_kmod) {
+        # kmod-xenpv modules may have been manually copied to other kernels.
+        # Hunt them down and destroy them.
+        foreach my $dir (grep(m{/xenpv$}, $g->find('/lib/modules'))) {
+            $dir = '/lib/modules/'.$dir;
+
+            # Check it's a directory
+            next unless($g->is_dir($dir));
+
+            # Check it's not owned by an installed application
+            eval {
+                _get_application_owner($dir, $g);
+            };
+
+            # Remove it if _get_application_owner didn't find an owner
+            if($@) {
+                $g->rm_rf($dir);
+            }
+        }
+
+        # rc.local may contain an insmod or modprobe of the xen-vbd driver
+        my @rc_local = ();
+        eval {
+            @rc_local = $g->read_lines('/etc/rc.local');
+        };
+
+        if($@) {
+            warn user_message(__x("Unable to open /etc/rc.local: ".
+                                  "{error}", error => $@));
+        }
+
+        else {
+            my $size = 0;
+
+            foreach my $line (@rc_local) {
+                if($line =~ /\b(insmod|modprobe)\b.*\bxen-vbd/) {
+                    $line = '#'.$line;
+                }
+
+                $size += length($line) + 1;
+            }
+
+            $g->write_file('/etc/rc.local', join("\n", @rc_local)."\n", $size);
+        }
+    }
+}
+
+# Unconfigure VMware specific guest modifications
+sub _unconfigure_vmware
+{
+    my ($g, $desc) = @_;
+
+    # Uninstall VMwareTools
+    foreach my $app (@{$desc->{apps}}) {
+        my $name = $app->{name};
+
+        if ($name eq "VMwareTools") {
+            _remove_application($name, $g);
+        }
+    }
+}
+
+# Get a list of all foreign hypervisor specific kernel modules which are being
+# used by the guest
+sub _find_hv_kernel_modules
+{
+    my ($desc) = @_;
+
+    return _find_xen_kernel_modules($desc);
+}
+
+# Get a list of xen specific kernel modules which are being used by the guest
+sub _find_xen_kernel_modules
+{
+    my ($desc) = @_;
+    carp("find_kernel_modules called without desc argument")
+        unless defined($desc);
+
+    my $aliases = $desc->{modprobe_aliases};
+    return unless defined($aliases);
+
+    my @modules = ();
+    foreach my $alias (keys(%$aliases)) {
+        my $modulename = $aliases->{$alias}->{modulename};
+
+        foreach my $xen_module qw(xennet xen-vnif xenblk xen-vbd) {
+            if($modulename eq $xen_module) {
+                push(@modules, $alias);
+                last;
+            }
+        }
+    }
+
+    return @modules;
+}
+
+sub _install_capability
+{
+    my ($name, $g, $config, $dom, $desc) = @_;
 
     my $cap;
     eval {
@@ -478,7 +847,7 @@ sub install_capability
         # Kernels are special
         if ($name eq 'kernel') {
             my ($kernel_pkg, $kernel_rpmver, $kernel_arch) =
-                $self->_discover_kernel();
+                _discover_kernel($desc);
 
             my ($kernel_epoch, $kernel_ver, $kernel_release);
             eval {
@@ -500,11 +869,12 @@ sub install_capability
             # If the guest is using a Xen PV kernel, choose an appropriate
             # normal kernel replacement
             if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-                $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
+                $kernel_pkg =
+                    _get_replacement_kernel_name($kernel_arch, $desc, $dom);
 
                 # Check if we've got already got an appropriate kernel
                 my ($installed) =
-                    $self->_get_installed("$kernel_pkg.$kernel_arch");
+                    _get_installed("$kernel_pkg.$kernel_arch", $g);
 
                 if (!defined($installed) ||
                     _evr_cmp($installed->[0], $installed->[1], $installed->[2],
@@ -540,7 +910,7 @@ sub install_capability
         }
 
         else {
-            my @installed = $self->_get_installed($name);
+            my @installed = _get_installed($name, $g);
 
             # Ignore an 'ifinstalled' dep if it's not currently installed
             next if (@installed == 0 && $ifinstalled);
@@ -573,95 +943,21 @@ sub install_capability
         return 1;
     }
 
-    my $g = $self->{g};
-
     # List of kernels before the new kernel installation
     my @k_before = $g->glob_expand('/boot/vmlinuz-*');
 
-    my $success = $self->_install_any($kernel, \@install, \@upgrade);
+    my $success = _install_any($kernel, \@install, \@upgrade,
+                               $g, $config, $desc);
 
     # Check to see if we installed a new kernel, and check grub if we did
-    $self->_find_new_kernel(@k_before);
+    _find_new_kernel($g, $desc, @k_before);
 
     return $success;
 }
 
-sub _get_replacement_kernel_name
-{
-    my $self = shift;
-    my ($arch) = @_;
-
-    my $desc = $self->{desc};
-
-    # Make an informed choice about a replacement kernel for distros we know
-    # about
-
-    # RHEL 5
-    if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
-        if ($arch eq 'i686') {
-            # XXX: This assumes that PAE will be available in the hypervisor.
-            # While this is almost certainly true, it's theoretically possible
-            # that it isn't. The information we need is available in the
-            # capabilities XML.  If PAE isn't available, we should choose
-            # 'kernel'.
-            return 'kernel-PAE';
-        }
-
-        # There's only 1 kernel package on RHEL 5 x86_64
-        else {
-            return 'kernel';
-        }
-    }
-
-    # RHEL 4
-    elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
-        my $ncpus = $self->get_ncpus();
-
-        if ($arch eq 'i686') {
-            # If the guest has > 10G RAM, give it a hugemem kernel
-            if ($self->get_memory_kb() > 10 * 1024 * 1024) {
-                return 'kernel-hugemem';
-            }
-
-            # SMP kernel for guests with >1 CPU
-            elsif ($ncpus > 1) {
-                return 'kernel-smp';
-            }
-
-            else {
-                return 'kernel';
-            }
-        }
-
-        else {
-            if ($ncpus > 8) {
-                return 'kernel-largesmp';
-            }
-
-            elsif ($ncpus > 1) {
-                return 'kernel-smp';
-            }
-
-            else {
-                return 'kernel';
-            }
-        }
-    }
-
-    # RHEL 3 didn't have a xen kernel
-
-    # XXX: Could do with a history of Fedora kernels in here
-
-    # For other distros, be conservative and just return 'kernel'
-    return 'kernel';
-}
-
 sub _install_any
 {
-    my $self = shift;
-    my ($kernel, $install, $upgrade) = @_;
-
-    my $g = $self->{g};
+    my ($kernel, $install, $upgrade, $g, $config, $desc) = @_;
 
     # If we're updating the kernel, make sure DEFAULTKERNEL is updated in case
     # the kernel package has changed
@@ -691,12 +987,13 @@ sub _install_any
     my $success;
     eval {
         # Try to fetch these dependencies using the guest's native update tool
-        $success = $self->_install_up2date($kernel, $install, $upgrade);
-        $success = $self->_install_yum($kernel, $install, $upgrade)
+        $success = _install_up2date($kernel, $install, $upgrade, $g);
+        $success = _install_yum($kernel, $install, $upgrade, $g)
             unless ($success);
 
         # Fall back to local config if the above didn't work
-        $success = $self->_install_config($kernel, $install, $upgrade)
+        $success = _install_config($kernel, $install, $upgrade,
+                                   $g, $config, $desc)
             unless ($success);
     };
     if ($@) {
@@ -717,10 +1014,7 @@ sub _install_any
 
 sub _install_up2date
 {
-    my $self = shift;
-    my ($kernel, $install, $upgrade) = @_;
-
-    my $g = $self->{g};
+    my ($kernel, $install, $upgrade, $g) = @_;
 
     # Check this system has actions.packages
     return 0 unless ($g->exists('/usr/bin/up2date'));
@@ -762,10 +1056,7 @@ sub _install_up2date
 
 sub _install_yum
 {
-    my $self = shift;
-    my ($kernel, $install, $upgrade) = @_;
-
-    my $g = $self->{g};
+    my ($kernel, $install, $upgrade, $g) = @_;
 
     # Check this system has yum installed
     return 0 unless ($g->exists('/usr/bin/yum'));
@@ -777,7 +1068,7 @@ sub _install_yum
     # If the kernel package we're installing is already installed and we're
     # just upgrading to the latest version, we need to upgrade
     if (defined($kernel)) {
-        my @installed = $self->_get_installed($kernel->[0]);
+        my @installed = _get_installed($kernel->[0], $g);
 
         # Don't modify the contents of $install and $upgrade in case we fall
         # through and they're reused in another function
@@ -841,18 +1132,14 @@ sub _install_yum
 
 sub _install_config
 {
-    my $self = shift;
-    my ($kernel_naevr, $install, $upgrade) = @_;
-
-    my $g = $self->{g};
-    my $desc = $self->{desc};
+    my ($kernel_naevr, $install, $upgrade, $g, $config, $desc) = @_;
 
     my ($kernel, $user);
     if (defined($kernel_naevr)) {
         my ($kernel_pkg, $kernel_arch) = @$kernel_naevr;
 
         ($kernel, $user) =
-            $self->{config}->match_app($desc, $kernel_pkg, $kernel_arch);
+            $config->match_app($desc, $kernel_pkg, $kernel_arch);
     } else {
         $user = [];
     }
@@ -863,50 +1150,293 @@ sub _install_config
 
     my @missing;
     if (defined($kernel) &&
-        !$g->exists($self->{config}->get_transfer_path($g, $kernel)))
+        !$g->exists($config->get_transfer_path($g, $kernel)))
     {
         push(@missing, $kernel);
     }
 
-    my @user_paths = $self->_get_deppaths(\@missing, $desc->{arch}, @$user);
+    my @user_paths = _get_deppaths($g, $config, $desc,
+                                   \@missing, $desc->{arch}, @$user);
 
     # We can't proceed if there are any files missing
     die(user_message(__x("Installation failed because the following ".
                          "files referenced in the configuration file are ".
                          "required, but missing: {list}",
                          list => join(' ', @missing)))) if (@missing > 0);
-
     # Install any non-kernel requirements
-    $self->_install_rpms(1, @user_paths);
+    _install_rpms($g, $config, 1, @user_paths);
 
     if (defined($kernel)) {
-        $self->_install_rpms(0, ($kernel));
+        _install_rpms($g, $config, 0, ($kernel));
     }
 
     return 1;
 }
 
-=item install_good_kernel
-
-Attempt to install a known-good kernel
-
-=cut
-
-sub install_good_kernel
+# Install a set of rpms
+sub _install_rpms
 {
-    my $self = shift;
+    my ($g, $config, $upgrade, @rpms) = @_;
 
-    my $g = $self->{g};
+    # Nothing to do if we got an empty set
+    return if(scalar(@rpms) == 0);
 
-    my ($kernel_pkg, $kernel_rpmver, $kernel_arch) = $self->_discover_kernel();
+    # All paths are relative to the transfer mount. Need to make them absolute.
+    @rpms = map { $_ = $config->get_transfer_path($g, $_) } @rpms;
+
+    $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
+
+    # Reload augeas in case the rpm installation changed anything
+    eval {
+        $g->aug_load();
+    };
+
+    augeas_error($g, $@) if($@);
+}
+
+# Return a list of dependency paths which need to be installed for the given
+# apps
+sub _get_deppaths
+{
+    my ($g, $config, $desc, $missing, $arch, @apps) = @_;
+
+    my %required;
+    foreach my $app (@apps) {
+        my ($path, $deps) = $config->match_app($desc, $app, $arch);
+
+        my $exists = $g->exists($config->get_transfer_path($g, $path));
+
+        if (!$exists) {
+            push(@$missing, $path);
+        }
+
+        if (!$exists || !_newer_installed($path, $g, $config)) {
+            $required{$path} = 1;
+
+            foreach my $deppath (_get_deppaths($g, $config, $desc,
+                                               $missing, $arch, @$deps))
+            {
+                $required{$deppath} = 1;
+            }
+        }
+
+        # For x86_64, also check if there is any i386 or i686 version installed.
+        # If there is, check if it needs to be upgraded.
+        if ($arch eq 'x86_64') {
+            $path = undef;
+            $deps = undef;
+
+            # It's not an error if no i386 package is available
+            eval {
+                ($path, $deps) = $config->match_app($desc, $app, 'i386');
+            };
+
+            if (defined($path)) {
+                if (!$g->exists($config->get_transfer_path($g, $path)))
+                {
+                    push(@$missing, $path);
+
+                    foreach my $deppath (_get_deppaths($g, $config, $desc,
+                                                      $missing, 'i386', @$deps))
+                    {
+                        $required{$deppath} = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return keys(%required);
+}
+
+# Return 1 if the requested rpm, or a newer version, is installed
+# Return 0 otherwise
+sub _newer_installed
+{
+    my ($rpm, $g, $config) = @_;
+
+    my ($name, $epoch, $version, $release, $arch) =
+        _get_nevra($rpm, $g, $config);
+
+    my @installed = _get_installed("$name.$arch", $g);
+
+    # Search installed rpms matching <name>.<arch>
+    foreach my $pkg (@installed) {
+        next if _evr_cmp($pkg->[0], $pkg->[1], $pkg->[2],
+                         $epoch, $version, $release) < 0;
+        return 1;
+    }
+
+    return 0;
+}
+
+sub _get_nevra
+{
+    my ($rpm, $g, $config) = @_;
+
+    $rpm = $config->get_transfer_path($g, $rpm);
+
+    # Get NEVRA for the rpm to be installed
+    my $nevra = $g->command(['rpm', '-qp', '--qf',
+                             '%{NAME} %{EPOCH} %{VERSION} %{RELEASE} %{ARCH}',
+                             $rpm]);
+
+    $nevra =~ /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)$/
+        or die("Unexpected return from rpm command: $nevra");
+    my ($name, $epoch, $version, $release, $arch) = ($1, $2, $3, $4, $5);
+
+    # Ensure epoch is always numeric
+    $epoch = 0 if('(none)' eq $epoch);
+
+    return ($name, $epoch, $version, $release, $arch);
+}
+
+# Inspect the guest description to work out what kernel package is in use
+# Returns ($kernel_pkg, $kernel_arch)
+sub _discover_kernel
+{
+    my ($desc) = @_;
+
+    my $boot = $desc->{boot};
+
+    # Check the default first
+    my @configs;
+    push(@configs, $boot->{default}) if (defined($boot->{default}));
+
+    # Then check the rest. Default will get checked twice. Shouldn't be a
+    # problem, though.
+    push(@configs, (0..$#{$boot->{configs}}));
+
+    # Get a current bootable kernel, preferrably the default
+    my $kernel_pkg;
+    my $kernel_ver;
+    my $kernel_arch;
+
+    foreach my $i (@configs) {
+        my $config = $boot->{configs}->[$i];
+
+        # Check the entry has a kernel
+        my $kernel = $config->{kernel};
+        next unless (defined($kernel));
+
+        # Check its architecture is known
+        $kernel_arch = $kernel->{arch};
+        next unless (defined($kernel_arch));
+
+        # Get the kernel package name
+        $kernel_pkg = $kernel->{package};
+
+        # Get the kernel package version
+        $kernel_ver = $kernel->{version};
+
+        last;
+    }
+
+    # Default to 'kernel' if package name wasn't discovered
+    $kernel_pkg = "kernel" if (!defined($kernel_pkg));
+
+    # Default the kernel architecture to the userspace architecture if it wasn't
+    # directly detected
+    $kernel_arch = $desc->{arch} if (!defined($kernel_arch));
+
+    die(user_message(__"Unable to determine a kernel architecture for this ".
+                       "guest"))
+        unless (defined($kernel_arch));
+
+    # We haven't supported anything other than i686 for the kernel on 32 bit for
+    # a very long time.
+    $kernel_arch = 'i686' if ('i386' eq $kernel_arch);
+
+    return ($kernel_pkg, $kernel_ver, $kernel_arch);
+}
+
+sub _get_replacement_kernel_name
+{
+    my ($arch, $desc, $dom) = @_;
+
+    # Make an informed choice about a replacement kernel for distros we know
+    # about
+
+    # RHEL 5
+    if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
+        if ($arch eq 'i686') {
+            # XXX: This assumes that PAE will be available in the hypervisor.
+            # While this is almost certainly true, it's theoretically possible
+            # that it isn't. The information we need is available in the
+            # capabilities XML.  If PAE isn't available, we should choose
+            # 'kernel'.
+            return 'kernel-PAE';
+        }
+
+        # There's only 1 kernel package on RHEL 5 x86_64
+        else {
+            return 'kernel';
+        }
+    }
+
+    # RHEL 4
+    elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+        my ($ncpus) = $dom->findnodes('/domain/vcpu/text()');
+        if (defined($ncpus)) {
+            $ncpus = $ncpus->getData()
+        } else {
+            $ncpus = 1;
+        }
+
+        if ($arch eq 'i686') {
+            my ($mem_kb) = $dom->findnodes('/domain/memory/text()');
+            $mem_kb = $mem_kb->getData();
+
+            # If the guest has > 10G RAM, give it a hugemem kernel
+            if ($mem_kb > 10 * 1024 * 1024) {
+                return 'kernel-hugemem';
+            }
+
+            # SMP kernel for guests with >1 CPU
+            elsif ($ncpus > 1) {
+                return 'kernel-smp';
+            }
+
+            else {
+                return 'kernel';
+            }
+        }
+
+        else {
+            if ($ncpus > 8) {
+                return 'kernel-largesmp';
+            }
+
+            elsif ($ncpus > 1) {
+                return 'kernel-smp';
+            }
+            else {
+                return 'kernel';
+            }
+        }
+    }
+
+    # RHEL 3 didn't have a xen kernel
+
+    # XXX: Could do with a history of Fedora kernels in here
+
+    # For other distros, be conservative and just return 'kernel'
+    return 'kernel';
+}
+
+sub _install_good_kernel
+{
+    my ($g, $config, $desc, $dom) = @_;
+
+    my ($kernel_pkg, $kernel_rpmver, $kernel_arch) = _discover_kernel($desc);
 
     # If the guest is using a Xen PV kernel, choose an appropriate
     # normal kernel replacement
     if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-        $kernel_pkg = $self->_get_replacement_kernel_name($kernel_arch);
+        $kernel_pkg = _get_replacement_kernel_name($kernel_arch, $desc, $dom);
 
         # Check there isn't already one installed
-        my ($kernel) = $self->_get_installed("$kernel_pkg.$kernel_arch");
+        my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
         return $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
             if (defined($kernel));
     }
@@ -914,20 +1444,36 @@ sub install_good_kernel
     # List of kernels before the new kernel installation
     my @k_before = $g->glob_expand('/boot/vmlinuz-*');
 
-    return undef unless ($self->_install_any([$kernel_pkg, $kernel_arch]));
+    return undef unless _install_any([$kernel_pkg, $kernel_arch], undef, undef,
+                                     $g, $config, $desc);
 
-    my $version = $self->_find_new_kernel(@k_before);
+    my $version = _find_new_kernel($g, $desc, @k_before);
     die("Couldn't determine version of installed kernel")
         unless (defined($version));
 
     return $version;
 }
 
+sub _remove_kernel
+{
+    my ($version, $g) = @_;
+
+    # Work out which rpm contains the kernel
+    my @output = $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
+    $g->command(['rpm', '-e', $output[0]]);
+
+    # Make augeas reload so it knows the kernel's gone
+    eval {
+        $g->aug_load();
+    };
+    augeas_error($g, $@) if ($@);
+}
+
 sub _find_new_kernel
 {
-    my $self = shift;
-
-    my $g = $self->{g};
+    my $g = shift;
+    my $desc = shift;
+    # Note that subsequent arguments are used below
 
     # Figure out which kernel has just been installed
     foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
@@ -938,7 +1484,7 @@ sub _find_new_kernel
 
                 my $version = $1;
                 if ($g->is_dir("/lib/modules/$version")) {
-                    $self->_check_grub($version, $k);
+                    _check_grub($version, $k, $g, $desc);
                     return $version;
                 }
             }
@@ -947,14 +1493,9 @@ sub _find_new_kernel
     return undef;
 }
 
-# grubby can sometimes fail to correctly update grub.conf when run from
-# libguestfs. If it looks like this happened, install a new grub config here.
 sub _check_grub
 {
-    my $self = shift;
-    my ($version, $kernel) = @_;
-
-    my $g = $self->{g};
+    my ($version, $kernel, $g, $desc) = @_;
 
     # Nothing to do if there's already a grub entry
     eval {
@@ -967,7 +1508,7 @@ sub _check_grub
     augeas_error($g, $@) if ($@);
 
     my $prefix;
-    if ($self->{desc}->{boot}->{grub_fs} eq "/boot") {
+    if ($desc->{boot}->{grub_fs} eq "/boot") {
         $prefix = '';
     } else {
         $prefix = '/boot';
@@ -1004,7 +1545,6 @@ sub _check_grub
         else {
             my ($match) =
                 $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
-
             die("No template kernel found in grub.") unless(defined($match));
 
             $match =~ s/\/kernel$//;
@@ -1055,121 +1595,9 @@ sub _check_grub
     augeas_error($g, $@) if ($@);
 }
 
-# Inspect the guest description to work out what kernel package is in use
-# Returns ($kernel_pkg, $kernel_arch)
-sub _discover_kernel
-{
-    my $self = shift;
-
-    my $desc = $self->{desc};
-    my $boot = $desc->{boot};
-
-    # Check the default first
-    my @configs;
-    push(@configs, $boot->{default}) if(defined($boot->{default}));
-
-    # Then check the rest. Default will get checked twice. Shouldn't be a
-    # problem, though.
-    push(@configs, (0..$#{$boot->{configs}}));
-
-    # Get a current bootable kernel, preferrably the default
-    my $kernel_pkg;
-    my $kernel_ver;
-    my $kernel_arch;
-
-    foreach my $i (@configs) {
-        my $config = $boot->{configs}->[$i];
-
-        # Check the entry has a kernel
-        my $kernel = $config->{kernel};
-        next unless(defined($kernel));
-
-        # Check its architecture is known
-        $kernel_arch = $kernel->{arch};
-        next unless(defined($kernel_arch));
-
-        # Get the kernel package name
-        $kernel_pkg = $kernel->{package};
-
-        # Get the kernel package version
-        $kernel_ver = $kernel->{version};
-
-        last;
-    }
-
-    # Default to 'kernel' if package name wasn't discovered
-    $kernel_pkg = "kernel" if(!defined($kernel_pkg));
-
-    # Default the kernel architecture to the userspace architecture if it wasn't
-    # directly detected
-    $kernel_arch = $desc->{arch} if(!defined($kernel_arch));
-
-    die(user_message(__"Unable to determine a kernel architecture for this ".
-                       "guest"))
-        unless(defined($kernel_arch));
-
-    # We haven't supported anything other than i686 for the kernel on 32 bit for
-    # a very long time.
-    $kernel_arch = 'i686' if('i386' eq $kernel_arch);
-
-    return ($kernel_pkg, $kernel_ver, $kernel_arch);
-}
-
-=item remove_kernel(version)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub remove_kernel
-{
-    my $self = shift;
-    my ($version) = @_;
-    carp("remove_kernel called without version argument")
-        unless(defined($version));
-
-    my $g = $self->{g};
-    # Work out which rpm contains the kernel
-    my @output = $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
-    $g->command(['rpm', '-e', $output[0]]);
-
-    # Make augeas reload so it knows the kernel's gone
-    eval {
-        $g->aug_load();
-    };
-    augeas_error($g, $@) if ($@);
-}
-
-sub _get_nevra
-{
-    my $self = shift;
-    my ($rpm) = @_;
-
-    my $g = $self->{g};
-
-    $rpm = $self->{config}->get_transfer_path($g, $rpm);
-
-    # Get NEVRA for the rpm to be installed
-    my $nevra = $g->command(['rpm', '-qp', '--qf',
-                             '%{NAME} %{EPOCH} %{VERSION} %{RELEASE} %{ARCH}',
-                             $rpm]);
-
-    $nevra =~ /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)$/
-        or die("Unexpected return from rpm command: $nevra");
-    my ($name, $epoch, $version, $release, $arch) = ($1, $2, $3, $4, $5);
-
-    # Ensure epoch is always numeric
-    $epoch = 0 if('(none)' eq $epoch);
-
-    return ($name, $epoch, $version, $release, $arch);
-}
-
 sub _get_installed
 {
-    my $self = shift;
-    my ($name) = @_;
-
-    my $g = $self->{g};
+    my ($name, $g) = @_;
 
     my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
                   $name];
@@ -1212,6 +1640,19 @@ sub _get_installed
                            $b->[0], $b->[1], $b->[2]) } @installed;
 }
 
+sub _parse_evr
+{
+    my ($evr) = @_;
+
+    $evr =~ /^(?:(\d+):)?([^-]+)(?:-(\S+))?$/ or die();
+
+    my $epoch = $1;
+    my $version = $2;
+    my $release = $3;
+
+    return ($epoch, $version, $release);
+}
+
 sub _evr_cmp
 {
     my ($e1, $v1, $r1, $e2, $v2, $r2) = @_;
@@ -1232,108 +1673,6 @@ sub _evr_cmp
     $r2 ||= "";
 
     return _rpmvercmp($r1, $r2);
-}
-
-
-# Return 1 if the requested rpm, or a newer version, is installed
-# Return 0 otherwise
-sub _newer_installed
-{
-    my $self = shift;
-    my ($rpm) = @_;
-
-    my $g = $self->{g};
-
-    my ($name, $epoch, $version, $release, $arch) = $self->_get_nevra($rpm);
-
-    my @installed = $self->_get_installed("$name.$arch");
-
-    # Search installed rpms matching <name>.<arch>
-    foreach my $pkg (@installed) {
-        next if _evr_cmp($pkg->[0], $pkg->[1], $pkg->[2],
-                         $epoch, $version, $release) < 0;
-        return 1;
-    }
-
-    return 0;
-}
-
-# Return a list of dependency paths which need to be installed for the given
-# apps
-sub _get_deppaths
-{
-    my $self = shift;
-    my ($missing, $arch, @apps) = @_;
-
-    my $desc = $self->{desc};
-    my $config = $self->{config};
-
-    my %required;
-    foreach my $app (@apps) {
-        my ($path, $deps) = $config->match_app($desc, $app, $arch);
-
-        my $g = $self->{g};
-        my $exists = $g->exists($self->{config}->get_transfer_path($g, $path));
-
-        if (!$exists) {
-            push(@$missing, $path);
-        }
-
-        if (!$exists || !$self->_newer_installed($path)) {
-            $required{$path} = 1;
-
-            foreach my $deppath ($self->_get_deppaths($missing,
-                                                      $arch, @$deps)) {
-                $required{$deppath} = 1;
-            }
-        }
-
-        # For x86_64, also check if there is any i386 or i686 version installed.
-        # If there is, check if it needs to be upgraded.
-        if ($arch eq 'x86_64') {
-            $path = undef;
-            $deps = undef;
-
-            # It's not an error if no i386 package is available
-            eval {
-                ($path, $deps) = $config->match_app($desc, $app, 'i386');
-            };
-
-            if (defined($path)) {
-                my $g = $self->{g};
-
-                if (!$g->exists($self->{config}->get_transfer_path($g, $path)))
-                {
-                    push(@$missing, $path);
-
-                    foreach my $deppath ($self->_get_deppaths($missing,
-                                                              'i386', @$deps))
-                    {
-                        $required{$deppath} = 1;
-                    }
-                }
-
-                elsif (!$self->_newer_installed($path)) {
-                    my ($name, undef, undef, undef, $arch) =
-                        $self->_get_nevra($path);
-
-                    my @installed = $self->_get_installed("$name.$arch");
-
-                    if (@installed > 0) {
-                        $required{$path} = 1;
-
-                        foreach my $deppath
-                            ($self->_get_deppaths($missing, 'i386', @$deps))
-                        {
-                            $required{$deppath} = 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return keys(%required);
 }
 
 # An implementation of rpmvercmp. Compares two rpm version/release numbers and
@@ -1416,84 +1755,9 @@ sub _rpmvercmp
     return 0;
 }
 
-=item remove_application(name)
-
-Uninstall an application.
-
-=cut
-
-sub remove_application
+sub _remap_block_devices
 {
-    my $self = shift;
-    my $name = shift;
-
-    my $g = $self->{g};
-    $g->command(['rpm', '-e', $name]);
-
-    # Make augeas reload in case the removal changed anything
-    eval {
-        $g->aug_load();
-    };
-
-    augeas_error($g, $@) if ($@);
-}
-
-=item get_application_owner(file)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub get_application_owner
-{
-    my $self = shift;
-    my ($file) = @_;
-
-    my $g = $self->{g};
-    eval {
-        return $g->command(['rpm', '-qf', $file]);
-    };
-    die($@) if($@);
-}
-
-# Install a set of rpms
-sub _install_rpms
-{
-    my $self = shift;
-
-    my ($upgrade, @rpms) = @_;
-
-    # Nothing to do if we got an empty set
-    return if(scalar(@rpms) == 0);
-
-    my $g = $self->{g};
-
-    # All paths are relative to the transfer mount. Need to make them absolute.
-    @rpms = map { $_ = $self->{config}->get_transfer_path($g, $_) } @rpms;
-
-    $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
-
-    # Reload augeas in case the rpm installation changed anything
-    eval {
-        $g->aug_load();
-    };
-
-    augeas_error($g, $@) if($@);
-}
-
-=item remap_block_devices(devices, virtio)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub remap_block_devices
-{
-    my $self = shift;
-    my ($devices, $virtio) = @_;
-
-    my $g    = $self->{g};
-    my $desc = $self->{desc};
+    my ($devices, $virtio, $g, $desc) = @_;
 
     # $devices contains an order list of devices, as named by the host. Because
     # libvirt uses a similar naming scheme to Linux, these will mostly be the
@@ -1675,21 +1939,9 @@ sub _drivecmp
     return 1;
 }
 
-=item prepare_bootable(version [, module, module, ...])
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub prepare_bootable
+sub _prepare_bootable
 {
-    my $self = shift;
-
-    my $version = shift;
-    my @modules = @_;
-
-    my $g = $self->{g};
-    my $desc = $self->{desc};
+    my ($g, $desc, $version, @modules) = @_;
 
     # Find the grub entry for the given kernel
     my $initrd;
@@ -1740,7 +1992,7 @@ sub prepare_bootable
                               version => $version));
     } else {
         # Initrd as returned by grub may be relative to /boot
-        $initrd = $self->{desc}->{boot}->{grub_fs}.$initrd;
+        $initrd = $desc->{boot}->{grub_fs}.$initrd;
 
         # Backup the original initrd
         $g->mv($initrd, "$initrd.pre-v2v") if ($g->exists($initrd));
@@ -1806,24 +2058,30 @@ sub prepare_bootable
     }
 }
 
-=item supports_virtio(kernel)
-
-See BACKEND INTERFACE in L<Sys::VirtV2V::GuestOS> for details.
-
-=cut
-
-sub supports_virtio
+# Return 1 if the guest supports ACPI, 0 otherwise
+sub _supports_acpi
 {
-    my $self = shift;
-    my ($kernel) = @_;
+    my ($desc, $arch) = @_;
+
+    # Blacklist configurations which are known to fail
+    # RHEL 3, x86_64
+    if ($desc->{distro} eq 'rhel' && $desc->{major_version} == 3 &&
+        $arch eq 'x86_64') {
+        return 0;
+    }
+
+    return 1;
+}
+
+sub _supports_virtio
+{
+    my ($kernel, $g) = @_;
 
     my %checklist = (
         "virtio_net" => 0,
         "virtio_pci" => 0,
         "virtio_blk" => 0
     );
-
-    my $g = $self->{g};
 
     # Search the installed kernel's modules for the virtio drivers
     foreach my $module ($g->find("/lib/modules/$kernel")) {
@@ -1856,10 +2114,9 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
+L<Sys::VirtV2V::Converter(3pm)>,
+L<Sys::VirtV2V(3pm)>,
 L<virt-v2v(1)>,
-L<Sys::VirtV2V::GuestOS(3pm)>,
-L<Sys::Guestfs(3pm)>,
-L<Sys::Guestfs::Lib(3pm)>,
 L<http://libguestfs.org/>.
 
 =cut

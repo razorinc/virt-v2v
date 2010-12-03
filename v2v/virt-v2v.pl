@@ -38,7 +38,6 @@ use Sys::VirtV2V::Connection::LibVirtXMLSource;
 use Sys::VirtV2V::Connection::RHEVTarget;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestfsHandle;
-use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::Util qw(user_message);
 
 =encoding utf8
@@ -412,13 +411,9 @@ eval {
     # Inspect the guest
     $os = inspect_guest($g);
 
-    # Instantiate a GuestOS instance to manipulate the guest
-    my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
-
     # Modify the guest and its metadata
-    $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
-                                                  $config, $dom, $os,
-                                                  $source->get_storage_devices());
+    $guestcaps = Sys::VirtV2V::Converter->convert($g, $config, $os, $dom,
+                                                $source->get_storage_devices());
 };
 
 # If any of the above commands result in failure, we need to ensure that the
