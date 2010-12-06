@@ -102,8 +102,6 @@ sub get_transfer_iso
 
     my $dom = $self->{dom};
 
-    return undef unless (defined($dom));
-
     return $self->{iso} if (exists($self->{iso}));
 
     # path-root doesn't have to be defined
@@ -441,12 +439,9 @@ sub map_network
 
     my $dom = $self->{dom};
 
-    my $mapping;
-    if (defined($dom)) {
-        ($mapping) = $dom->findnodes
+    my ($mapping) = $dom->findnodes
             ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldname']".
              "/network");
-    }
 
     unless (defined($mapping)) {
         # Return the default if it was specified
