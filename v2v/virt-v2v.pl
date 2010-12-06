@@ -140,27 +140,34 @@ present.
 
 =cut
 
-my $output_pool;
+my $output_location;
 
-=item B<-op pool>
+=item B<-ol location>
 
-Specifies the pool which will be used to create new storage for the converted
-guest.
+The output method dependent location where new storage will be created for the
+converted guest.
 
-=cut
+For the I<libvirt> output method, this must be the name of a storage pool.
 
-my $output_storage_domain;
-
-=item B<-osd domain>
-
-Specifies the NFS path to a RHEV Export storage domain. Note that the storage
-domain must have been previously initialised by RHEV.
-
-The domain must be in the format <host>:<path>, eg:
+For the I<rhev> output method, this specifies the NFS path to a RHEV Export
+storage domain. Note that the storage domain must have been previously
+initialised by RHEV. The domain must be in the format <host>:<path>, eg:
 
  rhev-storage.example.com:/rhev/export
 
 The nfs export must be mountable and writable by the machine running virt-v2v.
+
+=item B<-op pool>
+
+See I<-ol> for the I<libvirt> output method.
+
+B<DEPRECATED> Use I<-ol> instead.
+
+=item B<-osd domain>
+
+See I<-ol> for the I<rhev> output method.
+
+B<DEPRECATED> Use I<-ol> instead.
 
 =cut
 
@@ -256,8 +263,9 @@ GetOptions ("help|?"      => sub {
             "ic=s"        => \$input_uri,
             "o=s"         => \$output_method,
             "oc=s"        => \$output_uri,
-            "op=s"        => \$output_pool,
-            "osd=s"       => \$output_storage_domain,
+            "ol=s"        => \$output_location,
+            "op=s"        => \$output_location, # Deprecated
+            "osd=s"       => \$output_location, # Deprecated
             "of=s"        => \$output_format,
             "oa=s"        => sub {
                 my (undef, $value) = @_;
@@ -306,24 +314,17 @@ if (defined($network)) {
     $config->set_default_net_mapping($bridge, 'bridge');
 }
 
+pod2usage({ -message => __("You must specify an output storage location")
+            -exitval => 1 }) unless defined($output_location);
+
 my $target;
 if ($output_method eq "libvirt") {
-    pod2usage({ -message => __("You must specify an output storage pool ".
-                               "when using the libvirt output method"),
-                -exitval => 1 })
-        unless (defined($output_pool));
-
     $target = new Sys::VirtV2V::Connection::LibVirtTarget($output_uri,
-                                                          $output_pool);
+                                                          $output_location);
 }
 
 elsif ($output_method eq "rhev") {
-    pod2usage({ -message => __("You must specify an output storage domain ".
-                               "when using the rhev output method"),
-                -exitval => 1 })
-        unless (defined($output_storage_domain));
-
-    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage_domain);
+    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_location);
 }
 
 else {
