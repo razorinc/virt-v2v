@@ -103,15 +103,6 @@ connection are not supported.
 
 =cut
 
-my $input_transport;
-
-=item B<-it method>
-
-Specifies the transport method used to obtain raw storage from the source guest.
-This is currently only a placeholder, and does nothing.
-
-=cut
-
 my $output_method = "libvirt";
 
 =item B<-o method>
