@@ -140,9 +140,9 @@ present.
 
 =cut
 
-my $output_location;
+my $output_storage;
 
-=item B<-ol location>
+=item B<-os storage>
 
 The output method dependent location where new storage will be created for the
 converted guest.
@@ -159,15 +159,15 @@ The nfs export must be mountable and writable by the machine running virt-v2v.
 
 =item B<-op pool>
 
-See I<-ol> for the I<libvirt> output method.
+See I<-os> for the I<libvirt> output method.
 
-B<DEPRECATED> Use I<-ol> instead.
+B<DEPRECATED> Use I<-os> instead.
 
 =item B<-osd domain>
 
-See I<-ol> for the I<rhev> output method.
+See I<-os> for the I<rhev> output method.
 
-B<DEPRECATED> Use I<-ol> instead.
+B<DEPRECATED> Use I<-os> instead.
 
 =cut
 
@@ -221,6 +221,23 @@ configuration file to I<bridge>.
 
 This option cannot be used in conjunction with I<--network>.
 
+=cut
+
+my $profile;
+
+=item B<-p profile> | B<--profile profile>
+
+Take default values for output method, output storage and network mappings from
+I<profile> in the configuration file.
+
+=cut
+
+my $list_profiles = 0;
+
+=item B<--list-profiles>
+
+Display a list of profile names specified in the configuration file.
+
 =item B<--help>
 
 Display brief help.
@@ -263,25 +280,13 @@ GetOptions ("help|?"      => sub {
             "ic=s"        => \$input_uri,
             "o=s"         => \$output_method,
             "oc=s"        => \$output_uri,
-            "ol=s"        => \$output_location,
-            "op=s"        => \$output_location, # Deprecated
-            "osd=s"       => \$output_location, # Deprecated
+            "os=s"        => \$output_storage,
+            "op=s"        => \$output_storage, # Deprecated
+            "osd=s"       => \$output_storage, # Deprecated
             "of=s"        => \$output_format,
             "oa=s"        => sub {
                 my (undef, $value) = @_;
-
-                if ($value eq 'sparse') {
-                    $output_sparse = 1;
-                } elsif ($value eq 'preallocated') {
-                    $output_sparse = 0;
-                } else {
-                    pod2usage({ -message => __x("allocation scheme must be ".
-                                                "{sparse} or {preallocated}",
-                                                sparse => 'sparse',
-                                                preallocated => 'preallocated'),
-                                -exitval => 1 });
-
-                }
+                $output_sparse = parse_allocation($value);
             },
             "f|config=s"  => \$config_file,
             "n|network=s" => sub {
@@ -300,13 +305,43 @@ GetOptions ("help|?"      => sub {
                             -exitval => 1 }) if (defined($bridge));
                 $bridge = $value;
             },
+            "p|profile=s" => \$profile,
+            "list-profiles" => \$list_profiles
 ) or pod2usage(2);
+
+sub parse_allocation
+{
+    my $allocation = shift;
+    if ($allocation eq 'sparse') {
+        return 1;
+    } elsif ($allocation eq 'preallocated') {
+        return 0;
+    } else {
+        pod2usage({ -message => __x("allocation scheme must be ".
+                                    "{sparse} or {preallocated}",
+                                    sparse => 'sparse',
+                                    preallocated => 'preallocated'),
+                    -exitval => 1 });
+    }
+}
 
 # Set the umask to a reasonable default for virt-v2v
 umask(0022);
 
-# Read the config file if one was given
-my $config = Sys::VirtV2V::Config->new($config_file);
+# Read the config file
+my $config;
+eval {
+    $config = Sys::VirtV2V::Config->new($config_file);
+};
+die user_message($@) if $@;
+
+if ($list_profiles) {
+    print STDOUT (__"Defined profiles:")."\n";
+    foreach my $profile ($config->list_profiles()) {
+        print "  $profile\n";
+    }
+    exit(0);
+}
 
 if (defined($network)) {
     $config->set_default_net_mapping($network, 'network');
@@ -314,17 +349,31 @@ if (defined($network)) {
     $config->set_default_net_mapping($bridge, 'bridge');
 }
 
-pod2usage({ -message => __("You must specify an output storage location")
-            -exitval => 1 }) unless defined($output_location);
+if (defined($profile)) {
+    $config->use_profile($profile);
+
+    $output_method = $config->get_method();
+
+    my $opts;
+    ($output_storage, $opts) = $config->get_storage();
+
+    my $allocation = $opts->{allocation};
+    $output_sparse = parse_allocation($allocation) if defined($allocation);
+
+    $output_format = $opts->{format};
+}
+
+pod2usage({ -message => __("You must specify an output storage location"),
+            -exitval => 1 }) unless defined($output_storage);
 
 my $target;
 if ($output_method eq "libvirt") {
     $target = new Sys::VirtV2V::Connection::LibVirtTarget($output_uri,
-                                                          $output_location);
+                                                          $output_storage);
 }
 
 elsif ($output_method eq "rhev") {
-    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_location);
+    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage);
 }
 
 else {

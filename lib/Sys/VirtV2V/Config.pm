@@ -20,6 +20,7 @@ package Sys::VirtV2V::Config;
 use strict;
 use warnings;
 
+use Carp;
 use File::Spec;
 use File::stat;
 use XML::DOM;
@@ -72,18 +73,20 @@ sub new
     # No further config required if no config path was specified
     return $self if (!defined($path));
 
-    die(user_message(__x("Config file {path} doesn't exist",
-                         path => $path))) unless (-e $path);
-
-    die(user_message(__x("Don't have permissions to read {path}",
-                         path => $path))) unless (-r $path);
+    die __x("Config file {path} doesn't exist", path => $path)
+        unless (-e $path);
+    die __x("Don't have permissions to read {path}", path => $path)
+        unless (-r $path);
 
     eval {
         $self->{dom} = new XML::DOM::Parser->parsefile($path);
     };
+    die __x("Unable to parse config file {path}: {error}",
+            path => $path, error => $@) if $@;
 
-    die(user_message(__x("Unable to parse config file {path}: {error}",
-                         path => $path, error => $@))) if ($@);
+    my ($net_default) = $self->{dom}->findnodes
+        ('/virt-v2v/network[@type=\'default\']');
+    $self->_parse_net_default($net_default) if defined($net_default);
 
     $self->{path} = $path;
     return $self;
@@ -142,19 +145,19 @@ sub get_transfer_iso
     my ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
 
     # We need this
-    die(user_message(__"<iso-path> must be specified in the configuration ".
-                       "file")) unless (defined($iso_path));
+    die __"<iso-path> must be specified in the configuration file"
+        unless defined($iso_path);
     $iso_path = $iso_path->getData();
 
     # Check if the transfer iso exists, and is newer than the config file
     if (-e $iso_path) {
         my $iso_st = stat($iso_path)
-            or die(user_message(__x("Unable to stat {path}: {error}",
-                                    path => $iso_path, error => $!)));
+            or die __x("Unable to stat {path}: {error}",
+                       path => $iso_path, error => $!);
 
         my $config_st = stat($self->{path})
-            or die(user_message(__x("Unable to stat {path}: {error}",
-                                    path => $self->{path}, error => $!)));
+            or die __x("Unable to stat {path}: {error}",
+                       path => $self->{path}, error => $!);
 
         if ($iso_st->mtime > $config_st->mtime) {
             my $rebuild = 0;
@@ -195,9 +198,8 @@ sub get_transfer_iso
          '-r', '-J',
          '-V', '__virt-v2v_transfer__',
          '-graft-points', keys(%path_args));
-    die(user_message(__x("Failed to create transfer iso. ".
-                         "Command output was:\n{output}",
-                         output => $eh->output()))) unless ($eh->status() == 0);
+    die __x("Failed to create transfer iso. Command output was:\n{output}",
+            output => $eh->output()) unless $eh->status() == 0;
 
     $self->{iso} = $iso_path;
     return $iso_path;
@@ -439,9 +441,17 @@ sub map_network
 
     my $dom = $self->{dom};
 
-    my ($mapping) = $dom->findnodes
-            ("/virt-v2v/network[\@type='$oldtype' and \@name='$oldname']".
-             "/network");
+    my @search = $dom->findnodes('/virt-v2v');
+    # Search profile first if it's defined
+    unshift(@search, $self->{profile}) if defined($self->{profile});
+
+    my $mapping;
+    foreach my $root (@search) {
+        ($mapping) = $root->findnodes
+            ("network[\@type='$oldtype' and \@name='$oldname']/network");
+
+        last if defined($mapping);
+    }
 
     unless (defined($mapping)) {
         # Return the default if it was specified
@@ -491,10 +501,129 @@ can be found in a config file.
 sub set_default_net_mapping
 {
     my $self = shift;
-
     my ($name, $type) = @_;
 
     $self->{default_net_mapping} = [ $name, $type ];
+}
+
+=item use_profile(name)
+
+Use the profile I<name> defined in the configuration file. Output method and
+storage will be read from this profile, and any network mappings defined in it
+will be used in preference to those defined at the top level of the
+configuration file.
+
+=cut
+
+sub use_profile
+{
+    my $self = shift;
+    my ($name) = @_;
+
+    my ($profile) = $self->{dom}->findnodes
+        ("/virt-v2v/profile[\@name='$name']");
+    die __x("No profile {name} defined in {path}",
+            name => $name,
+            path => $self->{path}) unless defined($profile);
+    $self->{profile} = $profile;
+
+    my ($method) = $profile->findnodes('method/text()');
+    die __x("Profile {name} doesn't specify an output method",
+            name => $name) unless defined($method);
+    $self->{output_method} = $method->getData();
+
+    my ($storage) = $profile->findnodes('storage');
+    if (defined($storage)) {
+        my ($location) = $storage->findnodes('text()');
+        $self->{output_storage} = $location->getData() if defined($location);
+
+        my %opts;
+        $self->{output_storage_opts} = \%opts;
+
+        my ($format) = $storage->getAttributeNode('format');
+        $opts{format} = $format->getValue() if defined($format);
+
+        my ($allocation) = $storage->getAttributeNode('allocation');
+        $opts{alloction} = $allocation->getValue() if defined($allocation);
+    }
+    die __x("Profile {name} doesn't specify output storage",
+            name => $name) unless defined($self->{output_storage});
+
+    my ($net_default) = $profile->findnodes('network[@type=\'default\']');
+    $self->_parse_net_default($net_default) if defined($net_default);
+}
+
+sub _parse_net_default
+{
+    my $self = shift;
+    my ($default) = @_;
+
+    my ($mapping) = $default->findnodes('network');
+    die __x("Default network doesn't contain a mapping: {config}",
+            config => $default->toString()) unless defined($mapping);
+
+    my ($map_name) = $mapping->getAttributeNode('name');
+    $map_name &&= $map_name->getValue();
+    my ($map_type) = $mapping->getAttributeNode('type');
+    $map_type &&= $map_type->getValue();
+
+    # Check type and name are defined for the mapping
+    unless (defined($map_name) && defined($map_type)) {
+        warn user_message(__x("WARNING: Invalid network mapping: {config}",
+                              config => $default->toString()));
+        return;
+    }
+
+    $self->set_default_net_mapping($map_name, $map_type);
+}
+
+=item get_method
+
+Return the output method specified in the selected profile.
+
+I<use_profile> must have been called previously.
+
+=cut
+
+sub get_method
+{
+    my $self = shift;
+
+    croak "get_method called without profile" unless defined($self->{profile});
+
+    return $self->{output_method};
+}
+
+=item get_storage
+
+Return the output storage location and a hashref of storage options from the
+selected profile.
+
+I<use_profile> must have been called previously.
+
+=cut
+
+sub get_storage
+{
+    my $self = shift;
+
+    croak "get_storage called without profile" unless defined($self->{profile});
+
+    return ($self->{output_storage}, $self->{output_storage_opts});
+}
+
+=item list_profiles
+
+Return a list of defined profile names
+
+=cut
+
+sub list_profiles
+{
+    my $self = shift;
+
+    return map { $_->getValue() } $self->{dom}->findnodes
+        ('/virt-v2v/profile/@name');
 }
 
 =back
