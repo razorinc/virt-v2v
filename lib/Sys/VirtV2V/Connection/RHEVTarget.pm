@@ -974,7 +974,8 @@ sub _disks
         $diske->setAttribute('ovf:volume-type', $vol->_get_rhev_type());
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
         # IDE = 0, SCSI = 1, VirtIO = 2
-        $diske->setAttribute('ovf:disk-interface', $bus eq 'virtio' ? 2 : 0);
+        $diske->setAttribute('ovf:disk-interface',
+                             $bus eq 'virtio' ? 'VirtIO' : 'IDE');
         # The libvirt QEMU driver marks the first disk (in document order) as
         # bootable
         $diske->setAttribute('ovf:boot', $driveno == 1 ? 'True' : 'False');
