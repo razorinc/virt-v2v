@@ -44,11 +44,9 @@ Sys::VirtV2V::Converter::Windows - Pre-convert a Windows guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::GuestOS;
  use Sys::VirtV2V::Converter;
 
- my $guestos = Sys::VirtV2V::GuestOS->instantiate($g, $os);
- Sys::VirtV2V::Converter->convert($g, $guestos, $desc, $devices, $config);
+ Sys::VirtV2V::Converter->convert($g, $config, $desc, $dom, $devices);
 
 =head1 DESCRIPTION
 
@@ -60,11 +58,6 @@ virtio block) driver, so that the Windows guest will be able to boot
 on the target.  A "RunOnce" script is also added to the VM which does
 all the rest of the conversion the first time the Windows VM is booted
 on KVM.
-
-Note when reading the code: this module just "directs" the conversion.
-The actual changes are made by the L<Sys::VirtV2V::GuestOS::Windows(3)>
-module.  We've agreed that the separation of GuestOS and Converter is
-wrong; they should be combined, but we haven't done that yet.
 
 =head1 METHODS
 
@@ -98,22 +91,22 @@ returned 1.
 
 A libguestfs handle to the target.
 
-=item guestos
+=item config
 
-Not used by Converter::Windows.
+An initialised Sys::VirtV2V::Config object.
 
 =item desc
 
 A description of the guest OS as returned by Sys::Guestfs::Lib.
 
+=item dom
+
+A DOM representation of the guest's libvirt domain metadata
+
 =item devices
 
 An arrayref of libvirt storage device names, in the order they will be
 presented to the guest.
-
-=item config
-
-An initialised Sys::VirtV2V::Config object.
 
 =back
 
@@ -123,11 +116,11 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, undef, $desc, $devices, $config) = @_;
-    carp "convert called without g argument" unless defined $g;
-    carp "convert called without desc argument" unless defined $desc;
-    carp "convert called without devices argument" unless defined $devices;
-    carp "convert called without config argument" unless defined $config;
+    my ($g, $config, $desc, undef, $devices) = @_;
+    croak("convert called without g argument") unless defined($g);
+    croak("convert called without config argument") unless defined($config);
+    croak("convert called without desc argument") unless defined($desc);
+    croak("convert called without devices argument") unless defined($devices);
 
     _preconvert ($g, $desc, $devices, $config);
 

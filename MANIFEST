@@ -11,13 +11,11 @@ lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm
 lib/Sys/VirtV2V/Connection/RHEVTarget.pm
 lib/Sys/VirtV2V/Connection/Source.pm
 lib/Sys/VirtV2V/Connection/Volume.pm
-lib/Sys/VirtV2V/Converter/Linux.pm
+lib/Sys/VirtV2V/Converter/RedHat.pm
 lib/Sys/VirtV2V/Converter.pm
 lib/Sys/VirtV2V/Converter/Windows.pm
 lib/Sys/VirtV2V/ExecHelper.pm
 lib/Sys/VirtV2V/GuestfsHandle.pm
-lib/Sys/VirtV2V/GuestOS.pm
-lib/Sys/VirtV2V/GuestOS/RedHat.pm
 lib/Sys/VirtV2V.pm
 lib/Sys/VirtV2V/Transfer/ESX.pm
 lib/Sys/VirtV2V/Transfer/Local.pm

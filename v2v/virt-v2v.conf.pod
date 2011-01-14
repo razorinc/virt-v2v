@@ -12,6 +12,10 @@ C<virt-v2v.conf> describes:
 
 =item *
 
+a set of profiles which pre-define a set of output options.
+
+=item *
+
 how to map virtual network interface connections when importing them from
 another environment.
 
@@ -25,6 +29,55 @@ software which can be installed by virt-v2v during the conversion process.
 
 The configuration file is an XML document whose root element is
 E<lt>virt-v2vE<gt>.
+
+=head2 Profiles
+
+A profile is used to group a set of configuration options defining a specific
+destination for a conversion. A user can specify a profile in place of the
+equivalent command line options.
+
+A profile is defined by an element in virt-v2v.conf which is a child of the
+top-level virt-v2v element. For example:
+
+ <profile name='kvm1'>
+   <method>libvirt</method>
+   <storage format='raw' allocation='sparse'>default</storage>
+   <network type='default'>
+     <network type='network' name='red'/>
+   </network>
+   <network type='bridge' name='xenbr1'>
+     <network type='network' name='green'/>
+   </network>
+ </profile>
+
+A profile is identified by its I<name> attribute. Allowed elements are:
+
+=over
+
+=item method
+
+The output method, equivalent to the I<-o> command line option. This element is
+required.
+
+=item storage
+
+The output storage location, equivalent to the I<-os> command line option. This
+element is required.
+
+I<storage> can optionally have I<format> and I<allocation> attributes. If
+specified, these are equivalent to the I<-of> and I<-oa> command line options
+respectively.
+
+=item network
+
+A set of network mappings specific to this profile. See L</Mapping network
+interface connections> for detail of the format of this element.
+
+Network mappings specified in the selected profile will be used in preference to
+top-level network mappings. A specific, matching top-level mapping will still be
+used in preference to a default specified in a profile.
+
+=back
 
 =head2 Mapping network interface connections
 
@@ -43,22 +96,46 @@ E<lt>networkE<gt> elements. E<lt>networkE<gt> has 2 attributes:
 
 =item type
 
-type is either 'bridge', which specifies a bridge to a local interface, or
-'network', which specifies a locally managed virtual network. For Xen and ESX
-guests the source type will typically be 'bridge'.
+I<type> can be:
+
+=over
+
+=item bridge
+
+A bridge to a host network interface.
+
+=item network
+
+A managed virtual network.
+
+=item default
+
+A type which will match any network if there is no specific match.
+
+=back
+
+For Xen and ESX guests the source type will typically be 'bridge'. A
+configuration may only contain a single default mapping.
 
 =item name
 
-name specifies the name of the given network or bridge.
+name specifies the name of the given network or bridge. A default mapping does
+not have a name.
 
 =back
 
 The mapping is specified by a nested E<lt>networkE<gt> element.
 
-The following example specifies that a guest interface which bridges to 'xenbr1'
-should be change to connect to the local managed network called 'default':
+The following example specifies that a guest interface which bridged to 'xenbr1'
+before conversion should be changed to connect to the local bridge called 'br0'.
+Any other network interface should be changed to connect to the local managed
+network called 'default':
 
  <network type='bridge' name='xenbr1'>
+   <network type='bridge' name='br0'/>
+ </network>
+
+ <network type='default'>
    <network type='network' name='default'/>
  </network>
 

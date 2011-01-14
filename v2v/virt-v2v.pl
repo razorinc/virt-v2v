@@ -38,7 +38,6 @@ use Sys::VirtV2V::Connection::LibVirtXMLSource;
 use Sys::VirtV2V::Connection::RHEVTarget;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestfsHandle;
-use Sys::VirtV2V::GuestOS;
 use Sys::VirtV2V::Util qw(user_message);
 
 =encoding utf8
@@ -104,15 +103,6 @@ connection are not supported.
 
 =cut
 
-my $input_transport;
-
-=item B<-it method>
-
-Specifies the transport method used to obtain raw storage from the source guest.
-This is currently only a placeholder, and does nothing.
-
-=cut
-
 my $output_method = "libvirt";
 
 =item B<-o method>
@@ -150,27 +140,34 @@ present.
 
 =cut
 
-my $output_pool;
+my $output_storage;
 
-=item B<-op pool>
+=item B<-os storage>
 
-Specifies the pool which will be used to create new storage for the converted
-guest.
+The output method dependent location where new storage will be created for the
+converted guest.
 
-=cut
+For the I<libvirt> output method, this must be the name of a storage pool.
 
-my $output_storage_domain;
-
-=item B<-osd domain>
-
-Specifies the NFS path to a RHEV Export storage domain. Note that the storage
-domain must have been previously initialised by RHEV.
-
-The domain must be in the format <host>:<path>, eg:
+For the I<rhev> output method, this specifies the NFS path to a RHEV Export
+storage domain. Note that the storage domain must have been previously
+initialised by RHEV. The domain must be in the format <host>:<path>, eg:
 
  rhev-storage.example.com:/rhev/export
 
 The nfs export must be mountable and writable by the machine running virt-v2v.
+
+=item B<-op pool>
+
+See I<-os> for the I<libvirt> output method.
+
+B<DEPRECATED> Use I<-os> instead.
+
+=item B<-osd domain>
+
+See I<-os> for the I<rhev> output method.
+
+B<DEPRECATED> Use I<-os> instead.
 
 =cut
 
@@ -224,6 +221,23 @@ configuration file to I<bridge>.
 
 This option cannot be used in conjunction with I<--network>.
 
+=cut
+
+my $profile;
+
+=item B<-p profile> | B<--profile profile>
+
+Take default values for output method, output storage and network mappings from
+I<profile> in the configuration file.
+
+=cut
+
+my $list_profiles = 0;
+
+=item B<--list-profiles>
+
+Display a list of profile names specified in the configuration file.
+
 =item B<--help>
 
 Display brief help.
@@ -266,24 +280,13 @@ GetOptions ("help|?"      => sub {
             "ic=s"        => \$input_uri,
             "o=s"         => \$output_method,
             "oc=s"        => \$output_uri,
-            "op=s"        => \$output_pool,
-            "osd=s"       => \$output_storage_domain,
+            "os=s"        => \$output_storage,
+            "op=s"        => \$output_storage, # Deprecated
+            "osd=s"       => \$output_storage, # Deprecated
             "of=s"        => \$output_format,
             "oa=s"        => sub {
                 my (undef, $value) = @_;
-
-                if ($value eq 'sparse') {
-                    $output_sparse = 1;
-                } elsif ($value eq 'preallocated') {
-                    $output_sparse = 0;
-                } else {
-                    pod2usage({ -message => __x("allocation scheme must be ".
-                                                "{sparse} or {preallocated}",
-                                                sparse => 'sparse',
-                                                preallocated => 'preallocated'),
-                                -exitval => 1 });
-
-                }
+                $output_sparse = parse_allocation($value);
             },
             "f|config=s"  => \$config_file,
             "n|network=s" => sub {
@@ -302,13 +305,43 @@ GetOptions ("help|?"      => sub {
                             -exitval => 1 }) if (defined($bridge));
                 $bridge = $value;
             },
+            "p|profile=s" => \$profile,
+            "list-profiles" => \$list_profiles
 ) or pod2usage(2);
+
+sub parse_allocation
+{
+    my $allocation = shift;
+    if ($allocation eq 'sparse') {
+        return 1;
+    } elsif ($allocation eq 'preallocated') {
+        return 0;
+    } else {
+        pod2usage({ -message => __x("allocation scheme must be ".
+                                    "{sparse} or {preallocated}",
+                                    sparse => 'sparse',
+                                    preallocated => 'preallocated'),
+                    -exitval => 1 });
+    }
+}
 
 # Set the umask to a reasonable default for virt-v2v
 umask(0022);
 
-# Read the config file if one was given
-my $config = Sys::VirtV2V::Config->new($config_file);
+# Read the config file
+my $config;
+eval {
+    $config = Sys::VirtV2V::Config->new($config_file);
+};
+die user_message($@) if $@;
+
+if ($list_profiles) {
+    print STDOUT (__"Defined profiles:")."\n";
+    foreach my $profile ($config->list_profiles()) {
+        print "  $profile\n";
+    }
+    exit(0);
+}
 
 if (defined($network)) {
     $config->set_default_net_mapping($network, 'network');
@@ -316,24 +349,31 @@ if (defined($network)) {
     $config->set_default_net_mapping($bridge, 'bridge');
 }
 
+if (defined($profile)) {
+    $config->use_profile($profile);
+
+    $output_method = $config->get_method();
+
+    my $opts;
+    ($output_storage, $opts) = $config->get_storage();
+
+    my $allocation = $opts->{allocation};
+    $output_sparse = parse_allocation($allocation) if defined($allocation);
+
+    $output_format = $opts->{format};
+}
+
+pod2usage({ -message => __("You must specify an output storage location"),
+            -exitval => 1 }) unless defined($output_storage);
+
 my $target;
 if ($output_method eq "libvirt") {
-    pod2usage({ -message => __("You must specify an output storage pool ".
-                               "when using the libvirt output method"),
-                -exitval => 1 })
-        unless (defined($output_pool));
-
     $target = new Sys::VirtV2V::Connection::LibVirtTarget($output_uri,
-                                                          $output_pool);
+                                                          $output_storage);
 }
 
 elsif ($output_method eq "rhev") {
-    pod2usage({ -message => __("You must specify an output storage domain ".
-                               "when using the rhev output method"),
-                -exitval => 1 })
-        unless (defined($output_storage_domain));
-
-    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage_domain);
+    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage);
 }
 
 else {
@@ -412,13 +452,9 @@ eval {
     # Inspect the guest
     $os = inspect_guest($g);
 
-    # Instantiate a GuestOS instance to manipulate the guest
-    my $guestos = Sys::VirtV2V::GuestOS->new($g, $os, $dom, $config);
-
     # Modify the guest and its metadata
-    $guestcaps = Sys::VirtV2V::Converter->convert($g, $guestos,
-                                                  $config, $dom, $os,
-                                                  $source->get_storage_devices());
+    $guestcaps = Sys::VirtV2V::Converter->convert($g, $config, $os, $dom,
+                                                $source->get_storage_devices());
 };
 
 # If any of the above commands result in failure, we need to ensure that the
