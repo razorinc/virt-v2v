@@ -30,7 +30,7 @@ use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Connection::Source::LibVirtXMLSource::ISA =
+@Sys::VirtV2V::Connection::LibVirtXMLSource::ISA =
     qw(Sys::VirtV2V::Connection::Source);
 
 =pod
