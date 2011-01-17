@@ -150,50 +150,7 @@ sub get_transfer_iso
         unless defined($iso_path);
     $iso_path = $iso_path->getData();
 
-    # Check if the transfer iso exists, and is newer than the config file
-    if (-e $iso_path) {
-        my $iso_st = stat($iso_path)
-            or die __x("Unable to stat {path}: {error}",
-                       path => $iso_path, error => $!);
-
-        my $config_st = stat($self->{path})
-            or die __x("Unable to stat {path}: {error}",
-                       path => $self->{path}, error => $!);
-
-        if ($iso_st->mtime > $config_st->mtime) {
-            my $rebuild = 0;
-
-            my %dirs;
-            foreach my $path (keys(%paths)) {
-                my $path_st = stat($path);
-
-                if ($path_st->mtime > $iso_st->mtime) {
-                    $rebuild = 1;
-                    last;
-                }
-
-                # Also check if the containing directory has been updated. This
-                # will pick up the case where a file with an old timestamp has
-                # been moved into a directory.
-                my (undef, $dir, undef) = File::Spec->splitpath($path);
-                if (!exists($dirs{$dir})) {
-                    my $dir_st = stat($dir);
-                    if ($dir_st->mtime > $iso_st->mtime) {
-                        $rebuild = 1;
-                        last;
-                    }
-                    $dirs{$dir} = 1;
-                }
-            }
-
-            if (!$rebuild) {
-                $self->{iso} = $iso_path;
-                return $iso_path;
-            }
-        }
-    }
-
-    # Re-create the transfer iso
+    # Create the transfer iso
     my $eh = Sys::VirtV2V::ExecHelper->run
         ('mkisofs', '-o', $iso_path,
          '-r', '-J',
