@@ -442,9 +442,7 @@ sub new
     my $class = shift;
     my ($domain_path) = @_;
 
-    my $self = {};
-    bless($self, $class);
-
+    # Must do this before bless, or DESTROY will be called
     die(user_message(__"You must be root to output to RHEV"))
         unless ($> == 0);
 
@@ -455,6 +453,9 @@ sub new
         or die(user_message(__x("Unable to change ownership of {mountdir} to ".
                                 "36:36",
                                 mountdir => $mountdir)));
+
+    my $self = {};
+    bless($self, $class);
 
     $self->{mountdir} = $mountdir;
     $self->{domain_path} = $domain_path;
