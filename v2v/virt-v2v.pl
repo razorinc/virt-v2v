@@ -192,12 +192,11 @@ source.
 =cut
 
 my $config_file;
-$config_file = '/etc/virt-v2v.conf' if (-r '/etc/virt-v2v.conf');
+$config_file = '/etc/virt-v2v.conf';
 
 =item B<-f file> | B<--config file>
 
-Load the virt-v2v configuration from I<file>. Defaults to /etc/virt-v2v.conf if
-it exists;
+Load the virt-v2v configuration from I<file>. Defaults to /etc/virt-v2v.conf.
 
 =cut
 
@@ -329,11 +328,7 @@ sub parse_allocation
 umask(0022);
 
 # Read the config file
-my $config;
-eval {
-    $config = Sys::VirtV2V::Config->new($config_file);
-};
-die user_message($@) if $@;
+my $config = Sys::VirtV2V::Config->new($config_file);
 
 if ($list_profiles) {
     print STDOUT (__"Defined profiles:")."\n";

@@ -73,16 +73,17 @@ sub new
     # No further config required if no config path was specified
     return $self if (!defined($path));
 
-    die __x("Config file {path} doesn't exist", path => $path)
+    die user_message(__x("Config file {path} doesn't exist", path => $path))
         unless (-e $path);
-    die __x("Don't have permissions to read {path}", path => $path)
+    die user_message(__x("Don't have permissions to read {path}",
+                         path => $path))
         unless (-r $path);
 
     eval {
         $self->{dom} = new XML::DOM::Parser->parsefile($path);
     };
-    die __x("Unable to parse config file {path}: {error}",
-            path => $path, error => $@) if $@;
+    die user_message(__x("Unable to parse config file {path}: {error}",
+            path => $path, error => $@)) if $@;
 
     my ($net_default) = $self->{dom}->findnodes
         ('/virt-v2v/network[@type=\'default\']');

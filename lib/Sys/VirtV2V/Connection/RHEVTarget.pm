@@ -106,7 +106,6 @@ sub _write_metadata
 
     my $volume = $self->{volume};
     my $path = $volume->get_path().'.meta';
-    my $sizek = ceil($volume->get_size() / 1024);
 
     my $meta;
     rhev_helper(sub {
@@ -128,7 +127,7 @@ sub _write_metadata
     print $meta "LEGALITY=LEGAL\n";
     print $meta "MTIME=".$volume->_get_creation()."\n";
     print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
-    print $meta "SIZE=$sizek\n";
+    print $meta "SIZE=".$volume->get_size()."\n";
     print $meta "TYPE=".uc($volume->_get_rhev_type())."\n";
     print $meta "DESCRIPTION=Exported by virt-v2v\n";
     print $meta "EOF\n";
@@ -157,8 +156,8 @@ sub close
     return unless (defined($writer));
     delete($self->{writer});
 
-    # Pad the file up to a 1K boundary
-    my $pad = (1024 - ($self->{written} % 1024)) % 1024;
+    # Pad the file up to a 512 byte boundary
+    my $pad = (512 - ($self->{written} % 512)) % 512;
     $writer->write("\0" x $pad) if ($pad);
 
     $writer->close();
@@ -278,10 +277,9 @@ sub new
     my $imagetmpdir = catdir($tmpdir, $imageuuid);
     my $volpath     = catfile($imagetmpdir, $voluuid);
 
-    # RHEV needs disks to be a multiple of 512 in size. Additionally, SIZE in
-    # the disk meta file has units of kilobytes. To ensure everything matches up
-    # exactly, we will pad to to a 1024 byte boundary.
-    my $outsize = ceil($insize/1024) * 1024;
+    # RHEV needs disks to be a multiple of 512 in size. We'll pad up to this
+    # size if necessary.
+    my $outsize = ceil($insize/512) * 512;
 
     my $creation = time();
 
@@ -289,9 +287,6 @@ sub new
                                   undef, $sparse, 0);
     $self->{transfer} =
         new Sys::VirtV2V::Connection::RHEVTarget::Transfer($self);
-
-    $self->{insize}  = $insize;
-    $self->{outsize} = $outsize;
 
     $self->{imageuuid}  = $imageuuid;
     $self->{voluuid}    = $voluuid;
@@ -979,7 +974,8 @@ sub _disks
         $diske->setAttribute('ovf:volume-type', $vol->_get_rhev_type());
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
         # IDE = 0, SCSI = 1, VirtIO = 2
-        $diske->setAttribute('ovf:disk-interface', $bus eq 'virtio' ? 2 : 0);
+        $diske->setAttribute('ovf:disk-interface',
+                             $bus eq 'virtio' ? 'VirtIO' : 'IDE');
         # The libvirt QEMU driver marks the first disk (in document order) as
         # bootable
         $diske->setAttribute('ovf:boot', $driveno == 1 ? 'True' : 'False');
