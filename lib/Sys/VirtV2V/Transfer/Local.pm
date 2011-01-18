@@ -128,7 +128,7 @@ sub _write_zeroes
     my $self = shift;
     my ($size) = @_;
 
-    seek($self->{fh}, $size, SEEK_CUR) or self->_write_error($!);
+    seek($self->{fh}, $size, SEEK_CUR) or $self->_write_error($!);
     $self->{truncate} = 1;
 }
 
