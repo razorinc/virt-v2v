@@ -92,7 +92,7 @@ sub new
                              format => $format,
                              error => $eh->output()))) if ($eh->status() != 0);
 
-        my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
+        my $transfer = new Sys::VirtV2V::Transfer::Local($path, 0, $format,
                                                          $volume->is_sparse());
         $self->{writer} = $transfer->get_write_stream($convert);
     });

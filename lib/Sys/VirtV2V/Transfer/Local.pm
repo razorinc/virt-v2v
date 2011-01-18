@@ -488,12 +488,13 @@ Create a new Local transfer object.
 sub new
 {
     my $class = shift;
-    my ($path, $format, $is_sparse) = @_;
+    my ($path, $is_block, $format, $is_sparse) = @_;
 
     my $self = {};
     bless($self, $class);
 
     $self->{path}      = $path;
+    $self->{is_block}  = $is_block;
     $self->{format}    = $format;
     $self->{is_sparse} = $is_sparse;
 
@@ -557,7 +558,7 @@ sub get_write_stream
         );
     }
 
-    if ($self->{is_sparse}) {
+    if (!$self->{is_block} && $self->{is_sparse}) {
         return new Sys::VirtV2V::Transfer::Local::SparseWriter($writer);
     } else {
         return $writer;
