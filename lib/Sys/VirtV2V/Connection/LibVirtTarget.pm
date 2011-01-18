@@ -125,6 +125,12 @@ sub create_volume
     my $self = shift;
     my ($name, $format, $size, $sparse) = @_;
 
+    # If we're create a volume in an LVM pool, libvirt can silently create a
+    # volume which is smaller than we expected: RHBZ#670529
+    # To work round this, we round up to a 1k boundary here
+    my $over = $size % 1024;
+    $size += 1024 - $over if $over != 0;
+
     # Store the volume before creation so we can catch an interruption during or
     # very shortly after volume creation
     push(@cleanup_vols, [$self->{pool}, $name]);
