@@ -610,17 +610,20 @@ sub _get_os_arch
     my $boot = $desc->{boot};
     my $default_boot = $boot->{default} if(defined($boot));
 
-    my $arch;
-    if(defined($default_boot)) {
-        my $config = $boot->{configs}->[$default_boot];
+    # Pick the default config if one is defined
+    my $config = $boot->{configs}->[$default_boot] if defined($default_boot);
 
-        if(defined($config->{kernel})) {
-            $arch = $config->{kernel}->{arch};
-        }
-    }
+    # Pick the first defined config if there is no default, or it is invalid
+    $config = $boot->{configs}[0] unless defined($config);
 
-    # Default to i686 if we didn't find an architecture
-    return 'i686' if(!defined($arch));
+    my $arch = $config->{kernel}->{arch}
+        if defined($config) && defined($config->{kernel});
+
+    # Use the libguestfs-detected arch if the above failed
+    $arch = $desc->{arch} unless defined($arch);
+
+    # Default to x86_64 if we still didn't find an architecture
+    return 'x86_64' unless defined($arch);
 
     # We want an i686 guest for i[345]86
     return 'i686' if($arch =~ /^i[345]86$/);
