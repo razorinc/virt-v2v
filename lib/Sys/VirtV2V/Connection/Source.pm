@@ -126,9 +126,20 @@ sub _volume_copy
 
     # Copy the contents of the source stream to the destination stream
     my $total = 0;
-    my $progress = new Term::ProgressBar({name => $src->get_name(),
-                                          count => $expected,
-                                          ETA => 'linear' });
+
+    # Initialize a progress bar if STDERR is on a tty
+    my $progress;
+    if (-t STDERR) {
+        $progress = new Term::ProgressBar({name => $src->get_name(),
+                                           count => $expected,
+                                           ETA => 'linear' });
+    } else {
+        print STDERR user_message(__x("Transferring storage volume {name}: ".
+                                      "{size} bytes",
+                                      name => $src->get_name(),
+                                      size => $expected));
+    }
+
     my $next_update = 0;
     for (;;) {
         my $buf = $src_s->read(4 * 1024 * 1024);
@@ -137,12 +148,15 @@ sub _volume_copy
         $total += length($buf);
         $dst_s->write($buf);
 
-        $next_update = $progress->update($total) if ($total > $next_update);
+        $next_update = $progress->update($total)
+            if (defined($progress) && $total > $next_update);
     }
-    # Indicate that we finished regardless of how much data was written
-    $progress->update($expected);
-    # The progress bar doesn't print a newline on completion
-    print STDERR "\n";
+    if (defined($progress)) {
+        # Indicate that we finished regardless of how much data was written
+        $progress->update($expected);
+        # The progress bar doesn't print a newline on completion
+        print STDERR "\n";
+    }
 
     # This would be closed implicitly, but we want to report read/write errors
     # before checking for a short volume
