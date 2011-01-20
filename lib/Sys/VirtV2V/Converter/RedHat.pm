@@ -1500,22 +1500,20 @@ sub _check_grub
 {
     my ($version, $kernel, $g, $desc) = @_;
 
+    my $grubfs = $desc->{boot}->{grub_fs};
+    my $prefix = $grubfs eq '/boot' ? '' : '/boot';
+
     # Nothing to do if there's already a grub entry
-    eval {
+    return if eval {
         foreach my $augpath
             ($g->aug_match('/files/boot/grub/menu.lst/title/kernel'))
         {
-            return if ($g->aug_get($augpath) eq $kernel);
+            return 1 if ($grubfs.$g->aug_get($augpath) eq $kernel);
         }
+
+        return 0
     };
     augeas_error($g, $@) if ($@);
-
-    my $prefix;
-    if ($desc->{boot}->{grub_fs} eq "/boot") {
-        $prefix = '';
-    } else {
-        $prefix = '/boot';
-    }
 
     my $initrd = "$prefix/initrd-$version.img";
     $kernel =~ m{^/boot/(.*)$} or die("kernel in unexpected location: $kernel");
