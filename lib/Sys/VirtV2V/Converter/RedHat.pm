@@ -538,21 +538,11 @@ sub _configure_kernel
 {
     my ($virtio, $g, $config, $desc, $dom) = @_;
 
-    my @remove_kernels = ();
-
-    # Remove foreign hypervisor specific kernels from the list of available
-    # kernels
-    foreach my $kernel (_find_hv_kernels($desc)) {
-        # Don't actually try to remove them yet in case we remove them all. This
-        # might make your dependency checker unhappy.
-        push(@remove_kernels, $kernel);
-    }
-
     # Pick first appropriate kernel returned by _list_kernels
     my $boot_kernel;
     foreach my $kernel (_list_kernels($g, $desc)) {
-        # Skip kernels we're going to remove
-        next if (grep(/^$kernel$/, @remove_kernels));
+        # Skip foreign kernels
+        next if _is_hv_kernel($g, $kernel);
 
         # If we're configuring virtio, check this kernel supports it
         next if ($virtio && !_supports_virtio($kernel, $g));
@@ -570,17 +560,10 @@ sub _configure_kernel
         $boot_kernel = _install_good_kernel($g, $config, $desc, $dom);
     }
 
-    # Check we have a bootable kernel. If we don't, we're probably about to
-    # remove all kernels, which will fail unpleasantly. Fail nicely instead.
+    # Check we have a bootable kernel.
     die(user_message(__"No bootable kernels installed, and no replacement ".
                        "is available.\nUnable to continue."))
         unless(defined($boot_kernel));
-
-    # It's safe to remove kernels now
-    foreach my $kernel (@remove_kernels) {
-        # Uninstall the kernel from the guest
-        _remove_kernel($kernel, $g);
-    }
 
     return $boot_kernel;
 }
@@ -631,34 +614,18 @@ sub _get_os_arch
     return $arch;
 }
 
-# Return a list of foreign hypervisor specific kernels
-sub _find_hv_kernels
+# Determine if a specific kernel is hypervisor-specific
+sub _is_hv_kernel
 {
-    my $desc = shift;
-
-    my $boot = $desc->{boot};
-    return () unless(defined($boot));
-
-    my $configs = $desc->{boot}->{configs};
-    return () unless(defined($configs));
+    my ($g, $version) = @_;
 
     # Xen PV kernels can be distinguished from other kernels by their inclusion
     # of the xennet driver
-    my @kernels = ();
-    foreach my $config (@$configs) {
-        my $kernel = $config->{kernel};
-        next unless(defined($kernel));
-
-        my $modules = $kernel->{modules};
-        next unless(defined($modules));
-
-        # Look for the xennet driver in the modules list
-        if(grep(/^xennet$/, @$modules) > 0) {
-            push(@kernels, $kernel->{version});
-        }
+    foreach my $entry ($g->find("/lib/modules/$version/")) {
+        return 1 if $entry =~ /(^|\/)xennet\.k?o$/;
     }
 
-    return @kernels;
+    return 0;
 }
 
 sub _remove_application
@@ -1455,21 +1422,6 @@ sub _install_good_kernel
         unless (defined($version));
 
     return $version;
-}
-
-sub _remove_kernel
-{
-    my ($version, $g) = @_;
-
-    # Work out which rpm contains the kernel
-    my @output = $g->command_lines(['rpm', '-qf', "/boot/vmlinuz-$version"]);
-    $g->command(['rpm', '-e', $output[0]]);
-
-    # Make augeas reload so it knows the kernel's gone
-    eval {
-        $g->aug_load();
-    };
-    augeas_error($g, $@) if ($@);
 }
 
 sub _find_new_kernel
