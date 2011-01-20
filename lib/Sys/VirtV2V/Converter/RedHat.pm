@@ -518,7 +518,7 @@ sub _list_kernels
 
         # Check the kernel exists
         if ($g->exists($kernel)) {
-            # Work out it's version number
+            # Work out its version number
             my $kernel_desc = inspect_linux_kernel($g, $kernel, 'rpm');
 
             push(@kernels, $kernel_desc->{version});
