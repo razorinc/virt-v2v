@@ -565,6 +565,24 @@ sub _configure_kernel
                        "is available.\nUnable to continue."))
         unless(defined($boot_kernel));
 
+    # Ensure DEFAULTKERNEL is set to boot kernel package name
+    my ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
+                                          "/lib/modules/$boot_kernel",
+                                          '--qf', '%{NAME}\n']);
+    if (defined($kernel_pkg) && $g->exists('/etc/sysconfig/kernel')) {
+        eval {
+            foreach my $path ($g->aug_match('/files/etc/sysconfig/kernel'.
+                                            '/DEFAULTKERNEL/value'))
+            {
+                $g->aug_set($path, $kernel_pkg);
+            }
+
+            $g->aug_save();
+        };
+        # Propagate augeas errors
+        augeas_error($g, $@) if ($@);
+    }
+
     return $boot_kernel;
 }
 
@@ -928,23 +946,6 @@ sub _install_capability
 sub _install_any
 {
     my ($kernel, $install, $upgrade, $g, $config, $desc) = @_;
-
-    # If we're updating the kernel, make sure DEFAULTKERNEL is updated in case
-    # the kernel package has changed
-    if (defined($kernel)) {
-        eval {
-            foreach my $path
-                ($g->aug_match('/files/etc/sysconfig/kernel/DEFAULTKERNEL/value'))
-            {
-                $g->aug_set($path, $kernel->[0]);
-            }
-
-            $g->aug_save();
-        };
-
-        # Propagate augeas errors
-        augeas_error($g, $@) if ($@);
-    };
 
     my $resolv_bak = $g->exists('/etc/resolv.conf');
     $g->mv('/etc/resolv.conf', '/etc/resolv.conf.v2vtmp') if ($resolv_bak);
