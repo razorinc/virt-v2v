@@ -502,7 +502,7 @@ sub use_profile
         $opts{format} = $format->getValue() if defined($format);
 
         my ($allocation) = $storage->getAttributeNode('allocation');
-        $opts{alloction} = $allocation->getValue() if defined($allocation);
+        $opts{allocation} = $allocation->getValue() if defined($allocation);
     }
     die __x("Profile {name} doesn't specify output storage",
             name => $name) unless defined($self->{output_storage});
