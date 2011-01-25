@@ -146,7 +146,7 @@ sub get_transfer_iso
     my ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
 
     # We need this
-    die __"<iso-path> must be specified in the configuration file"
+    die user_message(__"<iso-path> must be specified in the configuration file")
         unless defined($iso_path);
     $iso_path = $iso_path->getData();
 
@@ -156,8 +156,9 @@ sub get_transfer_iso
          '-r', '-J',
          '-V', '__virt-v2v_transfer__',
          '-graft-points', keys(%path_args));
-    die __x("Failed to create transfer iso. Command output was:\n{output}",
-            output => $eh->output()) unless $eh->status() == 0;
+    die user_message(__x("Failed to create transfer iso. ".
+                         "Command output was:\n{output}",
+                         output => $eh->output())) unless $eh->status() == 0;
 
     $self->{iso} = $iso_path;
     return $iso_path;
@@ -245,8 +246,8 @@ sub match_app
 
     my %app;
     my ($path) = $app->findnodes('path/text()');
-    die(user_message(__x("app entry in config doesn't contain a path: {xml}",
-                         xml => $app->toString()))) unless (defined($path));
+    die user_message(__x("app entry in config doesn't contain a path: {xml}",
+                         xml => $app->toString())) unless (defined($path));
     $path = $path->getData();
 
     my @deps;
@@ -302,11 +303,10 @@ sub match_capability
         foreach my $prop ('name', 'minversion') {
             my ($val) = $dep->findnodes('@'.$prop);
             $val &&= $val->getData();
-            die(user_message(__x("Capability in config contains a dependency ".
+            die user_message(__x("Capability in config contains a dependency ".
                                  "with no {property} attribute: {xml}",
                                  property => $prop,
-                                 xml => $cap->toString())))
-                if (!defined($val));
+                                 xml => $cap->toString())) unless defined($val);
             $props{$prop} = $val;
         }
 
@@ -335,9 +335,9 @@ sub _match_element
 
     my $dom = $self->{dom};
 
-    die(user_message(__x("No config specified. No {type} match for {search}",
+    die user_message(__x("No config specified. No {type} match for {search}",
                          type => $type,
-                         search => _get_search($desc, $name, $arch))))
+                         search => _get_search($desc, $name, $arch)))
         unless (defined($dom));
 
     my $os     = $desc->{os};
@@ -346,7 +346,7 @@ sub _match_element
     my $minor  = $desc->{minor_version};
 
     # Check we've got at least the {os} field from OS detection.
-    die(user_message(__"Didn't detect operating system"))
+    die user_message(__"Didn't detect operating system")
         unless (defined $os);
 
     # Create a list of xpath queries against the config which look for a
@@ -380,9 +380,9 @@ sub _match_element
         return $element if (defined($element));
     }
 
-    die(user_message(__x("No {type} in config matches {search}",
+    die user_message(__x("No {type} in config matches {search}",
                          type => $type,
-                         search => _get_search($desc, $name, $arch))));
+                         search => _get_search($desc, $name, $arch)));
 }
 
 =item map_network(oldname, oldtype)
@@ -480,14 +480,14 @@ sub use_profile
 
     my ($profile) = $self->{dom}->findnodes
         ("/virt-v2v/profile[\@name='$name']");
-    die __x("No profile {name} defined in {path}",
-            name => $name,
-            path => $self->{path}) unless defined($profile);
+    die user_message(__x("No profile {name} defined in {path}",
+                          name => $name,
+                          path => $self->{path})) unless defined($profile);
     $self->{profile} = $profile;
 
     my ($method) = $profile->findnodes('method/text()');
-    die __x("Profile {name} doesn't specify an output method",
-            name => $name) unless defined($method);
+    die user_message(__x("Profile {name} doesn't specify an output method",
+                         name => $name)) unless defined($method);
     $self->{output_method} = $method->getData();
 
     my ($storage) = $profile->findnodes('storage');
@@ -504,8 +504,9 @@ sub use_profile
         my ($allocation) = $storage->getAttributeNode('allocation');
         $opts{allocation} = $allocation->getValue() if defined($allocation);
     }
-    die __x("Profile {name} doesn't specify output storage",
-            name => $name) unless defined($self->{output_storage});
+    die user_message(__x("Profile {name} doesn't specify output storage",
+                          name => $name))
+        unless defined($self->{output_storage});
 
     my ($net_default) = $profile->findnodes('network[@type=\'default\']');
     $self->_parse_net_default($net_default) if defined($net_default);
@@ -517,8 +518,9 @@ sub _parse_net_default
     my ($default) = @_;
 
     my ($mapping) = $default->findnodes('network');
-    die __x("Default network doesn't contain a mapping: {config}",
-            config => $default->toString()) unless defined($mapping);
+    die user_message(__x("Default network doesn't contain a mapping: {config}",
+                          config => $default->toString()))
+        unless defined($mapping);
 
     my ($map_name) = $mapping->getAttributeNode('name');
     $map_name &&= $map_name->getValue();
