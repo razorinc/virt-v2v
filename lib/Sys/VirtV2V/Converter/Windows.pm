@@ -175,10 +175,6 @@ sub _preconvert
 
     # Note: disks are already mounted by main virt-v2v script.
 
-    # Create directory to store firstboot service temporarily.
-    eval { $g->mkdir ("/temp"); };
-    eval { $g->mkdir ("/temp/v2v"); };
-
     _upload_files ($g, $tmpdir, $desc, $devices, $config);
     _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
     _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
@@ -451,9 +447,20 @@ sub _upload_files
     $g->cp (File::Spec->catfile($files{virtio}, 'viostor.sys'),
             $g->case_sensitive_path ("/windows/system32/drivers"));
 
-    # Copy other files into a temp directory
-    my $path = "/temp/v2v";
-    $path = $g->case_sensitive_path ($path);
+    # Copy other files into a temp directory on the guest
+    # N.B. This directory must match up with the configuration of rhsrvany
+    my $path = '';
+    foreach my $d ('Temp', 'V2V') {
+        $path .= '/'.$d;
+
+        eval { $path = $g->case_sensitive_path($path) };
+
+        # case_sensitive_path will fail if the path doesn't exist
+        if ($@) {
+            $g->mkdir($path);
+        }
+    }
+
     $g->cp ($files{firstboot}, $path);
     $g->cp ($files{firstbootapp}, $path);
     $g->cp ($files{rhsrvany}, $path);
