@@ -187,13 +187,13 @@ sub AUTOLOAD
         my @ret = eval {
             return $g->$methodname(@_);
         };
-        die("$methodname: $@") if ($@);
+        croak("$methodname: $@") if ($@);
         return @ret;
     } else {
         my $ret = eval {
             return $g->$methodname(@_);
         };
-        die("$methodname: $@") if ($@);
+        croak("$methodname: $@") if ($@);
         return $ret;
     }
 }
