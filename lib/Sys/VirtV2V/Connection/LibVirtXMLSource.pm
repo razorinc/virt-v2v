@@ -20,13 +20,14 @@ package Sys::VirtV2V::Connection::LibVirtXMLSource;
 use strict;
 use warnings;
 
+use File::stat;
 use Sys::Virt;
 use XML::DOM;
 use XML::DOM::XPath;
 
 use Sys::VirtV2V::Connection::Source;
 use Sys::VirtV2V::Transfer::Local;
-use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
+use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -115,12 +116,45 @@ sub get_volume
     my $self = shift;
     my ($path) = @_;
 
-    # Use a libvirt session connection to inspect local volumes
-    my $vmm = Sys::Virt->new(uri => 'qemu:///session');
-    my $vol = $vmm->get_storage_volume_by_path($path);
+    # Use the output of qemu-img to inspect the path
+    open(my $qemuimg, '-|', 'env', 'LANG=C', 'qemu-img', 'info', $path)
+        or die("Unable to execute qemu-img: $!");
 
-    my ($name, $format, $size, $usage, $is_sparse, $is_block) =
-        parse_libvirt_volinfo($vol, $path);
+    # qemu-img outputs data similar to:
+    # image: /var/lib/libvirt/images/p2v.img
+    # file format: raw
+    # virtual size: 8.0G (8589934592 bytes)
+    # disk size: 8.0G
+    my %info;
+    while(<$qemuimg>) {
+        next unless /^([^:]+):\s+(.*?)\s*$/;
+        $info{$1} = $2;
+    }
+
+    my (undef, undef, $name) = File::Spec->splitpath($path);
+    my $format = $info{'file format'};
+
+    my $vsize = $info{'virtual size'};
+    $vsize =~ /\s+\((\d+)\s+bytes\)$/
+        or die("qemu-img returned unexpected virtual size: $vsize");
+    my $size = $1;
+
+    # For $usage, $is_sparse and $is_block, we need to know if it's a block
+    # device
+    # N.B. qemu-img's 'disk size' output isn't useful here
+    my ($usage, $is_sparse, $is_block);
+    if (-b $path) {
+        $is_block = 1;
+        $usage = $size;
+        $is_sparse = 0;
+    } else {
+        $is_block = 0;
+        my $st = stat($path);
+        $usage = $st->blocks * 512;
+        $is_sparse = $usage < $size ? 1 : 0;
+    }
+
+    die("size ($size) < usage ($usage)") if $size < $usage;
 
     my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
                                                      $is_sparse);
