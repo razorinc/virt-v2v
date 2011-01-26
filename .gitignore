@@ -10,6 +10,7 @@
 
 # Files related to 'Build dist'
 /META.yml
+/MYMETA.yml
 /virt-v2v*.tar.gz
 /ChangeLog
 

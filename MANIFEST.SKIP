@@ -3,6 +3,7 @@
 ^Build$
 ^blib/
 ^virt-v2v-v(\d+(\.\d+)*)(\.tar\.gz$|/)
+^MYMETA.yml$
 
 # Built translations
 ^po/.*\.mo$
