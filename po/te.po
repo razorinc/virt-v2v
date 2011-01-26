@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2010-11-03 14:25+0000\n"
+"POT-Creation-Date: 2011-01-26 17:40+0000\n"
 "PO-Revision-Date: 2010-01-28 17:09+0530\n"
 "Last-Translator: Krishna Babu K <kkrothap@redhat.com>\n"
 "Language-Team: Telugu <en@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "\n"
 
-#: ../lib/Sys/VirtV2V/Config.pm:75
+#: ../lib/Sys/VirtV2V/Config.pm:76
 #, perl-brace-format
 msgid "Config file {path} doesn't exist"
 msgstr ""
@@ -34,16 +34,11 @@ msgstr ""
 msgid "Unable to parse config file {path}: {error}"
 msgstr "{path} పార్శ్ చేయలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:147
+#: ../lib/Sys/VirtV2V/Config.pm:149
 msgid "<iso-path> must be specified in the configuration file"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:154 ../lib/Sys/VirtV2V/Config.pm:158
-#, fuzzy, perl-brace-format
-msgid "Unable to stat {path}: {error}"
-msgstr "{path} వ్రాయుట సాధ్యంకాదు: {error}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:200
+#: ../lib/Sys/VirtV2V/Config.pm:159
 #, perl-brace-format
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
@@ -52,105 +47,147 @@ msgstr ""
 "బదిలీకరణ iso సృష్టించుటలో విఫలమైంది. ఆదేశపు అవుట్పుట్:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:290
+#: ../lib/Sys/VirtV2V/Config.pm:249
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:347
+#: ../lib/Sys/VirtV2V/Config.pm:306
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:380
+#: ../lib/Sys/VirtV2V/Config.pm:338
 #, perl-brace-format
 msgid "No config specified. No {type} match for {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:391
+#: ../lib/Sys/VirtV2V/Config.pm:349
 msgid "Didn't detect operating system"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:425
+#: ../lib/Sys/VirtV2V/Config.pm:383
 #, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:456
+#: ../lib/Sys/VirtV2V/Config.pm:419
 #, perl-brace-format
 msgid ""
 "WARNING: No mapping found for {type} interface {name} in config file. The "
 "converted guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:472
+#: ../lib/Sys/VirtV2V/Config.pm:435
 #, perl-brace-format
 msgid "WARNING: Invalid network mapping in config: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:480
+#: ../lib/Sys/VirtV2V/Config.pm:443
 #, perl-brace-format
 msgid "WARNING: Unknown interface type {type} in network mapping: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:66
+#: ../lib/Sys/VirtV2V/Config.pm:483
+#, perl-brace-format
+msgid "No profile {name} defined in {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:489
+#, perl-brace-format
+msgid "Profile {name} doesn't specify an output method"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:507
+#, perl-brace-format
+msgid "Profile {name} doesn't specify output storage"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:521
+#, perl-brace-format
+msgid "Default network doesn't contain a mapping: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Config.pm:532
+#, perl-brace-format
+msgid "WARNING: Invalid network mapping: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:63
 #, fuzzy, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "{path} పార్శ్ చేయలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:69
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:66
 msgid ""
 "WARNING: Specifying a password in the connection URI is not supported. It "
 "has been ignored."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:119
+#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:116
 #, fuzzy, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "{uri} తొలగించుటకు విఫలమైంది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:133
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:136
+#, perl-brace-format
+msgid ""
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
+"\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
+"\n"
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:151
 #, fuzzy, perl-brace-format
 msgid "Failed to retrieve storage volume {path}:{error}"
 msgstr "నిల్వ వాల్యూమ్ సృష్టించుట సాధ్యంకాదు: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:158
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:178
 #, fuzzy, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "గెస్టు {name} తప్పక ముందుగా మూసివేయబడాలి"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:171
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:191
 #, fuzzy
 msgid "idle"
 msgstr "ఫైలు"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:173
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:193
 msgid "running"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:175
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:195
 msgid "blocked"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:177
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:197
 msgid "paused"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:179
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:199
 msgid "shutting down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:181
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:201
 msgid "shut down"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:183
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:203
 msgid "crashed"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:206
+#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:226
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} చెల్లునటువంటి గెస్టు నామము కాదు"
@@ -160,28 +197,28 @@ msgstr "{name} చెల్లునటువంటి గెస్టు నా
 msgid "Output pool {poolname} is not a valid storage pool"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:148
+#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:154
 #, fuzzy, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr "నిల్వ వాల్యూమ్ సృష్టించుట సాధ్యంకాదు: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:90
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:91
 #, perl-brace-format
 msgid "Failed to open {path}: {error}"
 msgstr "{path} తెరుచుటకు విఫలమైంది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:97
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:98
 #, fuzzy, perl-brace-format
 msgid "Unable to parse domain from file {path}: {error}"
 msgstr "{path} పార్శ్ చేయలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:102
+#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:103
 #, perl-brace-format
 msgid "{path} doesn't look like a libvirt domain XML file"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:71
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:752
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:748
 #, fuzzy, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
 msgstr "గెస్టును సృష్టించలేక పోయింది: {error}"
@@ -192,133 +229,167 @@ msgid ""
 "Failed to create new volume {path} with format {format}. Error was: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:115
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:761
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:114
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:757
 #: ../lib/Sys/VirtV2V/Transfer/Local.pm:102
 #, fuzzy, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
 msgstr "{path} తెరుచుటకు విఫలమైంది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:137
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:136
 #, perl-brace-format
 msgid "Error closing {path}: {error}"
 msgstr "{path} మూసివేయుటలో దోషము: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:225
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:224
 #, fuzzy
 msgid "Unable to read data from RHEV"
 msgstr "గెస్టును సృష్టించలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:312
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:307
 #, perl-brace-format
 msgid "RHEV cannot handle volumes of format {format}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:372
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:367
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:397
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:392
 #, fuzzy, perl-brace-format
 msgid "Error removing {file}: {error}"
 msgstr "{path} మూసివేయుటలో దోషము: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:403
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:398
 #, fuzzy, perl-brace-format
 msgid "Unable to remove temporary directory {dir}"
 msgstr "గెస్టును సృష్టించలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:446
 msgid "You must be root to output to RHEV"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:460
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
 #, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to 36:36"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:469
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:465
 #, perl-brace-format
 msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:479
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:475
 #, fuzzy, perl-brace-format
 msgid "Unable to open {mountdir}: {error}"
 msgstr "{file} తెరువలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:491
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:487
 #, perl-brace-format
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:496
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:492
 #, fuzzy, perl-brace-format
 msgid "{domain_path} does not contain an initialised storage domain"
 msgstr "{filename} చెల్లునటువంటి కెర్నల్‌ను కలిగిలేదు"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:510
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:506
 #, perl-brace-format
 msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
 "exist)."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:543
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:539
 #, perl-brace-format
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:553
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:549
 #, fuzzy, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
 msgstr "గెస్టును సృష్టించలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:845
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:841
 #, perl-brace-format
 msgid "Unsupported architecture: {arch}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:889
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:885
 #, perl-brace-format
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1113
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1110
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:155
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:137
+#, perl-brace-format
+msgid "Transferring storage volume {name}: {size} bytes"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:169
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:198
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:212
 #, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT copying it "
 "again. Delete the volume and retry to copy again."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:266
+#: ../lib/Sys/VirtV2V/Connection/Source.pm:280
 msgid "Guest doesn't define any recognised storage devices"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:188
+#: ../lib/Sys/VirtV2V/Converter.pm:158
+msgid ""
+"WARNING: Unable to convert this guest operating system. Its storage will be "
+"transfered and a domain created for it, but it may not operate correctly "
+"without manual reconfiguration. The domain will present all storage devices "
+"as IDE, all network interfaces as e1000 and the host as x86_64."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter.pm:350
 #, perl-brace-format
 msgid ""
-"WARNING: Don't know how to update {module}, which loads the {name} module."
+"WARNING: Only 4 IDE devices are supported. The following drives have been "
+"removed: {list}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter.pm:460
+#, perl-brace-format
+msgid "Unknown interface type {type} in domain XML: {domain}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:221
+msgid "Unable to find any valid modprobe configuration"
+msgstr "ఎటువంటి విలువైన modprobe ఆకృతీకరణ కనుగొనలేక పోయింది"
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:379
+#, fuzzy, perl-brace-format
+msgid ""
+"WARNING: Don't know how to update {device}, which loads the {module} module."
 msgstr "హెచ్చరిక: {module} ను యెలా నవీకరించాలో తెలియదు, ఏది {name} మాడ్యూల్ లోడుచేస్తుంది."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:291
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:528
+#, perl-brace-format
+msgid "WARNING: grub refers to {path}, which doesn't exist."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:564
 #, fuzzy
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
@@ -328,110 +399,81 @@ msgstr ""
 "తెలుపబడలేదు.\n"
 "కొనసాగించుట సాధ్యపడదు."
 
-#: ../lib/Sys/VirtV2V/Converter/Linux.pm:430
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:726
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "/etc/rc.local తెరువలేక పోయింది: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter.pm:157
-msgid ""
-"WARNING: Unable to convert this guest operating system. Its storage will be "
-"transfered and a domain created for it, but it may not operate correctly "
-"without manual reconfiguration. The domain will present all storage devices "
-"as IDE, all network interfaces as e1000 and the host as x86_64."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:349
-#, perl-brace-format
-msgid ""
-"WARNING: Only 4 IDE devices are supported. The following drives have been "
-"removed: {list}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter.pm:459
-#, perl-brace-format
-msgid "Unknown interface type {type} in domain XML: {domain}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:178
-msgid ""
-"You must specify the configuration file (-f) when converting Windows guests."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:212
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:315
-#, perl-brace-format
-msgid ""
-"Could not download the SYSTEM registry from this Windows guest.  The exact "
-"error message was: {errmsg}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:276
-#, perl-brace-format
-msgid "Guest is not a supported version of Windows ({major}.{minor})"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:452
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:874
-#, perl-brace-format
-msgid ""
-"Installation failed because the following files referenced in the "
-"configuration file are required, but missing: {list}"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:166
-msgid "libguestfs did not shut down cleanly"
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:143
-msgid "Unable to find any valid modprobe configuration"
-msgstr "ఎటువంటి విలువైన modprobe ఆకృతీకరణ కనుగొనలేక పోయింది"
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:406
-#, perl-brace-format
-msgid "WARNING: grub refers to {path}, which doesn't exist."
-msgstr ""
-
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:452
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:809
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:471
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:828
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:754
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1019
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:821
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1083
 #, fuzzy, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 "బదిలీకరణ iso సృష్టించుటలో విఫలమైంది. ఆదేశపు అవుట్పుట్:\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1107
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:441
+#, perl-brace-format
+msgid ""
+"Installation failed because the following files referenced in the "
+"configuration file are required, but missing: {list}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1313
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "ఈ గెస్టు కొరకు కెర్నల్ ఆకృతిని నిర్ధారించలేక పోయింది"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1194
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1576
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "{path} మూసివేయుటలో దోషము: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1738
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1944
 #, fuzzy, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr "హెచ్చరిక: కెర్నల్ వర్షన్ {version} అనునది grub నందు initrd ప్రవేశాన్ని కలిగిలేదు"
 
-#: ../lib/Sys/VirtV2V/GuestOS/RedHat.pm:1794
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2000
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:171
+msgid ""
+"You must specify the configuration file (-f) when converting Windows guests."
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:201
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:304
+#, perl-brace-format
+msgid ""
+"Could not download the SYSTEM registry from this Windows guest.  The exact "
+"error message was: {errmsg}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/Windows.pm:265
+#, perl-brace-format
+msgid "Guest is not a supported version of Windows ({major}.{minor})"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:166
+msgid "libguestfs did not shut down cleanly"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Transfer/ESX.pm:82
@@ -573,89 +615,92 @@ msgstr ""
 msgid "virt-v2v: {message}\n"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:261
+#: ../v2v/virt-v2v.pl:274
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:280
+#: ../v2v/virt-v2v.pl:294
+msgid "--network may only be specified once"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:302
+msgid "--bridge may only be specified once"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:319
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:292
-msgid "--network may only be specified once"
+#: ../v2v/virt-v2v.pl:334
+msgid "Defined profiles:"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:300
-msgid "--bridge may only be specified once"
-msgstr ""
+#: ../v2v/virt-v2v.pl:361
+#, fuzzy
+msgid "You must specify an output storage location"
+msgstr "{modulename} వుపయోగించునప్పుడు మీరు తప్పక ఫైలునామాన్ని తెలుపవలెను"
 
-#: ../v2v/virt-v2v.pl:321
-msgid ""
-"You must specify an output storage pool when using the libvirt output method"
-msgstr ""
-
-#: ../v2v/virt-v2v.pl:331
-msgid ""
-"You must specify an output storage domain when using the rhev output method"
-msgstr ""
-
-#: ../v2v/virt-v2v.pl:340
+#: ../v2v/virt-v2v.pl:375
 #, fuzzy, perl-brace-format
 msgid "{output} is not a valid output method"
 msgstr "{input} అనునది చెల్లునటువంటి యిన్పుట్ ఫార్మాట్ కాదు"
 
-#: ../v2v/virt-v2v.pl:348
+#: ../v2v/virt-v2v.pl:383
 #, fuzzy
 msgid "You must specify a filename"
 msgstr "{modulename} వుపయోగించునప్పుడు మీరు తప్పక ఫైలునామాన్ని తెలుపవలెను"
 
-#: ../v2v/virt-v2v.pl:354
+#: ../v2v/virt-v2v.pl:389
 #, perl-brace-format
 msgid "WARNING: {modulename} only takes a single filename."
 msgstr "హెచ్చరిక: {modulename} వొంటరి ఫైలునామాన్ని మాత్రమే తీసుకొంటుంది."
 
-#: ../v2v/virt-v2v.pl:363
+#: ../v2v/virt-v2v.pl:398
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:371
+#: ../v2v/virt-v2v.pl:406
 #, fuzzy, perl-brace-format
 msgid "WARNING: {modulename} only takes a single domain name."
 msgstr "హెచ్చరిక: {modulename} వొంటరి ఫైలునామాన్ని మాత్రమే తీసుకొంటుంది."
 
-#: ../v2v/virt-v2v.pl:377
+#: ../v2v/virt-v2v.pl:412
 #, fuzzy, perl-brace-format
 msgid "{input} is not a valid input method"
 msgstr "{input} అనునది చెల్లునటువంటి యిన్పుట్ ఫార్మాట్ కాదు"
 
-#: ../v2v/virt-v2v.pl:387
+#: ../v2v/virt-v2v.pl:422
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:441
+#: ../v2v/virt-v2v.pl:472
 #, perl-brace-format
 msgid "{name} configured with virtio drivers"
 msgstr "{name} virtio డ్రైవర్లతో ఆకృతీకరించబడింది"
 
-#: ../v2v/virt-v2v.pl:444
+#: ../v2v/virt-v2v.pl:475
 #, perl-brace-format
 msgid "{name} configured without virtio drivers"
 msgstr "{name} virtio డ్రైవర్లు లేకుండా ఆకృతీకరించబడింది"
 
-#: ../v2v/virt-v2v.pl:463
+#: ../v2v/virt-v2v.pl:494
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:487
+#: ../v2v/virt-v2v.pl:518
 msgid "no root device found in this operating system image"
 msgstr "ఈ ఆపరేటింగి సిస్టమ్ ప్రతిబింబమునందు ఏ root పరికరము కనబడలేదు"
 
-#: ../v2v/virt-v2v.pl:493
+#: ../v2v/virt-v2v.pl:524
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v చేత multiboot ఆపరేటింగ్ సిస్టమ్సు మద్దతించబడవు"
+
+#, fuzzy
+#~ msgid "Unable to stat {path}: {error}"
+#~ msgstr "{path} వ్రాయుట సాధ్యంకాదు: {error}"
 
 #, fuzzy
 #~ msgid "Failed to get storage volume: {error}"
