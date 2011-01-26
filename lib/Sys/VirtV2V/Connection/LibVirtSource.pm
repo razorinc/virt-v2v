@@ -130,10 +130,30 @@ sub get_volume
         eval {
             $vol = $self->{vmm}->get_storage_volume_by_path($path);
         };
-        die(user_message(__x("Failed to retrieve storage volume {path}:".
-                             "{error}",
-                             path => $path,
-                             error => $@->stringify()))) if($@);
+        if ($@) {
+            if ($@->code == Sys::Virt::Error->ERR_NO_STORAGE_VOL) {
+                die user_message(__x(
+                    "Failed to retrieve volume information for {path}. This ".
+                    "could be because the volume doesn't exist, or because ".
+                    "the volume exists but is not contained in a storage ".
+                    "pool.\n\n".
+                    "In the latter case, you must create a storage pool of ".
+                    "the correct type to contain the volume. Note that you ".
+                    "do not have to re-create or move the volume itself, only ".
+                    "define a pool which contains it. libvirt will ".
+                    "automatically detect the volume when it scans the pool ".
+                    "after creation.\n\n".
+                    "virt-manager is able to create storage pools. Select ".
+                    "Edit->Connection Details from the application menu. ".
+                    "Storage pools are displayed in the Storage tab.",
+                    path => $path));
+            } else {
+                die user_message(__x("Failed to retrieve storage volume {path}:".
+                                     "{error}",
+                                     path => $path,
+                                     error => $@->stringify()));
+            }
+        }
 
         ($name, $format, $size, $usage, $is_sparse, $is_block) =
             parse_libvirt_volinfo($vol);
