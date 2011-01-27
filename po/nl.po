@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# Geert Warrink <geert.warrink@onsnet.nu>, 2010.
+# Geert Warrink <geert.warrink@onsnet.nu>, 2010, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-01-26 17:40+0000\n"
-"PO-Revision-Date: 2010-11-23 19:02+0200\n"
+"PO-Revision-Date: 2011-01-27 18:09+0200\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Fedora\n"
 "Language: nl\n"
@@ -97,27 +97,27 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Config.pm:483
 #, perl-brace-format
 msgid "No profile {name} defined in {path}"
-msgstr ""
+msgstr "Geen profiel {name} in {path} gedefinieerd"
 
 #: ../lib/Sys/VirtV2V/Config.pm:489
 #, perl-brace-format
 msgid "Profile {name} doesn't specify an output method"
-msgstr ""
+msgstr "Profiel {name} specificeert geen output methode"
 
 #: ../lib/Sys/VirtV2V/Config.pm:507
 #, perl-brace-format
 msgid "Profile {name} doesn't specify output storage"
-msgstr ""
+msgstr "Profiel {name} specificeert geen outputopslag"
 
 #: ../lib/Sys/VirtV2V/Config.pm:521
 #, perl-brace-format
 msgid "Default network doesn't contain a mapping: {config}"
-msgstr ""
+msgstr "Standaard netwerk bevat geen afbeelding: {config}"
 
 #: ../lib/Sys/VirtV2V/Config.pm:532
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: Invalid network mapping: {config}"
-msgstr "WAARSCHUWING: Ongeldig netwerk afbeelding in config: {config}"
+msgstr "WAARSCHUWING: Ongeldige netwerk afbeelding: {config}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:63
 #, perl-brace-format
@@ -153,6 +153,19 @@ msgid ""
 "Details from the application menu. Storage pools are displayed in the "
 "Storage tab."
 msgstr ""
+"Het ophalen van volume informatie voor {path} mislukte. Dit kan zijn omdat "
+"het volume niet bestaat of omdat het volume bestaat maar geen deel uitmaakt "
+"van een opslag poel.\n"
+"\n"
+"In het laatste geval, moet je een opslag poel van het juiste type aanmaken "
+"om het volume te bevatten. Merk op dat je het volume zelf niet opnieuw hoeft "
+"aan te maken of te verplaatsen, definiëer alleen een pool die het bevat. "
+"libvirt detecteert automatisch het volume als het de poel scant na het "
+"aanmaken.\n"
+"\n"
+"virt-manager kan opslag poelen aanmaken. Selecteer Bewerken-> Verbinding "
+"details in het toepassing menu. Opslag poelen worden getoond in het tabblad "
+"Opslag."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:151
 #, perl-brace-format
@@ -354,7 +367,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:137
 #, perl-brace-format
 msgid "Transferring storage volume {name}: {size} bytes"
-msgstr ""
+msgstr "Overdracht van opslag volume {name}: {size} bytes"
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:169
 #, perl-brace-format
@@ -407,11 +420,11 @@ msgid "Unable to find any valid modprobe configuration"
 msgstr "Kan geen geldige modprobe configuratie vinden"
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:379
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {device}, which loads the {module} module."
 msgstr ""
-"WAARSCHUWING: Weet niet hoe {module} vernieuwd kan worden, welke de {name} "
+"WAARSCHUWING: Weet niet hoe {device} vernieuwd kan worden, welke de {module} "
 "module inlaadt."
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:528
@@ -680,14 +693,11 @@ msgstr "toewijzing schema moet {sparse} of {preallocated} zijn"
 
 #: ../v2v/virt-v2v.pl:334
 msgid "Defined profiles:"
-msgstr ""
+msgstr "Gedefinieerde profielen:"
 
 #: ../v2v/virt-v2v.pl:361
-#, fuzzy
 msgid "You must specify an output storage location"
-msgstr ""
-"Je moet een output opslag domein specificeren bij gebruik van de rhev output "
-"methode"
+msgstr "Je moet een output opslag locatie specificeren"
 
 #: ../v2v/virt-v2v.pl:375
 #, perl-brace-format
