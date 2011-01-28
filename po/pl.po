@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-01-26 17:40+0000\n"
-"PO-Revision-Date: 2010-11-05 17:33+0100\n"
+"PO-Revision-Date: 2011-01-28 21:02+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "Language: pl\n"
@@ -93,27 +93,27 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Config.pm:483
 #, perl-brace-format
 msgid "No profile {name} defined in {path}"
-msgstr ""
+msgstr "Brak profilu {name} określonego w {path}"
 
 #: ../lib/Sys/VirtV2V/Config.pm:489
 #, perl-brace-format
 msgid "Profile {name} doesn't specify an output method"
-msgstr ""
+msgstr "Profil {name} nie określa metody wyjścia"
 
 #: ../lib/Sys/VirtV2V/Config.pm:507
 #, perl-brace-format
 msgid "Profile {name} doesn't specify output storage"
-msgstr ""
+msgstr "Profil {name} nie określa wyjściowej pamięci masowej"
 
 #: ../lib/Sys/VirtV2V/Config.pm:521
 #, perl-brace-format
 msgid "Default network doesn't contain a mapping: {config}"
-msgstr ""
+msgstr "Domyślna sieć nie zawiera mapowania: {config}"
 
 #: ../lib/Sys/VirtV2V/Config.pm:532
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: Invalid network mapping: {config}"
-msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci w konfiguracji: {config}"
+msgstr "OSTRZEŻENIE: nieprawidłowe mapowanie sieci: {config}"
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:63
 #, perl-brace-format
@@ -149,6 +149,19 @@ msgid ""
 "Details from the application menu. Storage pools are displayed in the "
 "Storage tab."
 msgstr ""
+"Pobranie informacji o woluminie dla {path} nie powiodło się. Może być to "
+"powodowane tym, że wolumin nie istnieje lub tym, że wolumin istnieje, ale "
+"nie jest zawarty w puli pamięci masowej.\n"
+"\n"
+"W drugim przypadku należy utworzyć pulę pamięci masowej poprawnego typu, aby "
+"zawrzeć w niej wolumin. Proszę zauważyć, że nie trzeba ponownie tworzyć lub "
+"przenosić samego woluminu, a tylko określić pulę, która go zawiera. "
+"Biblioteka libvirt automatycznie wykryje wolumin, kiedy przeskanuje pulę po "
+"utworzeniu.\n"
+"\n"
+"Program virt-manager może tworzyć pule pamięci masowej. Należy wybrać "
+"Edycja->Informacje o połączeniu z menu aplikacji. Pule pamięci masowej są "
+"wyświetlane w karcie Pamięć masowa."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:151
 #, perl-brace-format
@@ -348,7 +361,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:137
 #, perl-brace-format
 msgid "Transferring storage volume {name}: {size} bytes"
-msgstr ""
+msgstr "Przesyłanie woluminu pamięci masowej {name}: {size} bajtów"
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:169
 #, perl-brace-format
@@ -403,12 +416,12 @@ msgid "Unable to find any valid modprobe configuration"
 msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:379
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {device}, which loads the {module} module."
 msgstr ""
-"OSTRZEŻENIE: nie wiadomo, jak zaktualizować {module}, który wczytuje moduł "
-"{name}."
+"OSTRZEŻENIE: nie wiadomo, jak zaktualizować {device}, które wczytuje moduł "
+"{module}."
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:528
 #, perl-brace-format
@@ -681,14 +694,11 @@ msgstr "schemat przydziału musi wynosić {sparse} lub {preallocated}"
 
 #: ../v2v/virt-v2v.pl:334
 msgid "Defined profiles:"
-msgstr ""
+msgstr "Określone profile:"
 
 #: ../v2v/virt-v2v.pl:361
-#, fuzzy
 msgid "You must specify an output storage location"
-msgstr ""
-"Należy podać wyjściową pulę pamięci masowej podczas używania metody wyjścia "
-"rhev"
+msgstr "Należy podać położenie wyjściowej pamięci masowej"
 
 #: ../v2v/virt-v2v.pl:375
 #, perl-brace-format
@@ -745,13 +755,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:524
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "Unable to stat {path}: {error}"
-#~ msgstr "Nie można wykonać stat na {path}: {error}"
-
-#~ msgid ""
-#~ "You must specify an output storage pool when using the libvirt output "
-#~ "method"
-#~ msgstr ""
-#~ "Należy podać wyjściową pulę pamięci masowej podczas używania metody "
-#~ "wyjścia biblioteki libvirt"
