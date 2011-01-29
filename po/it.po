@@ -4,13 +4,14 @@
 #
 # Antonio Trande <sagitter AT fedoraproject.org>, 2010.
 # Mario Santagiuliana <fedora at marionline.it>, 2010.
+# Francesco <fdaluisio@fedoraproject.org>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master.it\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-01-26 17:40+0000\n"
-"PO-Revision-Date: 2010-12-07 23:39+0100\n"
-"Last-Translator: Mario Santagiuliana <fedora at marionline.it>\n"
+"PO-Revision-Date: 2011-01-29 14:58+0100\n"
+"Last-Translator: Francesco <fdaluisio@fedoraproject.org>\n"
 "Language-Team: Italian <fedora-trans-it@redhat.com>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -98,25 +99,25 @@ msgstr "WARNING: Tipo {type} sconosciuto nella mappatura di rete: {config}"
 #: ../lib/Sys/VirtV2V/Config.pm:483
 #, perl-brace-format
 msgid "No profile {name} defined in {path}"
-msgstr ""
+msgstr "Nessun profilo {name} è stato definito in {path}"
 
 #: ../lib/Sys/VirtV2V/Config.pm:489
 #, perl-brace-format
 msgid "Profile {name} doesn't specify an output method"
-msgstr ""
+msgstr "Il profilo {name} non specifica un metodo di output"
 
 #: ../lib/Sys/VirtV2V/Config.pm:507
 #, perl-brace-format
 msgid "Profile {name} doesn't specify output storage"
-msgstr ""
+msgstr "Il profilo {name} non specifica un metodo di memorizzazione"
 
 #: ../lib/Sys/VirtV2V/Config.pm:521
 #, perl-brace-format
 msgid "Default network doesn't contain a mapping: {config}"
-msgstr ""
+msgstr "La rete predefinita non continene una mappatura: {config}"
 
 #: ../lib/Sys/VirtV2V/Config.pm:532
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "WARNING: Invalid network mapping: {config}"
 msgstr "WARNING: Mappatura di rete non valida nella configurazione: {config}"
 
@@ -154,6 +155,21 @@ msgid ""
 "Details from the application menu. Storage pools are displayed in the "
 "Storage tab."
 msgstr ""
+"Impossibile recuperare le informazioni del volume per {path}. Ciò potrebbe "
+"essere dovuto al fatto che il volume non esiste, o perché il volume esiste "
+"ma non è contenuto in un pool di memorizzazione.\n"
+"\n"
+"In quest'ultimo caso, è necessario creare un pool di memorizzazione del tipo "
+"corretto che contenga il volume. Si noti che non è necessario ricreare o "
+"spostare il"
+"volume stesso, basta solo definire un pool che lo contiene. libvirt rileverà "
+"automaticamente il volume quando verrà eseguita la scansione del pool dopo "
+"la creazione.\n"
+"\n"
+"virt-manager è in grado di creare pool di memorizzazione. Selezionare "
+"Modifica-> Dettagli di Connessione"
+"dal menu dell'applicazione. I pool di memorizzazione sono visualizzati nel "
+"tab Storage."
 
 #: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:151
 #, perl-brace-format
@@ -348,7 +364,7 @@ msgstr ""
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:137
 #, perl-brace-format
 msgid "Transferring storage volume {name}: {size} bytes"
-msgstr ""
+msgstr "Trasferimento del volume di storage {name}: {size} bytes"
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:169
 #, perl-brace-format
@@ -357,13 +373,13 @@ msgstr ""
 "Volume intero non ricevuto. Ricevuti {received} dei totali {total} bytes. "
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:212
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: storage volume {name} already exists on the target. NOT copying it "
 "again. Delete the volume and retry to copy again."
 msgstr ""
-"WARNING: volume di storage {name} esistente nel target. Non copiare "
-"nuovamente.Cancellare il volume e ripetere la copia."
+"WARNING: Il volume di storage {name} è già presente nel target. Non copiarlo "
+"nuovamente. Cancellare il volume e ripetere la copia."
 
 #: ../lib/Sys/VirtV2V/Connection/Source.pm:280
 msgid "Guest doesn't define any recognised storage devices"
@@ -401,12 +417,12 @@ msgid "Unable to find any valid modprobe configuration"
 msgstr "Impossibile trovare una configurazione valida di modprobe"
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:379
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "WARNING: Don't know how to update {device}, which loads the {module} module."
 msgstr ""
-"WARNING: impossibile determinare come aggiornare {module}, che esegue il "
-"caricamento del modulo {name}."
+"WARNING: Impossibile determinare come aggiornare  {device} che esegue il "
+"caricamento del modulo {module}."
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:528
 #, perl-brace-format
@@ -674,14 +690,11 @@ msgstr "Lo schema d'allocazione deve essere {sparse} o {preallocated}"
 
 #: ../v2v/virt-v2v.pl:334
 msgid "Defined profiles:"
-msgstr ""
+msgstr "Profili definiti:"
 
 #: ../v2v/virt-v2v.pl:361
-#, fuzzy
 msgid "You must specify an output storage location"
-msgstr ""
-"Specificare un dominio storage in uscita quando è in uso il rhev output "
-"method"
+msgstr "È necessario specificare un percorso di storage"
 
 #: ../v2v/virt-v2v.pl:375
 #, perl-brace-format
