@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v.master\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2011-01-26 17:40+0000\n"
+"POT-Creation-Date: 2011-02-01 16:44+0000\n"
 "PO-Revision-Date: 2009-12-10 20:18+1000\n"
 "Last-Translator: Leah Liu <lliu@redhat.com>\n"
 "Language-Team: Simplified Chinese <zh@li.org>\n"
@@ -217,7 +217,7 @@ msgid "{path} doesn't look like a libvirt domain XML file"
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:71
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:748
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:734
 #, fuzzy, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
 msgstr "无法创建客户端：{error}"
@@ -229,7 +229,7 @@ msgid ""
 msgstr ""
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:114
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:757
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:743
 #: ../lib/Sys/VirtV2V/Transfer/Local.pm:102
 #, fuzzy, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
@@ -245,88 +245,83 @@ msgstr "关闭 {path} 出错：{error}"
 msgid "Unable to read data from RHEV"
 msgstr "无法创建客户端：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:307
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:306
 #, perl-brace-format
 msgid "RHEV cannot handle volumes of format {format}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:367
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:366
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:392
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:384
 #, fuzzy, perl-brace-format
-msgid "Error removing {file}: {error}"
-msgstr "关闭 {path} 出错：{error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:398
-#, fuzzy, perl-brace-format
-msgid "Unable to remove temporary directory {dir}"
+msgid "Error whilst attempting to remove temporary directory {dir}"
 msgstr "无法创建客户端：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:446
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:432
 msgid "You must be root to output to RHEV"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:439
 #, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to 36:36"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:465
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:451
 #, perl-brace-format
 msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:475
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:461
 #, fuzzy, perl-brace-format
 msgid "Unable to open {mountdir}: {error}"
 msgstr "无法打开文件 {file}：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:487
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:473
 #, perl-brace-format
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:492
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:478
 #, fuzzy, perl-brace-format
 msgid "{domain_path} does not contain an initialised storage domain"
 msgstr "{filename} 不包含有效内核"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:506
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:492
 #, perl-brace-format
 msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
 "exist)."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:539
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:525
 #, perl-brace-format
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:549
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:535
 #, fuzzy, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
 msgstr "无法创建客户端：{error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:841
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:827
 #, perl-brace-format
 msgid "Unsupported architecture: {arch}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:885
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:871
 #, perl-brace-format
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1110
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1096
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
@@ -402,31 +397,38 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "无法打开 /etc/rc.local：{error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:809
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:769
+#, perl-brace-format
+msgid ""
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
+msgstr ""
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:827
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:828
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:846
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1019
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1037
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1101
 #, fuzzy, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 "无法创建传输标准。 命令的输出是：\n"
 "{output}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1151
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:441
 #, perl-brace-format
 msgid ""
@@ -434,21 +436,21 @@ msgid ""
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1313
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1331
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "无法为这个客户端确定内核构架"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1576
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1594
 #, fuzzy, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "关闭 {path} 出错：{error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1944
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1962
 #, fuzzy, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr "警告：grub 中没有内核版本 {version} 的 initrd 条目"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2000
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2018
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
 msgstr ""
 
@@ -695,6 +697,10 @@ msgstr "在这个操作系统映像中没有找到 root 设备"
 #: ../v2v/virt-v2v.pl:524
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "virt-v2v 不支持多重引导操作系统"
+
+#, fuzzy
+#~ msgid "Error removing {file}: {error}"
+#~ msgstr "关闭 {path} 出错：{error}"
 
 #, fuzzy
 #~ msgid "Unable to stat {path}: {error}"

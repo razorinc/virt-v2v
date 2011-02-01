@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2011-01-26 17:40+0000\n"
+"POT-Creation-Date: 2011-02-01 16:44+0000\n"
 "PO-Revision-Date: 2011-01-27 18:09+0200\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Fedora\n"
@@ -237,7 +237,7 @@ msgid "{path} doesn't look like a libvirt domain XML file"
 msgstr "{path} ziet er niet uit als een libvirt domein XML bestand"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:71
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:748
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:734
 #, perl-brace-format
 msgid "Failed to create directory {dir}: {error}"
 msgstr "Aanmaken van map {dir} mislukte: {error}"
@@ -251,7 +251,7 @@ msgstr ""
 "{error}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:114
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:757
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:743
 #: ../lib/Sys/VirtV2V/Transfer/Local.pm:102
 #, perl-brace-format
 msgid "Unable to open {path} for writing: {error}"
@@ -266,37 +266,32 @@ msgstr "Sluiten van {path} mislukte: {error}"
 msgid "Unable to read data from RHEV"
 msgstr "Kan geen data van RHEV lezen"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:307
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:306
 #, perl-brace-format
 msgid "RHEV cannot handle volumes of format {format}"
 msgstr "RHEV kan volumes met formaat {format} niet afhandelen"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:367
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:366
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
 msgstr ""
 "Kon volume niet verplaatsen van de tijdelijke locatie {tmpdir} naar {dir}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:392
-#, perl-brace-format
-msgid "Error removing {file}: {error}"
-msgstr "Fout bij verwijderen van bestand {file}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:398
-#, perl-brace-format
-msgid "Unable to remove temporary directory {dir}"
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:384
+#, fuzzy, perl-brace-format
+msgid "Error whilst attempting to remove temporary directory {dir}"
 msgstr "Kon tijdelijke map {dir} niet verwijderen"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:446
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:432
 msgid "You must be root to output to RHEV"
 msgstr "Je moet root zijn voor output naar RHEV"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:439
 #, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to 36:36"
 msgstr "Kan de eigenaar van {mountdir} niet veranderen naar 36:36"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:465
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:451
 #, perl-brace-format
 msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
@@ -305,12 +300,12 @@ msgstr ""
 "Aankoppelen van {path} mislukte. Commando sloot af met status {status}. "
 "Output was: {output}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:475
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:461
 #, perl-brace-format
 msgid "Unable to open {mountdir}: {error}"
 msgstr "Kan {mountdir} niet openen: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:487
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:473
 #, perl-brace-format
 msgid ""
 "{domain_path} contains multiple possible domains. It may only contain one."
@@ -318,12 +313,12 @@ msgstr ""
 "{domain_path} bevat meerdere mogelijke domeinen. Het kan er slechts een "
 "bevatten."
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:492
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:478
 #, perl-brace-format
 msgid "{domain_path} does not contain an initialised storage domain"
 msgstr "{domain_path} bevat geen geïnitialiseerd opslag domein"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:506
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:492
 #, perl-brace-format
 msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
@@ -332,7 +327,7 @@ msgstr ""
 "{domain_path} is niet gekoppeld aan een RHEV data centrum ({path} bestaat "
 "niet)."
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:539
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:525
 #, perl-brace-format
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
@@ -341,22 +336,22 @@ msgstr ""
 "Afkoppelen van {path} mislukte. Commando sloot af met status {status}. "
 "Output was: {output}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:549
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:535
 #, perl-brace-format
 msgid "Failed to remove mount directory {dir}: {error}"
 msgstr "Verwijderen van aankoppel map {dir} mislukte: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:841
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:827
 #, perl-brace-format
 msgid "Unsupported architecture: {arch}"
 msgstr "Niet-ondersteunde architectuur: {arch}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:885
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:871
 #, perl-brace-format
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr "Onbekende Windows versie: {major}.{minor}"
 
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1110
+#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1096
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
@@ -446,12 +441,20 @@ msgstr ""
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Kan /etc/rc.local niet openen: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:809
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:769
+#, fuzzy, perl-brace-format
+msgid ""
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
+msgstr ""
+"Pakketten installeren met up2date mislukte. De fout boodschap was: {error}"
+
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:827
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr "{name} mogelijkheid werd niet in de configuratie gevonden"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:828
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:846
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
@@ -460,18 +463,18 @@ msgstr ""
 "Onbekend formaat voor {field} in config: {value}. {field} moet het formaat "
 "[epoch:]versie[-release] hebben."
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1019
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1037
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 "Pakketten installeren met up2date mislukte. De fout boodschap was: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1083
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1101
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr "Pakketten installeren met yum mislukte. Output was: {output}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1133
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1151
 #: ../lib/Sys/VirtV2V/Converter/Windows.pm:441
 #, perl-brace-format
 msgid ""
@@ -481,22 +484,22 @@ msgstr ""
 "De installatie mislukte omdat de volgende bestanden waarnaar wordt verwezen "
 "in het configuratiebestand vereist zijn, maar deze ontbreken: {list}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1313
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1331
 msgid "Unable to determine a kernel architecture for this guest"
 msgstr "Kan geen kernel architectuur bepalen voor deze gast"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1576
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1594
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Fout bij het draaien van {command}: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1944
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1962
 #, perl-brace-format
 msgid "WARNING: Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
 "WAARSCHUWING: Kernel versie {version} heeft geen initrd ingang in grub."
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2000
+#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2018
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd"
 msgstr "Kan mkinitrd of dracut niet vinden. Kan initrd niet vernieuwen."
 
@@ -756,6 +759,9 @@ msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr ""
 "opstarten van meerdere besturingssystemen wordt niet ondersteund door virt-"
 "v2v"
+
+#~ msgid "Error removing {file}: {error}"
+#~ msgstr "Fout bij verwijderen van bestand {file}: {error}"
 
 #~ msgid "Unable to stat {path}: {error}"
 #~ msgstr "Kan status {path} niet tonen: {error}"
