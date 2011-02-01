@@ -756,6 +756,24 @@ sub _unconfigure_vmware
             _remove_application($name, $g);
         }
     }
+
+    # VMwareTools may have been installed from tarball, in which case the above
+    # won't detect it. Look for the uninstall tool, and run it if it's present.
+    #
+    # Note that it's important we do this early in the conversion process, as
+    # this uninstallation script naively overwrites configuration files with
+    # versions it cached prior to installation.
+    my $vmwaretools = '/usr/bin/vmware-uninstall-tools.pl';
+    if ($g->exists($vmwaretools)) {
+        eval { $g->command([$vmwaretools]) };
+        warn user_message(__x('VMware Tools was detected, but uninstallation '.
+                              'failed. The error message was: {error}',
+                              error => $@)) if $@;
+
+        # Reload augeas to detect changes made by vmware tools uninstallation
+        eval { $g->aug_load() };
+        augeas_error($g, $@) if $@;
+    }
 }
 
 # Get a list of all foreign hypervisor specific kernel modules which are being
