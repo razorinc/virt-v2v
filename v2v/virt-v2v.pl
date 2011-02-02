@@ -384,7 +384,7 @@ if ($input_method eq "libvirtxml") {
                     -exitval => 1 });
 
     # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
+    if(scalar(@ARGV) > 0) {
         warn user_message
             (__x("WARNING: {modulename} only takes a single filename.",
                  modulename => 'libvirtxml'));
@@ -401,7 +401,7 @@ elsif ($input_method eq "libvirt") {
     $source = Sys::VirtV2V::Connection::LibVirtSource->new($input_uri, $name);
 
     # Warn if we were given more than 1 argument
-    if(scalar(@_) > 0) {
+    if(scalar(@ARGV) > 0) {
         warn user_message
             (__x("WARNING: {modulename} only takes a single domain name.",
                  modulename => 'libvirt'));
