@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: pl\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-02-01 16:44+0000\n"
-"PO-Revision-Date: 2011-01-28 21:02+0100\n"
+"PO-Revision-Date: 2011-02-03 13:19+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <trans-pl@lists.fedoraproject.org>\n"
 "Language: pl\n"
@@ -273,9 +273,9 @@ msgstr ""
 "Nie można przenieść woluminu z położenia tymczasowego {tmpdir} do {dir}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:384
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Error whilst attempting to remove temporary directory {dir}"
-msgstr "Nie można usunąć katalogu tymczasowego {dir}"
+msgstr "Błąd podczas próby usunięcia katalogu tymczasowego {dir}"
 
 #: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:432
 msgid "You must be root to output to RHEV"
@@ -437,13 +437,13 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:769
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "VMware Tools was detected, but uninstallation failed. The error message was: "
 "{error}"
 msgstr ""
-"Zainstalowanie pakietów używając programu up2date nie powiodło się. "
-"Komunikat błędu: {error}"
+"Wykryto VMware Tools, ale odinstalowanie nie powiodło się. Komunikat błędu: "
+"{error}"
 
 #: ../lib/Sys/VirtV2V/Converter/RedHat.pm:827
 #, perl-brace-format
@@ -759,6 +759,3 @@ msgstr "nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego"
 #: ../v2v/virt-v2v.pl:524
 msgid "multiboot operating systems are not supported by virt-v2v"
 msgstr "systemy operacyjne multiboot nie są obsługiwane przez program virt-v2v"
-
-#~ msgid "Error removing {file}: {error}"
-#~ msgstr "Błąd podczas usuwania {file}: {error}"
