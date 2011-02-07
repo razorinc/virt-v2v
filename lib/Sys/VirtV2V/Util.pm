@@ -20,16 +20,25 @@ package Sys::VirtV2V::Util;
 use strict;
 use warnings;
 
+use Carp;
 use Sys::Virt;
 use XML::DOM;
 
 use Locale::TextDomain 'virt-v2v';
 
 require Exporter;
-use vars qw(@EXPORT_OK @ISA);
+use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(augeas_error user_message parse_libvirt_volinfo rhev_helper);
+@EXPORT = qw(v2vdie logmsg DEBUG INFO NOTICE WARN FATAL);
+@EXPORT_OK = qw(augeas_error parse_libvirt_volinfo rhev_helper
+                    logmsg_init logmsg_level);
+
+use constant DEBUG  => 0;
+use constant INFO   => 1;
+use constant NOTICE => 2;
+use constant WARN   => 3;
+use constant FATAL  => 4;
 
 =pod
 
@@ -39,12 +48,11 @@ Sys::VirtV2V::Util - Utility functions for virt-v2v
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Util qw(augeas_error user_message);
+ use Sys::VirtV2V::Util qw(augeas_error);
 
  augeas_error($g, $@) if ($@);
 
- warn user_message(__x("Couldn't open {file}: {error}",
-                       file => $file, error => $error));
+ v2vdie __x("Couldn't open {file}: {error}", file => $file, error => $error);
 
 =head1 DESCRIPTION
 
@@ -113,23 +121,10 @@ sub augeas_error
 
     chomp($msg);
 
-    die(user_message($msg)) if (length($msg) > 0);
-    die($err);
+    v2vdie $msg if length($msg) > 0;
+    v2vdie $err;
 }
 
-=item user_message(message)
-
-Return a formatted user message. I<message> should not contain a prefix or a
-trailing newline.
-
-=cut
-
-sub user_message
-{
-    my ($msg) = (@_);
-
-    return __x("virt-v2v: {message}\n", message => $msg);
-}
 
 =item parse_libvirt_volinfo(vol)
 
@@ -213,6 +208,123 @@ sub rhev_helper
         &$sigint($sig_received)  if ($sig_received eq 'INT');
         &$sigquit($sig_received) if ($sig_received eq 'QUIT');
     }
+}
+
+my $logmsg;
+my $logmsg_level = NOTICE;
+
+=item logmsg_init(method)
+
+Initialise the log output method. I<method> can be an open filehandle, one of
+*STDOUT or *STDERR, or the string 'syslog'. This method must be called before
+calling logmsg().
+
+=cut
+
+sub logmsg_init
+{
+    my ($method) = @_;
+
+    my $annotate = sub {
+        my ($level, $msg) = @_;
+
+        return __x("WARNING: {msg}", msg => $msg) if $level == WARN;
+        return __x("FATAL: {msg}", msg => $msg) if $level == FATAL;
+        return $msg;
+    };
+
+    # Check if we were passed a file handle
+    if (ref($method) eq 'GLOB' || $method eq *STDOUT || $method eq *STDERR) {
+        $logmsg = sub {
+            my ($level, $msg, $willdie) = @_;
+
+            my $lmethod = $method;
+
+            # Send warnings to STDERR if regular messages are going to STDOUT
+            $lmethod = *STDERR if $method eq *STDOUT && $level >= WARN;
+
+            $msg = &$annotate($level, $msg);
+
+            # Don't log the message if it would go to STDOUT or STDERR, and
+            # we're about to die to STDERR anyway
+            print $lmethod "virt-v2v: $msg\n"
+                unless $willdie && ($method eq *STDOUT || $method eq *STDERR);
+            return $msg;
+        }
+    }
+
+    elsif ($method eq 'syslog') {
+        use Sys::Syslog qw(:standard :macros);
+
+        openlog('virt-v2v', '', LOG_USER);
+        $logmsg = sub {
+            my ($level, $msg) = @_;
+
+            $msg = &$annotate($level, $msg);
+
+            if ($level == DEBUG) {
+                syslog(LOG_DEBUG, $msg);
+            } elsif ($level == INFO) {
+                syslog(LOG_INFO, $msg);
+            } elsif ($level == NOTICE) {
+                syslog(LOG_NOTICE, $msg);
+            } elsif ($level == WARN) {
+                syslog(LOG_WARNING, $msg);
+            } elsif ($level == FATAL) {
+                syslog(LOG_ERR, $msg);
+            }
+
+            return $msg;
+        }
+    }
+
+    else {
+        croak "Unrecognised log method $method";
+    }
+}
+
+=item logmsg_level(level)
+
+Set the level at which messages will be logged. Options are DEBUG, INFO, NOTICE,
+WARN and FATAL.
+
+=cut
+
+sub logmsg_level
+{
+    $logmsg_level = shift;
+}
+
+=item logmsg(level, msg)
+
+Send I<msg> to the previously configured log destination. I<level> can be DEBUG,
+INFO, NOTICE, WARN or FATAL.
+
+=cut
+
+sub logmsg
+{
+    # willdie is a private argument
+    my ($level, $msg, $willdie) = @_;
+
+    return unless $level >= $logmsg_level;
+
+    croak "logmsg called without logmsg_init" unless defined($logmsg);
+    &$logmsg($level, $msg, $willdie);
+}
+
+=item v2vdie(msg)
+
+Log I<msg> at FATAL priority, and die().
+
+=cut
+
+sub v2vdie
+{
+    my ($msg) = @_;
+
+    logmsg FATAL, $msg, 1;
+    die "virt-v2v: $msg\n";
 }
 
 =back

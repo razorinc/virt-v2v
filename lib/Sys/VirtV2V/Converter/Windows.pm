@@ -33,7 +33,7 @@ use Win::Hivex;
 use Win::Hivex::Regedit qw(reg_import);
 
 use Locale::TextDomain 'virt-v2v';
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 
 =pod
@@ -167,9 +167,8 @@ sub _preconvert
 
     # $config can be undef, but we require the configuration file when
     # converting Windows guests.
-    unless (defined $config) {
-        die (user_message (__x"You must specify the configuration file (-f) when converting Windows guests."));
-    }
+    v2vdie __('You must specify the configuration file (-f) when '.
+              'converting Windows guests.') unless defined($config);
 
     my $tmpdir = tempdir (CLEANUP => 1);
 
@@ -197,10 +196,9 @@ sub _add_viostor_to_registry
         $system_filename = $g->case_sensitive_path ($system_filename);
         $g->download ($system_filename, $tmpdir . "/system");
     };
-    if ($@) {
-        die (user_message (__x"Could not download the SYSTEM registry from this Windows guest.  The exact error message was: {errmsg}",
-                           errmsg => $@));
-    }
+    v2vdie __x('Could not download the SYSTEM registry from this Windows '.
+               'guest. The exact error message was: {errmsg}', errmsg => $@)
+        if $@;
 
     # Open the registry hive.
     my $h = Win::Hivex->open ($tmpdir . "/system", write => 1)
@@ -262,9 +260,10 @@ REGEDITS
     if ($desc->{major_version} == 5 || $desc->{major_version} == 6) {
         $io = IO::String->new ($regedits);
     } else {
-        die (user_message (__x"Guest is not a supported version of Windows ({major}.{minor})",
-                           major => $desc->{major_version},
-                           minor => $desc->{minor_version}))
+        v2vdie __x('Guest is not a supported version of Windows '.
+                   '({major}.{minor})',
+                   major => $desc->{major_version},
+                   minor => $desc->{minor_version});
     }
 
     local *_map = sub {
@@ -300,10 +299,9 @@ sub _add_service_to_registry
         $system_filename = $g->case_sensitive_path ($system_filename);
         $g->download ($system_filename, $tmpdir . "/system");
     };
-    if ($@) {
-        die (user_message (__x"Could not download the SYSTEM registry from this Windows guest.  The exact error message was: {errmsg}",
-                           errmsg => $@));
-    }
+    v2vdie __x('Could not download the SYSTEM registry from this Windows '.
+               'guest. The exact error message was: {errmsg}', errmsg => $@)
+        if $@;
 
     # Open the registry hive.
     my $h = Win::Hivex->open ($tmpdir . "/system", write => 1)
@@ -438,10 +436,10 @@ sub _upload_files
     }
 
     # We can't proceed if there are any files missing
-    die(user_message(__x("Installation failed because the following ".
-                         "files referenced in the configuration file are ".
-                         "required, but missing: {list}",
-                         list => join(' ', @missing)))) if (@missing > 0);
+    v2vdie __x('Installation failed because the following '.
+               'files referenced in the configuration file are '.
+               'required, but missing: {list}',
+               list => join(' ', @missing)) if scalar(@missing) > 0;
 
     # Copy viostor directly into place as it's a critical boot device
     $g->cp (File::Spec->catfile($files{virtio}, 'viostor.sys'),

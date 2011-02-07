@@ -30,7 +30,7 @@ use Sys::VirtV2V::Connection::Source;
 use Sys::VirtV2V::Connection::LibVirt;
 use Sys::VirtV2V::Connection::Volume;
 use Sys::VirtV2V::Transfer::ESX;
-use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
+use Sys::VirtV2V::Util qw(:DEFAULT parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -132,7 +132,7 @@ sub get_volume
         };
         if ($@) {
             if ($@->code == Sys::Virt::Error->ERR_NO_STORAGE_VOL) {
-                die user_message(__x(
+                v2vdie __x(
                     "Failed to retrieve volume information for {path}. This ".
                     "could be because the volume doesn't exist, or because ".
                     "the volume exists but is not contained in a storage ".
@@ -146,12 +146,10 @@ sub get_volume
                     "virt-manager is able to create storage pools. Select ".
                     "Edit->Connection Details from the application menu. ".
                     "Storage pools are displayed in the Storage tab.",
-                    path => $path));
+                    path => $path);
             } else {
-                die user_message(__x("Failed to retrieve storage volume {path}:".
-                                     "{error}",
-                                     path => $path,
-                                     error => $@->stringify()));
+                v2vdie __x('Failed to retrieve storage volume {path}: {error}',
+                           path => $path, error => $@->stringify());
             }
         }
 
@@ -175,12 +173,10 @@ sub _check_shutdown
     my $domain = $self->_get_domain();
 
     # Check the domain is shutdown
-    die(user_message(__x("Guest {name} is currently {state}. It must be ".
-                         "shut down first.",
-                         state => _state_string($domain->get_info()->{state}),
-                         name => $self->{name})))
-        unless ($domain->get_info()->{state} ==
-                Sys::Virt::Domain::STATE_SHUTOFF);
+    v2vdie __x('Guest {name} is currently {state}. It must be shut down first.',
+               state => _state_string($domain->get_info()->{state}),
+               name => $self->{name})
+        unless $domain->get_info()->{state} == Sys::Virt::Domain::STATE_SHUTOFF;
 }
 
 sub _state_string
@@ -223,8 +219,8 @@ sub _get_domain
     die($@) if ($@);
 
     # Check we found it
-    die(user_message(__x("{name} isn't a valid guest name", name => $name)))
-        unless($domain);
+    v2vdie __x('{name} isn\'t a valid guest name', name => $name)
+        unless $domain;
 
     $self->{domain} = $domain;
 

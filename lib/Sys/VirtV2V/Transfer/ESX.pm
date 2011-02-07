@@ -24,7 +24,7 @@ use DateTime;
 use MIME::Base64;
 
 use Sys::VirtV2V;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 # This is a gross hack to bring sanity to Net::HTTPS's SSL handling. Net::HTTPS
@@ -79,16 +79,14 @@ sub _request
     my $base = URI->new($uri->scheme.'://'.$uri->host);
     my $conn = new Net::HTTPS(Host => $uri->host,
                               MaxLineLength => 0)
-        or die(user_message(__x("Failed to connect to {host}: {error}",
-                                host => $uri->host,
-                                error => $@)));
+        or v2vdie __x('Failed to connect to {host}: {error}',
+                      host => $uri->host, error => $@);
 
     $conn->write_request($method => '/'.$uri->rel($base),
                          'User-Agent' => $self->{agent},
                          'Authorization' => $self->{auth})
-        or die(user_message(__x("Failed to send request to {host}: {error}",
-                                host => $uri->host,
-                                error => $@)));
+        or v2vdie __x('Failed to send request to {host}: {error}',
+                      host => $uri->host, error => $@);
 
     my ($code, $msg, %h) = $conn->read_response_headers();
     die([$code, $msg]) unless ($code == 200);
@@ -106,10 +104,8 @@ sub get_content_length
     my ($conn, $h) = $self->_request('HEAD', $uri);
 
     my $length = $h->{'Content-Length'};
-    die(user_message(__x("ESX Server didn't return content length ".
-                         "for {uri}",
-                         uri => $uri)))
-        unless (defined($length));
+    v2vdie __x('ESX Server didn\'t return content length for {uri}',
+               uri => $uri) unless defined($length);
 
     return $length;
 }
@@ -142,8 +138,8 @@ sub read_content
     # nonblocking on any socket, so EINTR and EAGAIN don't need to be handled
     # here
 
-    die(user_message(__x("Error reading data from {host}",
-                         host => $self->{hostname}))) unless (defined($rv));
+    v2vdie __x('Error reading data from {host}', host => $self->{hostname})
+        unless defined($rv);
 
     return $buf;
 }
@@ -161,32 +157,28 @@ sub _verify_certificate
         my ($key, $value) = split(/=/, $i);
         $cn = lc($value) if (lc($key) eq 'cn');
     }
-    die(user_message(__x("SSL Certificate Subject from {host} doesn't contain ".
-                         "a CN", host => $hostname))) unless (defined($cn));
+    v2vdie __x('SSL Certificate Subject from {host} doesn\'t contain a CN.',
+               host => $hostname) unless defined($cn);
 
     $hostname = lc($hostname);
-    die(user_message(__x("Server {server} presented an SSL certificate ".
-                         "for {commonname}",
-                         server => $hostname,
-                         commonname => $cn)))
-        unless ($hostname eq $cn or $hostname !~ /\Q.$cn\E$/);
+    v2vdie __x('Server {server} presented an SSL certificate '.
+               'for {commonname}',
+               server => $hostname, commonname => $cn)
+        unless $hostname eq $cn or $hostname !~ /\Q.$cn\E$/;
 
     my $not_before = _parse_nottime($cert->not_before);
     my $not_after  = _parse_nottime($cert->not_after);
 
     my $now = DateTime->now;
     if (DateTime->compare($now, $not_before) < 0) {
-        die(user_message(__x("SSL Certificate presented by {host} will not ".
-                             "be valid until {date}",
-                             host => $hostname,
-                             date => $not_before)));
+        v2vdie __x('SSL Certificate presented by {host} will not '.
+                   'be valid until {date}.',
+                   host => $hostname, date => $not_before);
     }
 
     if (DateTime->compare($now, $not_after) > 0) {
-        die(user_message(__x("SSL Certificate present by {host} expired on ".
-                             "{date}",
-                             host => $hostname,
-                             date => $not_after)));
+        v2vdie __x('SSL Certificate presented by {host} expired on {date}.',
+                   host => $hostname, date => $not_after);
     }
 
     # This should never happen, because we should instead get an SSL connection
@@ -269,7 +261,7 @@ package Sys::VirtV2V::Transfer::ESX;
 use Sys::Virt;
 use URI;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -293,11 +285,9 @@ sub new
     my $class = shift;
     my ($path, $hostname, $username, $password, $noverify, $is_sparse) = @_;
 
-    die(user_message(__x("Authentication is required to connect to ".
-                         "{server} and no credentials were found in ".
-                         ".netrc.",
-                         server => $hostname)))
-        unless (defined($username));
+    v2vdie __x('Authentication is required to connect to '.
+               '{server} and no credentials were found in '.
+               '.netrc.', server => $hostname) unless defined($username);
 
     my $self = {};
     bless($self, $class);
@@ -393,7 +383,7 @@ ESX cannot return a local path. This function will die().
 
 sub local_path
 {
-    die(user_message(__"virt-v2v cannot write to an ESX connection"));
+    v2vdie __('virt-v2v cannot write to an ESX connection');
 }
 
 =item get_read_stream(convert).
@@ -426,7 +416,7 @@ error message if called.
 
 sub get_write_stream
 {
-    die(user_message(__"Unable to write to an ESX connection"));
+    v2vdie __('Unable to write to an ESX connection');
 }
 
 =item esx_get_name
@@ -456,16 +446,12 @@ sub _report_error
     my $self = shift;
     my ($code, $msg) = @_;
 
-    if ($code == 401) {
-        die(user_message(__x("Authentication error connecting to ".
-                             "{server}. Used credentials for {username} ".
-                             "from .netrc.",
-                             server => $self->{hostname},
-                             username => $self->{username})))
-    }
+    v2vdie __x('Authentication error connecting to {server}. Used '.
+               'credentials for {username} from .netrc.',
+               server => $self->{hostname}, username => $self->{username})
+        if ($code == 401);
 
-    die(user_message(__x("Failed to connect to ESX server: {error}",
-                         error => $msg)));
+    v2vdie __x('Failed to connect to ESX server: {error}', error => $msg);
 }
 
 =back

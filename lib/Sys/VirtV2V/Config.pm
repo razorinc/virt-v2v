@@ -27,7 +27,7 @@ use XML::DOM;
 use XML::DOM::XPath;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -73,17 +73,16 @@ sub new
     # No further config required if no config path was specified
     return $self if (!defined($path));
 
-    die user_message(__x("Config file {path} doesn't exist", path => $path))
-        unless (-e $path);
-    die user_message(__x("Don't have permissions to read {path}",
-                         path => $path))
-        unless (-r $path);
+    v2vdie __x('Config file {path} doesn\'t exist', path => $path)
+        unless -e $path;
+    v2vdie __x('Don\'t have permissions to read {path}', path => $path)
+        unless -r $path;
 
     eval {
         $self->{dom} = new XML::DOM::Parser->parsefile($path);
     };
-    die user_message(__x("Unable to parse config file {path}: {error}",
-            path => $path, error => $@)) if $@;
+    v2vdie __x('Unable to parse config file {path}: {error}',
+               path => $path, error => $@) if $@;
 
     my ($net_default) = $self->{dom}->findnodes
         ('/virt-v2v/network[@type=\'default\']');
@@ -146,7 +145,7 @@ sub get_transfer_iso
     my ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
 
     # We need this
-    die user_message(__"<iso-path> must be specified in the configuration file")
+    v2vdie __('<iso-path> must be specified in the configuration file.')
         unless defined($iso_path);
     $iso_path = $iso_path->getData();
 
@@ -156,9 +155,8 @@ sub get_transfer_iso
          '-r', '-J',
          '-V', '__virt-v2v_transfer__',
          '-graft-points', keys(%path_args));
-    die user_message(__x("Failed to create transfer iso. ".
-                         "Command output was:\n{output}",
-                         output => $eh->output())) unless $eh->status() == 0;
+    v2vdie __x("Failed to create transfer iso. Command output was:\n{output}",
+               output => $eh->output()) unless $eh->status() == 0;
 
     $self->{iso} = $iso_path;
     return $iso_path;
@@ -246,8 +244,8 @@ sub match_app
 
     my %app;
     my ($path) = $app->findnodes('path/text()');
-    die user_message(__x("app entry in config doesn't contain a path: {xml}",
-                         xml => $app->toString())) unless (defined($path));
+    v2vdie __x('app entry in config doesn\'t contain a path: {xml}',
+               xml => $app->toString()) unless defined($path);
     $path = $path->getData();
 
     my @deps;
@@ -303,10 +301,10 @@ sub match_capability
         foreach my $prop ('name', 'minversion') {
             my ($val) = $dep->findnodes('@'.$prop);
             $val &&= $val->getData();
-            die user_message(__x("Capability in config contains a dependency ".
-                                 "with no {property} attribute: {xml}",
-                                 property => $prop,
-                                 xml => $cap->toString())) unless defined($val);
+            v2vdie __x('Capability in config contains a dependency '.
+                       'with no {property} attribute: {xml}',
+                       property => $prop, xml => $cap->toString())
+                unless defined($val);
             $props{$prop} = $val;
         }
 
@@ -335,10 +333,9 @@ sub _match_element
 
     my $dom = $self->{dom};
 
-    die user_message(__x("No config specified. No {type} match for {search}",
-                         type => $type,
-                         search => _get_search($desc, $name, $arch)))
-        unless (defined($dom));
+    v2vdie __x('No config specified. No {type} match for {search}.',
+               type => $type, search => _get_search($desc, $name, $arch))
+        unless defined($dom);
 
     my $os     = $desc->{os};
     my $distro = $desc->{distro};
@@ -346,8 +343,7 @@ sub _match_element
     my $minor  = $desc->{minor_version};
 
     # Check we've got at least the {os} field from OS detection.
-    die user_message(__"Didn't detect operating system")
-        unless (defined $os);
+    v2vdie __('Didn\'t detect operating system') unless defined $os;
 
     # Create a list of xpath queries against the config which look for a
     # matching <app> config entry in descending order of specificity
@@ -380,9 +376,8 @@ sub _match_element
         return $element if (defined($element));
     }
 
-    die user_message(__x("No {type} in config matches {search}",
-                         type => $type,
-                         search => _get_search($desc, $name, $arch)));
+    v2vdie __x('No {type} in config matches {search}',
+               type => $type, search => _get_search($desc, $name, $arch));
 }
 
 =item map_network(oldname, oldtype)
@@ -416,12 +411,10 @@ sub map_network
         return @{$self->{default_net_mapping}}
             if (defined($self->{default_net_mapping}));
 
-        warn user_message(__x("WARNING: No mapping found for {type} interface ".
-                              "{name} in config file. The converted guest may ".
-                              "not start until its network interface is ".
-                              "updated.",
-                              type => $oldtype,
-                              name => $oldname));
+        logmsg WARN, __x('No mapping found for {type} interface '.
+                         '{name} in config file. The converted guest may '.
+                         'not start until its network interface is updated.',
+                         type => $oldtype, name => $oldname);
         return;
     }
 
@@ -432,18 +425,16 @@ sub map_network
 
     # Check type and name are defined for the mapping
     unless (defined($newtype) && defined($newname)) {
-        warn user_message(__x("WARNING: Invalid network ".
-                              "mapping in config: {config}",
-                              config => $mapping->toString()));
+        logmsg WARN, __x('Invalid network mapping in config: {config}.',
+                         config => $mapping->toString());
         return;
     }
 
     # Check type is something we recognise
     unless ($newtype eq 'network' || $newtype eq 'bridge') {
-        warn user_message(__x("WARNING: Unknown interface type ".
-                              "{type} in network mapping: {config}",
-                              type => $newtype,
-                              config => $mapping->toString()));
+        logmsg WARN, __x('Unknown interface type '.
+                         '{type} in network mapping: {config}',
+                         type => $newtype, config => $mapping->toString());
     }
 
     return ($newname, $newtype);
@@ -480,14 +471,13 @@ sub use_profile
 
     my ($profile) = $self->{dom}->findnodes
         ("/virt-v2v/profile[\@name='$name']");
-    die user_message(__x("No profile {name} defined in {path}",
-                          name => $name,
-                          path => $self->{path})) unless defined($profile);
+    v2vdie __x('No profile {name} defined in {path}',
+               name => $name, path => $self->{path}) unless defined($profile);
     $self->{profile} = $profile;
 
     my ($method) = $profile->findnodes('method/text()');
-    die user_message(__x("Profile {name} doesn't specify an output method",
-                         name => $name)) unless defined($method);
+    v2vdie __x('Profile {name} doesn\'t specify an output method.',
+               name => $name) unless defined($method);
     $self->{output_method} = $method->getData();
 
     my ($storage) = $profile->findnodes('storage');
@@ -504,8 +494,7 @@ sub use_profile
         my ($allocation) = $storage->getAttributeNode('allocation');
         $opts{allocation} = $allocation->getValue() if defined($allocation);
     }
-    die user_message(__x("Profile {name} doesn't specify output storage",
-                          name => $name))
+    v2vdie __x('Profile {name} doesn\'t specify output storage.', name => $name)
         unless defined($self->{output_storage});
 
     my ($net_default) = $profile->findnodes('network[@type=\'default\']');
@@ -518,9 +507,8 @@ sub _parse_net_default
     my ($default) = @_;
 
     my ($mapping) = $default->findnodes('network');
-    die user_message(__x("Default network doesn't contain a mapping: {config}",
-                          config => $default->toString()))
-        unless defined($mapping);
+    v2vdie __x('Default network doesn\'t contain a mapping: {config}.',
+               config => $default->toString()) unless defined($mapping);
 
     my ($map_name) = $mapping->getAttributeNode('name');
     $map_name &&= $map_name->getValue();
@@ -529,8 +517,8 @@ sub _parse_net_default
 
     # Check type and name are defined for the mapping
     unless (defined($map_name) && defined($map_type)) {
-        warn user_message(__x("WARNING: Invalid network mapping: {config}",
-                              config => $default->toString()));
+        logmsg WARN, __x('Invalid network mapping: {config}',
+                         config => $default->toString());
         return;
     }
 

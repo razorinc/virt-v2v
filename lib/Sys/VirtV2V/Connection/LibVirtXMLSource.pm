@@ -27,7 +27,7 @@ use XML::DOM::XPath;
 
 use Sys::VirtV2V::Connection::Source;
 use Sys::VirtV2V::Transfer::Local;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -88,20 +88,20 @@ sub _get_dom
     # Open the input file
     my $xml; # Implicitly closed on function exit
     open($xml, '<', $self->{path})
-        or die(user_message(__x("Failed to open {path}: {error}",
-                                path => $self->{path}, error => $!)));
+        or v2vdie __x('Failed to open {path}: {error}',
+                      path => $self->{path}, error => $!);
 
     # Parse the input file
     eval { $self->{dom} = new XML::DOM::Parser->parse ($xml); };
 
     # Display any parse errors
-    die(user_message(__x("Unable to parse domain from file {path}: {error}",
-                         path => $self->{path}, error => $@))) if ($@);
+    v2vdie __x('Unable to parse domain from file {path}: {error}',
+               path => $self->{path}, error => $@) if $@;
 
     # Check it looks like domain XML
     my ($dummy) = $self->{dom}->findnodes('/domain/name');
-    die(user_message(__x("{path} doesn't look like a libvirt domain XML file",
-                         path => $self->{path}))) unless (defined($dummy));
+    v2vdie __x('{path} doesn\'t look like a libvirt domain XML file',
+               path => $self->{path}) unless defined($dummy);
 }
 
 =item get_volume(path)

@@ -28,7 +28,7 @@ use Module::Pluggable sub_name => 'modules',
 
 use Locale::TextDomain 'virt-v2v';
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 =pod
 
@@ -155,13 +155,12 @@ sub convert
     }
 
     unless (defined($guestcaps)) {
-        warn user_message(__x("WARNING: Unable to convert this guest ".
-                              "operating system. Its storage will be ".
-                              "transfered and a domain created for it, but ".
-                              "it may not operate correctly without manual ".
-                              "reconfiguration. The domain will present all ".
-                              "storage devices as IDE, all network interfaces ".
-                              "as e1000 and the host as x86_64."));
+        logmsg WARN, __x('Unable to convert this guest operating system. Its '.
+                         'storage will be transfered and a domain created for '.
+                         'it, but it may not operate correctly without manual '.
+                         'reconfiguration. The domain will present all '.
+                         'storage devices as IDE, all network interfaces as '.
+                         'e1000 and the host as x86_64.');
 
         # Set some conservative defaults
         $guestcaps = {
@@ -347,10 +346,9 @@ sub _configure_storage
     }
 
     if (@removed > 0) {
-        print user_message(__x("WARNING: Only 4 IDE devices are supported. ".
-                               "The following drives have been removed: ".
-                               "{list}",
-                               list => join(' ', @removed)));
+        logmsg WARN, __x('Only 4 IDE devices are supported. The following '.
+                         'drives have been removed: {list}',
+                         list => join(' ', @removed));
     }
 
     # As we just changed and unified all their underlying controllers, device
@@ -457,10 +455,8 @@ sub _map_networks
         } elsif ($type eq 'network') {
             ($name) = $if->findnodes('source/@network');
         } else {
-            die user_message(__x("Unknown interface type {type} in ".
-                                 "domain XML: {domain}",
-                                 type => $type,
-                                 domain => $dom->toString()));
+            v2vdie __x('Unknown interface type {type} in domain XML: {domain}',
+                       type => $type, domain => $dom->toString());
         }
 
         my ($newname, $newtype) = $config->map_network($name->getValue(),

@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use Sys::Guestfs::Lib qw(open_guest);
-use Sys::VirtV2V::Util qw(user_message rhev_helper);
+use Sys::VirtV2V::Util qw(rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -163,8 +163,7 @@ sub close
     # This will close the underlying libguestfs handle, which may affect $?
     $self->{g} = undef;
 
-    warn(user_message(__x("libguestfs did not shut down cleanly")))
-        if ($? != 0);
+    logmsg WARN, __('libguestfs did not shut down cleanly') if $? != 0;
 
     $? = $retval;
 }

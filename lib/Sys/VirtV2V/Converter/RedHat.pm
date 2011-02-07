@@ -27,7 +27,7 @@ use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::Util qw(augeas_error user_message);
+use Sys::VirtV2V::Util qw(:DEFAULT augeas_error);
 
 use Carp;
 
@@ -218,8 +218,8 @@ sub _init_modpath
         $modpath = "modprobe.d/virtv2v-added.conf";
     }
 
-    die(user_message(__"Unable to find any valid modprobe configuration"))
-        unless(defined($modpath));
+    v2vdie __('Unable to find any valid modprobe configuration')
+        unless defined($modpath);
 
     return $modpath;
 }
@@ -375,13 +375,11 @@ sub _configure_kernel_modules
 
     # Warn if any old-HV specific kernel modules weren't updated
     foreach my $device (keys(%hvs_devices)) {
-        if(!defined($hvs_devices{$device})) {
-            warn user_message(__x("WARNING: Don't know how to update ".
-                                  "{device}, which loads the {module} ".
-                                  "module.",
-                                  device => $device,
-                                  module => $modules->{$device}->{modulename}));
-        }
+        logmsg WARN, __x('Don\'t know how to update '.
+                         '{device}, which loads the {module} module.',
+                         device => $device,
+                         module => $modules->{$device}->{modulename})
+            unless defined($hvs_devices{$device});
     }
 }
 
@@ -525,9 +523,8 @@ sub _list_kernels
         }
 
         else {
-            warn user_message(__x("WARNING: grub refers to {path}, which ".
-                                  "doesn't exist.",
-                                  path => $kernel));
+            logmsg WARN, __x('grub refers to {path}, which doesn\'t exist.',
+                             path => $kernel);
         }
     }
 
@@ -561,9 +558,9 @@ sub _configure_kernel
     }
 
     # Check we have a bootable kernel.
-    die(user_message(__"No bootable kernels installed, and no replacement ".
-                       "is available.\nUnable to continue."))
-        unless(defined($boot_kernel));
+    v2vdie __('No bootable kernels installed, and no replacement '.
+              "is available.\nUnable to continue.")
+        unless defined($boot_kernel);
 
     # Ensure DEFAULTKERNEL is set to boot kernel package name
     my ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
@@ -718,13 +715,10 @@ sub _unconfigure_xen
 
         # rc.local may contain an insmod or modprobe of the xen-vbd driver
         my @rc_local = ();
-        eval {
-            @rc_local = $g->read_lines('/etc/rc.local');
-        };
-
-        if($@) {
-            warn user_message(__x("Unable to open /etc/rc.local: ".
-                                  "{error}", error => $@));
+        eval { @rc_local = $g->read_lines('/etc/rc.local') };
+        if ($@) {
+            logmsg WARN, __x('Unable to open /etc/rc.local: {error}',
+                             error => $@);
         }
 
         else {
@@ -766,9 +760,9 @@ sub _unconfigure_vmware
     my $vmwaretools = '/usr/bin/vmware-uninstall-tools.pl';
     if ($g->exists($vmwaretools)) {
         eval { $g->command([$vmwaretools]) };
-        warn user_message(__x('VMware Tools was detected, but uninstallation '.
-                              'failed. The error message was: {error}',
-                              error => $@)) if $@;
+        logmsg WARN, __x('VMware Tools was detected, but uninstallation '.
+                         'failed. The error message was: {error}',
+                         error => $@) if $@;
 
         # Reload augeas to detect changes made by vmware tools uninstallation
         eval { $g->aug_load() };
@@ -824,8 +818,8 @@ sub _install_capability
     }
 
     if (!defined($cap)) {
-        warn(user_message(__x("{name} capability not found in configuration",
-                               name => $name)));
+        logmsg WARN, __x('{name} capability not found in configuration',
+                         name => $name);
         return 0;
     }
 
@@ -842,13 +836,11 @@ sub _install_capability
             ($min_epoch, $min_version, $min_release) =
                 _parse_evr($props->{minversion});
         };
-        if ($@) {
-            die(user_message(__x("Unrecognised format for {field} in config: ".
-                                 "{value}. {field} must be in the format ".
-                                 "[epoch:]version[-release].",
-                                 field => 'minversion',
-                                 value => $props->{minversion})));
-        }
+        v2vdie __x('Unrecognised format for {field} in config: '.
+                   '{value}. {field} must be in the format '.
+                   '[epoch:]version[-release].',
+                   field => 'minversion', value => $props->{minversion})
+            if $@;
 
         # Kernels are special
         if ($name eq 'kernel') {
@@ -1034,9 +1026,8 @@ sub _install_up2date
                      "sys.exit(ret[0]);                              "]);
     };
     if ($@) {
-        warn(user_message(__x("Failed to install packages using up2date. ".
-                              "Error message was: {error}",
-                              error => $@)));
+        logmsg WARN, __x('Failed to install packages using up2date. '.
+                         'Error message was: {error}', error => $@);
         return 0;
     }
 
@@ -1098,9 +1089,8 @@ sub _install_yum
                 @output = $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg");
             };
             if ($@) {
-                warn(user_message(__x("Failed to install packages using yum. ".
-                                      "Output was: {output}",
-                                      output => $@)));
+                logmsg WARN, __x('Failed to install packages using yum. '.
+                                 'Output was: {output}', output => $@);
                 $success = 0;
                 last YUM;
             }
@@ -1148,10 +1138,10 @@ sub _install_config
                                    \@missing, $desc->{arch}, @$user);
 
     # We can't proceed if there are any files missing
-    die(user_message(__x("Installation failed because the following ".
-                         "files referenced in the configuration file are ".
-                         "required, but missing: {list}",
-                         list => join(' ', @missing)))) if (@missing > 0);
+    v2vdie __x('Installation failed because the following '.
+               'files referenced in the configuration file are '.
+               'required, but missing: {list}',
+               list => join(' ', @missing)) if scalar(@missing) > 0;
     # Install any non-kernel requirements
     _install_rpms($g, $config, 1, @user_paths);
 
@@ -1328,9 +1318,8 @@ sub _discover_kernel
     # directly detected
     $kernel_arch = $desc->{arch} if (!defined($kernel_arch));
 
-    die(user_message(__"Unable to determine a kernel architecture for this ".
-                       "guest"))
-        unless (defined($kernel_arch));
+    v2vdie __('Unable to determine a kernel architecture for this guest.')
+        unless defined($kernel_arch);
 
     # We haven't supported anything other than i686 for the kernel on 32 bit for
     # a very long time.
@@ -1591,9 +1580,8 @@ sub _get_installed
 
         return () if ($error =~ /not installed/);
 
-        die(user_message(__x("Error running {command}: {error}",
-                             command => join(' ', @$rpmcmd),
-                             error => $error)));
+        v2vdie __x('Error running {command}: {error}',
+                   command => join(' ', @$rpmcmd), error => $error);
     }
 
     my @installed = ();
@@ -1959,9 +1947,9 @@ sub _prepare_bootable
     augeas_error($g, $@) if ($@);
 
     if(!defined($initrd)) {
-        warn user_message(__x("WARNING: Kernel version {version} ".
-                              "doesn't have an initrd entry in grub.",
-                              version => $version));
+        logmsg WARN, __x('Kernel version {version} '.
+                         'doesn\'t have an initrd entry in grub.',
+                         version => $version);
     } else {
         # Initrd as returned by grub may be relative to /boot
         $initrd = $desc->{boot}->{grub_fs}.$initrd;
@@ -2015,8 +2003,8 @@ sub _prepare_bootable
         }
 
         else {
-            die user_message(__"Didn't find mkinitrd or dracut. Unable to ".
-                               "update initrd");
+            v2vdie __('Didn\'t find mkinitrd or dracut. Unable to update '.
+                      'initrd.');
         }
     }
 

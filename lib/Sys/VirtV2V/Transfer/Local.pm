@@ -20,7 +20,7 @@ use warnings;
 
 package Sys::VirtV2V::Transfer::Local::ReadStream;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -33,9 +33,8 @@ sub new
 
     my $fh;
     open($fh, '<', $path)
-        or die(user_message(__x("Unable to open {path} for reading: {error}",
-                                path => $path,
-                                error => $!)));
+        or v2vdie __x('Unable to open {path} for reading: {error}',
+                      path => $path, error => $!);
 
     $self->{fh} = $fh;
 
@@ -75,9 +74,8 @@ sub _read_error
     my $self = shift;
     my ($error) = @_;
 
-    die(user_message(__x("Error reading from {path}: {error}",
-                         path => $self->{path},
-                         error => $error)));
+    v2vdie __x('Error reading from {path}: {error}',
+               path => $self->{path}, error => $error);
 }
 
 
@@ -86,7 +84,7 @@ package Sys::VirtV2V::Transfer::Local::WriteStream;
 use Fcntl qw(:seek);
 use File::stat;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -99,9 +97,8 @@ sub new
 
     my $fh;
     open($fh, '+<', $path)
-        or die(user_message(__x("Unable to open {path} for writing: {error}",
-                                path => $path,
-                                error => $!)));
+        or v2vdie __x('Unable to open {path} for writing: {error}',
+                      path => $path, error => $!);
     binmode($fh);
 
     $self->{path} = $path;
@@ -166,9 +163,8 @@ sub _write_error
     my $self = shift;
     my ($error) = @_;
 
-    die(user_message(__x("Error writing to {path}: {error}",
-                         path => $self->{path},
-                         error => $error)));
+    v2vdie __x('Error writing to {path}: {error}',
+               path => $self->{path}, error => $error);
 }
 
 sub DESTROY
@@ -464,8 +460,6 @@ package Sys::VirtV2V::Transfer::Local;
 use POSIX;
 use File::Spec;
 use File::stat;
-
-use Sys::VirtV2V::Util qw(user_message);
 
 use Locale::TextDomain 'virt-v2v';
 

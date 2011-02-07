@@ -30,7 +30,7 @@ use Sys::VirtV2V;
 use Sys::VirtV2V::Transfer::ESX;
 use Sys::VirtV2V::Transfer::SSH;
 use Sys::VirtV2V::Transfer::Local;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -60,12 +60,11 @@ sub _libvirt_new
 
     # Parse uri authority for hostname and username
     $uri->authority() =~ /^(?:([^:]*)(?::([^@]*))?@)?(.*)$/
-        or die(user_message(__x("Unable to parse URI authority: {auth}",
-                                auth => $uri->authority())));
+        or v2vdie __x('Unable to parse URI authority: {auth}',
+                      auth => $uri->authority());
 
-    warn user_message(__"WARNING: Specifying a password in the connection URI ".
-                        "is not supported. It has been ignored.")
-        if (defined($2));
+    logmsg WARN, __('Specifying a password in the connection URI '.
+                    'is not supported. It has been ignored.') if defined($2);
 
     $self->{username} = $1;
     $self->{hostname} = $3;
@@ -113,9 +112,8 @@ sub _libvirt_new
             }
         );
     };
-    die(user_message(__x("Failed to connect to {uri}: {error}",
-                         uri => $uri,
-                         error => $@->stringify()))) if ($@);
+    v2vdie __x('Failed to connect to {uri}: {error}',
+               uri => $uri, error => $@->stringify()) if $@;
 
     $self->{vmm} = $vmm;
 

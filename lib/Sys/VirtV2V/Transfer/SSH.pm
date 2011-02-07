@@ -20,7 +20,7 @@ use warnings;
 
 package Sys::VirtV2V::Transfer::SSH::Stream;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -112,7 +112,7 @@ sub close
             $msg .= "\n";
             $msg .= __x("Command output: {output}", output => $output);
         }
-        die(user_message($msg));
+        v2vdie $msg;
     }
 
     close($self->{stderr});
@@ -176,7 +176,7 @@ sub _check_stderr
 
 package Sys::VirtV2V::Transfer::SSH::ReadStream;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 @Sys::VirtV2V::Transfer::SSH::ReadStream::ISA =
@@ -215,14 +215,13 @@ sub _read_error
     my $self = shift;
     my ($error) = @_;
 
-    die(user_message(__x("Error reading from {path}: {error}",
-                         path => $self->{path},
-                         error => $error)));
+    v2vdie __x('Error reading from {path}: {error}',
+               path => $self->{path}, error => $error);
 }
 
 package Sys::VirtV2V::Transfer::SSH::WriteStream;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 @Sys::VirtV2V::Transfer::SSH::WriteStream::ISA =
@@ -256,9 +255,8 @@ sub _write_error
     my $self = shift;
     my ($error) = @_;
 
-    die(user_message(__x("Error writing data to {path}: {error}",
-                         path => $self->{path},
-                         error => $error)));
+    v2vdie __x('Error writing data to {path}: {error}',
+               path => $self->{path}, error => $error);
 }
 
 package Sys::VirtV2V::Transfer::SSH;
@@ -267,7 +265,7 @@ use POSIX;
 use File::Spec;
 use File::stat;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -311,7 +309,7 @@ SSH cannot currently return a local path. This function will die().
 
 sub local_path
 {
-    die(user_message(__"virt-v2v cannot yet write to an SSH connection"));
+    v2vdie __('virt-v2v cannot yet write to an SSH connection');
 }
 
 =item get_read_stream(convert)
@@ -326,9 +324,9 @@ sub get_read_stream
     my $self = shift;
     my ($convert) = @_;
 
-    die(user_message(__('When reading from an SSH connection, virt-v2v can '.
-                        'only currently convert raw volumes.')))
-        if ($convert && $self->{format} ne 'raw');
+    v2vdie __('When reading from an SSH connection, virt-v2v can '.
+              'only currently convert raw volumes.')
+        if $convert && $self->{format} ne 'raw';
 
     return new Sys::VirtV2V::Transfer::SSH::ReadStream(
         $self->{path},
@@ -350,9 +348,9 @@ sub get_write_stream
     my $self = shift;
     my ($convert) = @_;
 
-    die(user_message(__('When writing to an SSH connection, virt-v2v can only '.
-                        'currently convert volumes to raw format')))
-        if ($convert && $self->{format} ne 'raw');
+    v2vdie __('When writing to an SSH connection, virt-v2v can only '.
+              'currently convert volumes to raw format')
+        if $convert && $self->{format} ne 'raw';
 
     return new Sys::VirtV2V::Transfer::SSH::WriteStream(
         $self->{path},

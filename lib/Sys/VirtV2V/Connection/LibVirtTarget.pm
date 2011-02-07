@@ -25,7 +25,7 @@ use Sys::Virt::Error;
 use Sys::Virt::StorageVol;
 
 use Sys::VirtV2V::Connection::LibVirt;
-use Sys::VirtV2V::Util qw(user_message parse_libvirt_volinfo);
+use Sys::VirtV2V::Util qw(:DEFAULT parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -85,9 +85,8 @@ sub new
     eval {
         $self->{pool} = $self->{vmm}->get_storage_pool_by_name($poolname);
     };
-    die(user_message(__x("Output pool {poolname} is not a valid ".
-                         "storage pool",
-                         poolname => $poolname))) if ($@);
+    v2vdie __x('Output pool {poolname} is not a valid storage pool.',
+               poolname => $poolname) if $@;
 
     return $self;
 }
@@ -151,8 +150,8 @@ sub create_volume
     eval {
         $vol = $self->{pool}->create_volume($vol_xml);
     };
-    die(user_message(__x("Failed to create storage volume: {error}",
-                         error => $@->stringify()))) if ($@);
+    v2vdie __x('Failed to create storage volume: {error}',
+               error => $@->stringify()) if $@;
 
     my $info = $vol->get_info();
     my $is_block = $info->{type} == Sys::Virt::StorageVol::TYPE_BLOCK ? 1 : 0;
@@ -189,12 +188,11 @@ sub volume_exists
     # volume doesn't exist
     if ($@) {
         # Warn if we got any other error
-        if ($@->code != Sys::Virt::Error::ERR_NO_STORAGE_VOL) {
-            warn user_message(__x("WARNING: Unexpected error accessing ".
-                                  "storage pool {name}: {error}",
-                                  name => $pool->get_name(),
-                                  error => $@->stringify()));
-        }
+        logmsg WARN, __x('Unexpected error accessing '.
+                         'storage pool {name}: {error}',
+                         name => $pool->get_name(),
+                         error => $@->stringify())
+            if ($@->code != Sys::Virt::Error::ERR_NO_STORAGE_VOL);
 
         return 0;
     }
@@ -221,8 +219,8 @@ sub get_volume
     eval {
         $vol = $pool->get_volume_by_name($name);
     };
-    die(user_message(__x("Failed to get storage volume: {error}",
-                          error => $@->stringify()))) if ($@);
+    v2vdie __x('Failed to get storage volume: {error}',
+               error => $@->stringify()) if $@;
 
     my (undef, $format, $size, $usage, $is_sparse, $is_block) =
         parse_libvirt_volinfo($vol);
@@ -256,8 +254,8 @@ sub guest_exists
             return 0;
         }
 
-        die(user_message(__x("Error checking for domain: {error}",
-                             error => $@->stringify())));
+        v2vdie __x('Error checking for domain: {error}',
+                   error => $@->stringify());
     }
 
     return 1;
@@ -339,9 +337,8 @@ sub _configure_capabilities
     (my $guestcap) = $caps->findnodes
         ("/capabilities/guest[arch[\@name='$arch']/domain/\@type='kvm']");
 
-    die(user_message(__x("The connected hypervisor does not support a {arch} ".
-                         "kvm guest.",
-                         arch => $arch))) unless(defined($guestcap));
+    v2vdie __x('The connected hypervisor does not support a {arch} kvm guest.',
+               arch => $arch) unless defined($guestcap);
 
     # Ensure that /domain/@type = 'kvm'
     my ($type) = $dom->findnodes('/domain/@type');
@@ -370,10 +367,10 @@ sub _configure_capabilities
 
         # If the machine isn't listed as a capability, warn and remove it
         if(!$found) {
-            warn user_message(__x("The connected hypervisor does not support ".
-                                  "a machine type of {machine}. It will be ".
-                                  "set to the current default.",
-                                  machine => $machine->getValue()));
+            logmsg WARN, __x('The connected hypervisor does not support '.
+                             'a machine type of {machine}. It will be '.
+                             'set to the current default.',
+                             machine => $machine->getValue());
 
             my ($type) = $dom->findnodes('/domain/os/type');
             $type->getAttributes()->removeNamedItem('machine');
@@ -395,15 +392,15 @@ sub _configure_capabilities
             my $name = $feature->getNodeName();
 
             if (!exists($features{$name})) {
-                warn user_message(__x("The connected hypervisor does not ".
-                                      "support feature {feature}.",
-                                      feature => $name));
+                logmsg WARN, __x('The connected hypervisor does not '.
+                                 'support feature {feature}.',
+                                 feature => $name);
                 $feature->getParentNode()->removeChild($feature);
             }
 
             if ($name eq 'acpi' && !$guestcaps->{acpi}) {
-                warn user_message (__"The target guest does not support acpi ".
-                                     "under KVM. ACPI will be disabled.");
+                logmsg WARN, __('The target guest does not support acpi '.
+                                'under KVM. ACPI will be disabled.');
                 $feature->getParentNode()->removeChild($feature);
             }
         }

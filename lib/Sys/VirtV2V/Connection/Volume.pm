@@ -22,7 +22,7 @@ use warnings;
 
 use Data::Dumper;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 use Locale::TextDomain 'virt-v2v';
 

@@ -23,7 +23,7 @@ use warnings;
 use Sys::Virt;
 use Term::ProgressBar;
 
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -134,10 +134,8 @@ sub _volume_copy
                                            count => $expected,
                                            ETA => 'linear' });
     } else {
-        print STDERR user_message(__x("Transferring storage volume {name}: ".
-                                      "{size} bytes",
-                                      name => $src->get_name(),
-                                      size => $expected));
+        logmsg INFO, __x('Transferring storage volume {name}: {size} bytes',
+                         name => $src->get_name(), size => $expected);
     }
 
     my $next_update = 0;
@@ -166,11 +164,10 @@ sub _volume_copy
     # Sanity check that we received all bytes of a raw volume
     # TODO: Add similar check for other formats. How much data do we expect to
     #       receive for a partially allocated qcow2 volume?
-    die(user_message(__x("Didn't receive full volume. Received {received} ".
-                         "of {total} bytes.",
-                         received => $total,
-                         total => $src->get_size())))
-        if ($src->get_format() eq "raw" && $total != $src->get_size());
+    v2vdie __x('Didn\'t receive full volume. Received {received} '.
+               'of {total} bytes.',
+               received => $total, total => $src->get_size())
+        if  $src->get_format() eq "raw" && $total != $src->get_size();
 
     return $dst;
 }
@@ -209,11 +206,10 @@ sub copy_storage
         my $src = $self->get_volume($source->getValue());
         my $dst;
         if ($target->volume_exists($src->get_name())) {
-            warn user_message(__x("WARNING: storage volume {name} already ".
-                                  "exists on the target. NOT copying it ".
-                                  "again. Delete the volume and retry to ".
-                                  "copy again.",
-                                  name => $src->get_name()));
+            logmsg WARN, __x('Storage volume {name} already exists on the '.
+                             'target. NOT copying it again. Delete the volume '.
+                             'and retry to copy again.',
+                             name => $src->get_name());
             $dst = $target->get_volume($src->get_name());;
         } else {
             $dst = $target->create_volume(
@@ -277,8 +273,8 @@ sub copy_storage
         $source_e->setAttribute($source->getName(), '');
     }
 
-    die(user_message(__("Guest doesn't define any recognised storage devices")))
-        unless (@paths > 0);
+    v2vdie __'Guest doesn\'t define any recognised storage devices'
+        unless @paths > 0;
 
     $self->{paths} = \@paths;
     $self->{devices} = \@devices;

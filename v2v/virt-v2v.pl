@@ -38,7 +38,7 @@ use Sys::VirtV2V::Connection::LibVirtXMLSource;
 use Sys::VirtV2V::Connection::RHEVTarget;
 use Sys::VirtV2V::ExecHelper;
 use Sys::VirtV2V::GuestfsHandle;
-use Sys::VirtV2V::Util qw(user_message);
+use Sys::VirtV2V::Util qw(:DEFAULT logmsg_init);
 
 =encoding utf8
 
@@ -253,6 +253,9 @@ Display version number and exit.
 # modify their behaviour accordingly
 our $signal_exit = 0;
 
+# Send log messages to STDOUT by default
+logmsg_init(*STDOUT);
+
 $SIG{'INT'} = \&signal_exit;
 $SIG{'QUIT'} = \&signal_exit;
 
@@ -372,22 +375,21 @@ elsif ($output_method eq "rhev") {
 }
 
 else {
-    die(user_message(__x("{output} is not a valid output method",
-                         output => $output_method)));
+    v2vdie __x('{output} is not a valid output method.',
+               output => $output_method);
 }
 
 # Get an appropriate Source
 my $source;
 if ($input_method eq "libvirtxml") {
     my $path = shift(@ARGV) or
-        pod2usage({ -message => user_message(__"You must specify a filename"),
+        pod2usage({ -message => __"You must specify a filename",
                     -exitval => 1 });
 
     # Warn if we were given more than 1 argument
     if(scalar(@ARGV) > 0) {
-        warn user_message
-            (__x("WARNING: {modulename} only takes a single filename.",
-                 modulename => 'libvirtxml'));
+        logmsg WARN, __x('{modulename} only takes a single filename.',
+                         modulename => 'libvirtxml');
     }
 
     $source = Sys::VirtV2V::Connection::LibVirtXMLSource->new($path);
@@ -395,23 +397,20 @@ if ($input_method eq "libvirtxml") {
 
 elsif ($input_method eq "libvirt") {
     my $name = shift(@ARGV) or
-        pod2usage({ -message => user_message(__"You must specify a guest"),
+        pod2usage({ -message => __"You must specify a guest",
                     -exitval => 1 });
 
     $source = Sys::VirtV2V::Connection::LibVirtSource->new($input_uri, $name);
 
     # Warn if we were given more than 1 argument
     if(scalar(@ARGV) > 0) {
-        warn user_message
-            (__x("WARNING: {modulename} only takes a single domain name.",
-                 modulename => 'libvirt'));
+        logmsg WARN, __x('{modulename} only takes a single domain name.',
+                          modulename => 'libvirt');
     }
 }
 
 else {
-    warn user_message(__x("{input} is not a valid input method",
-                                  input => $input_method));
-    exit(1);
+    v2vdie __x('{input} is not a valid input method.', input => $input_method);
 }
 
 
@@ -419,9 +418,9 @@ else {
 ## Start of processing
 
 # Check that the guest doesn't already exist on the target
-die(user_message(__x("Domain {name} already exists on the target.",
-                     name => $source->get_name)))
-    if ($target->guest_exists($source->get_name()));
+v2vdie __x('Domain {name} already exists on the target.',
+           name => $source->get_name)
+    if $target->guest_exists($source->get_name());
 
 # Copy source storage to target
 $source->copy_storage($target, $output_format, $output_sparse);
@@ -468,11 +467,10 @@ $target->create_guest($os, $dom, $guestcaps);
 my ($name) = $dom->findnodes('/domain/name/text()');
 $name = $name->getNodeValue();
 if($guestcaps->{virtio}) {
-    print user_message
-        (__x("{name} configured with virtio drivers", name => $name));
+    logmsg NOTICE, __x('{name} configured with virtio drivers.', name => $name);
 } else {
-    print user_message
-        (__x("{name} configured without virtio drivers", name => $name));
+    logmsg NOTICE, __x('{name} configured without virtio drivers.',
+                       name => $name);
 }
 
 exit(0);
@@ -491,8 +489,7 @@ sub signal_exit
     $signal_exit = 1;
 
     $g->close() if (defined($g));
-    warn user_message(__x("Received signal {sig}. Exiting.", sig => shift));
-    exit(1);
+    v2vdie __x('Received signal {sig}. Exiting.', sig => shift);
 }
 
 # Inspect the guest's storage. Returns an OS hashref as returned by
@@ -515,15 +512,11 @@ sub inspect_guest
     my @roots = keys %$oses;
 
     if(@roots == 0) {
-        print STDERR user_message(__"no root device found in this operating ".
-                                    "system image");
-        exit(1);
+        v2vdie __('No root device found in this operating system image.');
     }
 
     if(@roots > 1) {
-        print STDERR user_message(__"multiboot operating systems are not ".
-                                    "supported by virt-v2v");
-        exit(1);
+        v2vdie __('Multiboot operating systems are not supported by virt-v2v.');
     }
 
     $root_dev = $roots[0];

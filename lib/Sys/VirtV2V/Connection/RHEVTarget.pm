@@ -42,7 +42,7 @@ use File::Spec::Functions qw(splitpath);
 use POSIX;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(user_message rhev_helper);
+use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -67,10 +67,8 @@ sub new
 
         # Create the output directory
         my (undef, $dir, undef) = splitpath($path);
-        mkdir($dir)
-            or die(user_message(__x("Failed to create directory {dir}: {error}",
-                                    dir => $dir,
-                                    error => $!)));
+        mkdir($dir) or v2vdie __x('Failed to create directory {dir}: {error}',
+                                  dir => $dir, error => $!);
 
         # Create the new volume with qemu-img
         # Note that this will always create a sparse volume. We make it
@@ -86,11 +84,11 @@ sub new
         push (@qemuimg, $path, $volume->get_size());
 
         my $eh = Sys::VirtV2V::ExecHelper->run(@qemuimg);
-        die(user_message(__x('Failed to create new volume {path} '.
-                             'with format {format}. Error was: {error}',
-                             path => $path,
-                             format => $format,
-                             error => $eh->output()))) if ($eh->status() != 0);
+        v2vdie __x('Failed to create new volume {path} '.
+                   'with format {format}. Error was: {error}',
+                   path => $path,
+                   format => $format,
+                   error => $eh->output()) if $eh->status() != 0;
 
         my $transfer = new Sys::VirtV2V::Transfer::Local($path, 0, $format,
                                                          $volume->is_sparse());
@@ -111,10 +109,8 @@ sub _write_metadata
     rhev_helper(sub {
         # Write out the .meta file
         open($meta, '>', $path)
-            or die(user_message(__x("Unable to open {path} for writing: ".
-                                    "{error}",
-                                    path => $path,
-                                    error => $!)));
+            or v2vdie __x('Unable to open {path} for writing: {error}',
+                          path => $path, error => $!);
     });
 
     print $meta "DOMAIN=".$volume->_get_domainuuid()."\n";
@@ -133,9 +129,8 @@ sub _write_metadata
     print $meta "EOF\n";
 
     close($meta)
-        or die(user_message(__x("Error closing {path}: {error}",
-                                path => $path,
-                                error => $!)));
+        or v2vdie __x('Error closing {path}: {error}',
+                      path => $path, error => $!);
 }
 
 sub write
@@ -198,6 +193,8 @@ sub DESTROY
 
 package Sys::VirtV2V::Connection::RHEVTarget::Transfer;
 
+use Sys::VirtV2V::Util;
+
 use Carp;
 use Locale::TextDomain 'virt-v2v';
 
@@ -221,7 +218,7 @@ sub local_path
 
 sub get_read_stream
 {
-    die(user_message(__"Unable to read data from RHEV"));
+    v2vdie __('Unable to read data from RHEV.');
 }
 
 sub get_write_stream
@@ -247,7 +244,7 @@ use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use POSIX;
 
-use Sys::VirtV2V::Util qw(user_message rhev_helper);
+use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
 use Locale::TextDomain 'virt-v2v';
 
 our %vols_by_path;
@@ -303,8 +300,8 @@ sub new
     } elsif ($format eq 'qcow2') {
         $self->{rhev_format} = 'COW';
     } else {
-        die(user_message(__x("RHEV cannot handle volumes of format {format}",
-                             format => $format)));
+        v2vdie __x('RHEV cannot handle volumes of format {format}',
+                   format => $format);
     }
 
     # Generate the RHEV type
@@ -363,10 +360,10 @@ sub _move_vols
 
     foreach my $vol (@vols) {
         rename($vol->{imagetmpdir}, $vol->{imagedir})
-            or die(user_message(__x("Unable to move volume from temporary ".
-                                    "location {tmpdir} to {dir}",
-                                    tmpdir => $vol->{imagetmpdir},
-                                    dir => $vol->{imagedir})));
+            or v2vdie __x('Unable to move volume from temporary '.
+                          'location {tmpdir} to {dir}',
+                          tmpdir => $vol->{imagetmpdir},
+                          dir => $vol->{imagedir});
     }
 
     $class->_cleanup();
@@ -381,9 +378,8 @@ sub _cleanup
 
     my $ret = system('rm', '-rf', $tmpdir);
     if (WEXITSTATUS($ret) != 0) {
-        warn user_message(__x("Error whilst attempting to remove temporary ".
-                              "directory {dir}",
-                              dir => $tmpdir));
+        logmsg WARN, __x('Error whilst attempting to remove temporary '.
+                         'directory {dir}', dir => $tmpdir);
     }
     $tmpdir = undef;
 }
@@ -397,7 +393,7 @@ use POSIX;
 use Time::gmtime;
 
 use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(user_message rhev_helper);
+use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -429,16 +425,14 @@ sub new
     my ($domain_path) = @_;
 
     # Must do this before bless, or DESTROY will be called
-    die(user_message(__"You must be root to output to RHEV"))
-        unless ($> == 0);
+    v2vdie __('You must be root to output to RHEV') unless $> == 0;
 
     my $mountdir = tempdir();
 
     # Needs to be read by 36:36
     chown(36, 36, $mountdir)
-        or die(user_message(__x("Unable to change ownership of {mountdir} to ".
-                                "36:36",
-                                mountdir => $mountdir)));
+        or v2vdie __x('Unable to change ownership of {mountdir} to 36:36',
+                      mountdir => $mountdir);
 
     my $self = {};
     bless($self, $class);
@@ -447,20 +441,17 @@ sub new
     $self->{domain_path} = $domain_path;
 
     my $eh = Sys::VirtV2V::ExecHelper->run('mount', $domain_path, $mountdir);
-    if ($eh->status() != 0) {
-        die(user_message(__x("Failed to mount {path}. Command exited with ".
-                             "status {status}. Output was: {output}",
-                             path => $domain_path,
-                             status => $eh->status(),
-                             output => $eh->output())));
-    }
+    v2vdie __x('Failed to mount {path}. Command exited with '.
+               'status {status}. Output was: {output}',
+               path => $domain_path,
+               status => $eh->status(),
+               output => $eh->output()) if $eh->status() != 0;
 
     my $dir;
     rhev_helper(sub {
         opendir($dir, $mountdir)
-            or die(user_message(__x("Unable to open {mountdir}: {error}",
-                                    mountdir => $mountdir,
-                                    error => $!)));
+            or v2vdie __x('Unable to open {mountdir}: {error}',
+                          mountdir => $mountdir, error => $!);
     });
 
     my @entries;
@@ -470,15 +461,13 @@ sub new
             if ($entry =~ /^[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}$/);
     }
 
-    die(user_message(__x("{domain_path} contains multiple possible ".
-                         "domains. It may only contain one.",
-                         domain_path => $domain_path))) if (@entries > 1);
+    v2vdie __x('{domain_path} contains multiple possible '.
+               'domains. It may only contain one.',
+               domain_path => $domain_path) if @entries > 1;
 
     my ($domainuuid) = @entries;
-    die(user_message(__x("{domain_path} does not contain an initialised ".
-                         "storage domain",
-                         domain_path => $domain_path)))
-        unless (defined($domainuuid));
+    v2vdie __x('{domain_path} does not contain an initialised storage domain.',
+               domain_path => $domain_path) unless defined($domainuuid);
     $self->{domainuuid} = $domainuuid;
 
     # Check that the domain has been attached to a Data Center by checking that
@@ -489,10 +478,9 @@ sub new
     rhev_helper(sub {
         $attached = -d $vms_abs ? 1 : 0;
     });
-    die(user_message(__x("{domain_path} has not been attached to a RHEV ".
-                         "data center ({path} does not exist).",
-                         domain_path => $domain_path,
-                         path => $vms_rel))) unless ($attached);
+    v2vdie __x('{domain_path} has not been attached to a RHEV '.
+               'data center ({path} does not exist).',
+               domain_path => $domain_path, path => $vms_rel) unless $attached;
 
     return $self;
 }
@@ -522,18 +510,18 @@ sub DESTROY
 
     my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
     if ($eh->status() != 0) {
-        warn user_message(__x("Failed to unmount {path}. Command exited with ".
-                              "status {status}. Output was: {output}",
-                              path => $self->{domain_path},
-                              status => $eh->status(),
-                              output => $eh->output()));
+        logmsg WARN, __x('Failed to unmount {path}. Command exited with '.
+                         'status {status}. Output was: {output}',
+                         path => $self->{domain_path},
+                         status => $eh->status(),
+                         output => $eh->output());
         # Exit with an error if the child failed.
         $retval |= $eh->status();
     }
 
     unless (rmdir($self->{mountdir})) {
-        warn user_message(__x("Failed to remove mount directory {dir}: {error}",
-                              dir => $self->{mountdir}, error => $!));
+        logmsg WARN, __x('Failed to remove mount directory {dir}: {error}',
+                         dir => $self->{mountdir}, error => $!);
         $retval |= 1;
     }
 
@@ -731,19 +719,16 @@ EOF
     my $dir = catdir($mountdir, $domainuuid, 'master', 'vms', $vmuuid);
     rhev_helper(sub {
         mkdir($dir)
-            or die(user_message(__x("Failed to create directory {dir}: {error}",
-                                    dir => $dir,
-                                    error => $!)));
+            or v2vdie __x('Failed to create directory {dir}: {error}',
+                          dir => $dir, error => $!);
 
         Sys::VirtV2V::Connection::RHEVTarget::Vol->_move_vols();
 
         my $vm;
         my $ovfpath = catfile($dir, $vmuuid.'.ovf');
         open($vm, '>', $ovfpath)
-            or die(user_message(__x("Unable to open {path} for writing: ".
-                                    "{error}",
-                                    path => $ovfpath,
-                                    error => $!)));
+            or v2vdie __x('Unable to open {path} for writing: {error}',
+                          path => $ovfpath, error => $!);
 
         print $vm $ovf->toString();
         close($vm);
@@ -824,8 +809,8 @@ sub _get_os_type
     if ($root->{arch} eq 'x86_64') {
         $arch_suffix = 'x64';
     } elsif ($root->{arch} ne 'i386') {
-        warn (user_message(__x("Unsupported architecture: {arch}",
-                                arch => $root->{arch})));
+        logmsg WARN, __x('Unsupported architecture: {arch}',
+                         arch => $root->{arch});
         return undef;
     }
 
@@ -868,8 +853,8 @@ sub _get_os_type_windows
         return "Windows2008R2".$arch_suffix;
     }
 
-    warn (user_message(__x("Unknown Windows version: {major}.{minor}",
-                           major => $major, minor => $minor)));
+    logmsg WARN, __x('Unknown Windows version: {major}.{minor}',
+                     major => $major, minor => $minor);
     return undef;
 }
 
@@ -1093,11 +1078,11 @@ sub _networks
         } elsif ($driver eq 'virtio') {
             $e->addText('3');
         } else {
-            warn user_message(__x("Unknown NIC model {driver} for {dev}. ".
-                                  "NIC will be {default} when imported.",
-                                  driver => $driver,
-                                  dev => $dev,
-                                  default => 'e1000'));
+            logmsg WARN, __x('Unknown NIC model {driver} for {dev}. '.
+                             'NIC will be {default} when imported.',
+                             driver => $driver,
+                             dev => $dev,
+                             default => 'e1000');
             $e->addText('1');
         }
         $item->appendChild($e);
