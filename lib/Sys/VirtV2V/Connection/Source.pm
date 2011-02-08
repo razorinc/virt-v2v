@@ -210,7 +210,7 @@ sub copy_storage
                              'target. NOT copying it again. Delete the volume '.
                              'and retry to copy again.',
                              name => $src->get_name());
-            $dst = $target->get_volume($src->get_name());;
+            $dst = $target->get_volume($src->get_name());
         } else {
             $dst = $target->create_volume(
                 $src->get_name(),
