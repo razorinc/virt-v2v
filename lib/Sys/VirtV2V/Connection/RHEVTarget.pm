@@ -123,7 +123,7 @@ sub _write_metadata
     print $meta "LEGALITY=LEGAL\n";
     print $meta "MTIME=".$volume->_get_creation()."\n";
     print $meta "POOL_UUID=00000000-0000-0000-0000-000000000000\n";
-    print $meta "SIZE=".$volume->get_size()."\n";
+    print $meta "SIZE=".($volume->get_size() / 512)."\n";
     print $meta "TYPE=".uc($volume->_get_rhev_type())."\n";
     print $meta "DESCRIPTION=Exported by virt-v2v\n";
     print $meta "EOF\n";
