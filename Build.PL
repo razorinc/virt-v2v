@@ -222,7 +222,8 @@ my $build = $class->new (
           MailingList => "http://www.redhat.com/mailman/listinfo/libguestfs",
         },
     },
-    syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ]
+    syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ],
+    PL_files => [ 'virt-v2v.spec.PL' ],
 );
 
 $build->add_build_element('confdoc');

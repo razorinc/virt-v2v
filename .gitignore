@@ -7,11 +7,14 @@
 /blib
 /Build
 /MANIFEST.bak
+/cover_db
+/virt-v2v.spec
 
 # Files related to 'Build dist'
 /META.yml
 /MYMETA.yml
 /virt-v2v*.tar.gz
+/virt-v2v-v*
 /ChangeLog
 
 # Generated to pod2html

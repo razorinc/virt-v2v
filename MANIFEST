@@ -1,4 +1,5 @@
 augeas/README.txt
+autobuild.sh
 Build.PL
 ChangeLog
 COPYING
@@ -47,5 +48,7 @@ v2v/run-v2v-locally
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
 v2v/virt-v2v.pl
+virt-v2v.spec
+virt-v2v.spec.PL
 windows/firstboot.bat
 windows/README.txt
