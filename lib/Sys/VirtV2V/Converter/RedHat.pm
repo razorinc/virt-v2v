@@ -134,9 +134,10 @@ sub convert
 
     my %guestcaps;
 
-    $guestcaps{virtio} = $virtio;
-    $guestcaps{arch}   = _get_os_arch($desc);
-    $guestcaps{acpi}   = _supports_acpi($desc, $guestcaps{arch});
+    $guestcaps{block} = $virtio == 1 ? 'virtio' : 'ide';
+    $guestcaps{net}   = $virtio == 1 ? 'virtio' : 'e1000';
+    $guestcaps{arch}  = _get_os_arch($desc);
+    $guestcaps{acpi}  = _supports_acpi($desc, $guestcaps{arch});
 
     return \%guestcaps;
 }
@@ -344,8 +345,8 @@ sub _configure_kernel_modules
             }
 
             _update_kernel_module($g, $device,
-                                  $virtio ? "virtio_net" : "e1000", $modpath,
-                                  $desc);
+                                  $virtio == 1 ? 'virtio_net' : 'e1000',
+                                  $modpath, $desc);
         }
 
         # Replace block drivers with virtio_blk

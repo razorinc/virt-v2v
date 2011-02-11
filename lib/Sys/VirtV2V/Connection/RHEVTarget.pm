@@ -1082,7 +1082,7 @@ sub _networks
                              'NIC will be {default} when imported.',
                              driver => $driver,
                              dev => $dev,
-                             default => 'e1000');
+                             default => 'rtl8139');
             $e->addText('1');
         }
         $item->appendChild($e);

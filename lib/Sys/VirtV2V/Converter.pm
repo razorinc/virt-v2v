@@ -54,43 +54,13 @@ OS, and uses it to convert the guest to run on KVM.
 =cut
 
 # Default values for a KVM configuration
-use constant KVM_XML_VIRTIO => "
+use constant KVM_DEFAULT_XML => "
 <domain type='kvm'>
   <os>
     <type machine='pc'>hvm</type>
     <boot dev='hd'/>
   </os>
   <devices>
-    <disk device='disk'>
-      <target bus='virtio'/>
-    </disk>
-    <interface type='network'>
-      <model type='virtio'/>
-    </interface>
-    <input type='tablet' bus='usb'/>
-    <input type='mouse' bus='ps2'/>
-    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
-    <video>
-      <model type='cirrus' vram='9216' heads='1'/>
-    </video>
-    <console type='pty'/>
-  </devices>
-</domain>
-";
-
-use constant KVM_XML_NOVIRTIO => "
-<domain type='kvm'>
-  <os>
-    <type machine='pc'>hvm</type>
-    <boot dev='hd'/>
-  </os>
-  <devices>
-    <disk device='disk'>
-      <target bus='ide'/>
-    </disk>
-    <interface type='network'>
-      <model type='e1000'/>
-    </interface>
     <input type='tablet' bus='usb'/>
     <input type='mouse' bus='ps2'/>
     <graphics type='vnc' port='-1' listen='127.0.0.1'/>
@@ -155,18 +125,24 @@ sub convert
     }
 
     unless (defined($guestcaps)) {
+        my $block = 'ide';
+        my $net   = 'rtl8139';
+        my $arch  = 'x86_64';
+
         logmsg WARN, __x('Unable to convert this guest operating system. Its '.
                          'storage will be transfered and a domain created for '.
                          'it, but it may not operate correctly without manual '.
                          'reconfiguration. The domain will present all '.
-                         'storage devices as IDE, all network interfaces as '.
-                         'e1000 and the host as x86_64.');
+                         'storage devices as {block}, all network interfaces '.
+                         'as {net} and the host as {arch}.',
+                         block => $block, net => $net, arch => $arch);
 
         # Set some conservative defaults
         $guestcaps = {
-            'arch'   => 'x86_64',
-            'virtio' => 0,
-            'acpi'   => 1
+            'arch'  => $arch,
+            'block' => $block,
+            'net'   => $net,
+            'acpi'  => 1
         };
     }
 
@@ -183,15 +159,7 @@ sub _convert_metadata
 {
     my ($dom, $desc, $devices, $guestcaps) = @_;
 
-    my $arch   = $guestcaps->{arch};
-    my $virtio = $guestcaps->{virtio};
-
-    my $default_dom;
-    if($virtio) {
-        $default_dom = new XML::DOM::Parser->parse(KVM_XML_VIRTIO);
-    } else {
-        $default_dom = new XML::DOM::Parser->parse(KVM_XML_NOVIRTIO);
-    }
+    my $default_dom = new XML::DOM::Parser->parse(KVM_DEFAULT_XML);
 
     # Replace source hypervisor metadata with KVM defaults
     _unconfigure_hvs($dom, $default_dom);
@@ -200,16 +168,16 @@ sub _convert_metadata
     _unconfigure_bootloaders($dom);
 
     # Update storage devices and drivers
-    _configure_storage($dom, $devices, $virtio);
+    _configure_storage($dom, $devices, $guestcaps->{block});
 
     # Configure network drivers
-    _configure_network($dom, $virtio);
+    _configure_network($dom, $guestcaps->{net});
 
     # Ensure guest has a standard set of default devices
     _configure_default_devices($dom, $default_dom);
 
     # Add a default os section if none exists
-    _configure_os($dom, $default_dom, $arch);
+    _configure_os($dom, $default_dom, $guestcaps->{arch});
 
     # Check for weird configs and sanitise them
     _sanity_check($dom);
@@ -303,9 +271,10 @@ sub _suffixcmp
 
 sub _configure_storage
 {
-    my ($dom, $devices, $virtio) = @_;
+    my ($dom, $devices, $block) = @_;
 
-    my $prefix = $virtio ? 'vd' : 'hd';
+    my $virtio = $block eq 'virtio' ? 1 : 0;
+    my $prefix = $virtio == 1 ? 'vd' : 'hd';
 
     my @removed = ();
 
@@ -322,7 +291,7 @@ sub _configure_storage
         if (!$virtio && _suffixcmp($suffix, 'd') > 0) {
             push(@removed, "$device(disk)");
         } else {
-            $target->setAttribute('bus', $virtio ? 'virtio' : 'ide');
+            $target->setAttribute('bus', $block);
             $target->setAttribute('dev', $prefix.$suffix);
             $suffix++; # Perl magic means 'z'++ == 'aa'
         }
@@ -360,7 +329,7 @@ sub _configure_storage
 
 sub _configure_network
 {
-    my ($dom, $virtio) = @_;
+    my ($dom, $net) = @_;
 
     # Convert network adapters
     # N.B. <interface> is not required to have a <model> element, but <model>
@@ -370,7 +339,7 @@ sub _configure_network
     foreach my $type
         ($dom->findnodes('/domain/devices/interface/model/@type'))
     {
-        $type->setNodeValue($virtio ? 'virtio' : 'e1000');
+        $type->setNodeValue($net);
     }
 
     # Add a model element to interfaces which don't have one
@@ -378,7 +347,7 @@ sub _configure_network
         ($dom->findnodes('/domain/devices/interface[not(model)]'))
     {
         my $model = $dom->createElement('model');
-        $model->setAttribute('type', $virtio ? 'virtio' : 'e1000');
+        $model->setAttribute('type', $net);
         $interface->appendChild($model);
     }
 }
@@ -403,12 +372,12 @@ sub _unconfigure_hvs
         $driver->getParentNode()->removeChild($driver);
     }
 
-    _unconfigure_xen_metadata($dom, $default_dom);
+    _unconfigure_xen_metadata($dom);
 }
 
 sub _unconfigure_xen_metadata
 {
-    my ($dom, $default_dom) = @_;
+    my ($dom) = @_;
 
     # The list of target xen-specific nodes is mostly taken from inspection of
     # domain.rng

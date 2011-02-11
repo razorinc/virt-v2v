@@ -466,8 +466,14 @@ $target->create_guest($os, $dom, $guestcaps);
 
 my ($name) = $dom->findnodes('/domain/name/text()');
 $name = $name->getNodeValue();
-if($guestcaps->{virtio}) {
+if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio drivers.', name => $name);
+} elsif ($guestcaps->{block} eq 'virtio') {
+    logmsg NOTICE, __x('{name} configured with virtio storage only.',
+                       name => $name);
+} elsif ($guestcaps->{net} eq 'virtio') {
+    logmsg NOTICE, __x('{name} configured with virtio networking only.',
+                       name => $name);
 } else {
     logmsg NOTICE, __x('{name} configured without virtio drivers.',
                        name => $name);
@@ -838,7 +844,7 @@ local policy.
 
 =back
 
-=head1 GUEST DRIVERS
+=head1 LINUX GUEST DRIVERS
 
 Virt-v2v will configure the following drivers in a Linux guest:
 
@@ -855,6 +861,22 @@ Additionally, initrd will preload the virtio_pci driver.
  X display      cirrus
  Block          IDE
  Network        e1000
+
+=head1 WINDOWS GUEST DRIVERS
+
+Virt-v2v will configure the following drivers in a Windows guest:
+
+=head2 VirtIO
+
+ X display      cirrus
+ Block          viostor
+ Network        netkvm
+
+=head2 Non-VirtIO
+
+ X display      cirrus
+ Block          IDE
+ Network        rtl8139
 
 =head1 BUGS
 

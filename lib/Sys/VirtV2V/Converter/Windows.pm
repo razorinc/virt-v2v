@@ -122,54 +122,6 @@ sub convert
     croak("convert called without desc argument") unless defined($desc);
     croak("convert called without devices argument") unless defined($devices);
 
-    _preconvert ($g, $desc, $devices, $config);
-
-    # Return guest capabilities.
-    my %guestcaps;
-
-    $guestcaps{virtio} = 1;
-    $guestcaps{arch}   = $desc->{arch};
-    $guestcaps{acpi}   = 1; # XXX
-
-    # We want an i686 guest for i[345]86
-    $guestcaps{arch} =~ s/^i[345]86/i686/;
-
-    return \%guestcaps;
-}
-
-=item _preconvert
-
-Preconvert a Windows guest so that it can boot on KVM with virtio.  We
-do the minimum changes necessary here: Installing the viostor driver,
-then installing a service which will complete the conversion when
-Windows is booted first time on KVM.
-
-To install the viostor driver, we use L<Sys::Guestfs(3)> (libguestfs)
-and L<Win::Hivex::Regedit(3)> (hivex) to drop the correct files and
-registry changes in place.  We don't have access to the Win32 API, so
-we cannot do this using the normal methods.
-
-Similarly, we make registry changes to ensure the service runs at next
-boot.
-
-=cut
-
-sub _preconvert
-{
-    my $g = shift;
-    my $desc = shift;
-    my $devices = shift;
-    my $config = shift;
-
-    carp "preconvert called without g argument" unless defined $g;
-    carp "preconvert called without desc argument" unless defined $desc;
-    carp "preconvert called without devices argument" unless defined $devices;
-
-    # $config can be undef, but we require the configuration file when
-    # converting Windows guests.
-    v2vdie __('You must specify the configuration file (-f) when '.
-              'converting Windows guests.') unless defined($config);
-
     my $tmpdir = tempdir (CLEANUP => 1);
 
     # Note: disks are already mounted by main virt-v2v script.
@@ -177,7 +129,21 @@ sub _preconvert
     _upload_files ($g, $tmpdir, $desc, $devices, $config);
     _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
     _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
-    _prepare_virtio_drivers ($g, $tmpdir, $desc, $devices, $config);
+    my ($block, $net) =
+        _prepare_virtio_drivers ($g, $tmpdir, $desc, $devices, $config);
+
+    # Return guest capabilities.
+    my %guestcaps;
+
+    $guestcaps{block} = $block;
+    $guestcaps{net}   = $net;
+    $guestcaps{arch}  = $desc->{arch};
+    $guestcaps{acpi}  = 1; # XXX
+
+    # We want an i686 guest for i[345]86
+    $guestcaps{arch} =~ s/^i[345]86/i686/;
+
+    return \%guestcaps;
 }
 
 # See http://rwmj.wordpress.com/2010/04/30/tip-install-a-device-driver-in-a-windows-vm/
@@ -356,8 +322,59 @@ sub _prepare_virtio_drivers
 
     $g->mkdir_p($driverdir);
 
-    my ($virtio) = $config->match_app ($desc, 'virtio', $desc->{arch});
+    # Check for a virtio entry in the config file for this OS
+    my $virtio;
+    eval {
+        ($virtio) = $config->match_app ($desc, 'virtio', $desc->{arch});
+    };
+    if ($@) {
+        my $block = 'ide';
+        my $net   = 'rtl8139';
+
+        logmsg WARN, __x('There are no virtio drivers available '.
+                         'for this version of Windows. The guest will be '.
+                         'configured with a {block} block storage '.
+                         'adapter and a {net} network adapter, but no '.
+                         'drivers will be installed for them. If the '.
+                         '{block} driver is not already installed in '.
+                         'the guest, it will fail to boot. If the {net} '.
+                         'driver is not already installed in the guest, '.
+                         'you must install it manually after '.
+                         'conversion.',
+                         block => $block, net => $net);
+        return ($block, $net);
+    }
+
+    my ($block, $net);
     $virtio = $config->get_transfer_path($g, $virtio);
+
+    if ($g->exists(File::Spec->catfile($virtio, 'viostor.inf'))) {
+        $block = 'virtio';
+    } else {
+        $block = 'ide';
+        logmsg WARN, __x('There is no virtio block driver '.
+                         'available in the directory specified for '.
+                         'this version of Windows. The guest will be '.
+                         'configured with a {block} block storage '.
+                         'adapter, but no driver will be installed for '.
+                         'it. If the {block} driver is not already '.
+                         'installed in the guest, it will fail to boot.'.
+                         block => $block);
+    }
+
+    if ($g->exists(File::Spec->catfile($virtio, 'netkvm.inf'))) {
+        $net = 'virtio';
+    } else {
+        $net = 'rtl8139';
+        logmsg WARN, __x('There is no virtio net driver '.
+                         'available in the directory specified for '.
+                         'this version of Windows. The guest will be '.
+                         'configured with a {net} network adapter, but '.
+                         'no driver will be installed for it. If the '.
+                         '{net} driver is not already installed in the '.
+                         'guest, you must install it manually after '.
+                         'conversion.', net => $net);
+    }
 
     foreach my $src ($g->ls($virtio)) {
         my $name = $src;
@@ -413,6 +430,8 @@ sub _prepare_virtio_drivers
 
     # Upload the new registry.
     $g->upload($sw_local, $sw_guest);
+
+    return ($block, $net);
 }
 
 sub _upload_files
