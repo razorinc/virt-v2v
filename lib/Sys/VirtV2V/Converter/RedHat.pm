@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Converter::Linux
+# Sys::VirtV2V::Converter::RedHat
 # Copyright (C) 2009,2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Converter::Linux;
+package Sys::VirtV2V::Converter::RedHat;
 
 use strict;
 use warnings;
@@ -35,7 +35,7 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
+Sys::VirtV2V::Converter::RedHat - Convert a Red Hat based guest to run on KVM
 
 =head1 SYNOPSIS
 
@@ -45,15 +45,15 @@ Sys::VirtV2V::Converter::Linux - Convert a Linux guest to run on KVM
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Converter::Linux converts a Linux guest to use KVM.
+Sys::VirtV2V::Converter::RedHat converts a Red Hat based guest to use KVM.
 
 =head1 METHODS
 
 =over
 
-=item Sys::VirtV2V::Converter::Linux->can_handle(desc)
+=item Sys::VirtV2V::Converter::RedHat->can_handle(desc)
 
-Return 1 if Sys::VirtV2V::Converter::Linux can convert the guest described by
+Return 1 if Sys::VirtV2V::Converter::RedHat can convert the guest described by
 I<desc>, 0 otherwise.
 
 =cut
@@ -69,9 +69,9 @@ sub can_handle
             $desc->{distro} =~ /^(rhel|fedora)$/);
 }
 
-=item Sys::VirtV2V::Converter::Linux->convert(g, config, dom, desc, $devices)
+=item Sys::VirtV2V::Converter::RedHat->convert(g, config, dom, desc, $devices)
 
-Convert a Linux guest. Assume that can_handle has previously returned 1.
+Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
 =over
 
