@@ -765,6 +765,12 @@ EOF
 #   root->os_major_version = 5
 #   root->os_minor_version = 1
 #
+#  WindowsXP
+#   os = windows
+#   root->os_major_version = 5
+#   root->os_minor_version = 2
+#   root->product_name = 'Microsoft Windows XP'
+#
 #  Windows2003
 #  Windows2003x64
 #   os = windows
@@ -831,14 +837,20 @@ sub _get_os_type_windows
 
     my $major = $root->{os_major_version};
     my $minor = $root->{os_minor_version};
+    my $product = $root->{product_name};
 
-    if ($major == 5 && $minor == 1) {
-        # RHEV doesn't differentiate Windows XP by architecture
-        return "WindowsXP";
-    }
+    if ($major == 5) {
+        if ($minor == 1 ||
+            # Windows XP Pro x64 is identified as version 5.2
+            ($minor == 2 && $product =~ /\bXP\b/))
+        {
+            # RHEV doesn't differentiate Windows XP by architecture
+            return "WindowsXP";
+        }
 
-    if ($major == 5 && $minor == 2) {
-        return "Windows2003".$arch_suffix;
+        if ($minor == 2) {
+            return "Windows2003".$arch_suffix;
+        }
     }
 
     if ($major == 6 && $minor == 0) {
