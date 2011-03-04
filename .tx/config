@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.net
+
+[virt-v2v.virt-v2vpot]
+file_filter = po/<lang>.po
+source_file = po/virt-v2v.pot
+source_lang = en
+
