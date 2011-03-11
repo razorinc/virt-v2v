@@ -167,7 +167,7 @@ sub _volume_copy
     v2vdie __x('Didn\'t receive full volume. Received {received} '.
                'of {total} bytes.',
                received => $total, total => $src->get_size())
-        if  $src->get_format() eq "raw" && $total != $src->get_size();
+        if  $src->get_format() eq "raw" && $total < $src->get_size();
 
     return $dst;
 }

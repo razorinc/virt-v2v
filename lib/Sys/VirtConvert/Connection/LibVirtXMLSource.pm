@@ -155,8 +155,6 @@ sub get_volume
         $is_sparse = $usage < $size ? 1 : 0;
     }
 
-    die("size ($size) < usage ($usage)") if $size < $usage;
-
     my $transfer = new Sys::VirtConvert::Transfer::Local($path, $format,
                                                          $is_sparse);
 
