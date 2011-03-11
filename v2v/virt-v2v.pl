@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # virt-v2v
-# Copyright (C) 2009 Red Hat Inc.
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -482,19 +482,23 @@ v2vdie __x('Domain {name} already exists on the target.',
 $source->copy_storage($target, $output_format, $output_sparse);
 
 # Get a libvirt configuration for the guest
-my $dom = $source->get_dom();
-exit(1) unless(defined($dom));
+my $meta = $source->get_meta();
+exit(1) unless(defined($meta));
 
-# Get a list of the guest's transfered storage devices
-my $storage = $source->get_storage_paths();
+v2vdie __('Guest doesn\'t define any storage devices')
+    unless @{$meta->{disks}} > 0;
 
 # Create the transfer iso if required
 my $transferiso;
 $transferiso = $config->get_transfer_iso();
 
 # Open a libguestfs handle on the guest's storage devices
-my $g = new Sys::VirtConvert::GuestfsHandle($storage, $transferiso,
-                                        $output_method eq 'rhev');
+my @localpaths = map { $_->{local_path} } @{$meta->{disks}};
+my $g = new Sys::VirtConvert::GuestfsHandle(
+    \@localpaths,
+    $transferiso,
+    $output_method eq 'rhev'
+);
 
 my $os;
 my $guestcaps;
@@ -503,8 +507,7 @@ eval {
     $os = inspect_guest($g);
 
     # Modify the guest and its metadata
-    $guestcaps = Sys::VirtConvert::Converter->convert($g, $config, $os, $dom,
-                                                $source->get_storage_devices());
+    $guestcaps = Sys::VirtConvert::Converter->convert($g, $config, $os, $meta);
 };
 
 # If any of the above commands result in failure, we need to ensure that the
@@ -518,7 +521,7 @@ if ($@) {
 
 $g->close();
 
-$target->create_guest($os, $dom, $guestcaps, $output_name);
+$target->create_guest($os, $meta, $config, $guestcaps, $output_name);
 
 if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio drivers.',
@@ -1031,7 +1034,7 @@ Matthew Booth <mbooth@redhat.com>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -63,7 +63,7 @@ sub new
 
     bless($self, $class);
 
-    $self->_get_dom($path);
+    $self->_get_meta($path);
 
     return $self;
 }
@@ -76,13 +76,12 @@ Return the name of the domain.
 
 sub get_name
 {
-    my $dom = shift->{dom};
+    my $meta = shift->{meta};
 
-    my ($name) = $dom->findnodes('/domain/name');
-    return $name;
+    return $meta->{name};
 }
 
-sub _get_dom
+sub _get_meta
 {
     my $self = shift;
 
@@ -93,16 +92,19 @@ sub _get_dom
                       path => $self->{path}, error => $!);
 
     # Parse the input file
-    eval { $self->{dom} = new XML::DOM::Parser->parse ($xml); };
+    my $dom;
+    eval { $dom = new XML::DOM::Parser->parse ($xml); };
 
     # Display any parse errors
     v2vdie __x('Unable to parse domain from file {path}: {error}',
                path => $self->{path}, error => $@) if $@;
 
     # Check it looks like domain XML
-    my ($dummy) = $self->{dom}->findnodes('/domain/name');
+    my ($dummy) = $dom->findnodes('/domain/name');
     v2vdie __x('{path} doesn\'t look like a libvirt domain XML file',
                path => $self->{path}) unless defined($dummy);
+
+    $self->{meta} = Sys::VirtConvert::Connection::LibVirt::_parse_dom($dom);
 }
 
 =item get_volume(path)
@@ -152,6 +154,11 @@ sub get_volume
         $is_block = 0;
         my $st = stat($path);
         $usage = $st->blocks * 512;
+
+        # Usage can be reported greater than size for large files due to the
+        # requirement for indirect blocks
+        $usage = $size if $usage > $size;
+
         $is_sparse = $usage < $size ? 1 : 0;
     }
 
@@ -168,7 +175,7 @@ sub get_volume
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

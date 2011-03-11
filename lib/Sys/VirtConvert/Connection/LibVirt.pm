@@ -151,9 +151,72 @@ sub _get_transfer
                                                  $format, $is_sparse);
 }
 
+sub _parse_dom
+{
+    my ($dom) = @_;
+
+    my %meta;
+    my $root = $dom->getDocumentElement();
+
+    $meta{name}   = _node_val($root, 'name/text()');
+    $meta{memory} = _node_val($root, 'memory/text()') * 1024;
+    $meta{cpus}   = _node_val($root, 'vcpu/text()');
+    $meta{arch}   = _node_val($root, 'os/type/@arch');
+
+    $meta{features} = [];
+    foreach my $feature ($root->findnodes('features/*')) {
+        push(@{$meta{features}}, $feature->getNodeName());
+    }
+
+    $meta{disks} = [];
+    foreach my $disk ($root->findnodes('devices/disk[@device=\'disk\']')) {
+        my %info;
+
+        $info{device}   = _node_val($disk, 'target/@dev');
+        $info{path}     = _node_val($disk, 'source/@file | source/@dev');
+        $info{is_block} = _node_val($disk, '@type') eq 'file' ? 0 : 1;
+        $info{format}   = _node_val($disk, 'driver/@type');
+
+        push(@{$meta{disks}}, \%info);
+    }
+
+    $meta{removables} = [];
+    foreach my $disk ($root->findnodes('devices/disk[@device=\'cdrom\' or '.
+                                       '@device=\'floppy\']'))
+    {
+        my %info;
+
+        $info{device} = _node_val($disk, 'target/@dev');
+        $info{type} = _node_val($disk, '@device');
+
+        push(@{$meta{removables}}, \%info);
+    }
+
+    $meta{nics} = [];
+    foreach my $nic ($root->findnodes('devices/interface')) {
+        my %info;
+
+        $info{mac} = _node_val($nic, 'mac/@address');
+        $info{vnet} = _node_val($nic, 'source/@network | source/@bridge');
+        $info{vnet_type} = _node_val($nic, '@type');
+
+        push(@{$meta{nics}}, \%info);
+    }
+
+    return \%meta;
+}
+
+sub _node_val
+{
+    my ($root, $xpath) = @_;
+
+    my ($node) = $root->findnodes($xpath);
+    return defined($node) ? $node->getNodeValue() : undef;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

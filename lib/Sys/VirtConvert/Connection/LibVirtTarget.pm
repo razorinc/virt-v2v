@@ -261,7 +261,7 @@ sub guest_exists
     return 1;
 }
 
-=item create_guest(desc, dom, guestcaps, output_name)
+=item create_guest(desc, meta, config, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -270,18 +270,163 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $dom, $guestcaps, $output_name) = @_;
+    my ($desc, $meta, $config, $guestcaps, $output_name) = @_;
 
     my $vmm = $self->{vmm};
 
-    _change_name ($dom, $output_name);
-    _unconfigure_incompatible_devices($dom);
-    _configure_capabilities($vmm, $dom, $guestcaps);
+    $meta->{name} = $output_name;
+    _configure_capabilities($vmm, $meta, $guestcaps);
 
-    $vmm->define_domain($dom->toString());
+    $vmm->define_domain(_meta_to_domxml($meta, $config, $guestcaps));
 
     # Guest is successfully created, don't remove its volumes
     @cleanup_vols = ();
+}
+
+sub _meta_to_domxml
+{
+    my ($meta, $config, $guestcaps) = @_;
+
+    my $dom = new XML::DOM::Parser->parse(<<DOM);
+<domain type='kvm'>
+  <os>
+    <type>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <input type='tablet' bus='usb'/>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+    </video>
+    <console type='pty'/>
+  </devices>
+</domain>
+DOM
+
+    my $root = $dom->getDocumentElement();
+
+    _append_elem($root, 'name', $meta->{name});
+    _append_elem($root, 'memory', $meta->{memory} / 1024);
+    _append_elem($root, 'vcpu', $meta->{cpus});
+
+    my ($ostype) = $root->findnodes('os/type');
+    $ostype->setAttribute('arch', $guestcaps->{arch});
+
+    my $features = _append_elem($root, 'features');
+    foreach my $feature (@{$meta->{features}}) {
+        _append_elem($features, $feature);
+    }
+
+    my $virtio = $guestcaps->{block} eq 'virtio' ? 1 : 0;
+    my $prefix = $virtio == 1 ? 'vd' : 'hd';
+    my $suffix = 'a';
+
+    my $nide = 0;
+
+    my ($devices) = $root->findnodes('devices');
+    foreach my $disk (sort { $a->{device} cmp $b->{device} } @{$meta->{disks}})
+    {
+        my $is_block = $disk->{is_block};
+
+        my $diskE = _append_elem($devices, 'disk');
+        $diskE->setAttribute('device', 'disk');
+        $diskE->setAttribute('type', $is_block ? 'block' : 'file');
+
+        my $driver = _append_elem($diskE, 'driver');
+        $driver->setAttribute('name', 'qemu');
+        $driver->setAttribute('type', $disk->{format});
+
+        my $source = _append_elem($diskE, 'source');
+        $source->setAttribute($is_block ? 'dev' : 'file', $disk->{path});
+
+        my $target = _append_elem($diskE, 'target');
+        $target->setAttribute('dev', $prefix.$suffix); $suffix++;
+        $target->setAttribute('bus', $guestcaps->{block});
+
+        $nide++ unless $virtio;
+    }
+
+    # Add the correct number of cdrom and floppy drives with appropriate new
+    # names
+    $suffix = 'a' if ($virtio);
+    my $fdn = 0;
+    foreach my $removable (@{$meta->{removables}}) {
+        my $name;
+        my $bus;
+        if ($removable->{type} eq 'cdrom') {
+            $bus = 'ide';
+            $name = 'hd'.$suffix; $suffix++;
+            $nide++;
+        } elsif ($removable->{type} eq 'floppy') {
+            $bus = 'fdc';
+            $name = 'fd'.$fdn; $fdn++;
+        } else {
+            logmsg WARN, __x('Ignoring removable device {device} with unknown '.
+                             'type {type}.',
+                             device => $removable->{device},
+                             type => $removable->{type});
+            next;
+        }
+
+        my $diskE = _append_elem($devices, 'disk');
+        $diskE->setAttribute('device', $removable->{type});
+        $diskE->setAttribute('type', 'file');
+
+        my $driver = _append_elem($diskE, 'driver');
+        $driver->setAttribute('name', 'qemu');
+        $driver->setAttribute('type', 'raw');
+
+        my $target = _append_elem($diskE, 'target');
+        $target->setAttribute('dev', $name);
+        $target->setAttribute('bus', $bus);
+
+        _append_elem($diskE, 'readonly') if ($removable->{type} eq 'cdrom');
+    }
+
+    logmsg WARN, __x('Only 4 IDE devices are supported, but this guest has '.
+                     '{number}. The guest will not operate correctly without '.
+                     'manual reconfiguration.', number => $nide) if $nide > 4;
+
+    foreach my $nic (@{$meta->{nics}}) {
+        # Find an appropriate mapped network
+        my ($vnet, $vnet_type) =
+            $config->map_network($nic->{vnet}, $nic->{vnet_type});
+        $vnet ||= $nic->{vnet};
+        $vnet_type ||= $nic->{vnet_type};
+
+        my $interface = _append_elem($devices, 'interface');
+        $interface->setAttribute('type', $vnet_type);
+
+        my $mac = _append_elem($interface, 'mac');
+        $mac->setAttribute('address', $nic->{mac});
+
+        my $source = _append_elem($interface, 'source');
+        $source->setAttribute($vnet_type, $vnet);
+
+        my $model = _append_elem($interface, 'model');
+        $model->setAttribute('type', $guestcaps->{net});
+    }
+
+    return $dom->toString();
+}
+
+sub _append_elem
+{
+    my ($parent, $name, $text) = @_;
+
+    my $doc = $parent->getOwnerDocument();
+    my $e = $doc->createElement($name);
+    my $textE = $doc->createTextNode($text) if defined($text);
+
+    $parent->appendChild($e);
+    $e->appendChild($textE) if defined($text);
+
+    return $e;
 }
 
 sub DESTROY
@@ -304,40 +449,10 @@ sub DESTROY
     }
 }
 
-sub _change_name
-{
-    my $dom = shift;
-    my $output_name = shift;
-
-    my ($name) = $dom->findnodes ('/domain/name/text()');
-    $name->setNodeValue ($output_name);
-}
-
-sub _unconfigure_incompatible_devices
-{
-    my ($dom) = @_;
-
-    foreach my $path (
-        # We have replaced the SCSI controller with either VirtIO or IDE.
-        # Additionally, attempting to start a guest converted from ESX, which
-        # has an lsilogic SCSI controller, will fail on RHEL 5.
-        $dom->findnodes("/domain/devices/controller[\@type='scsi']"),
-
-        # XXX: We have no current way of detecting which sound card models are
-        # supported by the target hypervisor. As an unsupported sound card model
-        # can prevent the guest from starting, we simply remove sound cards for
-        # the moment.
-        $dom->findnodes("/domain/devices/sound")
-    )
-    {
-        $path->getParentNode()->removeChild($path);
-    }
-}
-
 # Configure guest according to target hypervisor's capabilities
 sub _configure_capabilities
 {
-    my ($vmm, $dom, $guestcaps) = @_;
+    my ($vmm, $meta, $guestcaps) = @_;
 
     # Parse the capabilities of the connected libvirt
     my $caps = new XML::DOM::Parser->parse($vmm->get_capabilities());
@@ -350,94 +465,48 @@ sub _configure_capabilities
     v2vdie __x('The connected hypervisor does not support a {arch} kvm guest.',
                arch => $arch) unless defined($guestcap);
 
-    # Ensure that /domain/@type = 'kvm'
-    my ($type) = $dom->findnodes('/domain/@type');
-    $type->setNodeValue('kvm');
-
-    # Set /domain/os/type to the value taken from capabilities
-    my ($os_type) = $dom->findnodes('/domain/os/type/text()');
-    if(defined($os_type)) {
-        my ($caps_os_type) = $guestcap->findnodes('os_type/text()');
-        $os_type->setNodeValue($caps_os_type->getNodeValue());
-    }
-
-    # Check that /domain/os/type/@machine, if set, is listed in capabilities
-    my ($machine) = $dom->findnodes('/domain/os/type/@machine');
-    if(defined($machine)) {
-        my @machine_caps = $guestcap->findnodes
-            ("arch[\@name='$arch']/machine/text()");
-
-        my $found = 0;
-        foreach my $machine_cap (@machine_caps) {
-            if($machine eq $machine_cap) {
-                $found = 1;
-                last;
-            }
-        }
-
-        # If the machine isn't listed as a capability, warn and remove it
-        if(!$found) {
-            logmsg WARN, __x('The connected hypervisor does not support '.
-                             'a machine type of {machine}. It will be '.
-                             'set to the current default.',
-                             machine => $machine->getValue());
-
-            my ($type) = $dom->findnodes('/domain/os/type');
-            $type->getAttributes()->removeNamedItem('machine');
-        }
-    }
-
-    # Get the domain features node
-    my ($domfeatures) = $dom->findnodes('/domain/features');
     # Check existing features are supported by the hypervisor
-    if (defined($domfeatures)) {
-        # Check that /domain/features are listed in capabilities
+    if (exists($meta->{features})) {
+        # Check that requested features are listed in capabilities
         # Get a list of supported features
         my %features;
         foreach my $feature ($guestcap->findnodes('features/*')) {
             $features{$feature->getNodeName()} = 1;
         }
 
-        foreach my $feature ($domfeatures->findnodes('*')) {
-            my $name = $feature->getNodeName();
-
-            if (!exists($features{$name})) {
+        my @new_features = ();
+        foreach my $feature (@{$meta->{features}}) {
+            if (!exists($features{$feature})) {
                 logmsg WARN, __x('The connected hypervisor does not '.
                                  'support feature {feature}.',
-                                 feature => $name);
-                $feature->getParentNode()->removeChild($feature);
+                                 feature => $feature);
             }
 
-            if ($name eq 'acpi' && !$guestcaps->{acpi}) {
+            elsif ($feature eq 'acpi' && !$guestcaps->{acpi}) {
                 logmsg WARN, __('The target guest does not support acpi '.
                                 'under KVM. ACPI will be disabled.');
-                $feature->getParentNode()->removeChild($feature);
             }
-        }
-    }
 
-    # Add a features element if there isn't one already
-    else {
-        $domfeatures = $dom->createElement('features');
-        my ($root) = $dom->findnodes('/domain');
-        $root->appendChild($domfeatures);
+            else {
+                push(@new_features, $feature);
+            }
+
+            $meta->{features} = \@new_features;
+        }
     }
 
     # Add acpi support if the guest supports it
     if ($guestcaps->{acpi}) {
-        $domfeatures->appendChild($dom->createElement('acpi'));
+        push(@{$meta->{features}}, 'acpi') unless $meta->{features} ~~ 'acpi';
     }
 
     # Add apic and pae if they're supported by the hypervisor and not already
     # there
     foreach my $feature ('apic', 'pae') {
-        my ($d) = $domfeatures->findnodes($feature);
-        next if (defined($d));
+        next if $meta->{features} ~~ $feature;
 
         my ($c) = $guestcap->findnodes("features/$feature");
-        if (defined($c)) {
-            $domfeatures->appendChild($dom->createElement($feature));
-        }
+        push(@{$meta->{features}}, $feature) if defined($c);
     }
 }
 
@@ -445,7 +514,7 @@ sub _configure_capabilities
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Red Hat Inc.
+Copyright (C) 2010-2011 Red Hat Inc.
 
 =head1 LICENSE
 

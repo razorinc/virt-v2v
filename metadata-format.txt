@@ -1,0 +1,28 @@
+virt-v2v uses its own representation of a domain's metadata. It is based on, but
+differs significantly from, the XML representation used by libvirt.
+
+%
+  name          The name of the domain
+  memory        The memory assigned to the domain, in bytes
+  cpus          The number of cpus assigned to the domain
+  arch          The architecture of the domain (eg i686,x86_64)
+  features[]    An array containing 'features', as defined by libvirt
+  disks[]       An array containing hashrefs of disk descriptions
+    device          The name of the disk as seen by the guest (eg sda)
+    path            The path to the device's storage, as known to the source
+                      or target hypervisor. This will probably not be a valid
+                      local path
+    (local_path)    A local path to the device's storage, as usable by
+                      libguestfs during conversion. This is populated by
+                      copy_storage()
+    is_block        1 if the device uses block storage, 0 if it uses a file.
+    format          The file format used by the underlying storage, as known to
+                      qemu (eg raw,qcow)
+  removables[]  An array containing hashrefs of removable media devices
+    device          The name of the device, as seen by the guest (eg fd0)
+    type            The device type, as defined by libvirt (eg floppy,cdrom)
+  nics[]        An array containing hashrefs of NIC descriptions
+    mac             The mac address
+    vnet            The name of the virtual network the NIC will connect to
+    vnet_type       The type of virtual network the NIC will connect to, as
+                      defined by libvirt (eg network,bridge)

@@ -605,7 +605,7 @@ sub guest_exists
     return 0;
 }
 
-=item create_guest(desc, dom, guestcaps, output_name)
+=item create_guest(desc, meta, config, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -614,16 +614,13 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $dom, $guestcaps, $output_name) = @_;
+    my ($desc, $meta, $config, $guestcaps, $output_name) = @_;
 
     # Get the number of virtual cpus
-    my ($ncpus) = $dom->findnodes('/domain/vcpu/text()');
-    $ncpus = $ncpus->getNodeValue();
+    my $ncpus = $meta->{cpus};
 
     # Get the amount of memory in MB
-    my ($memsize) = $dom->findnodes('/domain/memory/text()');
-    $memsize = $memsize->getNodeValue();
-    $memsize = ceil($memsize / 1024);
+    my $memsize = ceil($meta->{memory}/1024/1024);
 
     # Generate a creation date
     my $vmcreation = _format_time(gmtime());
@@ -705,8 +702,8 @@ sub create_guest
 </ovf:Envelope>
 EOF
 
-    $self->_disks($ovf, $dom);
-    $self->_networks($ovf, $dom);
+    $self->_disks($ovf, $meta, $guestcaps);
+    $self->_networks($ovf, $meta, $config, $guestcaps);
 
     my $mountdir = $self->{mountdir};
     my $domainuuid = $self->{domainuuid};
@@ -895,7 +892,7 @@ sub _format_time
 sub _disks
 {
     my $self = shift;
-    my ($ovf, $dom) = @_;
+    my ($ovf, $meta, $guestcaps) = @_;
 
     my ($references) = $ovf->findnodes('/ovf:Envelope/References');
     die("no references") unless (defined($references));
@@ -911,20 +908,12 @@ sub _disks
 
     my $driveno = 1;
 
-    foreach my $disk
-        ($dom->findnodes("/domain/devices/disk[\@device='disk']"))
-    {
-        my ($path) = $disk->findnodes('source/@file');
-        $path = $path->getNodeValue();
-
-        my ($bus) = $disk->findnodes('target/@bus');
-        $bus = $bus->getNodeValue();
-
+    foreach my $disk (@{$meta->{disks}}) {
         my $vol = Sys::VirtConvert::Connection::RHEVTarget::Vol->_get_by_path
-            ($path);
+            ($disk->{path});
 
-        die("dom contains path not written by virt-v2v: $path\n".
-            $dom->toString()) unless (defined($vol));
+        die('metadata contains path not written by virt-v2v: ', $disk->{path})
+            unless defined($vol);
 
         my $fileref = catdir($vol->_get_imageuuid(), $vol->_get_voluuid());
         my $size_gb = ceil($vol->get_size()/1024/1024/1024);
@@ -955,7 +944,7 @@ sub _disks
         $diske->setAttribute('ovf:format', 'http://en.wikipedia.org/wiki/Byte');
         # IDE = 0, SCSI = 1, VirtIO = 2
         $diske->setAttribute('ovf:disk-interface',
-                             $bus eq 'virtio' ? 'VirtIO' : 'IDE');
+                             $guestcaps->{block} eq 'virtio' ? 'VirtIO' : 'IDE');
         # The libvirt QEMU driver marks the first disk (in document order) as
         # bootable
         $diske->setAttribute('ovf:boot', $driveno == 1 ? 'True' : 'False');
@@ -1022,7 +1011,7 @@ sub _disks
 sub _networks
 {
     my $self = shift;
-    my ($ovf, $dom) = @_;
+    my ($ovf, $meta, $config, $guestcaps) = @_;
 
     my ($networksection) = $ovf->findnodes("/ovf:Envelope/Section".
                                     "[\@xsi:type = 'ovf:NetworkSection_Type']");
@@ -1033,41 +1022,22 @@ sub _networks
     die("no virtualhardware") unless (defined($virtualhardware));
 
     my $i = 0;
+    foreach my $if (@{$meta->{nics}}) {
+        my $dev = "eth$i"; $i++;
 
-    foreach my $if
-        ($dom->findnodes('/domain/devices/interface'))
-    {
-        # Extract relevant info about this NIC
-        my $type = $if->getAttribute('type');
-
-        my $name;
-        if ($type eq 'bridge') {
-            ($name) = $if->findnodes('source/@bridge');
-        } elsif ($type eq 'network') {
-            ($name) = $if->findnodes('source/@network');
-        } else {
-            # Should have been picked up in Converter
-            die("Unknown interface type");
-        }
-        $name = $name->getNodeValue();
-
-        my ($driver) = $if->findnodes('model/@type');
-        $driver &&= $driver->getNodeValue();
-
-        my ($mac) = $if->findnodes('mac/@address');
-        $mac &&= $mac->getNodeValue();
-
-        my $dev = "eth$i";
+        # Find an appropriate mapped network
+        my ($vnet, undef) = $config->map_network($if->{vnet}, $if->{vnet_type});
+        $vnet ||= $if->{vnet};
 
         my $e = $ovf->createElement("Network");
-        $e->setAttribute('ovf:name', $name);
+        $e->setAttribute('ovf:name', $vnet);
         $networksection->appendChild($e);
 
         my $item = $ovf->createElement('Item');
         $virtualhardware->appendChild($item);
 
         $e = $ovf->createElement('rasd:Caption');
-        $e->addText("Ethernet adapter on $name");
+        $e->addText('Ethernet adapter on '.$vnet);
         $item->appendChild($e);
 
         $e = $ovf->createElement('rasd:InstanceId');
@@ -1079,16 +1049,16 @@ sub _networks
         $item->appendChild($e);
 
         $e = $ovf->createElement('rasd:ResourceSubType');
-        if ($driver eq 'rtl8139') {
+        if ($guestcaps->{net} eq 'rtl8139') {
             $e->addText('1');
-        } elsif ($driver eq 'e1000') {
+        } elsif ($guestcaps->{net} eq 'e1000') {
             $e->addText('2');
-        } elsif ($driver eq 'virtio') {
+        } elsif ($guestcaps->{net} eq 'virtio') {
             $e->addText('3');
         } else {
             logmsg WARN, __x('Unknown NIC model {driver} for {dev}. '.
                              'NIC will be {default} when imported.',
-                             driver => $driver,
+                             driver => $guestcaps->{net},
                              dev => $dev,
                              default => 'rtl8139');
             $e->addText('1');
@@ -1096,7 +1066,7 @@ sub _networks
         $item->appendChild($e);
 
         $e = $ovf->createElement('rasd:Connection');
-        $e->addText($name);
+        $e->addText($vnet);
         $item->appendChild($e);
 
         $e = $ovf->createElement('rasd:Name');
@@ -1104,10 +1074,8 @@ sub _networks
         $item->appendChild($e);
 
         $e = $ovf->createElement('rasd:MACAddress');
-        $e->addText($mac) if (defined($mac));
+        $e->addText($if->{mac});
         $item->appendChild($e);
-
-        $i++;
     }
 }
 
@@ -1115,7 +1083,7 @@ sub _networks
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Red Hat Inc.
+Copyright (C) 2010-2011 Red Hat Inc.
 
 =head1 LICENSE
 

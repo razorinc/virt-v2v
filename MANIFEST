@@ -24,6 +24,7 @@ lib/Sys/VirtConvert/Transfer/SSH.pm
 lib/Sys/VirtConvert/Util.pm
 MANIFEST.SKIP
 MANIFEST			This list of files
+metadata-format.txt
 META.yml
 po/es.po
 po/it.po

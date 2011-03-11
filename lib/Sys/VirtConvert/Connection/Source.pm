@@ -38,9 +38,7 @@ Sys::VirtConvert::Connection - A source connection
  use Sys::VirtConvert::Connection::LibVirtSource;
 
  $conn = Sys::VirtConvert::Connection::LibVirtSource->new($uri, $name, $target);
- $dom = $conn->get_dom();
- $storage = $conn->get_storage_paths();
- $devices = $conn->get_storage_devices();
+ $meta = $conn->get_meta();
 
 =head1 DESCRIPTION
 
@@ -55,49 +53,19 @@ of the subclasses:
 
 =over
 
-=item get_storage_paths
+=item get_meta()
 
-Return an arrayref of local paths to the guest's storage devices. This list is
-guaranteed to be in the same order as the list returned by get_storage_devices.
+Return guest metadata.
 
-=cut
-
-sub get_storage_paths
-{
-    my $self = shift;
-
-    return $self->{paths};
-}
-
-=item get_storage_devices
-
-Return an arrayref of libvirt device names for the guest's storage prior to
-conversion. This list is guaranteed to be in the same order as the list returned
-by get_storage_paths.
+Returns undef and displays an error if there was an error.
 
 =cut
 
-sub get_storage_devices
+sub get_meta
 {
     my $self = shift;
 
-    return $self->{devices};
-}
-
-=item get_dom()
-
-Returns an XML::DOM::Document describing a libvirt configuration equivalent to
-the input.
-
-Returns undef and displays an error if there was an error
-
-=cut
-
-sub get_dom
-{
-    my $self = shift;
-
-    return $self->{dom};
+    return $self->{meta};
 }
 
 sub _volume_copy
@@ -172,7 +140,7 @@ sub _volume_copy
     return $dst;
 }
 
-=item copy_storage(target)
+=item copy_storage(target, format, is_sparse)
 
 Copy all of a guests storage devices to I<target>. Update the guest metadata to
 reflect their new locations and properties.
@@ -184,26 +152,10 @@ sub copy_storage
     my $self = shift;
     my ($target, $output_format, $output_sparse) = @_;
 
-    my $dom = $self->get_dom();
+    my $meta = $self->get_meta();
 
-    # An list of local paths to guest storage
-    my @paths;
-    # A list of libvirt target device names
-    my @devices;
-
-    foreach my $disk ($dom->findnodes("/domain/devices/disk[\@device='disk']"))
-    {
-        my ($source_e) = $disk->findnodes('source');
-
-        my ($source) = $source_e->findnodes('@file | @dev');
-        defined($source) or die("source element has neither dev nor file: \n".
-                                $dom->toString());
-
-        my ($dev) = $disk->findnodes('target/@dev');
-        defined($dev) or die("disk does not have a target device: \n".
-                             $dom->toString());
-
-        my $src = $self->get_volume($source->getValue());
+    foreach my $disk (@{$meta->{disks}}) {
+        my $src = $self->get_volume($disk->{path});
         my $dst;
         if ($target->volume_exists($src->get_name())) {
             logmsg WARN, __x('Storage volume {name} already exists on the '.
@@ -219,72 +171,24 @@ sub copy_storage
                 defined($output_sparse) ? $output_sparse : $src->is_sparse()
             );
 
+            # This will die if libguestfs can't use the result directly, so we
+            # do it before copying all the data.
+            $disk->{local_path} = $dst->get_local_path();
+
             _volume_copy($src, $dst);
         }
 
-        # This will die if libguestfs can't use the result directly, so we do it
-        # before copying all the data.
-        push(@paths, $dst->get_local_path());
-
-        # Export the new path
-        my $path = $dst->get_path();
-
-        # Find any existing driver element.
-        my ($driver) = $disk->findnodes('driver');
-
-        # Create a new driver element if none exists
-        unless (defined($driver)) {
-            $driver =
-                $disk->getOwnerDocument()->createElement("driver");
-            $disk->appendChild($driver);
-        }
-        $driver->setAttribute('name', 'qemu');
-        $driver->setAttribute('type', $dst->get_format());
-
-        # Remove the @file or @dev attribute before adding a new one
-        $source_e->removeAttributeNode($source);
-
-        # Set @file or @dev as appropriate
-        if ($dst->is_block()) {
-            $disk->setAttribute('type', 'block');
-            $source_e->setAttribute('dev', $path);
-        } else {
-            $disk->setAttribute('type', 'file');
-            $source_e->setAttribute('file', $path);
-        }
-
-        push(@devices, $dev->getNodeValue());
+        # Update the volume path to point to the copy
+        $disk->{path} = $dst->get_path();
+        $disk->{is_block} = $dst->is_block();
     }
-
-    # Blank the source of floppies or cdroms
-    foreach my $disk ($dom->findnodes('/domain/devices/disk'.
-                                      "[\@device='floppy' or \@device='cdrom']"))
-    {
-        my ($source_e) = $disk->findnodes('source');
-
-        # Nothing to do if there's no source element
-        next unless (defined($source_e));
-
-        # Blank file or dev as appropriate
-        my ($source) = $source_e->findnodes('@file | @dev');
-        defined($source) or die("source element has neither dev nor file: \n".
-                                $dom->toString());
-
-        $source_e->setAttribute($source->getName(), '');
-    }
-
-    v2vdie __'Guest doesn\'t define any recognised storage devices'
-        unless @paths > 0;
-
-    $self->{paths} = \@paths;
-    $self->{devices} = \@devices;
 }
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

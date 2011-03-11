@@ -68,7 +68,7 @@ sub can_handle
             $desc->{distro} =~ /^(rhel|fedora)$/);
 }
 
-=item Sys::VirtConvert::Converter::RedHat->convert(g, config, dom, desc, $devices)
+=item Sys::VirtConvert::Converter::RedHat->convert(g, config, meta, desc)
 
 Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
@@ -86,14 +86,9 @@ An initialised Sys::VirtConvert::Config
 
 A description of the guest OS as returned by Sys::Guestfs::Lib.
 
-=item dom
+=item meta
 
-A DOM representation of the guest's libvirt domain metadata
-
-=item devices
-
-An arrayref of libvirt storage device names, in the order they will be presented
-to the guest.
+Guest metadata.
 
 =back
 
@@ -103,12 +98,11 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $desc, $dom, $devices) = @_;
+    my ($g, $config, $desc, $meta) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);
-    croak("convert called without dom argument") unless defined($dom);
-    croak("convert called without devices argument") unless defined($devices);
+    croak("convert called without meta argument") unless defined($meta);
 
     _init_selinux($g);
     _init_augeas($g);
@@ -119,15 +113,15 @@ sub convert
     _unconfigure_hv($g, $desc);
 
     # Try to install the virtio capability
-    my $virtio = _install_capability('virtio', $g, $config, $dom, $desc);
+    my $virtio = _install_capability('virtio', $g, $config, $meta, $desc);
 
     # Get an appropriate kernel, and remove non-bootable kernels
-    my $kernel = _configure_kernel($virtio, $g, $config, $desc, $dom);
+    my $kernel = _configure_kernel($virtio, $g, $config, $desc, $meta);
 
     # Configure the rest of the system
     _configure_console($g);
     _configure_display_driver($g);
-    _remap_block_devices($devices, $virtio, $g, $desc);
+    _remap_block_devices($meta, $virtio, $g, $desc);
     _configure_kernel_modules($g, $desc, $virtio, $modpath);
     _configure_boot($kernel, $virtio, $g, $desc);
 
@@ -609,7 +603,7 @@ sub _inspect_linux_kernel
 
 sub _configure_kernel
 {
-    my ($virtio, $g, $config, $desc, $dom) = @_;
+    my ($virtio, $g, $config, $desc, $meta) = @_;
 
     # Pick first appropriate kernel returned by _list_kernels
     my $boot_kernel;
@@ -630,7 +624,7 @@ sub _configure_kernel
 
     # If none of the installed kernels are appropriate, install a new one
     if(!defined($boot_kernel)) {
-        $boot_kernel = _install_good_kernel($g, $config, $desc, $dom);
+        $boot_kernel = _install_good_kernel($g, $config, $desc, $meta);
     }
 
     # Check we have a bootable kernel.
@@ -882,7 +876,7 @@ sub _find_xen_kernel_modules
 
 sub _install_capability
 {
-    my ($name, $g, $config, $dom, $desc) = @_;
+    my ($name, $g, $config, $meta, $desc) = @_;
 
     my $cap;
     eval {
@@ -944,7 +938,7 @@ sub _install_capability
             # normal kernel replacement
             if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
                 $kernel_pkg =
-                    _get_replacement_kernel_name($kernel_arch, $desc, $dom);
+                    _get_replacement_kernel_name($kernel_arch, $desc, $meta);
 
                 # Check if we've got already got an appropriate kernel
                 my ($installed) =
@@ -1406,7 +1400,7 @@ sub _discover_kernel
 
 sub _get_replacement_kernel_name
 {
-    my ($arch, $desc, $dom) = @_;
+    my ($arch, $desc, $meta) = @_;
 
     # Make an informed choice about a replacement kernel for distros we know
     # about
@@ -1430,24 +1424,14 @@ sub _get_replacement_kernel_name
 
     # RHEL 4
     elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
-        my ($ncpus) = $dom->findnodes('/domain/vcpu/text()');
-        if (defined($ncpus)) {
-            $ncpus = $ncpus->getData()
-        } else {
-            $ncpus = 1;
-        }
-
         if ($arch eq 'i686') {
-            my ($mem_kb) = $dom->findnodes('/domain/memory/text()');
-            $mem_kb = $mem_kb->getData();
-
             # If the guest has > 10G RAM, give it a hugemem kernel
-            if ($mem_kb > 10 * 1024 * 1024) {
+            if ($meta->{memory} > 10 * 1024 * 1024 * 1024) {
                 return 'kernel-hugemem';
             }
 
             # SMP kernel for guests with >1 CPU
-            elsif ($ncpus > 1) {
+            elsif ($meta->{cpus} > 1) {
                 return 'kernel-smp';
             }
 
@@ -1457,11 +1441,11 @@ sub _get_replacement_kernel_name
         }
 
         else {
-            if ($ncpus > 8) {
+            if ($meta->{cpus} > 8) {
                 return 'kernel-largesmp';
             }
 
-            elsif ($ncpus > 1) {
+            elsif ($meta->{cpus} > 1) {
                 return 'kernel-smp';
             }
             else {
@@ -1480,14 +1464,14 @@ sub _get_replacement_kernel_name
 
 sub _install_good_kernel
 {
-    my ($g, $config, $desc, $dom) = @_;
+    my ($g, $config, $desc, $meta) = @_;
 
     my ($kernel_pkg, $kernel_rpmver, $kernel_arch) = _discover_kernel($desc);
 
     # If the guest is using a Xen PV kernel, choose an appropriate
     # normal kernel replacement
     if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-        $kernel_pkg = _get_replacement_kernel_name($kernel_arch, $desc, $dom);
+        $kernel_pkg = _get_replacement_kernel_name($kernel_arch, $desc, $meta);
 
         # Check there isn't already one installed
         my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
@@ -1793,12 +1777,18 @@ sub _rpmvercmp
 
 sub _remap_block_devices
 {
-    my ($devices, $virtio, $g, $desc) = @_;
+    my ($meta, $virtio, $g, $desc) = @_;
 
-    # $devices contains an order list of devices, as named by the host. Because
+    my @devices = map { $_->{device} } @{$meta->{disks}};
+    @devices = sort @devices;
+
+    # @devices contains an ordered list of libvirt device names. Because
     # libvirt uses a similar naming scheme to Linux, these will mostly be the
-    # same names as used by the guest. However, if the guest is using libata,
-    # IDE drives could be renamed.
+    # same names as used by the guest. They are ordered as they were passed to
+    # libguestfs, which means their device name in the appliance can be
+    # inferred.
+
+    # If the guest is using libata, IDE drives could be renamed.
 
     # Modern distros use libata, and IDE devices are presented as sdX
     my $libata = 1;
@@ -1853,7 +1843,7 @@ sub _remap_block_devices
         if (exists($guestif{sd})) {
             # Look for IDE and SCSI devices from the domain definition
             my %domainif;
-            foreach my $device (@$devices) {
+            foreach my $device (@devices) {
                 foreach my $type ('hd', 'sd') {
                     if ($device =~ m{^$type([a-z]+)}) {
                         $domainif{$type} ||= {};
@@ -1881,9 +1871,8 @@ sub _remap_block_devices
                 $letter++;
             }
 
-            # Be careful not to modify the original device list
             my @newdevices;
-            foreach my $device (@$devices) {
+            foreach my $device (@devices) {
                 my $map = $map{$device};
 
                 unless (defined($map)) {
@@ -1892,11 +1881,11 @@ sub _remap_block_devices
                 }
                 push(@newdevices, $map);
             }
-            $devices = \@newdevices;
+            @devices = @newdevices;
         }
     }
 
-    # We now assume that $devices contains an ordered list of device names, as
+    # We now assume that @devices contains an ordered list of device names, as
     # used by the guest. Create a map of old guest device names to new guest
     # device names.
     my %map;
@@ -1912,7 +1901,7 @@ sub _remap_block_devices
     }
 
     my $letter = 'a';
-    foreach my $device (@$devices) {
+    foreach my $device (@devices) {
         $map{$device} = $prefix.$letter;
         $letter++;
     }
@@ -2142,7 +2131,7 @@ sub _supports_virtio
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

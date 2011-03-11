@@ -46,7 +46,7 @@ Sys::VirtConvert::Converter::Windows - Pre-convert a Windows guest to run on KVM
 
  use Sys::VirtConvert::Converter;
 
- Sys::VirtConvert::Converter->convert($g, $config, $desc, $dom, $devices);
+ Sys::VirtConvert::Converter->convert($g, $config, $desc, $meta);
 
 =head1 DESCRIPTION
 
@@ -80,7 +80,7 @@ sub can_handle
     return ($desc->{os} eq 'windows');
 }
 
-=item Sys::VirtConvert::Converter::Windows->convert($g, $guestos, $desc, $devices, $config)
+=item Sys::VirtConvert::Converter::Windows->convert(g, config, desc, meta)
 
 (Pre-)convert a Windows guest. Assume that can_handle has previously
 returned 1.
@@ -99,14 +99,9 @@ An initialised Sys::VirtConvert::Config object.
 
 A description of the guest OS as returned by Sys::Guestfs::Lib.
 
-=item dom
+=item meta
 
-A DOM representation of the guest's libvirt domain metadata
-
-=item devices
-
-An arrayref of libvirt storage device names, in the order they will be
-presented to the guest.
+Guest metadata.
 
 =back
 
@@ -116,21 +111,20 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $desc, undef, $devices) = @_;
+    my ($g, $config, $desc, undef) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);
-    croak("convert called without devices argument") unless defined($devices);
 
     my $tmpdir = tempdir (CLEANUP => 1);
 
     # Note: disks are already mounted by main virt-v2v script.
 
-    _upload_files ($g, $tmpdir, $desc, $devices, $config);
-    _add_viostor_to_registry ($g, $tmpdir, $desc, $devices, $config);
-    _add_service_to_registry ($g, $tmpdir, $desc, $devices, $config);
+    _upload_files ($g, $tmpdir, $desc, $config);
+    _add_viostor_to_registry ($g, $tmpdir, $desc, $config);
+    _add_service_to_registry ($g, $tmpdir, $desc, $config);
     my ($block, $net) =
-        _prepare_virtio_drivers ($g, $tmpdir, $desc, $devices, $config);
+        _prepare_virtio_drivers ($g, $tmpdir, $desc, $config);
 
     # Return guest capabilities.
     my %guestcaps;
@@ -152,7 +146,6 @@ sub _add_viostor_to_registry
     my $g = shift;
     my $tmpdir = shift;
     my $desc = shift;
-    my $devices = shift;
     my $config = shift;
 
     # Locate and download the system registry.
@@ -255,7 +248,6 @@ sub _add_service_to_registry
     my $g = shift;
     my $tmpdir = shift;
     my $desc = shift;
-    my $devices = shift;
     my $config = shift;
 
     # Locate and download the system registry.
@@ -314,7 +306,6 @@ sub _prepare_virtio_drivers
     my $g = shift;
     my $tmpdir = shift;
     my $desc = shift;
-    my $devices = shift;
     my $config = shift;
 
     # Copy the target VirtIO drivers to the guest
@@ -439,7 +430,6 @@ sub _upload_files
     my $g = shift;
     my $tmpdir = shift;
     my $desc = shift;
-    my $devices = shift;
     my $config = shift;
 
     # Check we have all required files
@@ -487,7 +477,7 @@ sub _upload_files
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

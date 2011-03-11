@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use URI;
-use XML::DOM;
+use XML::DOM::XPath;
 
 use Sys::Virt;
 
@@ -51,7 +51,7 @@ libvirt
 
  $conn = Sys::VirtConvert::Connection::LibVirtSource->new
     ("xen+ssh://xenserver.example.com/", $name);
- $dom = $conn->get_dom();
+ $meta = $conn->get_meta();
 
 =head1 DESCRIPTION
 
@@ -80,7 +80,7 @@ sub new
     $self->{name} = $name;
 
     $self->_check_shutdown();
-    $self->_get_dom();
+    $self->_get_meta();
 
     return $self;
 }
@@ -229,7 +229,7 @@ sub _get_domain
     return $domain;
 }
 
-sub _get_dom
+sub _get_meta
 {
     my $self = shift;
 
@@ -242,17 +242,15 @@ sub _get_dom
     # Warn and exit if we didn't find it
     return undef unless(defined($domain));
 
-    my $xml = $domain->get_xml_description();
-
-    my $dom = new XML::DOM::Parser->parse($xml);
-    $self->{dom} = $dom;
+    my $dom = new XML::DOM::Parser->parse($domain->get_xml_description());
+    $self->{meta} = Sys::VirtConvert::Connection::LibVirt::_parse_dom($dom);
 }
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 
