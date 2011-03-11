@@ -1,5 +1,5 @@
 # Sys::VirtConvert::Util
-# Copyright (C) 2010 Red Hat Inc.
+# Copyright (C) 2010-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -256,7 +256,7 @@ sub logmsg_init
     elsif ($method eq 'syslog') {
         use Sys::Syslog qw(:standard :macros);
 
-        openlog('virt-v2v', '', LOG_USER);
+        openlog('virt-v2v', 'pid', LOG_USER);
         $logmsg = sub {
             my ($level, $msg) = @_;
 
@@ -331,7 +331,7 @@ sub v2vdie
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Red Hat Inc.
+Copyright (C) 2010-2011 Red Hat Inc.
 
 =head1 LICENSE
 
