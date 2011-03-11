@@ -36,7 +36,6 @@ use Sys::VirtConvert::Connection::LibVirtSource;
 use Sys::VirtConvert::Connection::LibVirtTarget;
 use Sys::VirtConvert::Connection::LibVirtXMLSource;
 use Sys::VirtConvert::Connection::RHEVTarget;
-use Sys::VirtConvert::ExecHelper;
 use Sys::VirtConvert::GuestfsHandle;
 use Sys::VirtConvert::Util qw(:DEFAULT logmsg_init);
 
