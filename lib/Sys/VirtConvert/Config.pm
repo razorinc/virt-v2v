@@ -1,5 +1,5 @@
 # Sys::VirtConvert::Config
-# Copyright (C) 2009 Red Hat Inc.
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -557,7 +557,25 @@ sub get_storage
 
     croak "get_storage called without profile" unless defined($self->{profile});
 
-    return ($self->{output_storage}, $self->{output_storage_opts});
+    return $self->{output_storage};
+}
+
+=item get_storage_opts
+
+Return a hashref of storage options from the selected profile.
+
+I<use_profile> must have been called previously.
+
+=cut
+
+sub get_storage_opts
+{
+    my $self = shift;
+
+    croak "get_storage_opts called without profile"
+        unless defined($self->{profile});
+
+    return $self->{output_storage_opts};
 }
 
 =item list_profiles
@@ -578,7 +596,7 @@ sub list_profiles
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Red Hat Inc.
+Copyright (C) 2009-2011 Red Hat Inc.
 
 =head1 LICENSE
 

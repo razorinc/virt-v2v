@@ -404,7 +404,8 @@ if (defined($profile)) {
     $output_method = $config->get_method();
 
     my $opts;
-    ($output_storage, $opts) = $config->get_storage();
+    my $output_storage = $config->get_storage();
+    my $opts = $config->get_storage_opts();
 
     my $allocation = $opts->{allocation};
     $output_sparse = parse_allocation($allocation) if defined($allocation);
