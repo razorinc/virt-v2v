@@ -242,6 +242,45 @@ I<profile> in the configuration file.
 
 =cut
 
+my $root_choice = "ask";
+
+=item B<--root=ask>
+
+=item B<--root=single>
+
+=item B<--root=first>
+
+=item B<--root=/dev/sdX>
+
+Choose the root filesystem to be converted.
+
+In the case where the virtual machine is dual-boot or multi-boot, or
+where the VM has other filesystems that look like operating systems,
+this option can be used to select the root filesystem (a.k.a. "C:
+drive" or "/") of the operating system that is to be converted. The
+Windows Recovery Console, certain attached DVD drives, and bugs in
+libguestfs inspection heuristics, can make a guest look like a
+multi-boot operating system.
+
+The default in virt-v2v E<le> 0.7.1 was I<--root=single>, which
+causes virt-v2v to die if a multi-boot operating system is found.
+
+Since virt-v2v E<ge> 0.7.2 the default is now I<--root=ask>: If the VM
+is found to be multi-boot, then virt-v2v will stop and list the
+possible root filesystems and ask the user which to use. This
+requires that virt-v2v is run interactively.
+
+I<--root=first> means to choose the first root device in the case of a
+multi-boot operating system. Since this is a heuristic, it may
+sometimes choose the wrong one.
+
+You can also name a specific root device, eg. I<--root=/dev/sda2>
+would mean to use the second partition on the first hard drive. If
+the named root device does not exist or was not detected as a root
+device, then virt-v2v will fail.
+
+=cut
+
 my $list_profiles = 0;
 
 =item B<--list-profiles>
@@ -319,6 +358,7 @@ GetOptions ("help|?"      => sub {
                             -exitval => 1 }) if (defined($bridge));
                 $bridge = $value;
             },
+            "root=s"      => \$root_choice,
             "p|profile=s" => \$profile,
             "list-profiles" => \$list_profiles
 ) or pod2usage(2);
@@ -527,19 +567,75 @@ sub inspect_guest
 
     my $oses = inspect_operating_systems ($g, \%fses);
 
-    # Only work on single-root operating systems.
+    # Get list of roots, sorted.
     my $root_dev;
-    my @roots = keys %$oses;
+    my @roots = sort (keys %$oses);
 
     if(@roots == 0) {
         v2vdie __('No root device found in this operating system image.');
     }
 
-    if(@roots > 1) {
-        v2vdie __('Multiboot operating systems are not supported by virt-v2v.');
+    if (@roots == 1) {
+        $root_dev = $roots[0];
+    } else {
+        # > 1 roots found. Depends on the --root option / $root_choice.
+        if ($root_choice eq "ask") {
+            # List out the roots and ask user to choose.
+            print "\n***\n";
+            print __("Dual- or multi-boot operating system detected. Choose the root filesystem\nthat contains the main operating system from the list below:\n");
+            print "\n";
+            my $i = 1;
+            foreach (@roots) {
+                print " [$i] $_";
+                print " (", $oses->{$_}->{product_name}, ")"
+                    if exists $oses->{$_}->{product_name};
+                print "\n";
+                $i++;
+            }
+            $i--;
+            print "\n";
+            my $j = 0;
+            while ($j < 1 || $j > $i) {
+                print __x("Enter number between 1 and {i}: ", i => $i);
+                $j = int (<STDIN>);
+            }
+            $root_dev = $roots[$j];
+        }
+        elsif ($root_choice eq "single") {
+            v2vdie __('Multi-boot operating systems are not supported by virt-v2v. Use the --root option to change how virt-v2v handles this.')
+        }
+        elsif ($root_choice eq "first") {
+            # Choose the first one.
+            $root_dev = $roots[0];
+        }
+        elsif ($root_choice =~ m|^/dev/[hsv]d(.*)|) {
+            # Choose the named root.
+            my $partnum = $1;
+            foreach (@roots) {
+                if ($_ =~ m|^/dev/.d$partnum$|) {
+                    $root_dev = $_;
+                    last;
+                }
+            }
+            unless (defined ($root_dev)) {
+                v2vdie __x('Root device "{choice}" not found. Roots found were: {roots}.',
+                           choice => $root_choice,
+                           roots => join ' ', @roots)
+            }
+        }
+        elsif ($root_choice =~ m|^/dev/|) {
+            $root_dev = $root_choice;
+            unless (exists $oses->{$root_dev}) {
+                v2vdie __x('Root device "{choice}" not found. Roots found were: {roots}.',
+                           choice => $root_choice,
+                           roots => join ' ', @roots)
+            }
+        }
+        else {
+            v2vdie __x('Unknown --root option "{choice}".',
+                       choice => $root_choice)
+        }
     }
-
-    $root_dev = $roots[0];
 
     # Mount up the disks and check for applications.
 
