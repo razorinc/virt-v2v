@@ -191,6 +191,17 @@ source.
 
 =cut
 
+my $output_name;
+
+=item B<-on outputname>
+
+Rename the guest.
+
+If this option is not given, then the output name is the same
+as the input name.
+
+=cut
+
 my $config_file;
 $config_file = '/etc/virt-v2v.conf';
 
@@ -290,6 +301,7 @@ GetOptions ("help|?"      => sub {
                 my (undef, $value) = @_;
                 $output_sparse = parse_allocation($value);
             },
+            "on=s"        => \$output_name,
             "f|config=s"  => \$config_file,
             "n|network=s" => sub {
                 my (undef, $value) = @_;
@@ -417,10 +429,13 @@ else {
 ###############################################################################
 ## Start of processing
 
+# Decide the name of the guest target.
+$output_name = $source->get_name() unless defined $output_name;
+
 # Check that the guest doesn't already exist on the target
 v2vdie __x('Domain {name} already exists on the target.',
-           name => $source->get_name)
-    if $target->guest_exists($source->get_name());
+           name => $output_name)
+    if $target->guest_exists($output_name);
 
 # Copy source storage to target
 $source->copy_storage($target, $output_format, $output_sparse);
@@ -462,21 +477,20 @@ if ($@) {
 
 $g->close();
 
-$target->create_guest($os, $dom, $guestcaps);
+$target->create_guest($os, $dom, $guestcaps, $output_name);
 
-my ($name) = $dom->findnodes('/domain/name/text()');
-$name = $name->getNodeValue();
 if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
-    logmsg NOTICE, __x('{name} configured with virtio drivers.', name => $name);
+    logmsg NOTICE, __x('{name} configured with virtio drivers.',
+                       name => $output_name);
 } elsif ($guestcaps->{block} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio storage only.',
-                       name => $name);
+                       name => $output_name);
 } elsif ($guestcaps->{net} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio networking only.',
-                       name => $name);
+                       name => $output_name);
 } else {
     logmsg NOTICE, __x('{name} configured without virtio drivers.',
-                       name => $name);
+                       name => $output_name);
 }
 
 exit(0);

@@ -606,7 +606,7 @@ sub guest_exists
     return 0;
 }
 
-=item create_guest(dom)
+=item create_guest(desc, dom, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -615,11 +615,7 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $dom, $guestcaps) = @_;
-
-    # Get the name of the guest
-    my ($name) = $dom->findnodes('/domain/name/text()');
-    $name = $name->getNodeValue();
+    my ($desc, $dom, $guestcaps, $output_name) = @_;
 
     # Get the number of virtual cpus
     my ($ncpus) = $dom->findnodes('/domain/vcpu/text()');
@@ -656,7 +652,7 @@ sub create_guest
     </Section>
 
     <Content ovf:id="out" xsi:type="ovf:VirtualSystem_Type">
-        <Name>$name</Name>
+        <Name>$output_name</Name>
         <TemplateId>00000000-0000-0000-0000-000000000000</TemplateId>
         <TemplateName>Blank</TemplateName>
         <Description>Imported with virt-v2v</Description>

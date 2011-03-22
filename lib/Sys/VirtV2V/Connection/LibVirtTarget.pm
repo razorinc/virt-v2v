@@ -261,7 +261,7 @@ sub guest_exists
     return 1;
 }
 
-=item create_guest(desc, dom, guestcaps)
+=item create_guest(desc, dom, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -270,10 +270,11 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $dom, $guestcaps) = @_;
+    my ($desc, $dom, $guestcaps, $output_name) = @_;
 
     my $vmm = $self->{vmm};
 
+    _change_name ($dom, $output_name);
     _unconfigure_incompatible_devices($dom);
     _configure_capabilities($vmm, $dom, $guestcaps);
 
@@ -301,6 +302,15 @@ sub DESTROY
 
         $vol->delete(Sys::Virt::StorageVol::DELETE_NORMAL);
     }
+}
+
+sub _change_name
+{
+    my $dom = shift;
+    my $output_name = shift;
+
+    my ($name) = $dom->findnodes ('/domain/name/text()');
+    $name->setNodeValue ($output_name);
 }
 
 sub _unconfigure_incompatible_devices
