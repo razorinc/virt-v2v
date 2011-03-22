@@ -1,4 +1,4 @@
-# Sys::VirtV2V::ExecHelper
+# Sys::VirtConvert::ExecHelper
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::ExecHelper;
+package Sys::VirtConvert::ExecHelper;
 
 use strict;
 use warnings;
@@ -28,13 +28,13 @@ use POSIX ":sys_wait_h";
 
 =head1 NAME
 
-Sys::VirtV2V::ExecHelper - Execute a command with output suppression
+Sys::VirtConvert::ExecHelper - Execute a command with output suppression
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::ExecHelper;
+ use Sys::VirtConvert::ExecHelper;
 
- $eh = Sys::VirtV2V::ExecHelper->run('rpm', '-V', 'bash');
+ $eh = Sys::VirtConvert::ExecHelper->run('rpm', '-V', 'bash');
 
  if($eh->status() != 0) {
      warn $eh->output();
@@ -42,9 +42,9 @@ Sys::VirtV2V::ExecHelper - Execute a command with output suppression
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::ExecHelper is a substitute for system() when you don't want any
-command output. Sys::VirtV2V::ExecHelper does, however, make STDOUT and STDERR
-available in a combined stream if it is required, for example because the
+Sys::VirtConvert::ExecHelper is a substitute for system() when you don't want
+any command output. Sys::VirtConvert::ExecHelper does, however, make STDOUT and
+STDERR available in a combined stream if it is required, for example because the
 executed command failed.
 
 =head1 METHODS

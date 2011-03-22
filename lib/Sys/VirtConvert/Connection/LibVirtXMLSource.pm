@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::LibVirtXMLSource
-# Copyright (C) 2009,2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::LibVirtXMLSource
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection::LibVirtXMLSource;
+package Sys::VirtConvert::Connection::LibVirtXMLSource;
 
 use strict;
 use warnings;
@@ -25,20 +25,21 @@ use Sys::Virt;
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::Connection::Source;
-use Sys::VirtV2V::Transfer::Local;
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Connection::Source;
+use Sys::VirtConvert::Transfer::Local;
+use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Connection::LibVirtXMLSource::ISA =
-    qw(Sys::VirtV2V::Connection::Source);
+@Sys::VirtConvert::Connection::LibVirtXMLSource::ISA =
+    qw(Sys::VirtConvert::Connection::Source);
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::Source::LibVirtXMLSource - Read domain XML from a file
+Sys::VirtConvert::Connection::Source::LibVirtXMLSource - Read domain XML from a
+file
 
 =head1 METHODS
 
@@ -106,8 +107,8 @@ sub _get_dom
 
 =item get_volume(path)
 
-Return a Sys::VirtV2V::Connection::Volume object for I<path>, where I<path> is
-the path to a locally available volume.
+Return a Sys::VirtConvert::Connection::Volume object for I<path>, where I<path>
+is the path to a locally available volume.
 
 =cut
 
@@ -156,13 +157,13 @@ sub get_volume
 
     die("size ($size) < usage ($usage)") if $size < $usage;
 
-    my $transfer = new Sys::VirtV2V::Transfer::Local($path, $format,
-                                                     $is_sparse);
+    my $transfer = new Sys::VirtConvert::Transfer::Local($path, $format,
+                                                         $is_sparse);
 
-    return new Sys::VirtV2V::Connection::Volume($name, $format, $path,
-                                                $size, $usage,
-                                                $is_sparse, $is_block,
-                                                $transfer);
+    return new Sys::VirtConvert::Connection::Volume($name, $format, $path,
+                                                    $size, $usage,
+                                                    $is_sparse, $is_block,
+                                                    $transfer);
 }
 
 =back
@@ -177,7 +178,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection::Source(3pm>,
+L<Sys::VirtConvert::Connection::Source(3pm>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

@@ -6,7 +6,7 @@ use warnings;
 use Module::Build;
 
 my $class = Module::Build->subclass(
-    class => 'Module::Build::VirtV2V',
+    class => 'Module::Build::VirtConvert',
     code => <<'SUBCLASS' );
 
 __PACKAGE__->add_property('confdoc_files');
@@ -210,7 +210,7 @@ SUBCLASS
 my $build = $class->new (
     license      => 'gpl',
     dist_name    => 'virt-v2v',
-    dist_version_from => 'lib/Sys/VirtV2V.pm',
+    dist_version_from => 'lib/Sys/VirtConvert.pm',
     confdoc_files => [ 'v2v/virt-v2v.conf.pod' ],
     install_path => { 'locale' => '/usr/local/share/locale' },
     script_files => [ 'v2v/virt-v2v.pl' ],

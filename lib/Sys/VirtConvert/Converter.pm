@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Converter
-# Copyright (C) 2009 Red Hat Inc.
+# Sys::VirtConvert::Converter
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Converter;
+package Sys::VirtConvert::Converter;
 
 use strict;
 use warnings;
@@ -23,29 +23,29 @@ use warnings;
 use Carp;
 
 use Module::Pluggable sub_name => 'modules',
-                      search_path => ['Sys::VirtV2V::Converter'],
+                      search_path => ['Sys::VirtConvert::Converter'],
                       require => 1;
 
 use Locale::TextDomain 'virt-v2v';
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Converter - Convert a guest to run on KVM
+Sys::VirtConvert::Converter - Convert a guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Converter;
+ use Sys::VirtConvert::Converter;
 
- Sys::VirtV2V::Converter->convert($g, $config, $desc, $dom, $devices);
+ Sys::VirtConvert::Converter->convert($g, $config, $desc, $dom, $devices);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Converter instantiates an appropriate backend for the target guest
-OS, and uses it to convert the guest to run on KVM.
+Sys::VirtConvert::Converter instantiates an appropriate backend for the target
+guest OS, and uses it to convert the guest to run on KVM.
 
 =head1 METHODS
 
@@ -72,7 +72,7 @@ use constant KVM_DEFAULT_XML => "
 </domain>
 ";
 
-=item Sys::VirtV2V::Converter->convert(g, config, desc, dom, devices)
+=item Sys::VirtConvert::Converter->convert(g, config, desc, dom, devices)
 
 Instantiate an appropriate backend and call convert on it.
 
@@ -84,7 +84,7 @@ A libguestfs handle to the target.
 
 =item config
 
-An initialised Sys::VirtV2V::Config object.
+An initialised Sys::VirtConvert::Config object.
 
 =item desc
 
@@ -477,7 +477,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Converter::Linux(3pm)>,
+L<Sys::VirtConvert::Converter::Linux(3pm)>,
 L<Sys::Guestfs::Lib(3pm)>,
 L<Sys::Virt(3pm)>,
 L<virt-v2v(1)>,

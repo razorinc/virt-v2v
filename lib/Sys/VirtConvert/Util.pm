@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Util
+# Sys::VirtConvert::Util
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Util;
+package Sys::VirtConvert::Util;
 
 use strict;
 use warnings;
@@ -44,11 +44,11 @@ use constant FATAL  => 4;
 
 =head1 NAME
 
-Sys::VirtV2V::Util - Utility functions for virt-v2v
+Sys::VirtConvert::Util - Utility functions for virt-v2v
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Util qw(augeas_error);
+ use Sys::VirtConvert::Util qw(augeas_error);
 
  augeas_error($g, $@) if ($@);
 
@@ -56,7 +56,7 @@ Sys::VirtV2V::Util - Utility functions for virt-v2v
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Util contains utility functions used throughout virt-v2v.
+Sys::VirtConvert::Util contains utility functions used throughout virt-v2v.
 
 =head1 METHODS
 

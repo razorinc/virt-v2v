@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Connection::Volume
+# Sys::VirtConvert::Connection::Volume
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,14 +15,14 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection::Volume;
+package Sys::VirtConvert::Connection::Volume;
 
 use strict;
 use warnings;
 
 use Data::Dumper;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -30,7 +30,7 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::Volume - Read and write storage volumes
+Sys::VirtConvert::Connection::Volume - Read and write storage volumes
 
 =head1 METHODS
 

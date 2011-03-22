@@ -7,9 +7,9 @@ use strict;
 die unless (scalar @ARGV == 1);
 
 my $VERSION;
-open PM, 'lib/Sys/VirtV2V.pm';
+open PM, 'lib/Sys/VirtConvert.pm';
 while (<PM>) {
-    if (/\$Sys::VirtV2V::VERSION\s*=\s*"(.*)"/) {
+    if (/\$Sys::VirtConvert::VERSION\s*=\s*"(.*)"/) {
         $VERSION=$1;
     }
 }
@@ -76,8 +76,9 @@ Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:       perl-libguestfs >= 1:1.6.0
 Requires:       perl-hivex >= 1.2.2
 
-# Net::SSL is loaded dynamically by Net::HTTPS in Sys::VirtV2V::Transfer::ESX.
-# The dependency isn't automatically discovered.
+# Net::SSL is loaded dynamically by Net::HTTPS in
+# Sys::VirtConvert::Transfer::ESX. The dependency isn't automatically
+# discovered.
 Requires:       perl(Net::SSL)
 
 # Need >= 0.8.1 for rpc fix talking to RHEL 5 libvirt

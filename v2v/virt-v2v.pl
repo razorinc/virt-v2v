@@ -29,16 +29,16 @@ use Sys::Guestfs::Lib qw(get_partitions inspect_all_partitions
                          inspect_operating_systems mount_operating_system
                          inspect_in_detail);
 
-use Sys::VirtV2V;
-use Sys::VirtV2V::Config;
-use Sys::VirtV2V::Converter;
-use Sys::VirtV2V::Connection::LibVirtSource;
-use Sys::VirtV2V::Connection::LibVirtTarget;
-use Sys::VirtV2V::Connection::LibVirtXMLSource;
-use Sys::VirtV2V::Connection::RHEVTarget;
-use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::GuestfsHandle;
-use Sys::VirtV2V::Util qw(:DEFAULT logmsg_init);
+use Sys::VirtConvert;
+use Sys::VirtConvert::Config;
+use Sys::VirtConvert::Converter;
+use Sys::VirtConvert::Connection::LibVirtSource;
+use Sys::VirtConvert::Connection::LibVirtTarget;
+use Sys::VirtConvert::Connection::LibVirtXMLSource;
+use Sys::VirtConvert::Connection::RHEVTarget;
+use Sys::VirtConvert::ExecHelper;
+use Sys::VirtConvert::GuestfsHandle;
+use Sys::VirtConvert::Util qw(:DEFAULT logmsg_init);
 
 =encoding utf8
 
@@ -318,7 +318,7 @@ GetOptions ("help|?"      => sub {
                 pod2usage(0);
             },
             "version"     => sub {
-                print "$Sys::VirtV2V::VERSION\n";
+                print "$Sys::VirtConvert::VERSION\n";
                 exit(0);
             },
             "c|connect"   => sub {
@@ -383,7 +383,7 @@ sub parse_allocation
 umask(0022);
 
 # Read the config file
-my $config = Sys::VirtV2V::Config->new($config_file);
+my $config = Sys::VirtConvert::Config->new($config_file);
 
 if ($list_profiles) {
     print STDOUT (__"Defined profiles:")."\n";
@@ -418,12 +418,12 @@ pod2usage({ -message => __("You must specify an output storage location"),
 
 my $target;
 if ($output_method eq "libvirt") {
-    $target = new Sys::VirtV2V::Connection::LibVirtTarget($output_uri,
-                                                          $output_storage);
+    $target = new Sys::VirtConvert::Connection::LibVirtTarget($output_uri,
+                                                              $output_storage);
 }
 
 elsif ($output_method eq "rhev") {
-    $target = new Sys::VirtV2V::Connection::RHEVTarget($output_storage);
+    $target = new Sys::VirtConvert::Connection::RHEVTarget($output_storage);
 }
 
 else {
@@ -444,7 +444,7 @@ if ($input_method eq "libvirtxml") {
                          modulename => 'libvirtxml');
     }
 
-    $source = Sys::VirtV2V::Connection::LibVirtXMLSource->new($path);
+    $source = Sys::VirtConvert::Connection::LibVirtXMLSource->new($path);
 }
 
 elsif ($input_method eq "libvirt") {
@@ -452,7 +452,8 @@ elsif ($input_method eq "libvirt") {
         pod2usage({ -message => __"You must specify a guest",
                     -exitval => 1 });
 
-    $source = Sys::VirtV2V::Connection::LibVirtSource->new($input_uri, $name);
+    $source = Sys::VirtConvert::Connection::LibVirtSource->new($input_uri,
+                                                               $name);
 
     # Warn if we were given more than 1 argument
     if(scalar(@ARGV) > 0) {
@@ -492,7 +493,7 @@ my $transferiso;
 $transferiso = $config->get_transfer_iso();
 
 # Open a libguestfs handle on the guest's storage devices
-my $g = new Sys::VirtV2V::GuestfsHandle($storage, $transferiso,
+my $g = new Sys::VirtConvert::GuestfsHandle($storage, $transferiso,
                                         $output_method eq 'rhev');
 
 my $os;
@@ -502,7 +503,7 @@ eval {
     $os = inspect_guest($g);
 
     # Modify the guest and its metadata
-    $guestcaps = Sys::VirtV2V::Converter->convert($g, $config, $os, $dom,
+    $guestcaps = Sys::VirtConvert::Converter->convert($g, $config, $os, $dom,
                                                 $source->get_storage_devices());
 };
 

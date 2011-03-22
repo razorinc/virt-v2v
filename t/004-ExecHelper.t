@@ -21,13 +21,13 @@ use warnings;
 
 use Test::More tests => 4;
 
-use Sys::VirtV2V::ExecHelper;
+use Sys::VirtConvert::ExecHelper;
 
 my $eh;
 
 # Check it executes a program
 eval {
-    $eh = Sys::VirtV2V::ExecHelper->run('/bin/echo', 'Foo');
+    $eh = Sys::VirtConvert::ExecHelper->run('/bin/echo', 'Foo');
 };
 ok(defined($eh)) or diag($@);
 
@@ -38,6 +38,6 @@ is($eh->status(), 0);
 is($eh->output(), "Foo\n");
 
 # Check /bin/false reports exit status 1
-$eh = Sys::VirtV2V::ExecHelper->run('/bin/false');
+$eh = Sys::VirtConvert::ExecHelper->run('/bin/false');
 
 is($eh->status(), 1);

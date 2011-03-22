@@ -1,4 +1,4 @@
-# Sys::VirtV2V
+# Sys::VirtConvert
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,31 +15,31 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V;
+package Sys::VirtConvert;
 
 use strict;
 use warnings;
 
-$Sys::VirtV2V::VERSION = "0.7.1";
+$Sys::VirtConvert::VERSION = "0.7.1";
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V - Convert a virtual guest to use KVM
+Sys::VirtConvert - Convert a virtual guest to use KVM
 
 =head1 DESCRIPTION
 
-Modules under Sys::VirtV2V are used by the L<virt-v2v(1)> tool. See the
+Modules under Sys::VirtConvert are used by the L<virt-v2v(1)> tool. See the
 virt-v2v documentation for a more detailed description.
 
-The Sys::VirtV2V module provides package information for virt-v2v.
+The Sys::VirtConvert module provides package information for virt-v2v.
 
 =head1 VARIABLES
 
 =over
 
-=item $Sys::VirtV2V::VERSION
+=item $Sys::VirtConvert::VERSION
 
 Version number.
 

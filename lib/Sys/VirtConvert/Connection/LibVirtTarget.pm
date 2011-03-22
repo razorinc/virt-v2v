@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::LibVirtTarget
-# Copyright (C) 2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::LibVirtTarget
+# Copyright (C) 2010-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,34 +18,34 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Connection::LibVirtTarget;
+package Sys::VirtConvert::Connection::LibVirtTarget;
 
 use Sys::Virt;
 use Sys::Virt::Error;
 use Sys::Virt::StorageVol;
 
-use Sys::VirtV2V::Connection::LibVirt;
-use Sys::VirtV2V::Util qw(:DEFAULT parse_libvirt_volinfo);
+use Sys::VirtConvert::Connection::LibVirt;
+use Sys::VirtConvert::Util qw(:DEFAULT parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Connection::LibVirtTarget::ISA =
-    qw(Sys::VirtV2V::Connection::LibVirt);
+@Sys::VirtConvert::Connection::LibVirtTarget::ISA =
+    qw(Sys::VirtConvert::Connection::LibVirt);
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::LibVirtTarget - Output to libvirt
+Sys::VirtConvert::Connection::LibVirtTarget - Output to libvirt
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection::LibVirtTarget;
+ use Sys::VirtConvert::Connection::LibVirtTarget;
 
- my $target = new Sys::VirtV2V::Connection::LibVirtTarget($uri, $poolname);
+ my $target = new Sys::VirtConvert::Connection::LibVirtTarget($uri, $poolname);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection::LibVirtTarget creates a new libvirt domain using the
-given target URI. New storage will be created in the target pool.
+Sys::VirtConvert::Connection::LibVirtTarget creates a new libvirt domain using
+the given target URI. New storage will be created in the target pool.
 
 =cut
 
@@ -57,7 +57,7 @@ our @cleanup_vols;
 
 =over
 
-=item Sys::VirtV2V::Connection::LibVirtTarget->new(uri, poolname)
+=item Sys::VirtConvert::Connection::LibVirtTarget->new(uri, poolname)
 
 Create a new LibVirtTarget object.
 
@@ -115,7 +115,7 @@ The size of the volume which is being created in bytes.
 
 =back
 
-create_volume() returns a Sys::VirtV2V::Connection::Volume object.
+create_volume() returns a Sys::VirtConvert::Connection::Volume object.
 
 =cut
 
@@ -158,7 +158,7 @@ sub create_volume
 
     my $transfer = $self->_get_transfer($vol->get_path(), $is_block,
                                         $format, $sparse);
-    return new Sys::VirtV2V::Connection::Volume($name, $format,
+    return new Sys::VirtConvert::Connection::Volume($name, $format,
                                                 $vol->get_path(),
                                                 $size, $allocation,
                                                 $sparse, $is_block,
@@ -203,7 +203,7 @@ sub volume_exists
 =item get_volume (name)
 
 Get a reference to an existing volume. get_volume returns a
-Sys::VirtV2V::Connection::Volume object.
+Sys::VirtConvert::Connection::Volume object.
 
 =cut
 
@@ -227,7 +227,7 @@ sub get_volume
 
     my $transfer = $self->_get_transfer($vol->get_path(), $is_block,
                                         $format, $is_sparse);
-    return new Sys::VirtV2V::Connection::Volume($name, $format,
+    return new Sys::VirtConvert::Connection::Volume($name, $format,
                                                 $vol->get_path(),
                                                 $size, $usage,
                                                 $is_sparse, $is_block,

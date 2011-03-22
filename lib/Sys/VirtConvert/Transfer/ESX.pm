@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Transfer::ESX
+# Sys::VirtConvert::Transfer::ESX
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -18,13 +18,13 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Transfer::ESX::UA;
+package Sys::VirtConvert::Transfer::ESX::UA;
 
 use DateTime;
 use MIME::Base64;
 
-use Sys::VirtV2V;
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 # This is a gross hack to bring sanity to Net::HTTPS's SSL handling. Net::HTTPS
@@ -52,7 +52,7 @@ sub new {
     bless($self, $class);
 
     $self->{noverify} = $noverify;
-    $self->{agent}    = 'virt-v2v/'.$Sys::VirtV2V::VERSION;
+    $self->{agent}    = 'virt-v2v/'.$Sys::VirtConvert::VERSION;
     $self->{auth}     = 'Basic '.encode_base64("$username:$password");
 
     if ($noverify) {
@@ -207,7 +207,7 @@ sub _parse_nottime
 }
 
 
-package Sys::VirtV2V::Transfer::ESX::ReadStream;
+package Sys::VirtConvert::Transfer::ESX::ReadStream;
 
 sub new
 {
@@ -217,7 +217,7 @@ sub new
     my $self = {};
     bless($self, $class);
 
-    $self->{ua} = new Sys::VirtV2V::Transfer::ESX::UA(
+    $self->{ua} = new Sys::VirtConvert::Transfer::ESX::UA(
         $username,
         $password,
         $noverify
@@ -256,19 +256,19 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Transfer::ESX;
+package Sys::VirtConvert::Transfer::ESX;
 
 use Sys::Virt;
 use URI;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Transfer::ESX - Transfer guest storage from an ESX server
+Sys::VirtConvert::Transfer::ESX - Transfer guest storage from an ESX server
 
 =head1 METHODS
 
@@ -297,7 +297,7 @@ sub new
     $self->{password} = $password;
     $self->{noverify} = $noverify;
 
-    my $ua = new Sys::VirtV2V::Transfer::ESX::UA(
+    my $ua = new Sys::VirtConvert::Transfer::ESX::UA(
         $username,
         $password,
         $noverify
@@ -398,7 +398,7 @@ sub get_read_stream
     my $self = shift;
     my ($convert) = @_; # Not required, as ESX connection always returns raw
 
-    return new Sys::VirtV2V::Transfer::ESX::ReadStream(
+    return new Sys::VirtConvert::Transfer::ESX::ReadStream(
         $self->{uri},
         $self->{username},
         $self->{password},

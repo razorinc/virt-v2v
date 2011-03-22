@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Config
+# Sys::VirtConvert::Config
 # Copyright (C) 2009 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Config;
+package Sys::VirtConvert::Config;
 
 use strict;
 use warnings;
@@ -26,8 +26,8 @@ use File::stat;
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::ExecHelper;
+use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -35,13 +35,13 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Config - Manage virt-v2v's configuration file
+Sys::VirtConvert::Config - Manage virt-v2v's configuration file
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Config;
+ use Sys::VirtConvert::Config;
 
- $eh = Sys::VirtV2V::Config->new($config_path);
+ $eh = Sys::VirtConvert::Config->new($config_path);
 
  my $isopath = $config->get_transfer_iso();
  my ($path, $deps) = $config->match_app($desc, $name, $arch);
@@ -49,7 +49,7 @@ Sys::VirtV2V::Config - Manage virt-v2v's configuration file
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Config parses and queries the virt-v2v config file.
+Sys::VirtConvert::Config parses and queries the virt-v2v config file.
 
 =head1 METHODS
 
@@ -57,7 +57,7 @@ Sys::VirtV2V::Config parses and queries the virt-v2v config file.
 
 =item new(path)
 
-Create a new Sys::VirtV2V::Config object to operate on the config file at
+Create a new Sys::VirtConvert::Config object to operate on the config file at
 I<path>.
 
 =cut
@@ -150,7 +150,7 @@ sub get_transfer_iso
     $iso_path = $iso_path->getData();
 
     # Create the transfer iso
-    my $eh = Sys::VirtV2V::ExecHelper->run
+    my $eh = Sys::VirtConvert::ExecHelper->run
         ('mkisofs', '-o', $iso_path,
          '-r', '-J',
          '-V', '__virt-v2v_transfer__',

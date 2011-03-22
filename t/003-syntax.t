@@ -26,11 +26,11 @@ use Module::Build;
 eval "use Module::Find";
 plan skip_all => "Module::Find required for testing syntax" if $@;
 
-# Add the Sys::VirtV2V module
-my @modules = ('Sys::VirtV2V');
+# Add the Sys::VirtConvert module
+my @modules = ('Sys::VirtConvert');
 
-# Add all modules under Sys::VirtV2V
-push(@modules, findallmod('Sys::VirtV2V'));
+# Add all modules under Sys::VirtConvert
+push(@modules, findallmod('Sys::VirtConvert'));
 
 plan tests => scalar(@modules) + 1;
 

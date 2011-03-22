@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Converter::RedHat
-# Copyright (C) 2009,2010 Red Hat Inc.
+# Sys::VirtConvert::Converter::RedHat
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Converter::RedHat;
+package Sys::VirtConvert::Converter::RedHat;
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 use XML::DOM;
 use XML::DOM::XPath;
 
-use Sys::VirtV2V::Util qw(:DEFAULT augeas_error);
+use Sys::VirtConvert::Util qw(:DEFAULT augeas_error);
 
 use Carp;
 
@@ -35,26 +35,26 @@ use Carp;
 
 =head1 NAME
 
-Sys::VirtV2V::Converter::RedHat - Convert a Red Hat based guest to run on KVM
+Sys::VirtConvert::Converter::RedHat - Convert a Red Hat based guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Converter;
+ use Sys::VirtConvert::Converter;
 
- Sys::VirtV2V::Converter->convert($g, $dom, $os);
+ Sys::VirtConvert::Converter->convert($g, $meta, $os);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Converter::RedHat converts a Red Hat based guest to use KVM.
+Sys::VirtConvert::Converter::RedHat converts a Red Hat based guest to use KVM.
 
 =head1 METHODS
 
 =over
 
-=item Sys::VirtV2V::Converter::RedHat->can_handle(desc)
+=item Sys::VirtConvert::Converter::RedHat->can_handle(desc)
 
-Return 1 if Sys::VirtV2V::Converter::RedHat can convert the guest described by
-I<desc>, 0 otherwise.
+Return 1 if Sys::VirtConvert::Converter::RedHat can convert the guest described
+by I<desc>, 0 otherwise.
 
 =cut
 
@@ -69,7 +69,7 @@ sub can_handle
             $desc->{distro} =~ /^(rhel|fedora)$/);
 }
 
-=item Sys::VirtV2V::Converter::RedHat->convert(g, config, dom, desc, $devices)
+=item Sys::VirtConvert::Converter::RedHat->convert(g, config, dom, desc, $devices)
 
 Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
@@ -81,7 +81,7 @@ An initialised Sys::Guestfs handle
 
 =item config
 
-An initialised Sys::VirtV2V::Config
+An initialised Sys::VirtConvert::Config
 
 =item desc
 
@@ -2075,8 +2075,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Converter(3pm)>,
-L<Sys::VirtV2V(3pm)>,
+L<Sys::VirtConvert::Converter(3pm)>,
+L<Sys::VirtConvert(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

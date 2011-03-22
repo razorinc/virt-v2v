@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::RHEVTarget
-# Copyright (C) 2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::RHEVTarget
+# Copyright (C) 2010-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,13 +36,13 @@ sub get_uuid
 }
 
 
-package Sys::VirtV2V::Connection::RHEVTarget::WriteStream;
+package Sys::VirtConvert::Connection::RHEVTarget::WriteStream;
 
 use File::Spec::Functions qw(splitpath);
 use POSIX;
 
-use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
+use Sys::VirtConvert::ExecHelper;
+use Sys::VirtConvert::Util qw(:DEFAULT rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -83,15 +83,15 @@ sub new
         }
         push (@qemuimg, $path, $volume->get_size());
 
-        my $eh = Sys::VirtV2V::ExecHelper->run(@qemuimg);
+        my $eh = Sys::VirtConvert::ExecHelper->run(@qemuimg);
         v2vdie __x('Failed to create new volume {path} '.
                    'with format {format}. Error was: {error}',
                    path => $path,
                    format => $format,
                    error => $eh->output()) if $eh->status() != 0;
 
-        my $transfer = new Sys::VirtV2V::Transfer::Local($path, 0, $format,
-                                                         $volume->is_sparse());
+        my $transfer = new Sys::VirtConvert::Transfer::Local
+            ($path, 0, $format, $volume->is_sparse());
         $self->{writer} = $transfer->get_write_stream($convert);
     });
 
@@ -191,9 +191,9 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Connection::RHEVTarget::Transfer;
+package Sys::VirtConvert::Connection::RHEVTarget::Transfer;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 
 use Carp;
 use Locale::TextDomain 'virt-v2v';
@@ -227,8 +227,8 @@ sub get_write_stream
     my ($convert) = @_;
 
     my $volume = $self->{volume};
-    return new Sys::VirtV2V::Connection::RHEVTarget::WriteStream($volume,
-                                                                 $convert);
+    return new Sys::VirtConvert::Connection::RHEVTarget::WriteStream($volume,
+                                                                     $convert);
 }
 
 sub DESTROY
@@ -238,21 +238,21 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Connection::RHEVTarget::Vol;
+package Sys::VirtConvert::Connection::RHEVTarget::Vol;
 
 use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use POSIX;
 
-use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
+use Sys::VirtConvert::Util qw(:DEFAULT rhev_helper);
 use Locale::TextDomain 'virt-v2v';
 
 our %vols_by_path;
 our @vols;
 our $tmpdir;
 
-@Sys::VirtV2V::Connection::RHEVTarget::Vol::ISA =
-    qw(Sys::VirtV2V::Connection::Volume);
+@Sys::VirtConvert::Connection::RHEVTarget::Vol::ISA =
+    qw(Sys::VirtConvert::Connection::Volume);
 
 sub new
 {
@@ -282,7 +282,7 @@ sub new
     my $self = $class->SUPER::new($imageuuid, $format, $volpath, $outsize,
                                   undef, $sparse, 0);
     $self->{transfer} =
-        new Sys::VirtV2V::Connection::RHEVTarget::Transfer($self);
+        new Sys::VirtConvert::Connection::RHEVTarget::Transfer($self);
 
     $self->{imageuuid}  = $imageuuid;
     $self->{voluuid}    = $voluuid;
@@ -384,7 +384,7 @@ sub _cleanup
     $tmpdir = undef;
 }
 
-package Sys::VirtV2V::Connection::RHEVTarget;
+package Sys::VirtConvert::Connection::RHEVTarget;
 
 use Data::Dumper;
 use File::Temp qw(tempdir);
@@ -392,22 +392,23 @@ use File::Spec::Functions;
 use POSIX;
 use Time::gmtime;
 
-use Sys::VirtV2V::ExecHelper;
-use Sys::VirtV2V::Util qw(:DEFAULT rhev_helper);
+use Sys::VirtConvert::ExecHelper;
+use Sys::VirtConvert::Util qw(:DEFAULT rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::RHEVTarget - Output to a RHEV Export storage domain
+Sys::VirtConvert::Connection::RHEVTarget - Output to a RHEV Export storage
+domain
 
 =head1 METHODS
 
 =over
 
-=item Sys::VirtV2V::Connection::RHEVTarget->new(domain_path)
+=item Sys::VirtConvert::Connection::RHEVTarget->new(domain_path)
 
-Create a new Sys::VirtV2V::Connection::RHEVTarget object.
+Create a new Sys::VirtConvert::Connection::RHEVTarget object.
 
 =over
 
@@ -440,7 +441,8 @@ sub new
     $self->{mountdir} = $mountdir;
     $self->{domain_path} = $domain_path;
 
-    my $eh = Sys::VirtV2V::ExecHelper->run('mount', $domain_path, $mountdir);
+    my $eh = Sys::VirtConvert::ExecHelper->run('mount',
+                                               $domain_path, $mountdir);
     v2vdie __x('Failed to mount {path}. Command exited with '.
                'status {status}. Output was: {output}',
                path => $domain_path,
@@ -496,11 +498,11 @@ sub DESTROY
 
     eval {
         # Ensure there are no remaining writer processes
-        Sys::VirtV2V::Connection::RHEVTarget::WriteStream->_cleanup();
+        Sys::VirtConvert::Connection::RHEVTarget::WriteStream->_cleanup();
 
         rhev_helper(sub {
             # Cleanup the volume temporary directory
-            Sys::VirtV2V::Connection::RHEVTarget::Vol->_cleanup();
+            Sys::VirtConvert::Connection::RHEVTarget::Vol->_cleanup();
         });
     };
     if ($@) {
@@ -508,7 +510,7 @@ sub DESTROY
         $retval |= 1;
     }
 
-    my $eh = Sys::VirtV2V::ExecHelper->run('umount', $self->{mountdir});
+    my $eh = Sys::VirtConvert::ExecHelper->run('umount', $self->{mountdir});
     if ($eh->status() != 0) {
         logmsg WARN, __x('Failed to unmount {path}. Command exited with '.
                          'status {status}. Output was: {output}',
@@ -552,7 +554,7 @@ The size of the volume which is being created in bytes.
 
 =back
 
-create_volume() returns a Sys::VirtV2V::Connection::RHEVTarget::Vol object.
+create_volume() returns a Sys::VirtConvert::Connection::RHEVTarget::Vol object.
 
 =cut
 
@@ -561,11 +563,8 @@ sub create_volume
     my $self = shift;
     my ($name, $format, $size, $is_sparse) = @_;
 
-    return Sys::VirtV2V::Connection::RHEVTarget::Vol->new($self->{mountdir},
-                                                          $self->{domainuuid},
-                                                          $format,
-                                                          $size,
-                                                          $is_sparse);
+    return Sys::VirtConvert::Connection::RHEVTarget::Vol->new
+        ($self->{mountdir}, $self->{domainuuid}, $format, $size, $is_sparse);
 }
 
 =item volume_exists(name)
@@ -718,7 +717,7 @@ EOF
             or v2vdie __x('Failed to create directory {dir}: {error}',
                           dir => $dir, error => $!);
 
-        Sys::VirtV2V::Connection::RHEVTarget::Vol->_move_vols();
+        Sys::VirtConvert::Connection::RHEVTarget::Vol->_move_vols();
 
         my $vm;
         my $ovfpath = catfile($dir, $vmuuid.'.ovf');
@@ -921,7 +920,8 @@ sub _disks
         my ($bus) = $disk->findnodes('target/@bus');
         $bus = $bus->getNodeValue();
 
-        my $vol = Sys::VirtV2V::Connection::RHEVTarget::Vol->_get_by_path($path);
+        my $vol = Sys::VirtConvert::Connection::RHEVTarget::Vol->_get_by_path
+            ($path);
 
         die("dom contains path not written by virt-v2v: $path\n".
             $dom->toString()) unless (defined($vol));

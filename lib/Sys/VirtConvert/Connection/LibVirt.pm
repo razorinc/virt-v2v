@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::LibVirt
-# Copyright (C) 2009,2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::LibVirt
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection::LibVirt;
+package Sys::VirtConvert::Connection::LibVirt;
 
 use strict;
 use warnings;
@@ -26,11 +26,11 @@ use XML::DOM;
 
 use Sys::Virt;
 
-use Sys::VirtV2V;
-use Sys::VirtV2V::Transfer::ESX;
-use Sys::VirtV2V::Transfer::SSH;
-use Sys::VirtV2V::Transfer::Local;
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert;
+use Sys::VirtConvert::Transfer::ESX;
+use Sys::VirtConvert::Transfer::SSH;
+use Sys::VirtConvert::Transfer::Local;
+use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -38,13 +38,13 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::LibVirt - Access storage and metadata from libvirt
+Sys::VirtConvert::Connection::LibVirt - Access storage and metadata from libvirt
 
 =head1 DESCRIPTION
 
-Do not use C<Sys::VirtV2V::Connection::LibVirt> directly. Instead use either
-C<Sys::VirtV2V::Connection::LibVirtSource> or
-C<Sys::VirtV2V::Connection::LibVirtTarget>.
+Do not use C<Sys::VirtConvert::Connection::LibVirt> directly. Instead use either
+C<Sys::VirtConvert::Connection::LibVirtSource> or
+C<Sys::VirtConvert::Connection::LibVirtTarget>.
 
 =cut
 
@@ -131,24 +131,24 @@ sub _get_transfer
         my %query = $uri->query_form;
         my $noverify = $query{no_verify} eq "1" ? 1 : 0;
 
-        return new Sys::VirtV2V::Transfer::ESX($path,
-                                               $self->{hostname},
-                                               $self->{username},
-                                               $self->{password},
-                                               $noverify,
-                                               $is_sparse);
+        return new Sys::VirtConvert::Transfer::ESX($path,
+                                                   $self->{hostname},
+                                                   $self->{username},
+                                                   $self->{password},
+                                                   $noverify,
+                                                   $is_sparse);
     }
 
     elsif ($uri->scheme =~ /\+ssh$/) {
-        return new Sys::VirtV2V::Transfer::SSH($path, $format,
-                                               $self->{hostname},
-                                               $self->{username},
-                                               $is_sparse);
+        return new Sys::VirtConvert::Transfer::SSH($path, $format,
+                                                   $self->{hostname},
+                                                   $self->{username},
+                                                   $is_sparse);
     }
 
     # Default to Local
-    return new Sys::VirtV2V::Transfer::Local($path, $is_block,
-                                             $format, $is_sparse);
+    return new Sys::VirtConvert::Transfer::Local($path, $is_block,
+                                                 $format, $is_sparse);
 }
 
 =head1 COPYRIGHT
@@ -161,8 +161,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection::LibVirtSource(3)>,
-L<Sys::VirtV2V::Connection::LibVirtTarget(3)>,
+L<Sys::VirtConvert::Connection::LibVirtSource(3)>,
+L<Sys::VirtConvert::Connection::LibVirtTarget(3)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

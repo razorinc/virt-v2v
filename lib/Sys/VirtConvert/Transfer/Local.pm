@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Transfer::Local
+# Sys:: VirtConvert::Transfer::Local
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Transfer::Local::ReadStream;
+package Sys::VirtConvert::Transfer::Local::ReadStream;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -79,12 +79,12 @@ sub _read_error
 }
 
 
-package Sys::VirtV2V::Transfer::Local::WriteStream;
+package Sys::VirtConvert::Transfer::Local::WriteStream;
 
 use Fcntl qw(:seek);
 use File::stat;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -174,7 +174,7 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Transfer::GuestfsStream;
+package Sys::VirtConvert::Transfer::GuestfsStream;
 
 sub new
 {
@@ -184,7 +184,7 @@ sub new
     my $self = {};
     bless($self, $class);
 
-    $self->{g} = new Sys::VirtV2V::GuestfsHandle([$path], undef, 0);
+    $self->{g} = new Sys::VirtConvert::GuestfsHandle([$path], undef, 0);
 
     return $self;
 }
@@ -211,10 +211,10 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Transfer::Local::GuestfsReadStream;
+package Sys::VirtConvert::Transfer::Local::GuestfsReadStream;
 
-@Sys::VirtV2V::Transfer::Local::GuestfsReadStream::ISA =
-    qw(Sys::VirtV2V::Transfer::GuestfsStream);
+@Sys::VirtConvert::Transfer::Local::GuestfsReadStream::ISA =
+    qw(Sys::VirtConvert::Transfer::GuestfsStream);
 
 sub new
 {
@@ -239,10 +239,10 @@ sub read
 }
 
 
-package Sys::VirtV2V::Transfer::Local::GuestfsWriteStream;
+package Sys::VirtConvert::Transfer::Local::GuestfsWriteStream;
 
-@Sys::VirtV2V::Transfer::Local::GuestfsWriteStream::ISA =
-    qw(Sys::VirtV2V::Transfer::GuestfsStream);
+@Sys::VirtConvert::Transfer::Local::GuestfsWriteStream::ISA =
+    qw(Sys::VirtConvert::Transfer::GuestfsStream);
 
 use constant chunksize => 2*1024*1024;
 
@@ -345,7 +345,7 @@ sub close
 }
 
 
-package Sys::VirtV2V::Transfer::Local::SparseWriter;
+package Sys::VirtConvert::Transfer::Local::SparseWriter;
 
 sub new
 {
@@ -455,7 +455,7 @@ sub DESTROY
 }
 
 
-package Sys::VirtV2V::Transfer::Local;
+package Sys::VirtConvert::Transfer::Local;
 
 use POSIX;
 use File::Spec;
@@ -467,7 +467,7 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Transfer::Local - Access local storage
+Sys::VirtConvert::Transfer::Local - Access local storage
 
 =head1 METHODS
 
@@ -518,12 +518,12 @@ sub get_read_stream
     my $self = shift;
     my ($convert) = @_;
 
-    return new Sys::VirtV2V::Transfer::Local::GuestfsReadStream(
+    return new Sys::VirtConvert::Transfer::Local::GuestfsReadStream(
         $self->{path},
         $self->{format}
     ) if ($convert && $self->{format} ne 'raw');
 
-    return new Sys::VirtV2V::Transfer::Local::ReadStream(
+    return new Sys::VirtConvert::Transfer::Local::ReadStream(
         $self->{path}
     );
 }
@@ -542,18 +542,18 @@ sub get_write_stream
 
     my $writer;
     if ($convert && $self->{format} ne 'raw') {
-        $writer = new Sys::VirtV2V::Transfer::Local::GuestfsWriteStream(
+        $writer = new Sys::VirtConvert::Transfer::Local::GuestfsWriteStream(
             $self->{path},
             $self->{format}
         );
     } else {
-        $writer = new Sys::VirtV2V::Transfer::Local::WriteStream(
+        $writer = new Sys::VirtConvert::Transfer::Local::WriteStream(
             $self->{path}
         );
     }
 
     if (!$self->{is_block} && $self->{is_sparse}) {
-        return new Sys::VirtV2V::Transfer::Local::SparseWriter($writer);
+        return new Sys::VirtConvert::Transfer::Local::SparseWriter($writer);
     } else {
         return $writer;
     }
@@ -571,7 +571,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Converter(3pm)>,
+L<Sys::VirtConvert::Converter(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

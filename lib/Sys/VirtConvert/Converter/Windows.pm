@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Converter::Windows
-# Copyright (C) 2009-2010 Red Hat Inc.
+# Sys::VirtConvert::Converter::Windows
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Converter::Windows;
+package Sys::VirtConvert::Converter::Windows;
 
 use strict;
 use warnings;
@@ -33,26 +33,26 @@ use Win::Hivex;
 use Win::Hivex::Regedit qw(reg_import);
 
 use Locale::TextDomain 'virt-v2v';
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Converter::Windows - Pre-convert a Windows guest to run on KVM
+Sys::VirtConvert::Converter::Windows - Pre-convert a Windows guest to run on KVM
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Converter;
+ use Sys::VirtConvert::Converter;
 
- Sys::VirtV2V::Converter->convert($g, $config, $desc, $dom, $devices);
+ Sys::VirtConvert::Converter->convert($g, $config, $desc, $dom, $devices);
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Converter::Windows does the "pre-conversion" steps
+Sys::VirtConvert::Converter::Windows does the "pre-conversion" steps
 required to get a Windows guest to boot on KVM.  Unlike the associated
-L<Sys::VirtV2V::Converter::Linux(3)> module, this doesn't do a full
+L<Sys::VirtConvert::Converter::Linux(3)> module, this doesn't do a full
 conversion of Windows.  Instead it just installs the viostor (Windows
 virtio block) driver, so that the Windows guest will be able to boot
 on the target.  A "RunOnce" script is also added to the VM which does
@@ -63,9 +63,9 @@ on KVM.
 
 =over
 
-=item Sys::VirtV2V::Converter::Windows->can_handle(desc)
+=item Sys::VirtConvert::Converter::Windows->can_handle(desc)
 
-Return 1 if Sys::VirtV2V::Converter::Windows can convert the guest
+Return 1 if Sys::VirtConvert::Converter::Windows can convert the guest
 described by I<desc>, 0 otherwise.
 
 =cut
@@ -80,7 +80,7 @@ sub can_handle
     return ($desc->{os} eq 'windows');
 }
 
-=item Sys::VirtV2V::Converter::Windows->convert($g, $guestos, $desc, $devices, $config)
+=item Sys::VirtConvert::Converter::Windows->convert($g, $guestos, $desc, $devices, $config)
 
 (Pre-)convert a Windows guest. Assume that can_handle has previously
 returned 1.
@@ -93,7 +93,7 @@ A libguestfs handle to the target.
 
 =item config
 
-An initialised Sys::VirtV2V::Config object.
+An initialised Sys::VirtConvert::Config object.
 
 =item desc
 
@@ -495,8 +495,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Converter(3pm)>,
-L<Sys::VirtV2V(3pm)>,
+L<Sys::VirtConvert::Converter(3pm)>,
+L<Sys::VirtConvert(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

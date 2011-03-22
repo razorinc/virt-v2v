@@ -1,4 +1,4 @@
-# Sys::VirtV2V::GuestfsHandle
+# Sys::VirtConvert::GuestfsHandle
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::GuestfsHandle;
+package Sys::VirtConvert::GuestfsHandle;
 
 use strict;
 use warnings;
@@ -23,7 +23,7 @@ use warnings;
 use Carp;
 
 use Sys::Guestfs::Lib qw(open_guest);
-use Sys::VirtV2V::Util qw(rhev_helper);
+use Sys::VirtConvert::Util qw(rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -31,13 +31,13 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::GuestfsHandle - Proxy Sys::Guestfs with custom close behaviour
+Sys::VirtConvert::GuestfsHandle - Proxy Sys::Guestfs with custom close behaviour
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::GuestfsHandle;
+ use Sys::VirtConvert::GuestfsHandle;
 
- my $g = new Sys::VirtV2V::GuestfsHandle($storage, $transferiso);
+ my $g = new Sys::VirtConvert::GuestfsHandle($storage, $transferiso);
 
  # GuestfsHandle proxies all Sys::Guestfs methods
  print join("\n", $g->list_devices());
@@ -48,7 +48,7 @@ Sys::VirtV2V::GuestfsHandle - Proxy Sys::Guestfs with custom close behaviour
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::GuestfsHandle is a proxy to Sys::Guestfs which adds a custom
+Sys::VirtConvert::GuestfsHandle is a proxy to Sys::Guestfs which adds a custom
 close() method, and the ability to register pre-close callbacks.
 
 =head1 METHODS

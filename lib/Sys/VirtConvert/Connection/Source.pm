@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::Source
-# Copyright (C) 2009,2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::Source
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection::Source;
+package Sys::VirtConvert::Connection::Source;
 
 use strict;
 use warnings;
@@ -23,7 +23,7 @@ use warnings;
 use Sys::Virt;
 use Term::ProgressBar;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -31,25 +31,25 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtV2V::Connection - Obtain domain metadata
+Sys::VirtConvert::Connection - A source connection
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection::LibVirtSource;
+ use Sys::VirtConvert::Connection::LibVirtSource;
 
- $conn = Sys::VirtV2V::Connection::LibVirtSource->new($uri, $name, $target);
+ $conn = Sys::VirtConvert::Connection::LibVirtSource->new($uri, $name, $target);
  $dom = $conn->get_dom();
  $storage = $conn->get_storage_paths();
  $devices = $conn->get_storage_devices();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Source provides access to a source of guest metadata and storage.
-It is a virtual superclass and can't be instantiated directly. Use one of the
-subclasses:
+Sys::VirtConvert::Source provides access to a source of guest metadata and
+storage.  It is a virtual superclass and can't be instantiated directly. Use one
+of the subclasses:
 
- Sys::VirtV2V::Target::LibVirtSource
- Sys::VirtV2V::Source::LibVirtXML
+ Sys::VirtConvert::Target::LibVirtSource
+ Sys::VirtConvert::Source::LibVirtXML
 
 =head1 METHODS
 
@@ -292,8 +292,8 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Source::LibVirt(3pm)>,
-L<Sys::VirtV2V::Source::LibVirtXML(3pm)>,
+L<Sys::VirtConvert::Source::LibVirt(3pm)>,
+L<Sys::VirtConvert::Source::LibVirtXML(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 

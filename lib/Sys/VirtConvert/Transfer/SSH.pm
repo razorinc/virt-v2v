@@ -1,4 +1,4 @@
-# Sys::VirtV2V::Transfer::SSH
+# Sys::VirtConvert::Transfer::SSH
 # Copyright (C) 2010 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -18,9 +18,9 @@
 use strict;
 use warnings;
 
-package Sys::VirtV2V::Transfer::SSH::Stream;
+package Sys::VirtConvert::Transfer::SSH::Stream;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 sub new
@@ -174,13 +174,13 @@ sub _check_stderr
     }
 }
 
-package Sys::VirtV2V::Transfer::SSH::ReadStream;
+package Sys::VirtConvert::Transfer::SSH::ReadStream;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Transfer::SSH::ReadStream::ISA =
-    qw(Sys::VirtV2V::Transfer::SSH::Stream);
+@Sys::VirtConvert::Transfer::SSH::ReadStream::ISA =
+    qw(Sys::VirtConvert::Transfer::SSH::Stream);
 
 sub new
 {
@@ -219,13 +219,13 @@ sub _read_error
                path => $self->{path}, error => $error);
 }
 
-package Sys::VirtV2V::Transfer::SSH::WriteStream;
+package Sys::VirtConvert::Transfer::SSH::WriteStream;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Transfer::SSH::WriteStream::ISA =
-    qw(Sys::VirtV2V::Transfer::SSH::Stream);
+@Sys::VirtConvert::Transfer::SSH::WriteStream::ISA =
+    qw(Sys::VirtConvert::Transfer::SSH::Stream);
 
 sub new
 {
@@ -259,20 +259,20 @@ sub _write_error
                path => $self->{path}, error => $error);
 }
 
-package Sys::VirtV2V::Transfer::SSH;
+package Sys::VirtConvert::Transfer::SSH;
 
 use POSIX;
 use File::Spec;
 use File::stat;
 
-use Sys::VirtV2V::Util;
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Transfer::SSH - Transfer data over an SSH connection
+Sys::VirtConvert::Transfer::SSH - Transfer data over an SSH connection
 
 =head1 METHODS
 
@@ -328,7 +328,7 @@ sub get_read_stream
               'only currently convert raw volumes.')
         if $convert && $self->{format} ne 'raw';
 
-    return new Sys::VirtV2V::Transfer::SSH::ReadStream(
+    return new Sys::VirtConvert::Transfer::SSH::ReadStream(
         $self->{path},
         $self->{hostname},
         $self->{username},
@@ -352,7 +352,7 @@ sub get_write_stream
               'currently convert volumes to raw format')
         if $convert && $self->{format} ne 'raw';
 
-    return new Sys::VirtV2V::Transfer::SSH::WriteStream(
+    return new Sys::VirtConvert::Transfer::SSH::WriteStream(
         $self->{path},
         $self->{hostname},
         $self->{username},

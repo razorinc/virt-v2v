@@ -1,5 +1,5 @@
-# Sys::VirtV2V::Connection::LibVirt
-# Copyright (C) 2009,2010 Red Hat Inc.
+# Sys::VirtConvert::Connection::LibVirt
+# Copyright (C) 2009-2011 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtV2V::Connection::LibVirtSource;
+package Sys::VirtConvert::Connection::LibVirtSource;
 
 use strict;
 use warnings;
@@ -25,35 +25,37 @@ use XML::DOM;
 
 use Sys::Virt;
 
-use Sys::VirtV2V;
-use Sys::VirtV2V::Connection::Source;
-use Sys::VirtV2V::Connection::LibVirt;
-use Sys::VirtV2V::Connection::Volume;
-use Sys::VirtV2V::Transfer::ESX;
-use Sys::VirtV2V::Util qw(:DEFAULT parse_libvirt_volinfo);
+use Sys::VirtConvert;
+use Sys::VirtConvert::Connection::Source;
+use Sys::VirtConvert::Connection::LibVirt;
+use Sys::VirtConvert::Connection::Volume;
+use Sys::VirtConvert::Transfer::ESX;
+use Sys::VirtConvert::Util qw(:DEFAULT parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
 
-@Sys::VirtV2V::Connection::LibVirtSource::ISA =
-    qw(Sys::VirtV2V::Connection::Source Sys::VirtV2V::Connection::LibVirt);
+@Sys::VirtConvert::Connection::LibVirtSource::ISA =
+    qw(Sys::VirtConvert::Connection::Source
+       Sys::VirtConvert::Connection::LibVirt);
 
 =pod
 
 =head1 NAME
 
-Sys::VirtV2V::Connection::LibVirtSource - Get storage and metadata from libvirt
+Sys::VirtConvert::Connection::LibVirtSource - Get storage and metadata from
+libvirt
 
 =head1 SYNOPSIS
 
- use Sys::VirtV2V::Connection::LibVirtSource;
+ use Sys::VirtConvert::Connection::LibVirtSource;
 
- $conn = Sys::VirtV2V::Connection::LibVirtSource->new
+ $conn = Sys::VirtConvert::Connection::LibVirtSource->new
     ("xen+ssh://xenserver.example.com/", $name);
  $dom = $conn->get_dom();
 
 =head1 DESCRIPTION
 
-Sys::VirtV2V::Connection::LibVirtSource reads a guest's libvirt XML directly
+Sys::VirtConvert::Connection::LibVirtSource reads a guest's libvirt XML directly
 from a libvirt connection. It accesses the guest's storage over the same
 transport as the libvirt connection.
 
@@ -159,10 +161,10 @@ sub get_volume
         $transfer = $self->_get_transfer($path, $is_block, $format, $is_sparse);
     }
 
-    return new Sys::VirtV2V::Connection::Volume($name, $format, $path,
-                                                $size, $usage,
-                                                $is_sparse, $is_block,
-                                                $transfer);
+    return new Sys::VirtConvert::Connection::Volume($name, $format, $path,
+                                                    $size, $usage,
+                                                    $is_sparse, $is_block,
+                                                    $transfer);
 }
 
 sub _check_shutdown
@@ -258,7 +260,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtV2V::Connection::Source(3)>,
+L<Sys::VirtConvert::Connection::Source(3)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 
