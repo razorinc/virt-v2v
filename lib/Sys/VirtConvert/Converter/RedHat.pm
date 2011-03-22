@@ -22,7 +22,6 @@ use warnings;
 
 use Data::Dumper;
 use Locale::TextDomain 'virt-v2v';
-use Sys::Guestfs::Lib qw(inspect_linux_kernel);
 
 use XML::DOM;
 use XML::DOM::XPath;
@@ -518,7 +517,7 @@ sub _list_kernels
         # Check the kernel exists
         if ($g->exists($kernel)) {
             # Work out its version number
-            my $kernel_desc = inspect_linux_kernel($g, $kernel, 'rpm');
+            my $kernel_desc = _inspect_linux_kernel($g, $kernel);
 
             push(@kernels, $kernel_desc->{version});
         }
@@ -530,6 +529,82 @@ sub _list_kernels
     }
 
     return @kernels;
+}
+
+# Use various methods to try to work out what Linux kernel we've got.
+# Returns a hashref containing:
+#   path => path to kernel (same as $path variable passed in)
+#   package => base package name (eg. "kernel", "kernel-PAE")
+#   version => version string
+#   modules => array ref list of modules (paths to *.ko files)
+#   arch => architecture of the kernel
+sub _inspect_linux_kernel
+{
+    my ($g, $path) = @_;
+
+    my %kernel = ();
+
+    $kernel{path} = $path;
+
+    # If this is a packaged kernel, try to work out the name of the package
+    # which installed it. This lets us know what to install to replace it with,
+    # e.g. kernel, kernel-smp, kernel-hugemem, kernel-PAE
+    my $package;
+    eval { $package = $g->command(['rpm', '-qf', '--qf',
+                                   '%{NAME}', $path]); };
+    $kernel{package} = $package if defined($package);;
+
+    # Try to get the kernel version by running file against it
+    my $version;
+    my $filedesc = $g->file($path);
+    if($filedesc =~ /^$path: Linux kernel .*\bversion\s+(\S+)\b/) {
+        $version = $1;
+    }
+
+    # Sometimes file can't work out the kernel version, for example because it's
+    # a Xen PV kernel. In this case try to guess the version from the filename
+    else {
+        if($path =~ m{/boot/vmlinuz-(.*)}) {
+            $version = $1;
+
+            # Check /lib/modules/$version exists
+            if(!$g->is_dir("/lib/modules/$version")) {
+                warn __x("Didn't find modules directory {modules} for kernel ".
+                         "{path}", modules => "/lib/modules/$version",
+                         path => $path);
+
+                # Give up
+                return undef;
+            }
+        } else {
+            warn __x("Couldn't guess kernel version number from path for ".
+                     "kernel {path}", path => $path);
+
+            # Give up
+            return undef;
+        }
+    }
+
+    $kernel{version} = $version;
+
+    # List modules.
+    my @modules;
+    my $any_module;
+    my $prefix = "/lib/modules/$version";
+    foreach my $module ($g->find ($prefix)) {
+        if ($module =~ m{/([^/]+)\.(?:ko|o)$}) {
+            $any_module = "$prefix$module" unless defined $any_module;
+            push @modules, $1;
+        }
+    }
+
+    $kernel{modules} = \@modules;
+
+    # Determine kernel architecture by looking at the arch
+    # of any kernel module.
+    $kernel{arch} = $g->file_architecture ($any_module);
+
+    return \%kernel;
 }
 
 sub _configure_kernel
