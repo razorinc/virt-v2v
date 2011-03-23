@@ -40,7 +40,7 @@ Sys::VirtConvert::Converter::RedHat - Convert a Red Hat based guest to run on KV
 
  use Sys::VirtConvert::Converter;
 
- Sys::VirtConvert::Converter->convert($g, $meta, $os);
+ Sys::VirtConvert::Converter->convert($g, $meta, $desc);
 
 =head1 DESCRIPTION
 
@@ -84,7 +84,7 @@ An initialised Sys::VirtConvert::Config
 
 =item desc
 
-A description of the guest OS as returned by Sys::Guestfs::Lib.
+A description of the guest OS (see virt-v2v.pl:inspect_guest).
 
 =item meta
 
@@ -106,6 +106,8 @@ sub convert
 
     _init_selinux($g);
     _init_augeas($g);
+    _init_modprobe_aliases($g, $desc);
+    _init_kernels($g, $desc);
     my $modpath = _init_modpath($g);
 
     # Un-configure HV specific attributes which don't require a direct
@@ -153,7 +155,6 @@ sub _init_augeas
 
     # Initialise augeas
     eval {
-        $g->aug_close();
         $g->aug_init("/", 1);
 
         # Check if /boot/grub/menu.lst is included by the Grub lens
@@ -177,6 +178,51 @@ sub _init_augeas
 
     # The augeas calls will die() on any error.
     augeas_error($g, $@) if ($@);
+}
+
+# Find all modprobe aliases. Specifically, this looks in the following
+# locations:
+#  * /etc/conf.modules
+#  * /etc/modules.conf
+#  * /etc/modprobe.conf
+#  * /etc/modprobe.d/*
+#
+# This sets the $desc->{modprobe_aliases} field.
+
+sub _init_modprobe_aliases
+{
+    local $_;
+    my $g = shift;
+    my $desc = shift;
+
+    my %modprobe_aliases;
+
+    for my $pattern qw(/files/etc/conf.modules/alias
+                       /files/etc/modules.conf/alias
+                       /files/etc/modprobe.conf/alias
+                       /files/etc/modprobe.d/*/alias) {
+        for my $path ( $g->aug_match($pattern) ) {
+            $path =~ m{^/files(.*)/alias(?:\[\d*\])?$}
+                or die __x("{path} doesn't match augeas pattern",
+                           path => $path);
+            my $file = $1;
+
+            my $alias;
+            $alias = $g->aug_get($path);
+
+            my $modulename;
+            $modulename = $g->aug_get($path.'/modulename');
+
+            my %aliasinfo;
+            $aliasinfo{modulename} = $modulename;
+            $aliasinfo{augeas} = $path;
+            $aliasinfo{file} = $file;
+
+            $modprobe_aliases{$alias} = \%aliasinfo;
+        }
+    }
+
+    $desc->{modprobe_aliases} = \%modprobe_aliases;
 }
 
 sub _init_modpath
@@ -525,6 +571,155 @@ sub _list_kernels
     return @kernels;
 }
 
+# Look for how boot (grub) and kernels are configured.
+#
+# The resulting information is stashed in $desc->{boot},
+# $desc->{kernels} and $desc->{initrd_modules}.
+
+sub _init_kernels
+{
+    my ($g, $desc) = @_;
+
+    if ($desc->{os} eq "linux") {
+        # Iterate over entries in grub.conf, populating $desc->{boot}
+        # For every kernel we find, inspect it and add to $desc->{kernels}
+
+        # All known past and present Red Hat-based distros mount a
+        # boot partition on /boot.  We may have to revisit this if
+        # this assumption changes in future.  (Old Perl inspection
+        # code used to try to detect this setting).
+        my $grub = "/boot";
+        my $grub_conf = "/etc/grub.conf";
+
+        my @boot_configs;
+
+        # We want
+        #  $desc->{boot}
+        #       ->{configs}
+        #         ->[0]
+        #           ->{title}   = "Fedora (2.6.29.6-213.fc11.i686.PAE)"
+        #           ->{kernel}  = \kernel
+        #           ->{cmdline} = "ro root=/dev/mapper/vg_mbooth-lv_root rhgb"
+        #           ->{initrd}  = \initrd
+        #       ->{default} = \config
+        #       ->{grub_fs} = "/boot"
+
+        my @configs = ();
+        # Get all configurations from grub
+        foreach my $bootable ($g->aug_match("/files/$grub_conf/title"))
+        {
+            my %config = ();
+            $config{title} = $g->aug_get($bootable);
+
+            my $grub_kernel;
+            eval { $grub_kernel = $g->aug_get("$bootable/kernel"); };
+            if($@) {
+                warn __x("Grub entry {title} has no kernel",
+                         title => $config{title});
+            }
+
+            # Check we've got a kernel entry
+            if(defined($grub_kernel)) {
+                my $path = "$grub$grub_kernel";
+
+                # Reconstruct the kernel command line
+                my @args = ();
+                foreach my $arg ($g->aug_match("$bootable/kernel/*")) {
+                    $arg =~ m{/kernel/([^/]*)$}
+                        or die("Unexpected return from aug_match: $arg");
+
+                    my $name = $1;
+                    my $value;
+                    eval { $value = $g->aug_get($arg); };
+
+                    if(defined($value)) {
+                        push(@args, "$name=$value");
+                    } else {
+                        push(@args, $name);
+                    }
+                }
+                $config{cmdline} = join(' ', @args) if(scalar(@args) > 0);
+
+                my $kernel;
+                if ($g->exists($path)) {
+                    $kernel = _inspect_linux_kernel($g, $path);
+                } else {
+                    warn __x("grub refers to {path}, which doesn't exist\n",
+                             path => $path);
+                }
+
+                # Check the kernel was recognised
+                if(defined($kernel)) {
+                    # Put this kernel on the top level kernel list
+                    $desc->{kernels} ||= [];
+                    push(@{$desc->{kernels}}, $kernel);
+
+                    $config{kernel} = $kernel;
+
+                    # Look for an initrd entry
+                    my $initrd;
+                    eval {
+                        $initrd = $g->aug_get("$bootable/initrd");
+                    };
+
+                    unless($@) {
+                        $config{initrd} =
+                            _inspect_initrd($g, $desc, "$grub$initrd",
+                                            $kernel->{version});
+                    } else {
+                        warn __x("Grub entry {title} does not specify an ".
+                                 "initrd", title => $config{title});
+                    }
+                }
+            }
+
+            push(@configs, \%config);
+        }
+
+
+        # Create the top level boot entry
+        my %boot;
+        $boot{configs} = \@configs;
+        $boot{grub_fs} = $grub;
+
+        # Add the default configuration
+        eval {
+            $boot{default} = $g->aug_get("/files/$grub_conf/default");
+        };
+
+        $desc->{boot} = \%boot;
+    }
+}
+
+# Get a listing of device drivers from an initrd
+sub _inspect_initrd
+{
+    my ($g, $desc, $path, $version) = @_;
+
+    my @modules;
+
+    # Disregard old-style compressed ext2 files and only work with
+    # real compressed cpio files, since cpio takes ages to (fail to)
+    # process anything else.
+    if ($g->exists($path) && $g->file($path) =~ /cpio/) {
+        eval {
+            @modules = $g->initrd_list ($path);
+        };
+        unless ($@) {
+            @modules = grep { m{([^/]+)\.(?:ko|o)$} } @modules;
+        } else {
+            warn __x("{filename}: could not read initrd format",
+                     filename => "$path");
+        }
+    }
+
+    # Add to the top level initrd_modules entry
+    $desc->{initrd_modules} ||= {};
+    $desc->{initrd_modules}->{$version} = \@modules;
+
+    return \@modules;
+}
+
 # Use various methods to try to work out what Linux kernel we've got.
 # Returns a hashref containing:
 #   path => path to kernel (same as $path variable passed in)
@@ -754,7 +949,7 @@ sub _unconfigure_xen
 
     # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
     foreach my $app (@{$desc->{apps}}) {
-        my $name = $app->{name};
+        my $name = $app->{app_name};
 
         if($name =~ /^kmod-xenpv(-.*)?$/) {
             _remove_application($name, $g);
@@ -814,7 +1009,7 @@ sub _unconfigure_vmware
 
     # Uninstall VMwareTools
     foreach my $app (@{$desc->{apps}}) {
-        my $name = $app->{name};
+        my $name = $app->{app_name};
 
         if ($name eq "VMwareTools") {
             _remove_application($name, $g);

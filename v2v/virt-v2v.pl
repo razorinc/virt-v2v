@@ -25,9 +25,6 @@ use Getopt::Long;
 use Locale::TextDomain 'virt-v2v';
 
 use Sys::Guestfs;
-use Sys::Guestfs::Lib qw(get_partitions inspect_all_partitions
-                         inspect_operating_systems mount_operating_system
-                         inspect_in_detail);
 
 use Sys::VirtConvert;
 use Sys::VirtConvert::Config;
@@ -499,14 +496,15 @@ my $g = new Sys::VirtConvert::GuestfsHandle(
     $output_method eq 'rhev'
 );
 
-my $os;
 my $guestcaps;
+my $desc;
 eval {
     # Inspect the guest
-    $os = inspect_guest($g);
+    $desc = inspect_guest($g);
 
     # Modify the guest and its metadata
-    $guestcaps = Sys::VirtConvert::Converter->convert($g, $config, $os, $meta);
+    $guestcaps =
+        Sys::VirtConvert::Converter->convert($g, $config, $desc, $meta);
 };
 
 # If any of the above commands result in failure, we need to ensure that the
@@ -520,7 +518,7 @@ if ($@) {
 
 $g->close();
 
-$target->create_guest($os, $meta, $config, $guestcaps, $output_name);
+$target->create_guest($desc, $meta, $config, $guestcaps, $output_name);
 
 if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio drivers.',
@@ -555,24 +553,18 @@ sub signal_exit
     v2vdie __x('Received signal {sig}. Exiting.', sig => shift);
 }
 
-# Inspect the guest's storage. Returns an OS hashref as returned by
-# inspect_in_detail.
+# Perform guest inspection using the libguestfs core inspection API.
+# Returns a hashref ("$desc") which contains the main features from
+# inspection.
 sub inspect_guest
 {
     my $g = shift;
 
-    # List of possible filesystems.
-    my @partitions = get_partitions ($g);
-
-    # Now query each one to build up a picture of what's in it.
-    my %fses =
-        inspect_all_partitions ($g, \@partitions);
-
-    my $oses = inspect_operating_systems ($g, \%fses);
-
     # Get list of roots, sorted.
+    my @roots = $g->inspect_os ();
+    @roots = sort @roots;
+
     my $root_dev;
-    my @roots = sort (keys %$oses);
 
     if(@roots == 0) {
         v2vdie __('No root device found in this operating system image.');
@@ -590,8 +582,9 @@ sub inspect_guest
             my $i = 1;
             foreach (@roots) {
                 print " [$i] $_";
-                print " (", $oses->{$_}->{product_name}, ")"
-                    if exists $oses->{$_}->{product_name};
+                my $prod;
+                eval { $prod = $g->inspect_get_product_name ($_) };
+                print " ($prod)" if defined $prod;
                 print "\n";
                 $i++;
             }
@@ -627,8 +620,14 @@ sub inspect_guest
             }
         }
         elsif ($root_choice =~ m|^/dev/|) {
-            $root_dev = $root_choice;
-            unless (exists $oses->{$root_dev}) {
+            # Check the chosen root exists.
+            foreach (@roots) {
+                if ($root_choice eq $_) {
+                    $root_dev = $_;
+                    last;
+                }
+            }
+            unless (defined $root_dev) {
                 v2vdie __x('Root device "{choice}" not found. Roots found were: {roots}.',
                            choice => $root_choice,
                            roots => join ' ', @roots)
@@ -640,13 +639,39 @@ sub inspect_guest
         }
     }
 
-    # Mount up the disks and check for applications.
+    # Mount up the disks.
+    my %fses = $g->inspect_get_mountpoints ($root_dev);
+    my @fses = sort { length $a <=> length $b } keys %fses;
+    foreach (@fses) {
+        eval { $g->mount_options ("", $fses{$_}, $_) };
+        print __x("{e} (ignored)\n", e => $@) if $@;
+    }
 
-    my $os = $oses->{$root_dev};
-    mount_operating_system ($g, $os, 0);
-    inspect_in_detail ($g, $os);
+    # Construct the "$desc" hashref which contains the main features
+    # found by inspection.
+    my %desc;
 
-    return $os;
+    $desc{root_device} = $root_dev;
+
+    $desc{os} = $g->inspect_get_type ($root_dev);
+    $desc{distro} = $g->inspect_get_distro ($root_dev);
+    $desc{product_name} = $g->inspect_get_product_name ($root_dev);
+    $desc{product_variant} = $g->inspect_get_product_variant ($root_dev);
+    $desc{major_version} = $g->inspect_get_major_version ($root_dev);
+    $desc{minor_version} = $g->inspect_get_minor_version ($root_dev);
+    $desc{arch} = $g->inspect_get_arch ($root_dev);
+
+    # Notes:
+    # (1) Filesystems have to be mounted for this to work.  Do not
+    # move this code over the filesystem mounting code above.
+    # (2) For RPM-based distros, new libguestfs inspection code
+    # is only able to populate the 'app_name' field (old Perl code
+    # populated a lot more).  Fortunately this is the only field
+    # that the code currently uses.
+    my @apps = $g->inspect_list_applications ($root_dev);
+    $desc{apps} = \@apps;
+
+    return \%desc;
 }
 
 =head1 PREPARING TO CONVERT A GUEST

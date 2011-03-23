@@ -67,7 +67,7 @@ An initialised Sys::VirtConvert::Config object.
 
 =item desc
 
-The OS description returned by Sys::Guestfs::Lib.
+The OS description (see virt-v2v.pl:inspect_guest).
 
 =item meta
 
@@ -135,7 +135,6 @@ Please see the file COPYING.LIB for the full license.
 =head1 SEE ALSO
 
 L<Sys::VirtConvert::Converter::Linux(3pm)>,
-L<Sys::Guestfs::Lib(3pm)>,
 L<Sys::Virt(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.

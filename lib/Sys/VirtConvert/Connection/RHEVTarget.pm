@@ -754,41 +754,41 @@ EOF
 #
 #  WindowsXP
 #   os = windows
-#   root->os_major_version = 5
-#   root->os_minor_version = 1
+#   major_version = 5
+#   minor_version = 1
 #
 #  WindowsXP
 #   os = windows
-#   root->os_major_version = 5
-#   root->os_minor_version = 2
-#   root->product_name = 'Microsoft Windows XP'
+#   major_version = 5
+#   minor_version = 2
+#   product_name = 'Microsoft Windows XP'
 #
 #  Windows2003
 #  Windows2003x64
 #   os = windows
-#   root->os_major_version = 5
-#   root->os_minor_version = 2
+#   major_version = 5
+#   minor_version = 2
 #   N.B. This also matches Windows 2003 R2, which there's no option for
 #
 #  Windows2008
 #  Windows2008x64
 #   os = windows
-#   root->os_major_version = 6
-#   root->os_minor_version = 0
+#   major_version = 6
+#   minor_version = 0
 #   N.B. This also matches Vista, which there's no option for
 #
 #  Windows7
 #  Windows7x64
 #   os = windows
-#   root->os_major_version = 6
-#   root->os_minor_version = 1
-#   root->windows_installation_type = 'Client'
+#   major_version = 6
+#   minor_version = 1
+#   product_variant = 'Client'
 #
 #  Windows2008R2x64
 #   os = windows
-#   root->os_major_version = 6
-#   root->os_minor_version = 1
-#   root->windows_installation_type != 'Client'
+#   major_version = 6
+#   minor_version = 1
+#   product_variant != 'Client'
 #
 #  Unassigned
 #   None of the above
@@ -800,23 +800,20 @@ sub _get_os_type
 {
     my ($desc) = @_;
 
-    my $root = $desc->{root};
-    die ("No root device: ".Dumper($desc)) unless defined($root);
-
     my $arch_suffix = '';
-    if ($root->{arch} eq 'x86_64') {
+    if ($desc->{arch} eq 'x86_64') {
         $arch_suffix = 'x64';
-    } elsif ($root->{arch} ne 'i386') {
+    } elsif ($desc->{arch} ne 'i386') {
         logmsg WARN, __x('Unsupported architecture: {arch}',
-                         arch => $root->{arch});
+                         arch => $desc->{arch});
         return undef;
     }
 
     my $type;
 
-    $type = _get_os_type_linux($root, $arch_suffix)
+    $type = _get_os_type_linux($desc, $arch_suffix)
         if ($desc->{os} eq 'linux');
-    $type = _get_os_type_windows($root, $arch_suffix)
+    $type = _get_os_type_windows($desc, $arch_suffix)
         if ($desc->{os} eq 'windows');
 
     return 'Unassigned' if (!defined($type));
@@ -825,11 +822,11 @@ sub _get_os_type
 
 sub _get_os_type_windows
 {
-    my ($root, $arch_suffix) = @_;
+    my ($desc, $arch_suffix) = @_;
 
-    my $major = $root->{os_major_version};
-    my $minor = $root->{os_minor_version};
-    my $product = $root->{product_name};
+    my $major = $desc->{major_version};
+    my $minor = $desc->{minor_version};
+    my $product = $desc->{product_name};
 
     if ($major == 5) {
         if ($minor == 1 ||
@@ -850,7 +847,7 @@ sub _get_os_type_windows
     }
 
     if ($major == 6 && $minor == 1) {
-        if ($root->{windows_installation_type} eq 'Client') {
+        if ($desc->{product_variant} eq 'Client') {
             return "Windows7".$arch_suffix;
         }
 
@@ -864,10 +861,10 @@ sub _get_os_type_windows
 
 sub _get_os_type_linux
 {
-    my ($root, $arch_suffix) = @_;
+    my ($desc, $arch_suffix) = @_;
 
-    my $distro = $root->{osdistro};
-    my $major = $root->{os_major_version};
+    my $distro = $desc->{distro};
+    my $major = $desc->{major_version};
 
     # XXX: RHEV 2.2 doesn't support a RHEL 6 target, however RHEV 2.3+ will.
     # For the moment, we set RHEL 6 to be 'OtherLinux', however we will need to

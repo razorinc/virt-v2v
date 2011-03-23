@@ -97,7 +97,7 @@ An initialised Sys::VirtConvert::Config object.
 
 =item desc
 
-A description of the guest OS as returned by Sys::Guestfs::Lib.
+A description of the guest OS (see virt-v2v.pl:inspect_guest).
 
 =item meta
 
