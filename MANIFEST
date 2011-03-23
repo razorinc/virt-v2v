@@ -1,9 +1,11 @@
+.tx/config
 augeas/README.txt
 autobuild.sh
 Build.PL
 ChangeLog
 COPYING
 COPYING.LIB
+lib/Sys/VirtConvert.pm
 lib/Sys/VirtConvert/Config.pm
 lib/Sys/VirtConvert/Connection/LibVirt.pm
 lib/Sys/VirtConvert/Connection/LibVirtSource.pm
@@ -17,15 +19,16 @@ lib/Sys/VirtConvert/Converter/RedHat.pm
 lib/Sys/VirtConvert/Converter/Windows.pm
 lib/Sys/VirtConvert/ExecHelper.pm
 lib/Sys/VirtConvert/GuestfsHandle.pm
-lib/Sys/VirtConvert.pm
 lib/Sys/VirtConvert/Transfer/ESX.pm
 lib/Sys/VirtConvert/Transfer/Local.pm
 lib/Sys/VirtConvert/Transfer/SSH.pm
 lib/Sys/VirtConvert/Util.pm
-MANIFEST.SKIP
 MANIFEST			This list of files
-metadata-format.txt
+MANIFEST.SKIP
 META.yml
+metadata-format.txt
+p2v-server/run-p2v-locally
+p2v-server/virt-p2v-server.pl
 po/es.po
 po/it.po
 po/Makefile
