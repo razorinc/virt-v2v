@@ -262,8 +262,11 @@ sub logmsg_init
 
             $msg = &$annotate($level, $msg);
 
+            # syslog is commonly configured to drop DEBUG messages on the floor.
+            # We don't want to drop these on the floor in 2 different places, so
+            # we send DEBUG messages with INFO priority if they're generated.
             if ($level == DEBUG) {
-                syslog(LOG_DEBUG, $msg);
+                syslog(LOG_INFO, $msg);
             } elsif ($level == INFO) {
                 syslog(LOG_INFO, $msg);
             } elsif ($level == NOTICE) {
