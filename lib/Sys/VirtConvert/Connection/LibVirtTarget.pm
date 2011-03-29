@@ -25,6 +25,7 @@ use Sys::Virt::Error;
 use Sys::Virt::StorageVol;
 
 use Sys::VirtConvert::Connection::LibVirt;
+use Sys::VirtConvert::Connection::Volume;
 use Sys::VirtConvert::Util qw(:DEFAULT parse_libvirt_volinfo);
 
 use Locale::TextDomain 'virt-v2v';
@@ -130,9 +131,16 @@ sub create_volume
     my $over = $size % 1024;
     $size += 1024 - $over if $over != 0;
 
+    my $pool = $self->{pool};
+
+    # XXX: This is a heisenbug. Without the line below, $pool is undef when
+    # retrieved from @cleanup_vols in DESTROY. The use of Dumper is essential. I
+    # have absolutely no idea why this should be. mbooth@redhat.com 28/03/2011
+    use Data::Dumper; logmsg DEBUG, "Pool: ".Dumper($pool);
+
     # Store the volume before creation so we can catch an interruption during or
     # very shortly after volume creation
-    push(@cleanup_vols, [$self->{pool}, $name]);
+    push(@cleanup_vols, [$pool, $name]);
 
     my $allocation = $sparse ? 0 : $size;
     my $vol_xml = "
@@ -148,7 +156,7 @@ sub create_volume
 
     my $vol;
     eval {
-        $vol = $self->{pool}->create_volume($vol_xml);
+        $vol = $pool->create_volume($vol_xml);
     };
     v2vdie __x('Failed to create storage volume: {error}',
                error => $@->stringify()) if $@;
