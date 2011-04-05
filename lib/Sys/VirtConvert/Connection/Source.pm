@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use Sys::Virt;
-use Term::ProgressBar;
 
 use Sys::VirtConvert::Util;
 
@@ -98,13 +97,18 @@ sub _volume_copy
     # Initialize a progress bar if STDERR is on a tty
     my $progress;
     if (-t STDERR) {
-        $progress = new Term::ProgressBar({name => $src->get_name(),
-                                           count => $expected,
-                                           ETA => 'linear' });
-    } else {
-        logmsg INFO, __x('Transferring storage volume {name}: {size} bytes',
-                         name => $src->get_name(), size => $expected);
+        # Load a progress bar if Term::ProgressBar is available
+        eval 'use Term::ProgressBar;';
+        unless ($@) {
+            $progress = new Term::ProgressBar({name => $src->get_name(),
+                                               count => $expected,
+                                               ETA => 'linear' });
+        }
     }
+
+    logmsg NOTICE, __x('Transferring storage volume {name}: {size} bytes',
+                       name => $src->get_name(), size => $expected)
+        unless defined($progress);
 
     my $next_update = 0;
     for (;;) {
