@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2011 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+require 'virt-p2v/ui/main'
+require 'virt-p2v/ui/network'
+require 'virt-p2v/ui/connect'
+require 'virt-p2v/ui/convert'
+require 'virt-p2v/ui/success'
+
+require 'virt-p2v/converter'
+require 'virt-p2v/netdevice'
+
+require 'gettext'
+
+include GetText
+
+bindtextdomain('virt-p2v')
+
+if Process.uid != 0
+    puts _("virt-p2v must be executed with root privileges.\n" +
+           "It is intended to be included in a custom Live image, not " +
+           "run from the command\nline.")
+    abort
+end
+
+converter = VirtP2V::Converter.new
+
+# Initialise the wizard UI
+ui = VirtP2V::UI::Main.new
+
+# Initialize wizard pages
+VirtP2V::UI::Network.init(ui)
+VirtP2V::UI::Connect.init(ui, converter)
+VirtP2V::UI::Convert.init(ui, converter)
+VirtP2V::UI::Success.init(ui)
+
+# Skip the network configuration screen if there is already an active network
+# connection
+VirtP2V::NetworkDevice.all_devices.each { |device|
+    if device.activated then
+        ui.active_page = 'server_win'
+        break
+    end
+}
+
+ui.show
+ui.main_loop

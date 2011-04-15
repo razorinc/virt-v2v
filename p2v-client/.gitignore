@@ -1,0 +1,5 @@
+# Packaging directory
+/pkg
+
+# gemspec is automatically generated
+/virt-p2v.gemspec

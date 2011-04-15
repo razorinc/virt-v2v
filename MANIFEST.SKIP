@@ -16,9 +16,15 @@
 
 # git
 ^.git/
-^.gitignore$
 ^.gitmodules$
 ^git2cl/
+.gitignore$ # Wherever it appears
 
 # Eclipse
 ^.project$
+
+# p2v-client gem output directory
+p2v-client/pkg
+
+# Local-only files
+.local$

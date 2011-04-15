@@ -205,6 +205,18 @@ sub ACTION_test
     return $self->SUPER::ACTION_test;
 }
 
+# Display the version number
+sub ACTION_version
+{
+    my $self = shift;
+
+    my $version = $self->{properties}->{dist_version};
+    $version =~ /^v(.*)$/ and $version = $1;
+
+    print "$version\n";
+    return 0;
+}
+
 SUBCLASS
 
 my $build = $class->new (

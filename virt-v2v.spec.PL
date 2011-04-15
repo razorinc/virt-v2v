@@ -26,7 +26,7 @@ __DATA__
 
 Name:           virt-v2v
 Version:        @VERSION@
-Release:        2%{?dist}%{?extra_release}
+Release:        1%{?dist}%{?extra_release}
 Summary:        Convert a virtual machine to run on KVM
 
 Group:          Applications/System
@@ -70,6 +70,10 @@ BuildRequires:  perl(XML::Writer)
 BuildRequires:  perl-libguestfs >= 1:1.6.0
 BuildRequires:  perl-hivex >= 1.2.2
 
+# virt-p2v build requirements
+BuildRequires:  rubygem(rake)
+BuildRequires:  rubygem(echoe)
+
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 # Need an explicit package dependency for version requires
@@ -92,6 +96,37 @@ virt-v2v is a tool for converting and importing virtual machines to
 libvirt-managed KVM, or Red Hat Enterprise Virtualization. It can import a
 variety of guest operating systems from libvirt-managed hosts and VMware ESX.
 
+%global gemdir %(ruby -rubygems -e 'puts Gem::dir' 2>/dev/null)
+%global gemname virt-p2v
+%global geminstdir %{gemdir}/gems/%{gemname}-%{version}
+%global rubyabi 1.8
+
+%package -n rubygem-%{gemname}
+Summary:    Send a machine's storage and metadata to virt-p2v-server
+Requires:   ruby(abi) = %{rubyabi}
+Requires:   rubygem(gtk2)
+Requires:   rubygem(gettext)
+Requires:   rubygem(net-ssh)
+Requires:   ruby(dbus)
+
+Requires:   /sbin/blockdev
+Requires:   /usr/bin/hwloc-info
+Requires:   NetworkManager
+
+Provides:   rubygem(%{gemname}) = %{version}
+
+%description -n rubygem-%{gemname}
+virt-p2v is a client which connects to a virt-p2v-server and transfer's the host
+machine's storage and metadata. virt-p2v is intended to be run from a live
+image, so it is unlikely you want to install it directly.
+
+%package -n rubygem-%{gemname}-doc
+Summary:    Documentation for rubygem-%{gemname}
+Group:      Documentation
+Requires:   rubygem-%{gemname} = %{version}-%{release}
+
+%description -n rubygem-%{gemname}-doc
+Documentation for rubygem-%{gemname}
 
 %prep
 %setup -q -n %{name}-v%{version}
@@ -100,37 +135,55 @@ variety of guest operating systems from libvirt-managed hosts and VMware ESX.
 %{__perl} Build.PL
 ./Build
 
-# Perl doesn't need debuginfo
+pushd p2v-client
+rake gem
+popd
+
+# Neither perl nor ruby need debuginfo
 %define debug_package %{nil}
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 ./Build install \
-    --destdir $RPM_BUILD_ROOT \
+    --destdir %{buildroot} \
     --installdirs vendor \
     --install_path locale=%{_datadir}/locale \
     --install_path confdoc=%{_mandir}/man5
 
 # Create lib directory, used for holding software to be installed in guests
-statedir=$RPM_BUILD_ROOT%{_localstatedir}/lib/virt-v2v
+statedir=%{buildroot}%{_localstatedir}/lib/virt-v2v
 mkdir -p $statedir/software
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-cp v2v/virt-v2v.conf $RPM_BUILD_ROOT%{_sysconfdir}/
+mkdir -p %{buildroot}%{_sysconfdir}
+cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
 
 %find_lang %{name}
 
 # Not clear why this is being created as there is nothing arch-specific in
 # virt-v2v. It isn't packaged, though, so we need to delete it.
-find $RPM_BUILD_ROOT/%{perl_archlib} -name .packlist -type f | xargs rm
+find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
+
+mkdir -p %{buildroot}/%{_bindir}
+mkdir -p %{buildroot}/%{gemdir}
+
+gem install --local --install-dir %{buildroot}%{gemdir} \
+            --force --rdoc p2v-client/pkg/%{gemname}-%{version}.gem
+mv %{buildroot}%{gemdir}/bin/* %{buildroot}/%{_bindir}
+find %{buildroot}%{geminstdir}/bin -type f | xargs chmod a+x
+cp COPYING %{buildroot}/%{geminstdir}
 
 
 %check
 ./Build test
 
+pushd p2v-client
+# No tests yet
+#rake test
+popd
+
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %files -f %{name}.lang
@@ -156,6 +209,23 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %{_sysconfdir}/virt-v2v.conf
 %config(noreplace) %{_localstatedir}/lib/virt-v2v/software
+
+%files -n rubygem-%{gemname}
+%defattr(-, root, root, -)
+%{_bindir}/virt-p2v
+%dir %{geminstdir}
+%{geminstdir}/bin
+%{geminstdir}/lib
+%doc %{geminstdir}/COPYING
+%doc %{geminstdir}/Manifest
+%doc %{geminstdir}/Rakefile
+%doc %{geminstdir}/%{gemname}.gemspec
+%{gemdir}/cache/%{gemname}-%{version}.gem
+%{gemdir}/specifications/%{gemname}-%{version}.gemspec
+
+%files -n rubygem-%{gemname}-doc
+%defattr(-, root, root, -)
+%{gemdir}/doc/%{gemname}-%{version}
 
 
 %changelog

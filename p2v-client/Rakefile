@@ -1,0 +1,37 @@
+# Copyright (C) 2011 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+require 'rubygems'
+require 'echoe'
+
+Echoe.new("virt-p2v") do |p|
+  p.project     = "Virt P2V"
+  p.version     = `../Build version`
+  p.author      = "Matthew Booth"
+  p.summary     = "Send a machine's storage and metadata to virt-p2v-server"
+  p.description = <<EOF
+virt-p2v is a client which connects to a virt-p2v-server and transfer's the host
+machine's storage and metadata. virt-p2v is intended to be run from a live
+image, so it is unlikely you want to install it.
+EOF
+  p.url         = "http://libguestfs.org"
+  p.email       = "libguestfs@redhat.com"
+  p.runtime_dependencies = [
+      'gtk2',
+      'gettext',
+      'net-ssh'
+  ]
+end
