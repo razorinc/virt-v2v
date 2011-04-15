@@ -185,8 +185,7 @@ sub ACTION_distmeta
     my $self = shift;
 
     # Add a dependency on changelog
-    $self->depends_on('changelog') == 0
-        or return 1;
+    $self->depends_on('changelog') == 0 or return 1;
 
     # Run the regular distmeta action
     return $self->SUPER::ACTION_distmeta;
@@ -198,8 +197,7 @@ sub ACTION_test
     my $self = shift;
 
     # Ensure distmeta runs first
-    $self->depends_on('distmeta') == 0
-        or return 1;
+    $self->depends_on('distmeta') == 0 or return 1;
 
     # Run the regular test action
     return $self->SUPER::ACTION_test;
