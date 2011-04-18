@@ -49,8 +49,9 @@ class Connection
             error = nil
             begin
                 @ssh = Net::SSH.start(hostname, username, :password => password)
-            rescue SocketError => ex
+            rescue SocketError, Errno::EHOSTUNREACH => ex
                 raise InvalidHostnameError
+                raise ex
             rescue Net::SSH::AuthenticationFailed => ex
                 raise InvalidCredentialsError
                 raise ex
