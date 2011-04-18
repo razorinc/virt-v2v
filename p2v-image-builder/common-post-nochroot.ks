@@ -17,10 +17,10 @@ sed -i -e '
 /^menu title .*/d
 
 # Remove quiet bootparam
-s/ quiet//
+#s/ quiet//
 
 # Disable selinux entirely. Required, as we dont install an SELinux policy.
-/^\s*append\s/ s/$/ selinux=0/
+/^\s*append\s/ s/\s*$/ selinux=0/
 
 # Remove Verify and Boot option
 /label check0/{N;N;N;d;}
