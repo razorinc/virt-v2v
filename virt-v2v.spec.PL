@@ -128,6 +128,23 @@ Requires:   rubygem-%{gemname} = %{version}-%{release}
 %description -n rubygem-%{gemname}-doc
 Documentation for rubygem-%{gemname}
 
+%package -n virt-p2v-image-builder
+Summary:    Create a virt-p2v bootable image
+Group:      Applications/System
+
+# image builder script requires
+Requires:   /usr/bin/ksflatten
+Requires:   /usr/sbin/setenforce
+Requires:   /usr/bin/livecd-creator
+
+# Kickstart nochroot scripts requires
+Requires:   /usr/bin/livecd-iso-to-disk
+Requires:   /usr/bin/livecd-iso-to-pxeboot
+Requires:   /usr/bin/image-minimizer
+
+%description -n virt-p2v-image-builder
+virt-p2v-image-builder is a tool to create a bootable virt-p2v live image.
+
 %prep
 %setup -q -n %{name}-v%{version}
 
@@ -163,6 +180,7 @@ cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
 # virt-v2v. It isn't packaged, though, so we need to delete it.
 find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
 
+# Install p2v-client
 mkdir -p %{buildroot}/%{_bindir}
 mkdir -p %{buildroot}/%{gemdir}
 
@@ -171,6 +189,16 @@ gem install --local --install-dir %{buildroot}%{gemdir} \
 mv %{buildroot}%{gemdir}/bin/* %{buildroot}/%{_bindir}
 find %{buildroot}%{geminstdir}/bin -type f | xargs chmod a+x
 cp COPYING %{buildroot}/%{geminstdir}
+
+# Install p2v-image-builder
+%global builderdir %{_datadir}/virt-p2v-image-builder
+builder=%{buildroot}/%{_bindir}/virt-p2v-image-builder
+mkdir -p %{buildroot}%{builderdir}
+cp p2v-image-builder/*.ks %{buildroot}%{builderdir}
+cp p2v-image-builder/virt-p2v-image-builder $builder
+
+# Set the default data directory
+sed -i -e 's,^DEFAULT_DATADIR=.*,DEFAULT_DATADIR=%{builderdir},' $builder
 
 
 %check
@@ -226,6 +254,11 @@ rm -rf %{buildroot}
 %files -n rubygem-%{gemname}-doc
 %defattr(-, root, root, -)
 %{gemdir}/doc/%{gemname}-%{version}
+
+%files -n virt-p2v-image-builder
+%defattr(-, root, root, -)
+%{_bindir}/virt-p2v-image-builder
+%{builderdir}
 
 
 %changelog

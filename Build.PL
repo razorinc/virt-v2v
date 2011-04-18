@@ -21,6 +21,15 @@ sub ACTION_po
         or return 1;
 }
 
+# Define a 'p2vimagebuilder' which runs make under p2v_image_builder
+sub ACTION_p2vimagebuilder
+{
+    my $self = shift;
+
+    system($self->config('make'), '-C', 'p2v-image-builder') == 0
+        or return 1;
+}
+
 # Generate locale files and install them to blib/locale
 sub process_locale_files
 {
@@ -189,6 +198,17 @@ sub ACTION_distmeta
 
     # Run the regular distmeta action
     return $self->SUPER::ACTION_distmeta;
+}
+
+# Include version.ks in p2v-image-builder in dist
+sub ACTION_dist
+{
+    my $self = shift;
+
+    # Add a dependency on p2vimagebuilder
+    $self->depends_on('p2vimagebuilder') == 0 or return 1;
+
+    return $self->SUPER::ACTION_dist;
 }
 
 # Make Build test depend on distmeta so syntax test succeeds

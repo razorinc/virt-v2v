@@ -1,0 +1,188 @@
+#!/bin/bash
+
+# Copyright (C) 2010-2011, Red Hat, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA  02110-1301, USA.  A copy of the GNU General Public License is
+# also available at http://www.gnu.org/copyleft/gpl.html.
+
+# Requires: sudo livecd-creator, sudo setenforce, ksflatten
+
+# Based on oVirt's node-creator
+
+# Current fedora data
+cur_rawhide=16
+cur_devel=15
+
+me=$(basename "$0")
+warn() { printf '%s: %s\n' "$me" "$*" >&2; }
+die() { warn "$*"; exit 1; }
+usage() {
+cat <<EOF
+usage: $me <options>
+
+Build a virt-p2v bootable image.
+
+OPTIONS:
+  -a    Additional yum repository. Can be specified multiple times.
+  -c    Yum cache directory.
+  -d    Directory containing virt-p2v-image.ks.
+  -f    Specific Fedora mirror to use if building a Fedora image.
+  -l    Boot image label.
+  -r    Primary yum repository.
+  -u    Updates yum repository.
+  -h    Show this message.
+EOF
+}
+
+onlyonce() {
+    warn "-$1 may only be specified once"
+    usage
+    exit 1
+}
+
+while getopts "a:d:f:hl:r:u:w:" OPTION
+do
+    case $OPTION in
+        a)
+            n_elems=${#extra_repos[*]}
+            extra_repos[$n_elems]="$OPTARG"
+            ;;
+        c)
+            [ -n "$cachedir" ] && onlyonce $OPTION
+            cachedir="$OPTARG"
+            ;;
+        d)
+            [ -n "$datadir" ] && onlyonce $OPTION
+            datadir="$OPTARG"
+            ;;
+        f)
+            [ -n "$fedora_url" ] && onlyonce $OPTION
+            fedora_url="$OPTARG"
+            ;;
+        l)
+            [ -n "$label" ] && onlyonce $OPTION
+            label="$OPTARG"
+            ;;
+        r)
+            [ -n "$repo" ] && onlyonce $OPTION
+            repo="$OPTARG"
+            ;;
+        u)
+            [ -n "$updates" ] && onlyonce $OPTION
+            updates="$OPTARG"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        ?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Split out here for simple editing with sed during installation
+DEFAULT_DATADIR=.
+
+# Option defaults
+datadir="${datadir:-$DEFAULT_DATADIR}"
+cachedir="${cachedir:-/var/tmp/p2v-image-builder.$USER}"
+label="${label:-Virt-P2V}"
+
+arch=$(rpm --eval '%{_arch}')
+kstmp=$(mktemp --tmpdir p2v-image-builder.XXXXXXXX)
+
+if pgrep -xl nscd; then
+    die "Please stop nscd first"
+fi
+
+rm -f "$kstmp"
+# combine recipe includes
+ksflatten --config "$datadir/virt-p2v-image.ks" --output "$kstmp"
+# XXX broken ksflatten leaves %include
+sed -i 's/^%include /#&/' "$kstmp"
+
+if [ -z "$repo" ]; then
+    # Set defaults for Fedora if this is a fedora system
+    fedora=$(rpm --eval '%{fedora}' |grep [0-9])
+
+    mirrorlist="http://mirrors.fedoraproject.org/mirrorlist"
+
+    case "$fedora" in
+    $curr_rawhide)
+        if [ -z "$fedora_url" ]; then
+            repo="--mirrorlist=$mirrorlist?repo=rawhide&arch=$arch"
+        else
+            repo="--baseurl=$fedora_url/development/rawhide/$arch/os"
+        fi
+        ;;
+    $cur_devel)
+        if [ -z "$fedora_url" ]; then
+            repo="--mirrorlist=$mirrorlist?repo=fedora-$fedora&arch=$arch"
+        else
+            repo="--baseurl=$fedora_url/development/$fedora/$arch/os"
+        fi
+        ;;
+    ?*)
+        if [ -z "$fedora_url" ]; then
+            repo="--mirrorlist=$mirrorlist?repo=fedora-$fedora&arch=$arch"
+            updates="--mirrorlist=$mirrorlist?repo=updates-released-f${fedora}&arch=$arch"
+        else
+            repo="--baseurl=$fedora_url/releases/$fedora/Everything/$arch/os"
+            updates="--baseurl=$fedora_url/updates/$fedora/$arch"
+        fi
+    esac
+else
+    repo="--baseurl=$repo"
+    [ -n "$updates" ] && updates="--baseurl=$updates"
+fi
+
+if [ -n "$repo" ]; then
+    echo "repo --name=base $repo" >> "$kstmp"
+else
+    die "No repository specified, and no default available."
+fi
+if [ -n "$updates" ]; then
+    echo "repo --name=updates $updates" >> "$kstmp"
+fi
+i=0
+for extra in "${extra_repos[@]}"; do
+    ((i++))
+    [ -d "$extra" ] && extra="file://$extra"
+    echo "repo --name=extra$i --baseurl=$extra" >> "$kstmp"
+done
+
+selinux_enforcing=$(/usr/sbin/getenforce)
+case "$selinux_enforcing" in
+    Enforcing) sudo /usr/sbin/setenforce Permissive ;;
+    Permissive) ;;
+    *) if grep -q '^selinux --disabled' "$kstmp";
+           then
+               warn "WARNING: SELinux disabled in kickstart"
+           else
+               die "ERROR: SELinux enabled in kickstart, \
+               but disabled on the build machine"
+       fi ;;
+esac
+
+mkdir -p $cachedir
+sudo livecd-creator -c "$kstmp" -f "$label" --cache="$cachedir"
+
+# Clean up
+rm -f $kstmp
+if [ "$selinux_enforcing" = Enforcing ]; then
+    sudo /usr/sbin/setenforce Enforcing
+fi
