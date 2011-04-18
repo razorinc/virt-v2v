@@ -103,6 +103,7 @@ variety of guest operating systems from libvirt-managed hosts and VMware ESX.
 
 %package -n rubygem-%{gemname}
 Summary:    Send a machine's storage and metadata to virt-p2v-server
+BuildArch:  noarch
 Requires:   ruby(abi) = %{rubyabi}
 Requires:   rubygem(gtk2)
 Requires:   rubygem(gettext)
@@ -123,6 +124,7 @@ image, so it is unlikely you want to install it directly.
 %package -n rubygem-%{gemname}-doc
 Summary:    Documentation for rubygem-%{gemname}
 Group:      Documentation
+BuildArch:  noarch
 Requires:   rubygem-%{gemname} = %{version}-%{release}
 
 %description -n rubygem-%{gemname}-doc
@@ -130,7 +132,7 @@ Documentation for rubygem-%{gemname}
 
 %package -n virt-p2v-image-builder
 Summary:    Create a virt-p2v bootable image
-Group:      Applications/System
+BuildArch:  noarch
 
 # image builder script requires
 Requires:   /usr/bin/ksflatten
