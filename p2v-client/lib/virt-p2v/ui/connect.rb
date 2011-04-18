@@ -163,7 +163,8 @@ module VirtP2V::UI::Connect
                             _'Failed to start virt-p2v-server on remote server'
                         event(EV_ACTIVATION, false)
                     else
-                        raise result
+                        @connect_error.text = result.message
+                        event(EV_ACTIVATION, false)
                     end
                 }
             when VirtP2V::Connection::InvalidHostnameError

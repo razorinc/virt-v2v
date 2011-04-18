@@ -72,6 +72,11 @@ module VirtP2V::UI::Convert
         converter.on_connection { |conn|
             conn.on_connect { |cb|
                 conn.list_profiles { |profiles|
+                    cb.call(RuntimeError.new(_('Remote server does not ' +
+                                               'define any profiles in ' +
+                                               '/etc/virt-v2v.conf'))) \
+                        if profiles.kind_of?(Exception) or profiles.empty?
+
                     selected = @profile.active_iter
                     selected = selected[CONVERT_PROFILE_NAME] \
                         unless selected.nil?
