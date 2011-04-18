@@ -44,6 +44,11 @@ class Connection
     def initialize(hostname, username, password, &cb)
         @mutex = Mutex.new
         @connection_listeners = []
+        
+        # Always send our version number on connection
+        @connection_listeners << Proc.new { |cb|
+            self.version { |result| cb.call(result) }
+        }
 
         run(cb) {
             error = nil
@@ -96,13 +101,22 @@ class Connection
                 !@connected
             end
 
-            # Send our protocol version number
-            @ch.send_data("VERSION 0\n")
-            result = parse_return
-
-            @connection_listeners.each { |i| i.call(self) }
-
-            Gtk.queue { cb.call(result) }
+            i = 0;
+            listener_result = lambda { |result|
+                if result.kind_of?(Exception)
+                    cb.call(result)
+                else
+                    i += 1
+                    if i == @connection_listeners.length
+                        cb.call(true)
+                    else
+                        Gtk.queue {
+                            @connection_listeners[i].call(listener_result)
+                        }
+                    end
+                end
+            }
+            Gtk.queue { @connection_listeners[0].call(listener_result) }
         }
     end
 

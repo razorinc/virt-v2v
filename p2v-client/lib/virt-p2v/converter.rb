@@ -60,10 +60,8 @@ class Converter
 
     def connection=(connection)
         @connection = connection
-        connection.on_connect {
-            @connection_listeners.each { |cb|
-                cb.call(connection)
-            }
+        @connection_listeners.each { |cb|
+            cb.call(connection)
         }
     end
 

@@ -70,15 +70,20 @@ module VirtP2V::UI::Convert
 
         # Populate profiles on connection
         converter.on_connection { |conn|
-            conn.list_profiles { |profiles|
-                selected = @profile.active_iter
-                selected = selected[CONVERT_PROFILE_NAME] unless selected.nil?
+            conn.on_connect { |cb|
+                conn.list_profiles { |profiles|
+                    selected = @profile.active_iter
+                    selected = selected[CONVERT_PROFILE_NAME] \
+                        unless selected.nil?
 
-                @profiles.clear
-                profiles.each { |i|
-                    profile = @profiles.append
-                    profile[CONVERT_PROFILE_NAME] = i
-                    @profile.active_iter = profile if i == selected
+                    @profiles.clear
+                    profiles.each { |i|
+                        profile = @profiles.append
+                        profile[CONVERT_PROFILE_NAME] = i
+                        @profile.active_iter = profile if i == selected
+                    }
+
+                    cb.call(true)
                 }
             }
         }
