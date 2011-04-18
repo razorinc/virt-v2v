@@ -63,11 +63,7 @@ module VirtP2V::UI::Connect
             # EV_ACTIVATION
             raise "Unexpected event: #{event}" unless event == EV_ACTIVATION
 
-            if status then
-                set_state(UI_STATE_COMPLETE)
-            else
-                set_state(UI_STATE_VALID)
-            end
+            set_state(status ? UI_STATE_COMPLETE : UI_STATE_VALID)
         else
             raise "Unexpected UI state: #{@state}"
         end
@@ -159,8 +155,9 @@ module VirtP2V::UI::Connect
                     when true
                         event(EV_ACTIVATION, true)
                     when VirtP2V::Connection::RemoteError
-                        @connect_error.text =
-                            _'Failed to start virt-p2v-server on remote server'
+                        @connect_error.text = _('Failed to start ' +
+                                                'virt-p2v-server on remote ' +
+                                                'server')
                         event(EV_ACTIVATION, false)
                     else
                         @connect_error.text = result.message
