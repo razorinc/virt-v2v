@@ -31,7 +31,7 @@ Summary:        Convert a virtual machine to run on KVM
 
 Group:          Applications/System
 License:        GPLv2+ and LGPLv2+
-URL:            http://git.fedoraproject.org/git/virt-v2v.git
+URL:            http://git.fedorahosted.org/git/virt-v2v.git
 Source0:        https://fedorahosted.org/releases/v/i/virt-v2v/%{name}-v%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
