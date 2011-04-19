@@ -233,7 +233,7 @@ rm -rf %{buildroot}
 %{_mandir}/man5/*.5*
 
 # Executables
-%attr(0755,root,root) %{_bindir}/*
+%attr(0755,root,root) %{_bindir}/virt-v2v
 
 %dir %{_localstatedir}/lib/virt-v2v
 
