@@ -35,6 +35,13 @@ URL:            http://git.fedoraproject.org/git/virt-v2v.git
 Source0:        https://fedorahosted.org/releases/v/i/virt-v2v/%{name}-v%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+# Backported upstream patches
+# Naming scheme: <name>-<version>-<local sequence number>-<git commit>.patch
+#  name:         virt-v2v
+#  version:      the version of virt-v2v the patch was originally rebased to
+#  local seq no: the order the patches should be applied in
+#  git commit:   the first 8 characters of the git commit hash
+
 # Unfortunately, despite really being noarch, we have to make virt-v2v arch
 # dependent to avoid build failures on architectures where libguestfs isn't
 # available.
@@ -90,6 +97,10 @@ Requires:       libvirt >= 0.8.1
 
 # For GuestOS transfer image
 Requires:       /usr/bin/mkisofs
+
+# For guest image inspection
+Requires:      /usr/bin/qemu-img
+
 
 %description
 virt-v2v is a tool for converting and importing virtual machines to
