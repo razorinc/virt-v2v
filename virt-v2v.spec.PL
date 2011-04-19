@@ -234,6 +234,7 @@ rm -rf %{buildroot}
 
 # Executables
 %attr(0755,root,root) %{_bindir}/virt-v2v
+%attr(0755,root,root) %{_bindir}/virt-p2v-server
 
 %dir %{_localstatedir}/lib/virt-v2v
 
