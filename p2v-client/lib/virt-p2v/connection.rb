@@ -44,7 +44,7 @@ class Connection
     def initialize(hostname, username, password, &cb)
         @mutex = Mutex.new
         @connection_listeners = []
-        
+
         # Always send our version number on connection
         @connection_listeners << Proc.new { |cb|
             self.version { |result| cb.call(result) }
