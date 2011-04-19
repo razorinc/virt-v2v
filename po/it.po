@@ -1,147 +1,184 @@
-# Translation of virt-v2v to Italian.
-# Copyright (C) 2009 Red Hat Inc.
-# This file is distributed under the same license as the virt-v2v package.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Red Hat Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-# Antonio Trande <sagitter AT fedoraproject.org>, 2010.
-# Mario Santagiuliana <fedora at marionline.it>, 2010.
-# Francesco <fdaluisio@fedoraproject.org>, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: virt-v2v.master.it\n"
+"Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2011-02-07 11:58+0000\n"
-"PO-Revision-Date: 2011-01-29 14:58+0100\n"
-"Last-Translator: Francesco <fdaluisio@fedoraproject.org>\n"
-"Language-Team: Italian <fedora-trans-it@redhat.com>\n"
+"POT-Creation-Date: 2011-04-19 10:38+0100\n"
+"PO-Revision-Date: 2011-04-19 09:40+0000\n"
+"Last-Translator: mdbooth <mbooth@redhat.com>\n"
+"Language-Team: Italian <trans-it@lists.fedoraproject.org>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.1\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: ../lib/Sys/VirtV2V/Config.pm:76
+#: ../lib/Sys/VirtConvert/Converter.pm:105
 #, perl-brace-format
-msgid "Config file {path} doesn't exist"
-msgstr "Il file di configurazione {path} non esiste"
-
-#: ../lib/Sys/VirtV2V/Config.pm:78
-#, perl-brace-format
-msgid "Don't have permissions to read {path}"
-msgstr "Non si hanno i permessi di lettura per {path} "
-
-#: ../lib/Sys/VirtV2V/Config.pm:84
-#, perl-brace-format
-msgid "Unable to parse config file {path}: {error}"
-msgstr "Impossibile analizzare il file di configurazione in {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:148
-#, fuzzy
-msgid "<iso-path> must be specified in the configuration file."
-msgstr "<iso-path> deve essere specificato nel file di configurazione"
-
-#: ../lib/Sys/VirtV2V/Config.pm:158
-#, fuzzy, perl-brace-format
 msgid ""
-"Failed to create transfer iso. Command output was:\n"
+"Unable to convert this guest operating system. Its storage will be "
+"transfered and a domain created for it, but it may not operate correctly "
+"without manual reconfiguration. The domain will present all storage devices "
+"as {block}, all network interfaces as {net} and the host as {arch}."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Util.pm:91
+#, perl-brace-format
+msgid "augeas error for {file}: {error}"
+msgstr "Errore augeas per {file}: {error}"
+
+#: ../lib/Sys/VirtConvert/Util.pm:95
+#, perl-brace-format
+msgid "augeas error for {file}"
+msgstr "Errore augeas per {file}"
+
+#: ../lib/Sys/VirtConvert/Util.pm:102
+#, perl-brace-format
+msgid "error at line {line}, char {char}, file position {pos}"
+msgstr "Errore nella linea {line}, char {char}, posizione file {pos}"
+
+#: ../lib/Sys/VirtConvert/Util.pm:110
+#, perl-brace-format
+msgid "augeas lens: {lens}"
+msgstr "augeas lens: {lens}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:70
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:714
+#, perl-brace-format
+msgid "Failed to create directory {dir}: {error}"
+msgstr "Impossibile creare la directory {dir}: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:87
+#, perl-brace-format
+msgid ""
+"Failed to create new volume {path} with format {format}. Error was: {error}"
+msgstr ""
+"Impossibile creare nuovo volume {path} formattato {format}. Errore: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:112
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:722
+#: ../lib/Sys/VirtConvert/Transfer/Local.pm:100
+#, perl-brace-format
+msgid "Unable to open {path} for writing: {error}"
+msgstr "Impossibile aprire {path} in scrittura: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:132
+#, perl-brace-format
+msgid "Error closing {path}: {error}"
+msgstr "Impossibile chiudere {path}: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:221
+msgid "Unable to read data from RHEV."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:303
+#, perl-brace-format
+msgid "RHEV cannot handle volumes of format {format}"
+msgstr "RHEV non gestisce volumi formattati {format}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:363
+#, perl-brace-format
+msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
+msgstr "Impossibile spostare volumi dalla location temporanea {tmpdir} a {dir}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:381
+#, perl-brace-format
+msgid "Error whilst attempting to remove temporary directory {dir}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:429
+msgid "You must be root to output to RHEV"
+msgstr "E' necessario essere root per inviare a RHEV"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:435
+#, perl-brace-format
+msgid "Unable to change ownership of {mountdir} to 36:36"
+msgstr "Impossibile cambiare le proprietà di {mountdir} a 36:36"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:446
+#, perl-brace-format
+msgid ""
+"Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
-"Impossibile creare l'immagine iso di trasferimento. Il comando ha prodotto:\n"
-" {output}"
+"Montaggio {path} fallito. Comando chiuso in status {status}. Output: {output}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:247
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:455
 #, perl-brace-format
-msgid "app entry in config doesn't contain a path: {xml}"
-msgstr "La voce app nella configurazione non contiene un percorso: {xml}"
+msgid "Unable to open {mountdir}: {error}"
+msgstr "Impossibile aprire {mountdir}: {error}"
 
-#: ../lib/Sys/VirtV2V/Config.pm:304
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:466
 #, perl-brace-format
 msgid ""
-"Capability in config contains a dependency with no {property} attribute: "
-"{xml}"
-msgstr ""
-"La configurazione contiene una dipendenza senza attributi {property}: {xml}"
+"{domain_path} contains multiple possible domains. It may only contain one."
+msgstr "{domain_path} contiene più domini possibili. Può contenerne solo uno."
 
-#: ../lib/Sys/VirtV2V/Config.pm:336
-#, fuzzy, perl-brace-format
-msgid "No config specified. No {type} match for {search}."
-msgstr ""
-"Nessuna configurazione specificata. Nessun {type} abbinato per {search}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:346
-msgid "Didn't detect operating system"
-msgstr "Sistema operativo non identificato"
-
-#: ../lib/Sys/VirtV2V/Config.pm:379
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:471
 #, perl-brace-format
-msgid "No {type} in config matches {search}"
-msgstr "Nessun {type} nella configurazione abbinato {search}"
+msgid "{domain_path} does not contain an initialised storage domain."
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Config.pm:414
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:483
+#, perl-brace-format
 msgid ""
-"No mapping found for {type} interface {name} in config file. The converted "
-"guest may not start until its network interface is updated."
+"{domain_path} has not been attached to a RHEV data center ({path} does not "
+"exist)."
 msgstr ""
-"gnessuna mappatura per l'interfaccia {type} {name} nel file di "
-"configurazione.Il guest cambiato potrebbe non avviarsi fino "
-"all'aggiornamento dell'interfaccia di rete."
+"{domain_path} non è stato connesso al data center RHEV ({path} non esiste)."
 
-#: ../lib/Sys/VirtV2V/Config.pm:428
-#, fuzzy, perl-brace-format
-msgid "Invalid network mapping in config: {config}."
-msgstr "gMappatura di rete non valida nella configurazione: {config}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:435
-#, fuzzy, perl-brace-format
-msgid "Unknown interface type {type} in network mapping: {config}"
-msgstr "gTipo {type} sconosciuto nella mappatura di rete: {config}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:474
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:515
 #, perl-brace-format
-msgid "No profile {name} defined in {path}"
-msgstr "Nessun profilo {name} è stato definito in {path}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:479
-#, fuzzy, perl-brace-format
-msgid "Profile {name} doesn't specify an output method."
-msgstr "Il profilo {name} non specifica un metodo di output"
-
-#: ../lib/Sys/VirtV2V/Config.pm:497
-#, fuzzy, perl-brace-format
-msgid "Profile {name} doesn't specify output storage."
-msgstr "Il profilo {name} non specifica un metodo di memorizzazione"
-
-#: ../lib/Sys/VirtV2V/Config.pm:510
-#, fuzzy, perl-brace-format
-msgid "Default network doesn't contain a mapping: {config}."
-msgstr "La rete predefinita non continene una mappatura: {config}"
-
-#: ../lib/Sys/VirtV2V/Config.pm:520
-#, fuzzy, perl-brace-format
-msgid "Invalid network mapping: {config}"
-msgstr "gMappatura di rete non valida nella configurazione: {config}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:63
-#, perl-brace-format
-msgid "Unable to parse URI authority: {auth}"
-msgstr "Impossibile eseguire analizzare l'URI dell'authority: {auth}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:66
-#, fuzzy
 msgid ""
-"Specifying a password in the connection URI is not supported. It has been "
-"ignored."
+"Failed to unmount {path}. Command exited with status {status}. Output was: "
+"{output}"
 msgstr ""
-"gImpostazione password non supporata nella connessione URI. Password "
-"ignorata."
+"Smontaggio {path} fallito. Comando chiuso con status {status}. Output: "
+"{output}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirt.pm:115
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:525
 #, perl-brace-format
-msgid "Failed to connect to {uri}: {error}"
-msgstr "Connessione {uri} fallita: {error}"
+msgid "Failed to remove mount directory {dir}: {error}"
+msgstr "Rimozione directory montata {dir} fallita: {error}"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:136
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:807
+#, perl-brace-format
+msgid "Unsupported architecture: {arch}"
+msgstr "Architettura non supportata: {arch}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:857
+#, perl-brace-format
+msgid "Unknown Windows version: {major}.{minor}"
+msgstr "Versione Windows sconosciuta: {major}.{minor}"
+
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:1056
+#, perl-brace-format
+msgid ""
+"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
+msgstr ""
+"Sconosciuto NIC model {driver} per {dev}. NIC sarà {default} quando "
+"importato."
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:91
+#, perl-brace-format
+msgid "Failed to open {path}: {error}"
+msgstr "Impossibile aprire {path}: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:99
+#, perl-brace-format
+msgid "Unable to parse domain from file {path}: {error}"
+msgstr "Impossibile analizzare il dominio dal file {path}: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:104
+#, perl-brace-format
+msgid "{path} doesn't look like a libvirt domain XML file"
+msgstr "{path} non visto come dominio libvirt XML file"
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
 "Failed to retrieve volume information for {path}. This could be because the "
@@ -171,406 +208,212 @@ msgstr ""
 "Modifica-> Dettagli di Connessionedal menu dell'applicazione. I pool di "
 "memorizzazione sono visualizzati nel tab Storage."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:151
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
+#, perl-brace-format
 msgid "Failed to retrieve storage volume {path}: {error}"
-msgstr "Impossibile recuperare il volume di storage {path}: {error}"
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:176
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:178
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "Guest {name} ora è  {state}. Richiesto spegnimento."
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:187
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:189
 msgid "idle"
 msgstr "inattivo"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:189
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:191
 msgid "running"
 msgstr "in esecuzione"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:191
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:193
 msgid "blocked"
 msgstr "bloccato"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:193
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:195
 msgid "paused"
 msgstr "in pausa"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:195
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:197
 msgid "shutting down"
 msgstr "in spegnimento"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:197
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:199
 msgid "shut down"
 msgstr "spento"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:199
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:201
 msgid "crashed"
 msgstr "in crash"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtSource.pm:222
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:224
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} non è un nome guest valido"
 
-#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:88
-#, fuzzy, perl-brace-format
-msgid "Output pool {poolname} is not a valid storage pool."
-msgstr "Output pool {poolname} non è un valido pool di storage"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtTarget.pm:153
-#, perl-brace-format
-msgid "Failed to create storage volume: {error}"
-msgstr "Creazione volume storage fallita: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:91
-#, perl-brace-format
-msgid "Failed to open {path}: {error}"
-msgstr "Impossibile aprire {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:98
-#, perl-brace-format
-msgid "Unable to parse domain from file {path}: {error}"
-msgstr "Impossibile analizzare il dominio dal file {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/LibVirtXMLSource.pm:103
-#, perl-brace-format
-msgid "{path} doesn't look like a libvirt domain XML file"
-msgstr "{path} non visto come dominio libvirt XML file"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:70
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:722
-#, perl-brace-format
-msgid "Failed to create directory {dir}: {error}"
-msgstr "Impossibile creare la directory {dir}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:87
-#, perl-brace-format
-msgid ""
-"Failed to create new volume {path} with format {format}. Error was: {error}"
-msgstr ""
-"Impossibile creare nuovo volume {path} formattato {format}. Errore: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:112
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:730
-#: ../lib/Sys/VirtV2V/Transfer/Local.pm:100
-#, perl-brace-format
-msgid "Unable to open {path} for writing: {error}"
-msgstr "Impossibile aprire {path} in scrittura: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:132
-#, perl-brace-format
-msgid "Error closing {path}: {error}"
-msgstr "Impossibile chiudere {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:221
-#, fuzzy
-msgid "Unable to read data from RHEV."
-msgstr "Impossibile leggere dati da RHEV"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:303
-#, perl-brace-format
-msgid "RHEV cannot handle volumes of format {format}"
-msgstr "RHEV non gestisce volumi formattati {format}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:363
-#, perl-brace-format
-msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
-msgstr "Impossibile spostare volumi dalla location temporanea {tmpdir} a {dir}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:381
-#, fuzzy, perl-brace-format
-msgid "Error whilst attempting to remove temporary directory {dir}"
-msgstr "Impossibile rimuovere la directory temporanea: {dir}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:428
-msgid "You must be root to output to RHEV"
-msgstr "E' necessario essere root per inviare a RHEV"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:434
-#, perl-brace-format
-msgid "Unable to change ownership of {mountdir} to 36:36"
-msgstr "Impossibile cambiare le proprietà di {mountdir} a 36:36"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:444
-#, perl-brace-format
-msgid ""
-"Failed to mount {path}. Command exited with status {status}. Output was: "
-"{output}"
-msgstr ""
-"Montaggio {path} fallito. Comando chiuso in status {status}. Output: {output}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:453
-#, perl-brace-format
-msgid "Unable to open {mountdir}: {error}"
-msgstr "Impossibile aprire {mountdir}: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:464
-#, perl-brace-format
-msgid ""
-"{domain_path} contains multiple possible domains. It may only contain one."
-msgstr "{domain_path} contiene più domini possibili. Può contenerne solo uno."
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:469
-#, fuzzy, perl-brace-format
-msgid "{domain_path} does not contain an initialised storage domain."
-msgstr "{domain_path} non contiene un dominio di storage inizializzato"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:481
-#, perl-brace-format
-msgid ""
-"{domain_path} has not been attached to a RHEV data center ({path} does not "
-"exist)."
-msgstr ""
-"{domain_path} non è stato connesso al data center RHEV ({path} non esiste)."
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:513
-#, perl-brace-format
-msgid ""
-"Failed to unmount {path}. Command exited with status {status}. Output was: "
-"{output}"
-msgstr ""
-"Smontaggio {path} fallito. Comando chiuso con status {status}. Output: "
-"{output}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:523
-#, perl-brace-format
-msgid "Failed to remove mount directory {dir}: {error}"
-msgstr "Rimozione directory montata {dir} fallita: {error}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:812
-#, perl-brace-format
-msgid "Unsupported architecture: {arch}"
-msgstr "Architettura non supportata: {arch}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:856
-#, perl-brace-format
-msgid "Unknown Windows version: {major}.{minor}"
-msgstr "Versione Windows sconosciuta: {major}.{minor}"
-
-#: ../lib/Sys/VirtV2V/Connection/RHEVTarget.pm:1081
-#, perl-brace-format
-msgid ""
-"Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
-msgstr ""
-"Sconosciuto NIC model {driver} per {dev}. NIC sarà {default} quando "
-"importato."
-
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:137
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:109
 #, perl-brace-format
 msgid "Transferring storage volume {name}: {size} bytes"
 msgstr "Trasferimento del volume di storage {name}: {size} bytes"
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:167
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:139
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 "Volume intero non ricevuto. Ricevuti {received} dei totali {total} bytes. "
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:209
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:165
+#, perl-brace-format
 msgid ""
 "Storage volume {name} already exists on the target. NOT copying it again. "
 "Delete the volume and retry to copy again."
 msgstr ""
-"gIl volume di storage {name} è già presente nel target. Non copiarlo "
-"nuovamente. Cancellare il volume e ripetere la copia."
 
-#: ../lib/Sys/VirtV2V/Connection/Source.pm:276
-msgid "Guest doesn't define any recognised storage devices"
-msgstr "Il guest non definisce alcun dispositivo di storage riconosciuto"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:158
-#, fuzzy
-msgid ""
-"Unable to convert this guest operating system. Its storage will be "
-"transfered and a domain created for it, but it may not operate correctly "
-"without manual reconfiguration. The domain will present all storage devices "
-"as IDE, all network interfaces as e1000 and the host as x86_64."
-msgstr ""
-"gImpossibile convertire questo sistema operativo guest. Il suo storage sarà "
-"trasferito e creato un dominio, ma potrebbe non operare correttamente senza "
-"una riconfigurazione manuale. Il dominio presenterà tutti i dispositivi di "
-"storage come IDE, tutte le interfaccia di rete come e1000 e gli host come "
-"x86_64."
-
-#: ../lib/Sys/VirtV2V/Converter.pm:349
-#, fuzzy, perl-brace-format
-msgid ""
-"Only 4 IDE devices are supported. The following drives have been removed: "
-"{list}"
-msgstr ""
-"gSolo 4 dispositivi IDE sono supportati. I seguenti driver sono stati "
-"rimossi: {list}"
-
-#: ../lib/Sys/VirtV2V/Converter.pm:458
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:63
 #, perl-brace-format
-msgid "Unknown interface type {type} in domain XML: {domain}"
-msgstr "Tipo di interfaccia {type} sconociuta nel dominio XML: {domain}"
+msgid "Unable to parse URI authority: {auth}"
+msgstr "Impossibile eseguire analizzare l'URI dell'authority: {auth}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:221
-msgid "Unable to find any valid modprobe configuration"
-msgstr "Impossibile trovare una configurazione valida di modprobe"
-
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:378
-#, fuzzy, perl-brace-format
-msgid "Don't know how to update {device}, which loads the {module} module."
-msgstr ""
-"gImpossibile determinare come aggiornare  {device} che esegue il caricamento "
-"del modulo {module}."
-
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:526
-#, fuzzy, perl-brace-format
-msgid "grub refers to {path}, which doesn't exist."
-msgstr "ggrub rimanda a {path}, che non esiste."
-
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:561
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:66
 msgid ""
-"No bootable kernels installed, and no replacement is available.\n"
-"Unable to continue."
+"Specifying a password in the connection URI is not supported. It has been "
+"ignored."
 msgstr ""
-"Nessun kernel avviabile installato e nessuna sostituzione specificata.\n"
-"Impossibile continuare."
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:720
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:115
 #, perl-brace-format
-msgid "Unable to open /etc/rc.local: {error}"
-msgstr "Impossibile aprire /etc/rc.local: {error}"
+msgid "Failed to connect to {uri}: {error}"
+msgstr "Connessione {uri} fallita: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:763
-#, fuzzy, perl-brace-format
-msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was: "
-"{error}"
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:89
+#, perl-brace-format
+msgid "Output pool {poolname} is not a valid storage pool."
 msgstr ""
-"Installazione pacchetti fallita usando up2date. Messaggio d'errore: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:821
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:161
 #, perl-brace-format
-msgid "{name} capability not found in configuration"
-msgstr "Proprietà {name} non trovata nella configurazione"
+msgid "Failed to create storage volume: {error}"
+msgstr "Creazione volume storage fallita: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:839
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:377
+#, perl-brace-format
+msgid "Ignoring removable device {device} with unknown type {type}."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:399
 #, perl-brace-format
 msgid ""
-"Unrecognised format for {field} in config: {value}. {field} must be in the "
-"format [epoch:]version[-release]."
+"Only 4 IDE devices are supported, but this guest has {number}. The guest "
+"will not operate correctly without manual reconfiguration."
 msgstr ""
-"Formato non riconosciuto per {field} nella configurazione: {value}. {field} "
-"deve essere formattato [epoch:]version[-release]."
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1029
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:473
 #, perl-brace-format
-msgid "Failed to install packages using up2date. Error message was: {error}"
+msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr ""
-"Installazione pacchetti fallita usando up2date. Messaggio d'errore: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1092
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:488
 #, perl-brace-format
-msgid "Failed to install packages using yum. Output was: {output}"
-msgstr "Installazione pacchetti fallita usando yum. Risposta: {output}"
+msgid "The connected hypervisor does not support feature {feature}."
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1141
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:439
-#, perl-brace-format
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:494
 msgid ""
-"Installation failed because the following files referenced in the "
-"configuration file are required, but missing: {list}"
+"The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
-"Installazione fallita perché sono richiesti i seguenti file, forniti nel "
-"file di configurazione, ma non ottenuti:  {list}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1321
-#, fuzzy
-msgid "Unable to determine a kernel architecture for this guest."
-msgstr "Impossibile determinare l'architettura del kernel per questo guest"
-
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1583
+#: ../lib/Sys/VirtConvert/Transfer/Local.pm:36
 #, perl-brace-format
-msgid "Error running {command}: {error}"
-msgstr "Impossibile avviare {command}: {error}"
+msgid "Unable to open {path} for reading: {error}"
+msgstr "Impossibile aprire {path} in lettura: {error}"
 
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:1950
-#, fuzzy, perl-brace-format
-msgid "Kernel version {version} doesn't have an initrd entry in grub."
-msgstr ""
-"WARINIG: il kernel versione {version} non ha una stringa initrd nella "
-"configurazione di grub"
-
-#: ../lib/Sys/VirtV2V/Converter/RedHat.pm:2006
-#, fuzzy
-msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
-msgstr "mkinitrd o dracut non trovati. Impossibile aggiornare initrd"
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:170
-msgid ""
-"You must specify the configuration file (-f) when converting Windows guests."
-msgstr ""
-"Specificare il file di configurazione (-f) quando si converte i guest "
-"Windows."
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:199
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:302
-#, fuzzy, perl-brace-format
-msgid ""
-"Could not download the SYSTEM registry from this Windows guest. The exact "
-"error message was: {errmsg}"
-msgstr ""
-"Impossibile scaricare il registro SYSTEM dal guest Windows. Messaggio "
-"d'errore: {errmsg}"
-
-#: ../lib/Sys/VirtV2V/Converter/Windows.pm:263
+#: ../lib/Sys/VirtConvert/Transfer/Local.pm:77
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:218
 #, perl-brace-format
-msgid "Guest is not a supported version of Windows ({major}.{minor})"
-msgstr "Il guest non è una versione Windows supportata ({major}.{minor})"
+msgid "Error reading from {path}: {error}"
+msgstr "Errore lettura da {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/GuestfsHandle.pm:166
-msgid "libguestfs did not shut down cleanly"
-msgstr "libguestfs non spegne con precisione"
+#: ../lib/Sys/VirtConvert/Transfer/Local.pm:166
+#, perl-brace-format
+msgid "Error writing to {path}: {error}"
+msgstr "Errore scrittura su {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:82
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:108
+#, perl-brace-format
+msgid "Unexpected error copying {path} from {host}."
+msgstr "Errore copia inaspettato da {host} a {path}"
+
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:113
+#, perl-brace-format
+msgid "Command output: {output}"
+msgstr "Output comando: {output}"
+
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:258
+#, perl-brace-format
+msgid "Error writing data to {path}: {error}"
+msgstr "Errore scrittura dati a {path}: {error}"
+
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:312
+msgid "virt-v2v cannot yet write to an SSH connection"
+msgstr "virt-v2v non può ancora scrivere in una connessione SSH"
+
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:327
+msgid ""
+"When reading from an SSH connection, virt-v2v can only currently convert raw "
+"volumes."
+msgstr ""
+"Quando legge con una connessione SSH, virt-v2v può solo attualmente "
+"convertire volumi raw."
+
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:351
+msgid ""
+"When writing to an SSH connection, virt-v2v can only currently convert "
+"volumes to raw format"
+msgstr ""
+"Quando scrive con una connessione SSH, virt-v2v può solo convertire volumi "
+"in formato raw"
+
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:82
 #, perl-brace-format
 msgid "Failed to connect to {host}: {error}"
 msgstr "Impossibile connettersi all'{host}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:88
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:88
 #, perl-brace-format
 msgid "Failed to send request to {host}: {error}"
 msgstr "Impossibile spedire una richiesta all'{host}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:107
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:107
 #, perl-brace-format
 msgid "ESX Server didn't return content length for {uri}"
 msgstr "ESX server non rimanda contenuti lunghi per {uri}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:141
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:141
 #, perl-brace-format
 msgid "Error reading data from {host}"
 msgstr "Errore nella lettura dati da {host}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:160
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:160
+#, perl-brace-format
 msgid "SSL Certificate Subject from {host} doesn't contain a CN."
-msgstr "Il SSL Certificate Subject da {host} non contiene un CN"
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:164
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:164
 #, perl-brace-format
 msgid "Server {server} presented an SSL certificate for {commonname}"
 msgstr "Il server {server} presenta un certificato SSL per {commonname}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:174
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:174
+#, perl-brace-format
 msgid "SSL Certificate presented by {host} will not be valid until {date}."
 msgstr ""
-"Il certificato SSL presentato dall'{host} non sarà valido fino al {date}"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:180
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:180
+#, perl-brace-format
 msgid "SSL Certificate presented by {host} expired on {date}."
-msgstr "Il certificato SSL presente dall'{host} scade il {date}"
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:288
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:288
 #, perl-brace-format
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
@@ -579,15 +422,15 @@ msgstr ""
 "Autenticazione richiesta per la connessione a {server} e non sono state "
 "trovate credenziali in .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:386
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:386
 msgid "virt-v2v cannot write to an ESX connection"
 msgstr "virt-v2v non può scrivere con una connessione ESX"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:419
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:419
 msgid "Unable to write to an ESX connection"
 msgstr "Impossibile scrivere con una connessione ESX"
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:449
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
 "Authentication error connecting to {server}. Used credentials for {username} "
@@ -596,354 +439,449 @@ msgstr ""
 "Errore d'autenticazione in connessione a {server}. Usate credenziali per "
 "{username} da .netrc."
 
-#: ../lib/Sys/VirtV2V/Transfer/ESX.pm:454
+#: ../lib/Sys/VirtConvert/Transfer/ESX.pm:454
 #, perl-brace-format
 msgid "Failed to connect to ESX server: {error}"
 msgstr "Connessione all'ESX server fallita: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/Local.pm:36
+#: ../lib/Sys/VirtConvert/Config.pm:76
 #, perl-brace-format
-msgid "Unable to open {path} for reading: {error}"
-msgstr "Impossibile aprire {path} in lettura: {error}"
+msgid "Config file {path} doesn't exist"
+msgstr "Il file di configurazione {path} non esiste"
 
-#: ../lib/Sys/VirtV2V/Transfer/Local.pm:77
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:218
+#: ../lib/Sys/VirtConvert/Config.pm:78
 #, perl-brace-format
-msgid "Error reading from {path}: {error}"
-msgstr "Errore lettura da {path}: {error}"
+msgid "Don't have permissions to read {path}"
+msgstr "Non si hanno i permessi di lettura per {path} "
 
-#: ../lib/Sys/VirtV2V/Transfer/Local.pm:166
+#: ../lib/Sys/VirtConvert/Config.pm:84
 #, perl-brace-format
-msgid "Error writing to {path}: {error}"
-msgstr "Errore scrittura su {path}: {error}"
+msgid "Unable to parse config file {path}: {error}"
+msgstr "Impossibile analizzare il file di configurazione in {path}: {error}"
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:108
-#, perl-brace-format
-msgid "Unexpected error copying {path} from {host}."
-msgstr "Errore copia inaspettato da {host} a {path}"
-
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:113
-#, perl-brace-format
-msgid "Command output: {output}"
-msgstr "Output comando: {output}"
-
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:258
-#, perl-brace-format
-msgid "Error writing data to {path}: {error}"
-msgstr "Errore scrittura dati a {path}: {error}"
-
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:312
-msgid "virt-v2v cannot yet write to an SSH connection"
-msgstr "virt-v2v non può ancora scrivere in una connessione SSH"
-
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:327
-msgid ""
-"When reading from an SSH connection, virt-v2v can only currently convert raw "
-"volumes."
+#: ../lib/Sys/VirtConvert/Config.pm:148
+msgid "<iso-path> must be specified in the configuration file."
 msgstr ""
-"Quando legge con una connessione SSH, virt-v2v può solo attualmente "
-"convertire volumi raw."
 
-#: ../lib/Sys/VirtV2V/Transfer/SSH.pm:351
+#: ../lib/Sys/VirtConvert/Config.pm:158
+#, perl-brace-format
 msgid ""
-"When writing to an SSH connection, virt-v2v can only currently convert "
-"volumes to raw format"
+"Failed to create transfer iso. Command output was:\n"
+"{output}"
 msgstr ""
-"Quando scrive con una connessione SSH, virt-v2v può solo convertire volumi "
-"in formato raw"
 
-#: ../lib/Sys/VirtV2V/Util.pm:91
+#: ../lib/Sys/VirtConvert/Config.pm:247
 #, perl-brace-format
-msgid "augeas error for {file}: {error}"
-msgstr "Errore augeas per {file}: {error}"
+msgid "app entry in config doesn't contain a path: {xml}"
+msgstr "La voce app nella configurazione non contiene un percorso: {xml}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:95
+#: ../lib/Sys/VirtConvert/Config.pm:304
 #, perl-brace-format
-msgid "augeas error for {file}"
-msgstr "Errore augeas per {file}"
+msgid ""
+"Capability in config contains a dependency with no {property} attribute: "
+"{xml}"
+msgstr ""
+"La configurazione contiene una dipendenza senza attributi {property}: {xml}"
 
-#: ../lib/Sys/VirtV2V/Util.pm:102
+#: ../lib/Sys/VirtConvert/Config.pm:336
 #, perl-brace-format
-msgid "error at line {line}, char {char}, file position {pos}"
-msgstr "Errore nella linea {line}, char {char}, posizione file {pos}"
+msgid "No config specified. No {type} match for {search}."
+msgstr ""
 
-#: ../lib/Sys/VirtV2V/Util.pm:110
+#: ../lib/Sys/VirtConvert/Config.pm:346
+msgid "Didn't detect operating system"
+msgstr "Sistema operativo non identificato"
+
+#: ../lib/Sys/VirtConvert/Config.pm:379
 #, perl-brace-format
-msgid "augeas lens: {lens}"
-msgstr "augeas lens: {lens}"
+msgid "No {type} in config matches {search}"
+msgstr "Nessun {type} nella configurazione abbinato {search}"
 
-#: ../v2v/virt-v2v.pl:277
+#: ../lib/Sys/VirtConvert/Config.pm:414
+#, perl-brace-format
+msgid ""
+"No mapping found for {type} interface {name} in config file. The converted "
+"guest may not start until its network interface is updated."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:428
+#, perl-brace-format
+msgid "Invalid network mapping in config: {config}."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:435
+#, perl-brace-format
+msgid "Unknown interface type {type} in network mapping: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:474
+#, perl-brace-format
+msgid "No profile {name} defined in {path}"
+msgstr "Nessun profilo {name} è stato definito in {path}"
+
+#: ../lib/Sys/VirtConvert/Config.pm:479
+#, perl-brace-format
+msgid "Profile {name} doesn't specify an output method."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:497
+#, perl-brace-format
+msgid "Profile {name} doesn't specify output storage."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:510
+#, perl-brace-format
+msgid "Default network doesn't contain a mapping: {config}."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Config.pm:520
+#, perl-brace-format
+msgid "Invalid network mapping: {config}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:206
+#, perl-brace-format
+msgid "{path} doesn't match augeas pattern"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:261
+msgid "Unable to find any valid modprobe configuration"
+msgstr "Impossibile trovare una configurazione valida di modprobe"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:418
+#, perl-brace-format
+msgid "Don't know how to update {device}, which loads the {module} module."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:566
+#, perl-brace-format
+msgid "grub refers to {path}, which doesn't exist."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:617
+#, perl-brace-format
+msgid "Grub entry {title} has no kernel"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:647
+#, perl-brace-format
+msgid "grub refers to {path}, which doesn't exist\n"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:670
+#, perl-brace-format
+msgid "Grub entry {title} does not specify an initrd"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:711
+#, perl-brace-format
+msgid "{filename}: could not read initrd format"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:761
+#, perl-brace-format
+msgid "Didn't find modules directory {modules} for kernel {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:769
+#, perl-brace-format
+msgid "Couldn't guess kernel version number from path for kernel {path}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:826
+msgid ""
+"No bootable kernels installed, and no replacement is available.\n"
+"Unable to continue."
+msgstr ""
+"Nessun kernel avviabile installato e nessuna sostituzione specificata.\n"
+"Impossibile continuare."
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:985
+#, perl-brace-format
+msgid "Unable to open /etc/rc.local: {error}"
+msgstr "Impossibile aprire /etc/rc.local: {error}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1028
+#, perl-brace-format
+msgid ""
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1086
+#, perl-brace-format
+msgid "{name} capability not found in configuration"
+msgstr "Proprietà {name} non trovata nella configurazione"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1104
+#, perl-brace-format
+msgid ""
+"Unrecognised format for {field} in config: {value}. {field} must be in the "
+"format [epoch:]version[-release]."
+msgstr ""
+"Formato non riconosciuto per {field} nella configurazione: {value}. {field} "
+"deve essere formattato [epoch:]version[-release]."
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1294
+#, perl-brace-format
+msgid "Failed to install packages using up2date. Error message was: {error}"
+msgstr ""
+"Installazione pacchetti fallita usando up2date. Messaggio d'errore: {error}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1357
+#, perl-brace-format
+msgid "Failed to install packages using yum. Output was: {output}"
+msgstr "Installazione pacchetti fallita usando yum. Risposta: {output}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1406
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:448
+#, perl-brace-format
+msgid ""
+"Installation failed because the following files referenced in the "
+"configuration file are required, but missing: {list}"
+msgstr ""
+"Installazione fallita perché sono richiesti i seguenti file, forniti nel "
+"file di configurazione, ma non ottenuti:  {list}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1586
+msgid "Unable to determine a kernel architecture for this guest."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1838
+#, perl-brace-format
+msgid "Error running {command}: {error}"
+msgstr "Impossibile avviare {command}: {error}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2210
+#, perl-brace-format
+msgid "Kernel version {version} doesn't have an initrd entry in grub."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2266
+msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:158
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:260
+#, perl-brace-format
+msgid ""
+"Could not download the SYSTEM registry from this Windows guest. The exact "
+"error message was: {errmsg}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:222
+#, perl-brace-format
+msgid "Guest is not a supported version of Windows ({major}.{minor})"
+msgstr "Il guest non è una versione Windows supportata ({major}.{minor})"
+
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:325
+#, perl-brace-format
+msgid ""
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
+"driver is not already installed in the guest, you must install it manually "
+"after conversion."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:346
+#, perl-brace-format
+msgid ""
+"There is no virtio block driver available in the directory specified for "
+"this version of Windows. The guest will be configured with a {block} block "
+"storage adapter, but no driver will be installed for it. If the {block} "
+"driver is not already installed in the guest, it will fail to boot."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:360
+#, perl-brace-format
+msgid ""
+"There is no virtio net driver available in the directory specified for this "
+"version of Windows. The guest will be configured with a {net} network "
+"adapter, but no driver will be installed for it. If the {net} driver is not "
+"already installed in the guest, you must install it manually after "
+"conversion."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:166
+msgid "libguestfs did not shut down cleanly"
+msgstr "libguestfs non spegne con precisione"
+
+#: ../p2v-server/virt-p2v-server.pl:81
+#, perl-brace-format
+msgid "{program} started."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:114
+#, perl-brace-format
+msgid ""
+"This version of virt-p2v-server does not support protocol version {version}."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:207
+#, perl-brace-format
+msgid "Invalid allocation policy {policy} in profile."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:278
+#, perl-brace-format
+msgid "Invalid profile: {profile}"
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:291
+#, perl-brace-format
+msgid "Profile {profile} specifies invalid method {method}."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:324 ../v2v/virt-v2v.pl:524
+#, perl-brace-format
+msgid "{name} configured with virtio drivers."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:327 ../v2v/virt-v2v.pl:527
+#, perl-brace-format
+msgid "{name} configured with virtio storage only."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:330 ../v2v/virt-v2v.pl:530
+#, perl-brace-format
+msgid "{name} configured with virtio networking only."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:333 ../v2v/virt-v2v.pl:533
+#, perl-brace-format
+msgid "{name} configured without virtio drivers."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:369
+#, perl-brace-format
+msgid "{program} exited."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:387 ../v2v/virt-v2v.pl:570
+msgid "No root device found in this operating system image."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:390
+msgid "Multiboot operating systems are not supported."
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:400 ../v2v/virt-v2v.pl:647
+#, perl-brace-format
+msgid "{e} (ignored)\n"
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:433
+msgid "Client closed connection unexpectedly"
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:449
+#, perl-brace-format
+msgid "Received: {command} {args}"
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:465
+#, perl-brace-format
+msgid "Error receiving data: {error}"
+msgstr ""
+
+#: ../p2v-server/virt-p2v-server.pl:476 ../p2v-server/virt-p2v-server.pl:488
+#: ../p2v-server/virt-p2v-server.pl:495
+#, perl-brace-format
+msgid "Sent: {msg}"
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:323
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Usare -ic o -oc per specificare una connessione input o un output"
 
-#: ../v2v/virt-v2v.pl:297
+#: ../v2v/virt-v2v.pl:344
 msgid "--network may only be specified once"
 msgstr "--network deve essere specificato solo una volta"
 
-#: ../v2v/virt-v2v.pl:305
+#: ../v2v/virt-v2v.pl:352
 msgid "--bridge may only be specified once"
 msgstr "--bridge deve essere specificato solo una volta"
 
-#: ../v2v/virt-v2v.pl:322
+#: ../v2v/virt-v2v.pl:370
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
 msgstr "Lo schema d'allocazione deve essere {sparse} o {preallocated}"
 
-#: ../v2v/virt-v2v.pl:337
+#: ../v2v/virt-v2v.pl:385
 msgid "Defined profiles:"
 msgstr "Profili definiti:"
 
-#: ../v2v/virt-v2v.pl:364
+#: ../v2v/virt-v2v.pl:412
 msgid "You must specify an output storage location"
 msgstr "È necessario specificare un percorso di storage"
 
-#: ../v2v/virt-v2v.pl:378
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:426
+#, perl-brace-format
 msgid "{output} is not a valid output method."
-msgstr "{output} non è un formato di output valido"
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:386
+#: ../v2v/virt-v2v.pl:434
 msgid "You must specify a filename"
 msgstr "Specificare un nome file"
 
-#: ../v2v/virt-v2v.pl:391
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:439
+#, perl-brace-format
 msgid "{modulename} only takes a single filename."
-msgstr "g{modulename} accetta un solo nome file."
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:400
+#: ../v2v/virt-v2v.pl:448
 msgid "You must specify a guest"
 msgstr "Specificare un guest"
 
-#: ../v2v/virt-v2v.pl:407
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:456
+#, perl-brace-format
 msgid "{modulename} only takes a single domain name."
-msgstr "g{modulename} accetta un solo nome di dominio."
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:413
-#, fuzzy, perl-brace-format
+#: ../v2v/virt-v2v.pl:462
+#, perl-brace-format
 msgid "{input} is not a valid input method."
-msgstr "{input} non è un formato di input valido"
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:421
+#: ../v2v/virt-v2v.pl:473
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
 msgstr "Il dominio {name} è già esistente nel target."
 
-#: ../v2v/virt-v2v.pl:470
-#, fuzzy, perl-brace-format
-msgid "{name} configured with virtio drivers."
-msgstr "{name} configurato con driver virtio"
+#: ../v2v/virt-v2v.pl:484
+msgid "Guest doesn't define any storage devices"
+msgstr ""
 
-#: ../v2v/virt-v2v.pl:472
-#, fuzzy, perl-brace-format
-msgid "{name} configured without virtio drivers."
-msgstr "{name} configurato senza driver virtio"
-
-#: ../v2v/virt-v2v.pl:492
+#: ../v2v/virt-v2v.pl:553
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr "Segnale ricevuto {sig}. Uscita."
 
-#: ../v2v/virt-v2v.pl:515
-#, fuzzy
-msgid "No root device found in this operating system image."
+#: ../v2v/virt-v2v.pl:580
+msgid ""
+"Dual- or multi-boot operating system detected. Choose the root filesystem\n"
+"that contains the main operating system from the list below:\n"
 msgstr ""
-"nessun dispositivo root trovato in questa immagine di sistema operativo"
 
-#: ../v2v/virt-v2v.pl:519
-#, fuzzy
-msgid "Multiboot operating systems are not supported by virt-v2v."
-msgstr "virt-v2v non supporta i sistemi operativi multiboot"
+#: ../v2v/virt-v2v.pl:595
+#, perl-brace-format
+msgid "Enter number between 1 and {i}: "
+msgstr ""
 
-#~ msgid "virt-v2v: {message}\n"
-#~ msgstr "virt-v2v: {message}\n"
+#: ../v2v/virt-v2v.pl:601
+msgid ""
+"Multi-boot operating systems are not supported by virt-v2v. Use the --root "
+"option to change how virt-v2v handles this."
+msgstr ""
 
-#~ msgid "Error removing {file}: {error}"
-#~ msgstr "Errore nella rimozione di {file}:{error}"
+#: ../v2v/virt-v2v.pl:617 ../v2v/virt-v2v.pl:631
+#, perl-brace-format
+msgid "Root device \"{choice}\" not found. Roots found were: {roots}."
+msgstr ""
 
-#~ msgid "Unable to stat {path}: {error}"
-#~ msgstr "Impossibile eseguire lo stat {path}: {error}"
-
-#~ msgid ""
-#~ "You must specify an output storage pool when using the libvirt output "
-#~ "method"
-#~ msgstr ""
-#~ "Specificare un output pool storage quando è in uso il libvirt output "
-#~ "method"
-
-#~ msgid "Failed to get storage volume: {error}"
-#~ msgstr "Volume di storage non ottenuto: {error}"
-
-#~ msgid "Error opening storage volume {path} for writing: {error}"
-#~ msgstr "Errore apertura volume storage {path} in scrittura: {error}"
-
-#~ msgid "Error closing volume handle: {error}"
-#~ msgstr "Errore chiusura volume utilizzato: {error}"
-
-#~ msgid "Error checking for domain: {error}"
-#~ msgstr "Errore controllo dominio: {error}"
-
-#~ msgid "The connected hypervisor does not support a {arch} kvm guest."
-#~ msgstr ""
-#~ "L'hypervisor connesso non supporta guest kvm con architettura {arch}"
-
-#~ msgid ""
-#~ "The connected hypervisor does not support a machine type of {machine}. It "
-#~ "will be set to the current default."
-#~ msgstr ""
-#~ "L'hypervisor connesso non supporta macchine di tipo {machine}.Saranno "
-#~ "impostate come in default."
-
-#~ msgid "The connected hypervisor does not support feature {feature}."
-#~ msgstr "L'hypervisor connesso non supporta la caratteristica {feature}"
-
-#~ msgid "Error removing temporary directory {dir}: {error}"
-#~ msgstr "Errore rimozione directory temporanea {dir}: {error}"
-
-#~ msgid "Unable to find a default kernel"
-#~ msgstr "Impossibile trovare il kernel predefinito"
-
-#~ msgid "Unable to stat iso file {path}: {error}"
-#~ msgstr "Impossibile eseguire lo stat sul file iso {path}: {error}"
-
-#~ msgid "Unable to stat config file {path}: {error}"
-#~ msgstr "Impossibile eseguire lo stat del config file {path}: {error}"
-
-#~ msgid "Unable to find a module to convert this guest"
-#~ msgstr "Impossibile trovare un modulo per convertire il guest"
-
-#~ msgid "Didn't find a grub entry for kernel version {version}"
-#~ msgstr ""
-#~ "Impossibile trovare un'istanza di grub per il kernel versione {version}"
-
-#~ msgid "No mapping found for '{type}' interface: {name}"
-#~ msgstr "Nessun mapping trovato per l'interfaccia '{type}': {name}"
-
-#~ msgid "/etc/selinux/config does not exist"
-#~ msgstr "/etc/selinux/config non esiste"
-
-#~ msgid "Didn't find SELINUXTYPE in /etc/syslinux/config"
-#~ msgstr "SELINUXTYPE non trovato in /etc/syslinux/config"
-
-#~ msgid "Unable to find an SELinux policy file matching {path}: {error}"
-#~ msgstr ""
-#~ "Impossibile trovare una policy di SELinux corrispondente a {path}: {error}"
-
-#~ msgid "Unable to load an SELinux policy"
-#~ msgstr "Impossibile caricare la policy di SELinux"
-
-#~ msgid "gunable to configure SELinux: {error})"
-#~ msgstr "gimpossibile configurare SELinux: {error}"
-
-#~ msgid "--commit and --rollback options are mutually exclusive"
-#~ msgstr "Le opzioni --commit e --rollback sono reciprocamente incompatibili"
-
-#~ msgid "no guest argument given"
-#~ msgstr "nessun argomento guest passato"
-
-#~ msgid "{input} is not a valid input format"
-#~ msgstr "{input} non è un formato di input valido"
-
-#~ msgid "No domain has been created."
-#~ msgstr "Non è stato creato alcun dominio."
-
-#~ msgid "Wrote output to {file}"
-#~ msgstr "Output indirizzato su {file}"
-
-#~ msgid "Consider using the --outputxml option"
-#~ msgstr "Si consideri l'utilizzo dell'opzione --outputxml"
-
-#~ msgid "Unable to create snapshot directory {dir}: {error}"
-#~ msgstr "Impossibile creare una snapshot directory {dir}: {error}"
-
-#~ msgid "Unable to create v2v-snapshot storage pool: {error}"
-#~ msgstr "Impossibile creare uno storage pool per v2v-snapshot: {error}"
-
-#~ msgid "Unable to start v2v-snapshot storage pool: {error}"
-#~ msgstr "Impossibile avviare lo storage pool per v2v-snapshot: {error}"
-
-#~ msgid "v2v-snapshot storage pool is temporarily unavailable"
-#~ msgstr "Lo storage pool per v2v-snapshot è temporaneamente non disponibile"
-
-#~ msgid "Unable to find {path} in the v2v-snapshot storage pool."
-#~ msgstr "Impossibile trovare {path} nello storage pool per v2v-snapshot."
-
-#~ msgid "Skipping device {target} as it doesn't have a backing store"
-#~ msgstr ""
-#~ "Dispositivo {target} ignorato poichè non dispone di un backing store"
-
-#~ msgid ""
-#~ "Failed to commit snapshot '{path}' to backing store '{backingstore}'.\n"
-#~ "Command output was:\n"
-#~ "{output}"
-#~ msgstr ""
-#~ "Impossibile eseguire il commit dello snapshot '{path}' nel backing store "
-#~ "'{backingstore}'.\n"
-#~ "Il comando ha generato il seguente output:\n"
-#~ "{output}"
-
-#~ msgid ""
-#~ "A snapshot already exists for {guest}. You must commit it or roll it back "
-#~ "back before creating a new snapshot."
-#~ msgstr ""
-#~ "Esiste già uno snapshot per {guest}; è necessario eseguirne il commit o "
-#~ "il rollback prima di creare un nuovo snapshot."
-
-#~ msgid "Unable to create storage volume: {error}"
-#~ msgstr "Impossibile creare il volume di storage: {error}"
-
-#~ msgid "Refusing to rollback guest {name} without backed-up xml"
-#~ msgstr ""
-#~ "Il rollback del guest {name} non verrà eseguito senza un file xml di "
-#~ "backup"
-
-#~ msgid "{path} is not a snapshot volume"
-#~ msgstr "{path} non è un volume di snapshot"
-
-#~ msgid "Failed to delete {file}: {error}"
-#~ msgstr "Impossibile eliminare {file}: {error}"
-
-#~ msgid "Unable to delete backup xml file {file}: {error}"
-#~ msgstr "Impossibile eliminare il file xml di backup {file}: {error}"
-
-#~ msgid "invalid source element: {element}"
-#~ msgstr "elemento sorgente non valido: {element}"
-
-#~ msgid "Unable to create xml storage directory {dir}: {error}"
-#~ msgstr "Impossibile creare una xml storage directory {dir}: {error}"
-
-#~ msgid "gunknown configuration directive {directive} in {name} section."
-#~ msgstr ""
-#~ "gdirettiva di configurazione {directive} sconosciuta nella sezione {name}."
-
-#~ msgid "gunable to access {path}."
-#~ msgstr "ATTENZIONE: impossibile accedere a {path}."
-
-#~ msgid "Found dependency loop installing {label}: {path}"
-#~ msgstr ""
-#~ "Trovato anello di dipendenze durante l'installazione di {label}: {path}"
-
-#~ msgid "No {object} given matching {label}"
-#~ msgstr "Nessun {object} corrisponde a {label}"
-
-#~ msgid "file"
-#~ msgstr "file"
-
-#~ msgid "alias"
-#~ msgstr "alias"
-
-#~ msgid "dependencies"
-#~ msgstr "dipendenze"
-
-#~ msgid "Unable to parse {file}: {error}"
-#~ msgstr "Impossibile eseguire il parsing di {file}: {error}"
-
-#~ msgid ""
-#~ "gNo replacement found for {xpath} in domain XML. The node was removed."
-#~ msgstr ""
-#~ "ATTENZIONE: nessuna sostituzione trovata per {xpath} nell'XML del "
-#~ "dominio. Questo nodo è stato eliminato."
-
-#~ msgid "{input} is not a valid metadata format"
-#~ msgstr "{input} non è un formato di metadati valido"
+#: ../v2v/virt-v2v.pl:637
+#, perl-brace-format
+msgid "Unknown --root option \"{choice}\"."
+msgstr ""
