@@ -604,7 +604,7 @@ sub inspect_guest
             # Choose the first one.
             $root_dev = $roots[0];
         }
-        elsif ($root_choice =~ m|^/dev/[hsv]d(.*)|) {
+        elsif ($root_choice =~ m|^/dev/[hsv]d([a-z]+[0-9]*)$|) {
             # Choose the named root.
             my $partnum = $1;
             foreach (@roots) {
