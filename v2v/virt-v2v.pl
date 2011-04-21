@@ -496,11 +496,18 @@ my $g = new Sys::VirtConvert::GuestfsHandle(
     $output_method eq 'rhev'
 );
 
+# Get the name of the appliance's transfer device, if it has one
+my $transferdev;
+if (defined($transferiso)) {
+    my @devices = $g->list_devices();
+    $transferdev = pop(@devices);
+}
+
 my $guestcaps;
 my $desc;
 eval {
     # Inspect the guest
-    $desc = inspect_guest($g);
+    $desc = inspect_guest($g, $transferdev);
 
     # Modify the guest and its metadata
     $guestcaps =
@@ -559,9 +566,18 @@ sub signal_exit
 sub inspect_guest
 {
     my $g = shift;
+    my $transferdev = shift;
 
     # Get list of roots, sorted.
     my @roots = $g->inspect_os ();
+
+    # Filter out the transfer device from the results of inspect_os
+    # There's a libguestfs bug (fixed upstream) which meant the transfer ISO
+    # could be erroneously detected as an unknown Windows OS. As we know what it
+    # is, we can filter out the transfer device here. Even when the fix is
+    # released this is reasonable belt & braces.
+    @roots = grep(!/^\Q$transferdev\E$/, @roots);
+
     @roots = sort @roots;
 
     my $root_dev;
