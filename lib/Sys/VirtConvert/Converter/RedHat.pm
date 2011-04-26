@@ -1113,66 +1113,80 @@ sub _install_capability
 
         # Kernels are special
         if ($name eq 'kernel') {
-            my ($kernel_pkg, $kernel_rpmver, $kernel_arch) =
+            my ($kernel_pkg, $kernel_arch, $kernel_rpmver) =
                 _discover_kernel($desc);
 
-            my ($kernel_epoch, $kernel_ver, $kernel_release);
-            eval {
-                ($kernel_epoch, $kernel_ver, $kernel_release) =
-                    _parse_evr($kernel_rpmver);
-            };
-            if ($@) {
-                # Don't die here, just make best effort to do a version
-                # comparison by directly comparing the full strings
-                $kernel_epoch = undef;
-                $kernel_ver = $kernel_rpmver;
-                $kernel_release = undef;
-
-                $min_epoch = undef;
-                $min_version = $props->{minversion};
-                $min_release = undef;
+            # If we didn't establish a kernel version, assume we have to upgrade
+            # it.
+            if (!defined($kernel_rpmver)) {
+                $kernel = [$kernel_pkg, $kernel_arch];
             }
 
-            # If the guest is using a Xen PV kernel, choose an appropriate
-            # normal kernel replacement
-            if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-                $kernel_pkg =
-                    _get_replacement_kernel_name($kernel_arch, $desc, $meta);
+            else {
+                my ($kernel_epoch, $kernel_ver, $kernel_release);
+                eval {
+                    ($kernel_epoch, $kernel_ver, $kernel_release) =
+                        _parse_evr($kernel_rpmver);
+                };
+                if ($@) {
+                    # Don't die here, just make best effort to do a version
+                    # comparison by directly comparing the full strings
+                    $kernel_epoch = undef;
+                    $kernel_ver = $kernel_rpmver;
+                    $kernel_release = undef;
 
-                # Check if we've got already got an appropriate kernel
-                my ($installed) =
-                    _get_installed("$kernel_pkg.$kernel_arch", $g);
+                    $min_epoch = undef;
+                    $min_version = $props->{minversion};
+                    $min_release = undef;
+                }
 
-                if (!defined($installed) ||
-                    _evr_cmp($installed->[0], $installed->[1], $installed->[2],
-                             $min_epoch, $min_version, $min_release) < 0)
+                # If the guest is using a Xen PV kernel, choose an appropriate
+                # normal kernel replacement
+                if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU")
                 {
-                    # filter out xen/xenU from release field
-                    if (defined($kernel_release) &&
-                        $kernel_release =~ /^(\S+?)(xen)?(U)?$/)
+                    $kernel_pkg =
+                        _get_replacement_kernel_name($kernel_arch, $desc,
+                                                     $meta);
+
+                    # Check if we've got already got an appropriate kernel
+                    my ($inst) =
+                        _get_installed("$kernel_pkg.$kernel_arch", $g);
+
+                    if (!defined($inst) ||
+                        _evr_cmp($inst->[0], $inst->[1], $inst->[2],
+                                 $min_epoch, $min_version, $min_release) < 0)
                     {
-                        $kernel_release = $1;
-                    }
+                        # filter out xen/xenU from release field
+                        if (defined($kernel_release) &&
+                            $kernel_release =~ /^(\S+?)(xen)?(U)?$/)
+                        {
+                            $kernel_release = $1;
+                        }
 
-                    # If the guest kernel is new enough, but PV, try to replace
-                    # it with an equivalent version FV kernel
-                    if (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
-                                 $min_epoch, $min_version, $min_release) >= 0) {
-                        $kernel = [$kernel_pkg, $kernel_arch,
-                                   $kernel_epoch, $kernel_ver, $kernel_release];
-                    }
+                        # If the guest kernel is new enough, but PV, try to
+                        # replace it with an equivalent version FV kernel
+                        if (_evr_cmp($kernel_epoch, $kernel_ver,
+                                     $kernel_release,
+                                     $min_epoch, $min_version,
+                                     $min_release) >= 0)
+                        {
+                            $kernel = [$kernel_pkg, $kernel_arch,
+                                       $kernel_epoch, $kernel_ver,
+                                       $kernel_release];
+                        }
 
-                    # Otherwise, just grab the latest
-                    else {
-                        $kernel = [$kernel_pkg, $kernel_arch];
+                        # Otherwise, just grab the latest
+                        else {
+                            $kernel = [$kernel_pkg, $kernel_arch];
+                        }
                     }
                 }
-            }
 
-            # If the kernel is too old, grab the latest replacement
-            elsif (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
-                            $min_epoch, $min_version, $min_release) < 0) {
-                $kernel = [$kernel_pkg, $kernel_arch];
+                # If the kernel is too old, grab the latest replacement
+                elsif (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
+                                $min_epoch, $min_version, $min_release) < 0) {
+                    $kernel = [$kernel_pkg, $kernel_arch];
+                }
             }
         }
 
@@ -1557,8 +1571,8 @@ sub _discover_kernel
 
     # Get a current bootable kernel, preferrably the default
     my $kernel_pkg;
-    my $kernel_ver;
     my $kernel_arch;
+    my $kernel_ver;
 
     foreach my $i (@configs) {
         my $config = $boot->{configs}->[$i];
@@ -1587,14 +1601,11 @@ sub _discover_kernel
     # directly detected
     $kernel_arch = $desc->{arch} if (!defined($kernel_arch));
 
-    v2vdie __('Unable to determine a kernel architecture for this guest.')
-        unless defined($kernel_arch);
-
     # We haven't supported anything other than i686 for the kernel on 32 bit for
     # a very long time.
     $kernel_arch = 'i686' if ('i386' eq $kernel_arch);
 
-    return ($kernel_pkg, $kernel_ver, $kernel_arch);
+    return ($kernel_pkg, $kernel_arch, $kernel_ver);
 }
 
 sub _get_replacement_kernel_name
@@ -1665,7 +1676,7 @@ sub _install_good_kernel
 {
     my ($g, $config, $desc, $meta) = @_;
 
-    my ($kernel_pkg, $kernel_rpmver, $kernel_arch) = _discover_kernel($desc);
+    my ($kernel_pkg, $kernel_arch, undef) = _discover_kernel($desc);
 
     # If the guest is using a Xen PV kernel, choose an appropriate
     # normal kernel replacement
