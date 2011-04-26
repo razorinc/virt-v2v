@@ -170,14 +170,20 @@ module VirtP2V::UI::Convert
                 raise "Unexpected event: #{@state} #{event}"
             end
         when UI_STATE_CONNECTING
-            raise "Unexpected event: #{@state} #{event}" \
-                unless event == EV_CONNECTION
-
-            if status then
-                set_state(UI_STATE_CONVERTING)
-                convert
+            case event
+            when EV_CONNECTION
+                if status then
+                    set_state(UI_STATE_CONVERTING)
+                    convert
+                else
+                    set_state(UI_STATE_VALID)
+                end
+            when EV_VALID
+                # update_values will be called when the profile list is cleared
+                # and repopulated during connection. Untidy, but ignore it.
             else
-                set_state(UI_STATE_VALID)
+                raise "Unexpected event: #{@state} #{event}" \
+                    unless event == EV_CONNECTION
             end
         when UI_STATE_CONVERTING
             case event
