@@ -37,6 +37,7 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 
 # Run virt-p2v
 cat >> /etc/rc.local <<EOF
-/usr/bin/xinit /usr/bin/virt-p2v
+export HOME=/root # rubygem Net::SSH needs this
+/usr/bin/xinit /usr/bin/virt-p2v > /root/virt-p2v.log 2>&1
 poweroff
 EOF
