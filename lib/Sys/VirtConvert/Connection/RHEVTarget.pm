@@ -605,7 +605,7 @@ sub guest_exists
     return 0;
 }
 
-=item create_guest(desc, meta, config, guestcaps, output_name)
+=item create_guest(g, root, meta, config, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -614,7 +614,7 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $meta, $config, $guestcaps, $output_name) = @_;
+    my ($g, $root, $meta, $config, $guestcaps, $output_name) = @_;
 
     # Get the number of virtual cpus
     my $ncpus = $meta->{cpus};
@@ -627,7 +627,7 @@ sub create_guest
 
     my $vmuuid = rhev_util::get_uuid();
 
-    my $ostype = _get_os_type($desc);
+    my $ostype = _get_os_type($g, $root);
 
     my $ovf = new XML::DOM::Parser->parse(<<EOF);
 <ovf:Envelope
@@ -798,23 +798,24 @@ EOF
 # one of the above values in case we're wrong.
 sub _get_os_type
 {
-    my ($desc) = @_;
+    my ($g, $root) = @_;
+
+    my $arch = $g->inspect_get_arch($root);
 
     my $arch_suffix = '';
-    if ($desc->{arch} eq 'x86_64') {
+    if ($arch eq 'x86_64') {
         $arch_suffix = 'x64';
-    } elsif ($desc->{arch} ne 'i386') {
-        logmsg WARN, __x('Unsupported architecture: {arch}',
-                         arch => $desc->{arch});
+    } elsif ($arch ne 'i386') {
+        logmsg WARN, __x('Unsupported architecture: {arch}', arch => $arch);
         return undef;
     }
 
     my $type;
 
-    $type = _get_os_type_linux($desc, $arch_suffix)
-        if ($desc->{os} eq 'linux');
-    $type = _get_os_type_windows($desc, $arch_suffix)
-        if ($desc->{os} eq 'windows');
+    $type = _get_os_type_linux($g, $root, $arch_suffix)
+        if ($g->inspect_get_type($root) eq 'linux');
+    $type = _get_os_type_windows($g, $root, $arch_suffix)
+        if ($g->inspect_get_type($root) eq 'windows');
 
     return 'Unassigned' if (!defined($type));
     return $type;
@@ -822,11 +823,11 @@ sub _get_os_type
 
 sub _get_os_type_windows
 {
-    my ($desc, $arch_suffix) = @_;
+    my ($g, $root, $arch_suffix) = @_;
 
-    my $major = $desc->{major_version};
-    my $minor = $desc->{minor_version};
-    my $product = $desc->{product_name};
+    my $major   = $g->inspect_get_major_version($root);
+    my $minor   = $g->inspect_get_minor_version($root);
+    my $product = $g->inspect_get_product_name($root);
 
     if ($major == 5) {
         if ($minor == 1 ||
@@ -847,7 +848,7 @@ sub _get_os_type_windows
     }
 
     if ($major == 6 && $minor == 1) {
-        if ($desc->{product_variant} eq 'Client') {
+        if ($g->inspect_get_product_variant($root) eq 'Client') {
             return "Windows7".$arch_suffix;
         }
 
@@ -861,10 +862,10 @@ sub _get_os_type_windows
 
 sub _get_os_type_linux
 {
-    my ($desc, $arch_suffix) = @_;
+    my ($g, $root, $arch_suffix) = @_;
 
-    my $distro = $desc->{distro};
-    my $major = $desc->{major_version};
+    my $distro  = $g->inspect_get_distro($root);
+    my $major   = $g->inspect_get_major_version($root);
 
     # XXX: RHEV 2.2 doesn't support a RHEL 6 target, however RHEV 2.3+ will.
     # For the moment, we set RHEL 6 to be 'OtherLinux', however we will need to

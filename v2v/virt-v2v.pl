@@ -504,14 +504,14 @@ if (defined($transferiso)) {
 }
 
 my $guestcaps;
-my $desc;
+my $root;
 eval {
     # Inspect the guest
-    $desc = inspect_guest($g, $transferdev);
+    $root = inspect_guest($g, $transferdev);
 
     # Modify the guest and its metadata
     $guestcaps =
-        Sys::VirtConvert::Converter->convert($g, $config, $desc, $meta);
+        Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
 };
 
 # If any of the above commands result in failure, we need to ensure that the
@@ -523,9 +523,9 @@ if ($@) {
     die($err);
 }
 
-$g->close();
+$target->create_guest($g, $root, $meta, $config, $guestcaps, $output_name);
 
-$target->create_guest($desc, $meta, $config, $guestcaps, $output_name);
+$g->close();
 
 if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
     logmsg NOTICE, __x('{name} configured with virtio drivers.',
@@ -561,15 +561,14 @@ sub signal_exit
 }
 
 # Perform guest inspection using the libguestfs core inspection API.
-# Returns a hashref ("$desc") which contains the main features from
-# inspection.
+# Returns the root device of the os to be converted.
 sub inspect_guest
 {
     my $g = shift;
     my $transferdev = shift;
 
     # Get list of roots, sorted.
-    my @roots = $g->inspect_os ();
+    my @roots = $g->inspect_os();
 
     # Filter out the transfer device from the results of inspect_os
     # There's a libguestfs bug (fixed upstream) which meant the transfer ISO
@@ -655,39 +654,7 @@ sub inspect_guest
         }
     }
 
-    # Mount up the disks.
-    my %fses = $g->inspect_get_mountpoints ($root_dev);
-    my @fses = sort { length $a <=> length $b } keys %fses;
-    foreach (@fses) {
-        eval { $g->mount_options ("", $fses{$_}, $_) };
-        print __x("{e} (ignored)\n", e => $@) if $@;
-    }
-
-    # Construct the "$desc" hashref which contains the main features
-    # found by inspection.
-    my %desc;
-
-    $desc{root_device} = $root_dev;
-
-    $desc{os} = $g->inspect_get_type ($root_dev);
-    $desc{distro} = $g->inspect_get_distro ($root_dev);
-    $desc{product_name} = $g->inspect_get_product_name ($root_dev);
-    $desc{product_variant} = $g->inspect_get_product_variant ($root_dev);
-    $desc{major_version} = $g->inspect_get_major_version ($root_dev);
-    $desc{minor_version} = $g->inspect_get_minor_version ($root_dev);
-    $desc{arch} = $g->inspect_get_arch ($root_dev);
-
-    # Notes:
-    # (1) Filesystems have to be mounted for this to work.  Do not
-    # move this code over the filesystem mounting code above.
-    # (2) For RPM-based distros, new libguestfs inspection code
-    # is only able to populate the 'app_name' field (old Perl code
-    # populated a lot more).  Fortunately this is the only field
-    # that the code currently uses.
-    my @apps = $g->inspect_list_applications ($root_dev);
-    $desc{apps} = \@apps;
-
-    return \%desc;
+    return $root_dev;
 }
 
 =head1 PREPARING TO CONVERT A GUEST

@@ -306,8 +306,6 @@ sub convert
     my @localpaths = map { $_->{local_path} } @{$meta->{disks}};
 
     my $g;
-    my $desc;
-    my $guestcaps;
     eval {
         $g = new Sys::VirtConvert::GuestfsHandle(
             \@localpaths,
@@ -315,10 +313,11 @@ sub convert
             $target->isa('Sys::VirtConvert::Connection::RHEVTarget')
         );
 
-        $desc = inspect_guest($g);
-        $guestcaps =
-            Sys::VirtConvert::Converter->convert($g, $config, $desc, $meta);
-        $target->create_guest($desc, $meta, $config, $guestcaps, $meta->{name});
+        my $root = inspect_guest($g);
+        my $guestcaps =
+            Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
+        $target->create_guest($g, $root, $meta, $config, $guestcaps,
+                              $meta->{name});
 
         if($guestcaps->{block} eq 'virtio' && $guestcaps->{net} eq 'virtio') {
             logmsg NOTICE, __x('{name} configured with virtio drivers.',
@@ -373,14 +372,13 @@ END {
 }
 
 # Perform guest inspection using the libguestfs core inspection API.
-# Returns a hashref ("$desc") which contains the main features from
-# inspection.
+# Returns the root device of the os to be converted.
 sub inspect_guest
 {
     my $g = shift;
 
     # Get list of roots, sorted
-    my @roots = $g->inspect_os ();
+    my @roots = $g->inspect_os();
     @roots = sort @roots;
 
     # Only work on single-root operating systems.
@@ -390,41 +388,7 @@ sub inspect_guest
     v2vdie __('Multiboot operating systems are not supported.')
         if @roots > 1;
 
-    my $root_dev = $roots[0];
-
-    # Mount up the disks.
-    my %fses = $g->inspect_get_mountpoints ($root_dev);
-    my @fses = sort { length $a <=> length $b } keys %fses;
-    foreach (@fses) {
-        eval { $g->mount_options ("", $fses{$_}, $_) };
-        print __x("{e} (ignored)\n", e => $@) if $@;
-    }
-
-    # Construct the "$desc" hashref which contains the main features
-    # found by inspection.
-    my %desc;
-
-    $desc{root_device} = $root_dev;
-
-    $desc{os} = $g->inspect_get_type ($root_dev);
-    $desc{distro} = $g->inspect_get_distro ($root_dev);
-    $desc{product_name} = $g->inspect_get_product_name ($root_dev);
-    $desc{product_variant} = $g->inspect_get_product_variant ($root_dev);
-    $desc{major_version} = $g->inspect_get_major_version ($root_dev);
-    $desc{minor_version} = $g->inspect_get_minor_version ($root_dev);
-    $desc{arch} = $g->inspect_get_arch ($root_dev);
-
-    # Notes:
-    # (1) Filesystems have to be mounted for this to work.  Do not
-    # move this code over the filesystem mounting code above.
-    # (2) For RPM-based distros, new libguestfs inspection code
-    # is only able to populate the 'app_name' field (old Perl code
-    # populated a lot more).  Fortunately this is the only field
-    # that the code currently uses.
-    my @apps = $g->inspect_list_applications ($root_dev);
-    $desc{apps} = \@apps;
-
-    return \%desc;
+    return $roots[0];
 }
 
 sub p2v_receive

@@ -40,7 +40,7 @@ Sys::VirtConvert::Converter - Convert a guest to run on KVM
 
  use Sys::VirtConvert::Converter;
 
- Sys::VirtConvert::Converter->convert($g, $config, $desc, $meta);
+ Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
 
 =head1 DESCRIPTION
 
@@ -51,7 +51,7 @@ guest OS, and uses it to convert the guest to run on KVM.
 
 =over
 
-=item Sys::VirtConvert::Converter->convert(g, config, desc, meta)
+=item Sys::VirtConvert::Converter->convert(g, config, root, meta)
 
 Instantiate an appropriate backend and call convert on it.
 
@@ -65,9 +65,9 @@ A libguestfs handle to the target.
 
 An initialised Sys::VirtConvert::Config object.
 
-=item desc
+=item root
 
-The OS description (see virt-v2v.pl:inspect_guest).
+The root device of the os to be converted.
 
 =item meta
 
@@ -81,18 +81,37 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $desc, $meta) = @_;
+    my ($g, $config, $root, $meta) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without config argument") unless defined($config);
-    croak("convert called without desc argument") unless defined($desc);
+    croak("convert called without root argument") unless defined($root);
     croak("convert called without meta argument") unless defined($meta);
 
     my $guestcaps;
 
+    # Mount up the disks.
+    my %fses = $g->inspect_get_mountpoints ($root);
+    my @fses = sort { length $a <=> length $b } keys %fses;
+    foreach (@fses) {
+        eval { $g->mount_options ("", $fses{$_}, $_) };
+        print __x("{e} (ignored)\n", e => $@) if $@;
+    }
+
+    # Construct the "$desc" hashref which contains the main features
+    # found by inspection.
+    my %desc;
+
+    $desc{os}               = $g->inspect_get_type($root);
+    $desc{distro}           = $g->inspect_get_distro($root);
+    $desc{product_name}     = $g->inspect_get_product_name($root);
+    $desc{major_version}    = $g->inspect_get_major_version($root);
+    $desc{minor_version}    = $g->inspect_get_minor_version($root);
+    $desc{arch}             = $g->inspect_get_arch($root);
+
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
-        if($module->can_handle($desc)) {
-            $guestcaps = $module->convert($g, $config, $desc, $meta);
+        if($module->can_handle(\%desc)) {
+            $guestcaps = $module->convert($g, $root, $config, \%desc, $meta);
             last;
         }
     }

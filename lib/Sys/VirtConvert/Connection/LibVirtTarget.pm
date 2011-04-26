@@ -269,7 +269,7 @@ sub guest_exists
     return 1;
 }
 
-=item create_guest(desc, meta, config, guestcaps, output_name)
+=item create_guest(g, root, meta, config, guestcaps, output_name)
 
 Create the guest in the target
 
@@ -278,7 +278,7 @@ Create the guest in the target
 sub create_guest
 {
     my $self = shift;
-    my ($desc, $meta, $config, $guestcaps, $output_name) = @_;
+    my (undef, undef, $meta, $config, $guestcaps, $output_name) = @_;
 
     my $vmm = $self->{vmm};
 

@@ -80,7 +80,7 @@ sub can_handle
     return ($desc->{os} eq 'windows');
 }
 
-=item Sys::VirtConvert::Converter::Windows->convert(g, config, desc, meta)
+=item Sys::VirtConvert::Converter::Windows->convert(g, root, config, desc, meta)
 
 (Pre-)convert a Windows guest. Assume that can_handle has previously
 returned 1.
@@ -91,13 +91,17 @@ returned 1.
 
 A libguestfs handle to the target.
 
+=item root
+
+The root device of this operating system.
+
 =item config
 
 An initialised Sys::VirtConvert::Config object.
 
 =item desc
 
-A description of the guest OS (see virt-v2v.pl:inspect_guest).
+A description of the guest OS (see Sys::VirtConvert::Converter->convert).
 
 =item meta
 
@@ -111,7 +115,7 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $desc, undef) = @_;
+    my ($g, undef, $config, $desc, undef) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);

@@ -68,7 +68,7 @@ sub can_handle
             $desc->{distro} =~ /^(rhel|fedora)$/);
 }
 
-=item Sys::VirtConvert::Converter::RedHat->convert(g, config, meta, desc)
+=item Sys::VirtConvert::Converter::RedHat->convert(g, root, config, meta, desc)
 
 Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
@@ -78,13 +78,17 @@ Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
 An initialised Sys::Guestfs handle
 
+=item root
+
+The root device of this operating system.
+
 =item config
 
 An initialised Sys::VirtConvert::Config
 
 =item desc
 
-A description of the guest OS (see virt-v2v.pl:inspect_guest).
+A description of the guest OS (see Sys::VirtConvert::Converter->convert()).
 
 =item meta
 
@@ -98,8 +102,9 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $desc, $meta) = @_;
+    my ($g, $root, $config, $desc, $meta) = @_;
     croak("convert called without g argument") unless defined($g);
+    croak("convert called without root argument") unless defined($root);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);
     croak("convert called without meta argument") unless defined($meta);
@@ -112,7 +117,7 @@ sub convert
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
-    _unconfigure_hv($g, $desc);
+    _unconfigure_hv($g, $root, $desc);
 
     # Try to install the virtio capability
     my $virtio = _install_capability('virtio', $g, $config, $meta, $desc);
@@ -125,7 +130,7 @@ sub convert
     _configure_display_driver($g);
     _remap_block_devices($meta, $virtio, $g, $desc);
     _configure_kernel_modules($g, $desc, $virtio, $modpath);
-    _configure_boot($kernel, $virtio, $g, $desc);
+    _configure_boot($kernel, $virtio, $g, $root, $desc);
 
     my %guestcaps;
 
@@ -850,18 +855,18 @@ sub _configure_kernel
 
 sub _configure_boot
 {
-    my ($kernel, $virtio, $g, $desc) = @_;
+    my ($kernel, $virtio, $g, $root, $desc) = @_;
 
     if($virtio) {
         # The order of modules here is deliberately the same as the order
         # specified in the postinstall script of kmod-virtio in RHEL3. The
         # reason is that the probing order determines the major number of vdX
         # block devices. If we change it, RHEL 3 KVM guests won't boot.
-        _prepare_bootable($g, $desc, $kernel, "virtio", "virtio_ring",
-                                              "virtio_blk", "virtio_net",
-                                              "virtio_pci");
+        _prepare_bootable($g, $root, $desc, $kernel, "virtio", "virtio_ring",
+                                                     "virtio_blk", "virtio_net",
+                                                     "virtio_pci");
     } else {
-        _prepare_bootable($g, $desc, $kernel, "sym53c8xx");
+        _prepare_bootable($g, $root, $desc, $kernel, "sym53c8xx");
     }
 }
 
@@ -934,21 +939,23 @@ sub _get_application_owner
 
 sub _unconfigure_hv
 {
-    my ($g, $desc) = @_;
+    my ($g, $root, $desc) = @_;
 
-    _unconfigure_xen($g, $desc);
-    _unconfigure_vmware($g, $desc);
+    my @apps = $g->inspect_list_applications($root);
+
+    _unconfigure_xen($g, $desc, \@apps);
+    _unconfigure_vmware($g, $desc, \@apps);
 }
 
 # Unconfigure Xen specific guest modifications
 sub _unconfigure_xen
 {
-    my ($g, $desc) = @_;
+    my ($g, $desc, $apps) = @_;
 
     my $found_kmod = 0;
 
     # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
-    foreach my $app (@{$desc->{apps}}) {
+    foreach my $app (@$apps) {
         my $name = $app->{app_name};
 
         if($name =~ /^kmod-xenpv(-.*)?$/) {
@@ -1005,10 +1012,10 @@ sub _unconfigure_xen
 # Unconfigure VMware specific guest modifications
 sub _unconfigure_vmware
 {
-    my ($g, $desc) = @_;
+    my ($g, $desc, $apps) = @_;
 
     # Uninstall VMwareTools
-    foreach my $app (@{$desc->{apps}}) {
+    foreach my $app (@$apps) {
         my $name = $app->{app_name};
 
         if ($name eq "VMwareTools") {
@@ -2161,7 +2168,7 @@ sub _drivecmp
 
 sub _prepare_bootable
 {
-    my ($g, $desc, $version, @modules) = @_;
+    my ($g, $root, $desc, $version, @modules) = @_;
 
     # Find the grub entry for the given kernel
     my $initrd;
@@ -2255,7 +2262,7 @@ sub _prepare_bootable
             # internal variable in mkinitrd, and is therefore extremely nasty
             # and applicable only to a particular version of mkinitrd.
             if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
-                push(@env, 'root_lvm=1') if ($g->is_lv($desc->{root_device}));
+                push(@env, 'root_lvm=1') if ($g->is_lv($root));
             }
 
             $g->sh(join(' ', @env).' /sbin/mkinitrd '.join(' ', @module_args).
