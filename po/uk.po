@@ -2,21 +2,20 @@
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
 "POT-Creation-Date: 2011-04-19 10:38+0100\n"
-"PO-Revision-Date: 2011-04-19 09:40+0000\n"
-"Last-Translator: mdbooth <mbooth@redhat.com>\n"
+"PO-Revision-Date: 2011-04-19 19:47+0000\n"
+"Last-Translator: yurchor <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
-"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Language: uk\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:105
 #, perl-brace-format
@@ -26,6 +25,11 @@ msgid ""
 "without manual reconfiguration. The domain will present all storage devices "
 "as {block}, all network interfaces as {net} and the host as {arch}."
 msgstr ""
+"Не вдалося перетворити цю гостьову операційну систему. Її сховище даних буде"
+" перенесено, для нього буде створено домен, але ця операційна система може "
+"працювати з помилками, якщо її не буде налаштовано вручну. У домені всі "
+"пристрої зберігання даних буде представлено як {block}, всі інтерфейси "
+"мережі як {net}, а вузлом буде комп’ютер з архітектурою {arch}."
 
 #: ../lib/Sys/VirtConvert/Util.pm:91
 #, perl-brace-format
@@ -134,7 +138,8 @@ msgstr "У {domain_path} не міститься ініціалізованог�
 msgid ""
 "{domain_path} has not been attached to a RHEV data center ({path} does not "
 "exist)."
-msgstr "{domain_path} не було долучено до центру даних RHEV (не існує {path})."
+msgstr ""
+"{domain_path} не було долучено до центру даних RHEV (не існує {path})."
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:515
 #, perl-brace-format
@@ -186,31 +191,17 @@ msgstr "Здається, {path} не є файлом XML домену libvirt"
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the "
-"volume doesn't exist, or because the volume exists but is not contained in a "
-"storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to "
-"contain the volume. Note that you do not have to re-create or move the "
-"volume itself, only define a pool which contains it. libvirt will "
-"automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection "
-"Details from the application menu. Storage pools are displayed in the "
-"Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
 msgstr ""
-"Не вдалося отримати дані щодо тому для {path}. Причиною може бути те, що "
-"тому не існує, або те, що запису тому немає у буфері сховища даних.\n"
+"Не вдалося отримати дані щодо тому для {path}. Причиною може бути те, що тому не існує, або те, що запису тому немає у буфері сховища даних.\n"
 "\n"
-"Якщо справджується останнє припущення, вам слід створити буфер сховища даних "
-"належного типу, у якому міститиметься том. Зауважте, що вам не потрібно "
-"повторно створювати сам том, достатньо лише визначити буфер, у якому він "
-"міститься. libvirt виконає автоматичне виявлення тому під час сканування "
-"буфера після створення.\n"
+"Якщо справджується останнє припущення, вам слід створити буфер сховища даних належного типу, у якому міститиметься том. Зауважте, що вам не потрібно повторно створювати сам том, достатньо лише визначити буфер, у якому він міститься. libvirt виконає автоматичне виявлення тому під час сканування буфера після створення.\n"
 "\n"
-"virt-manager може створювати буфери зберігання даних. Скористайтеся пунктом "
-"меню «Зміни->Параметри з’єднання» програми. Буфери зберігання буде показано "
-"у списку вкладки «Зберігання»."
+"virt-manager може створювати буфери зберігання даних. Скористайтеся пунктом меню «Зміни->Параметри з’єднання» програми. Буфери зберігання буде показано у списку вкладки «Зберігання»."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
 #, perl-brace-format
@@ -271,8 +262,8 @@ msgid ""
 "Storage volume {name} already exists on the target. NOT copying it again. "
 "Delete the volume and retry to copy again."
 msgstr ""
-"На носії даних призначення вже міститься том {name}. Том не буде скопійовано "
-"повторно. Вилучіть поточний том і повторіть спробу копіювання."
+"На носії даних призначення вже міститься том {name}. Том не буде скопійовано"
+" повторно. Вилучіть поточний том і повторіть спробу копіювання."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:63
 #, perl-brace-format
@@ -307,7 +298,7 @@ msgstr "Не вдається створити локальне сховище �
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:377
 #, perl-brace-format
 msgid "Ignoring removable device {device} with unknown type {type}."
-msgstr ""
+msgstr "Портативний пристрій {device} невідомого типу {type} проігноровано."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:399
 #, perl-brace-format
@@ -315,21 +306,30 @@ msgid ""
 "Only 4 IDE devices are supported, but this guest has {number}. The guest "
 "will not operate correctly without manual reconfiguration."
 msgstr ""
+"Передбачено підтримку лише 4 пристроїв IDE, у гостьовій системі таких "
+"пристроїв {number}. Гостьова система не зможе працювати належним чином без "
+"зміни налаштувань вручну."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:473
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr ""
+"У гіпервізорі, з яким встановлено з’єднання, не передбачено підтримки "
+"гостьових системи {arch} kvm."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:488
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}."
 msgstr ""
+"У гіпервізорі, з яким встановлено з’єднання, не передбачено підтримки "
+"можливості {feature}."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:494
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
+"У гостьовій системі призначення не передбачено підтримки ACPI у KVM. ACPI "
+"буде вимкнено."
 
 #: ../lib/Sys/VirtConvert/Transfer/Local.pm:36
 #, perl-brace-format
@@ -369,8 +369,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Transfer/SSH.pm:327
 msgid ""
-"When reading from an SSH connection, virt-v2v can only currently convert raw "
-"volumes."
+"When reading from an SSH connection, virt-v2v can only currently convert raw"
+" volumes."
 msgstr ""
 "Під час читання даних зі з’єднання SSH поточна версія virt-v2v здатна "
 "перетворювати лише нешифровані і нестиснуті томи даних."
@@ -445,8 +445,8 @@ msgstr "Неможливо записати дані до каналу з’єд
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username}"
+" from .netrc."
 msgstr ""
 "Помилка під час перевірки реєстраційних даних для з’єднання з {server}. "
 "Використовуються реєстраційні дані для {username} з .netrc."
@@ -481,8 +481,7 @@ msgid ""
 "Failed to create transfer iso. Command output was:\n"
 "{output}"
 msgstr ""
-"Не вдалося створити перехідного образу iso. Повідомлення у відповідь на "
-"команду:\n"
+"Не вдалося створити перехідного образу iso. Повідомлення у відповідь на команду:\n"
 "{output}"
 
 #: ../lib/Sys/VirtConvert/Config.pm:247
@@ -561,7 +560,7 @@ msgstr "Некоректний відповідник мережі: {config}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:206
 #, perl-brace-format
 msgid "{path} doesn't match augeas pattern"
-msgstr ""
+msgstr "{path} не відповідає шаблону augeas"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:261
 msgid "Unable to find any valid modprobe configuration"
@@ -571,8 +570,8 @@ msgstr "Не вдалося знайти коректні налаштуванн
 #, perl-brace-format
 msgid "Don't know how to update {device}, which loads the {module} module."
 msgstr ""
-"Програмі невідомий спосіб оновлення {device}. Цей пристрій завантажує модуль "
-"{module}."
+"Програмі невідомий спосіб оновлення {device}. Цей пристрій завантажує модуль"
+" {module}."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:566
 #, perl-brace-format
@@ -582,32 +581,32 @@ msgstr "grub посилається на каталог {path}, якого не 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:617
 #, perl-brace-format
 msgid "Grub entry {title} has no kernel"
-msgstr ""
+msgstr "На запису grub {title} немає ядра"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:647
 #, perl-brace-format
 msgid "grub refers to {path}, which doesn't exist\n"
-msgstr ""
+msgstr "grub посилається на каталог {path}, якого не існує\n"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:670
 #, perl-brace-format
 msgid "Grub entry {title} does not specify an initrd"
-msgstr ""
+msgstr "У записі grub {title} не визначено initrd"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:711
 #, perl-brace-format
 msgid "{filename}: could not read initrd format"
-msgstr ""
+msgstr "{filename}: не вдалося прочитати формат initrd"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:761
 #, perl-brace-format
 msgid "Didn't find modules directory {modules} for kernel {path}"
-msgstr ""
+msgstr "Не вдалося знайти каталог модулів {modules} для ядра {path}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:769
 #, perl-brace-format
 msgid "Couldn't guess kernel version number from path for kernel {path}"
-msgstr ""
+msgstr "Не вдалося визначити номер версії ядра за шляхом до ядра {path}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:826
 msgid ""
@@ -625,8 +624,8 @@ msgstr "Не вдалося відкрити /etc/rc.local: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1028
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was: "
-"{error}"
+"VMware Tools was detected, but uninstallation failed. The error message was:"
+" {error}"
 msgstr ""
 "Виявлено інструменти VMware, але спроба вилучення зазнала невдачі. "
 "Повідомлення про помилку: {error}"
@@ -671,7 +670,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1586
 msgid "Unable to determine a kernel architecture for this guest."
-msgstr "Не вдалося визначити апаратну архітектуру ядра цієї гостьової системи."
+msgstr ""
+"Не вдалося визначити апаратну архітектуру ядра цієї гостьової системи."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1838
 #, perl-brace-format
@@ -701,19 +701,25 @@ msgstr ""
 #, perl-brace-format
 msgid "Guest is not a supported version of Windows ({major}.{minor})"
 msgstr ""
-"У гостьовій системі встановлено непідтримувану версію Windows ({major}."
-"{minor})"
+"У гостьовій системі встановлено непідтримувану версію Windows "
+"({major}.{minor})"
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:325
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest "
-"will be configured with a {block} block storage adapter and a {net} network "
-"adapter, but no drivers will be installed for them. If the {block} driver is "
-"not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest"
+" will be configured with a {block} block storage adapter and a {net} network"
+" adapter, but no drivers will be installed for them. If the {block} driver "
+"is not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
+"Для цієї версії Windows немає драйверів virtio. Гостьову систему буде "
+"налаштовано на роботу з блоковим адаптером сховища даних {block} і адаптером"
+" мережі {net}, але драйверів для них встановлено не буде. Якщо у гостьовій "
+"системі ще не встановлено драйвера {block}, її не вдасться завантажити. Якщо"
+" у гостьовій системі ще не встановлено драйвера {net}, вам слід встановити "
+"його вручну після перетворення."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:346
 #, perl-brace-format
@@ -723,6 +729,11 @@ msgid ""
 "storage adapter, but no driver will be installed for it. If the {block} "
 "driver is not already installed in the guest, it will fail to boot."
 msgstr ""
+"У каталозі, вказаному для цієї версії Windows, немає драйверів virtio "
+"блокових пристроїв. Гостьову систему буде налаштовано на роботу з блоковим "
+"адаптером сховища даних {block}, але драйвера для нього встановлено не буде."
+" Якщо у гостьовій системі ще не встановлено драйвера {block}, її не вдасться"
+" завантажити."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:360
 #, perl-brace-format
@@ -733,6 +744,11 @@ msgid ""
 "already installed in the guest, you must install it manually after "
 "conversion."
 msgstr ""
+"У каталозі, вказаному для цієї версії Windows, немає драйверів virtio "
+"пристроїв роботи у мережі. Гостьову систему буде налаштовано на роботу з "
+"пристроєм {net}, але драйвера для нього встановлено не буде. Якщо у "
+"гостьовій системі ще не встановлено драйвера {net}, вам слід встановити його"
+" вручну після перетворення."
 
 #: ../lib/Sys/VirtConvert/GuestfsHandle.pm:166
 msgid "libguestfs did not shut down cleanly"
@@ -741,28 +757,30 @@ msgstr "libguestfs не вдалося завершити роботу у зви
 #: ../p2v-server/virt-p2v-server.pl:81
 #, perl-brace-format
 msgid "{program} started."
-msgstr ""
+msgstr "Запущено {program}."
 
 #: ../p2v-server/virt-p2v-server.pl:114
 #, perl-brace-format
 msgid ""
 "This version of virt-p2v-server does not support protocol version {version}."
 msgstr ""
+"У цій версії virt-p2v-server не передбачено підтримки версії протоколу "
+"{version}."
 
 #: ../p2v-server/virt-p2v-server.pl:207
 #, perl-brace-format
 msgid "Invalid allocation policy {policy} in profile."
-msgstr ""
+msgstr "Некоректні правила розміщення {policy} у профілі."
 
 #: ../p2v-server/virt-p2v-server.pl:278
 #, perl-brace-format
 msgid "Invalid profile: {profile}"
-msgstr ""
+msgstr "Некоректний профіль: {profile}"
 
 #: ../p2v-server/virt-p2v-server.pl:291
 #, perl-brace-format
 msgid "Profile {profile} specifies invalid method {method}."
-msgstr ""
+msgstr "У профілі {profile} вказано некоректний метод {method}."
 
 #: ../p2v-server/virt-p2v-server.pl:324 ../v2v/virt-v2v.pl:524
 #, perl-brace-format
@@ -772,12 +790,12 @@ msgstr "{name} налаштовано на роботу з драйверами 
 #: ../p2v-server/virt-p2v-server.pl:327 ../v2v/virt-v2v.pl:527
 #, perl-brace-format
 msgid "{name} configured with virtio storage only."
-msgstr ""
+msgstr "{name} налаштовано на роботу лише зі сховищем virtio."
 
 #: ../p2v-server/virt-p2v-server.pl:330 ../v2v/virt-v2v.pl:530
 #, perl-brace-format
 msgid "{name} configured with virtio networking only."
-msgstr ""
+msgstr "{name} налаштовано на роботу лише зі мережею virtio."
 
 #: ../p2v-server/virt-p2v-server.pl:333 ../v2v/virt-v2v.pl:533
 #, perl-brace-format
@@ -787,7 +805,7 @@ msgstr "{name} налаштовано на роботу без драйвері�
 #: ../p2v-server/virt-p2v-server.pl:369
 #, perl-brace-format
 msgid "{program} exited."
-msgstr ""
+msgstr "Програма {program} завершила роботу."
 
 #: ../p2v-server/virt-p2v-server.pl:387 ../v2v/virt-v2v.pl:570
 msgid "No root device found in this operating system image."
@@ -796,31 +814,32 @@ msgstr "У цьому образі операційної системи не з
 #: ../p2v-server/virt-p2v-server.pl:390
 msgid "Multiboot operating systems are not supported."
 msgstr ""
+"Підтримки операційних систем з варіантами завантаження не передбачено."
 
 #: ../p2v-server/virt-p2v-server.pl:400 ../v2v/virt-v2v.pl:647
 #, perl-brace-format
 msgid "{e} (ignored)\n"
-msgstr ""
+msgstr "{e} (проігноровано)\n"
 
 #: ../p2v-server/virt-p2v-server.pl:433
 msgid "Client closed connection unexpectedly"
-msgstr ""
+msgstr "З’єднання несподівано розірвано клієнтською частиною"
 
 #: ../p2v-server/virt-p2v-server.pl:449
 #, perl-brace-format
 msgid "Received: {command} {args}"
-msgstr ""
+msgstr "Отримано: {command} {args}"
 
 #: ../p2v-server/virt-p2v-server.pl:465
 #, perl-brace-format
 msgid "Error receiving data: {error}"
-msgstr ""
+msgstr "Помилка під час спроби отримання даних: {error}"
 
 #: ../p2v-server/virt-p2v-server.pl:476 ../p2v-server/virt-p2v-server.pl:488
 #: ../p2v-server/virt-p2v-server.pl:495
 #, perl-brace-format
 msgid "Sent: {msg}"
-msgstr ""
+msgstr "Надіслано: {msg}"
 
 #: ../v2v/virt-v2v.pl:323
 msgid "Use -ic or -oc to specify an input or an output connection"
@@ -882,7 +901,7 @@ msgstr "На носії призначення вже існує домен {nam
 
 #: ../v2v/virt-v2v.pl:484
 msgid "Guest doesn't define any storage devices"
-msgstr ""
+msgstr "Гостьовою системою не визначається жоден з пристроїв зберігання даних"
 
 #: ../v2v/virt-v2v.pl:553
 #, perl-brace-format
@@ -894,24 +913,31 @@ msgid ""
 "Dual- or multi-boot operating system detected. Choose the root filesystem\n"
 "that contains the main operating system from the list below:\n"
 msgstr ""
+"Виявлено операційну систему з двома або декількома варіантами завантаження. Виберіть\n"
+"кореневу систему, на якій міститься основна операційна система, з наведеного списку:\n"
 
 #: ../v2v/virt-v2v.pl:595
 #, perl-brace-format
 msgid "Enter number between 1 and {i}: "
-msgstr ""
+msgstr "Вкажіть число у діапазоні від 1 до {i}: "
 
 #: ../v2v/virt-v2v.pl:601
 msgid ""
 "Multi-boot operating systems are not supported by virt-v2v. Use the --root "
 "option to change how virt-v2v handles this."
 msgstr ""
+"У virt-v2v не передбачено підтримки операційних систем з варіантами "
+"завантаження. Скористайтеся параметром --root для зміни способу обробки "
+"таких систем за допомогою virt-v2v."
 
 #: ../v2v/virt-v2v.pl:617 ../v2v/virt-v2v.pl:631
 #, perl-brace-format
 msgid "Root device \"{choice}\" not found. Roots found were: {roots}."
 msgstr ""
+"Кореневий пристрій \"{choice}\" не знайдено. Знайдено такі кореневі "
+"пристрої: {roots}."
 
 #: ../v2v/virt-v2v.pl:637
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
-msgstr ""
+msgstr "Невідомий параметр --root \"{choice}\"."
