@@ -121,8 +121,8 @@ sub augeas_error
 
     chomp($msg);
 
-    v2vdie $msg if length($msg) > 0;
-    v2vdie $err;
+    v2vdie($msg) if length($msg) > 0;
+    v2vdie($err);
 }
 
 
