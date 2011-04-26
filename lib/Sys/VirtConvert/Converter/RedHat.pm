@@ -109,10 +109,13 @@ sub convert
     croak("convert called without desc argument") unless defined($desc);
     croak("convert called without meta argument") unless defined($meta);
 
+    _init_grub($g, $root, $desc);
+    my $grub_conf = $desc->{boot}->{grub_conf};
+
     _init_selinux($g);
-    _init_augeas($g);
+    _init_augeas($g, $grub_conf);
     _init_modprobe_aliases($g, $desc);
-    _init_kernels($g, $root, $desc);
+    _init_kernels($g, $desc);
     my $modpath = _init_modpath($g);
 
     # Un-configure HV specific attributes which don't require a direct
@@ -126,7 +129,7 @@ sub convert
     my $kernel = _configure_kernel($virtio, $g, $config, $desc, $meta);
 
     # Configure the rest of the system
-    _configure_console($g);
+    _configure_console($g, $grub_conf);
     _configure_display_driver($g);
     _remap_block_devices($meta, $virtio, $g, $desc);
     _configure_kernel_modules($g, $desc, $virtio, $modpath);
@@ -154,18 +157,49 @@ sub _init_selinux
     $g->touch('/.autorelabel');
 }
 
+sub _init_grub
+{
+    my ($g, $root, $desc) = @_;
+
+    # Find the path which needs to be prepended to paths in grub.conf to
+    # make them absolute
+    # Default to / (no prefix required)
+    my $grub = "";
+
+    # Look for the most specific mount point discovered
+    my %mounts = $g->inspect_get_mountpoints($root);
+    foreach my $path qw(/boot/grub /boot) {
+        if (exists($mounts{$path})) {
+            $grub = $path;
+            last;
+        }
+    }
+
+    my $grub_conf;
+    foreach my $path qw(boot/grub/grub.conf boot/grub/menu.lst) {
+        if ($g->exists("/$path")) {
+            $grub_conf = $path;
+            last;
+        }
+    }
+
+    $desc->{boot} ||= {};
+    $desc->{boot}->{grub_fs} = $grub;
+    $desc->{boot}->{grub_conf} = $grub_conf;
+}
+
 sub _init_augeas
 {
-    my ($g) = @_;
+    my ($g, $grub_conf) = @_;
 
     # Initialise augeas
     eval {
         $g->aug_init("/", 1);
 
-        # Check if /boot/grub/menu.lst is included by the Grub lens
+        # Check grub_conf is included by the Grub lens
         my $found = 0;
         foreach my $incl ($g->aug_match("/augeas/load/Grub/incl")) {
-            if ($g->aug_get($incl) eq '/boot/grub/menu.lst') {
+            if ($g->aug_get($incl) eq $grub_conf) {
                 $found = 1;
                 last;
             }
@@ -173,12 +207,11 @@ sub _init_augeas
 
         # If it wasn't there, add it
         unless ($found) {
-            $g->aug_set("/augeas/load/Grub/incl[last()+1]",
-                        "/boot/grub/menu.lst");
-        }
+            $g->aug_set("/augeas/load/Grub/incl[last()+1]", $grub_conf);
 
-        # Make augeas pick up the new configuration
-        $g->aug_load();
+            # Make augeas pick up the new configuration
+            $g->aug_load();
+        }
     };
 
     # The augeas calls will die() on any error.
@@ -437,7 +470,7 @@ sub _configure_kernel_modules
 # /dev/ttyS0 for RHEL 6 anyway.
 sub _configure_console
 {
-    my ($g) = @_;
+    my ($g, $grub_conf) = @_;
 
     # Look for gettys which use xvc0 or hvc0
     # RHEL 6 doesn't use /etc/inittab, but this doesn't hurt
@@ -462,7 +495,7 @@ sub _configure_console
 
     # Update any kernel console lines
     foreach my $augpath
-        ($g->aug_match("/files/boot/grub/menu.lst/title/kernel/console"))
+        ($g->aug_match("/files/$grub_conf/title/kernel/console"))
     {
         my $console = $g->aug_get($augpath);
         if ($console =~ /\b(x|h)vc0\b/) {
@@ -524,10 +557,12 @@ sub _list_kernels
 {
     my ($g, $desc) = @_;
 
+    my $grub_conf = $desc->{boot}->{grub_conf};
+
     # Get the default kernel from grub if it's set
     my $default;
     eval {
-        $default = $g->aug_get('/files/boot/grub/menu.lst/default');
+        $default = $g->aug_get("/files/$grub_conf/default");
     };
     # Doesn't matter if get fails
 
@@ -537,10 +572,9 @@ sub _list_kernels
     # Look for a kernel, starting with the default
     my @paths;
     eval {
-        push(@paths, $g->aug_match("/files/boot/grub/menu.lst/".
-                                   "title[$default]/kernel"))
+        push(@paths, $g->aug_match("/files/$grub_conf/title[$default]/kernel"))
             if defined($default);
-        push(@paths, $g->aug_match('/files/boot/grub/menu.lst/title/kernel'));
+        push(@paths, $g->aug_match("/files/$grub_conf/title/kernel"));
     };
     augeas_error($g, $@) if ($@);
 
@@ -583,27 +617,14 @@ sub _list_kernels
 
 sub _init_kernels
 {
-    my ($g, $root, $desc) = @_;
+    my ($g, $desc) = @_;
 
     if ($desc->{os} eq "linux") {
         # Iterate over entries in grub.conf, populating $desc->{boot}
         # For every kernel we find, inspect it and add to $desc->{kernels}
 
-        # Find the path which needs to be prepended to paths in grub.conf to
-        # make them absolute
-        # Default to / (no prefix required)
-        my $grub = "";
-
-        # Look for the most specific mount point discovered
-        my %mounts = $g->inspect_get_mountpoints($root);
-        foreach my $path qw(/boot/grub /boot) {
-            if (exists($mounts{$path})) {
-                $grub = $path;
-                last;
-            }
-        }
-
-        my $grub_conf = "/etc/grub.conf";
+        my $grub        = $desc->{boot}->{grub_fs};
+        my $grub_conf   = $desc->{boot}->{grub_conf};
 
         my @boot_configs;
 
@@ -689,16 +710,13 @@ sub _init_kernels
         }
 
         # Create the top level boot entry
-        my %boot;
-        $boot{configs} = \@configs;
-        $boot{grub_fs} = $grub;
+        $desc->{boot} ||= {};
+        my $boot = $desc->{boot};
+
+        $boot->{configs} = \@configs;
 
         # Add the default configuration
-        eval {
-            $boot{default} = $g->aug_get("/files/$grub_conf/default");
-        };
-
-        $desc->{boot} = \%boot;
+        eval { $boot->{default} = $g->aug_get("/files/$grub_conf/default") };
     }
 }
 
@@ -1739,14 +1757,13 @@ sub _check_grub
 {
     my ($version, $kernel, $g, $desc) = @_;
 
-    my $grubfs = $desc->{boot}->{grub_fs};
-    my $prefix = $grubfs eq '/boot' ? '' : '/boot';
+    my $grub_conf   = $desc->{boot}->{grub_conf};
+    my $grubfs      = $desc->{boot}->{grub_fs};
+    my $prefix      = $grubfs eq '/boot' ? '' : '/boot';
 
     # Nothing to do if there's already a grub entry
     return if eval {
-        foreach my $augpath
-            ($g->aug_match('/files/boot/grub/menu.lst/title/kernel'))
-        {
+        foreach my $augpath ($g->aug_match("/files/$grub_conf/title/kernel")) {
             return 1 if ($grubfs.$g->aug_get($augpath) eq $kernel);
         }
 
@@ -1771,30 +1788,25 @@ sub _check_grub
 
     my $default;
     # Doesn't matter if there's no default
-    eval {
-        $default = $g->aug_get('/files/boot/grub/menu.lst/default');
-    };
+    eval { $default = $g->aug_get("/files/$grub_conf/default"); };
 
     eval {
         if (defined($default)) {
             $g->aug_defvar('template',
-                 '/files/boot/grub/menu.lst/title['.($default + 1).']');
+                 "/files/$grub_conf/title[".($default + 1).']');
         }
 
         # If there's no default, take the first entry with a kernel
         else {
-            my ($match) =
-                $g->aug_match('/files/boot/grub/menu.lst/title/kernel');
-            die("No template kernel found in grub.") unless(defined($match));
+            my ($match) = $g->aug_match("/files/$grub_conf/title/kernel");
+            die("No template kernel found in grub.") unless defined($match);
 
             $match =~ s/\/kernel$//;
             $g->aug_defvar('template', $match);
         }
 
         # Add a new title node at the end
-        $g->aug_defnode('new',
-                        '/files/boot/grub/menu.lst/title[last()+1]',
-                        $title);
+        $g->aug_defnode('new', "/files/$grub_conf/title[last()+1]", $title);
 
         # N.B. Don't change the order of root, kernel and initrd below, or the
         # guest will not boot.
@@ -1827,9 +1839,7 @@ sub _check_grub
         my ($new) = $g->aug_match('$new');
         $new =~ /\[(\d+)\]$/;
 
-        $g->aug_set('/files/boot/grub/menu.lst/default',
-                    defined($1) ? $1 - 1 : 0);
-
+        $g->aug_set("/files/$grub_conf/default", defined($1) ? $1 - 1 : 0);
         $g->aug_save();
     };
     augeas_error($g, $@) if ($@);
@@ -2198,12 +2208,12 @@ sub _prepare_bootable
             $prefix = '/boot';
         }
 
-        foreach my $kernel
-                ($g->aug_match('/files/boot/grub/menu.lst/title/kernel')) {
+        my $grub_conf = $desc->{boot}->{grub_conf};
+        foreach my $kernel ($g->aug_match("/files/$grub_conf/title/kernel")) {
 
             if($g->aug_get($kernel) eq "$prefix/vmlinuz-$version") {
                 # Ensure it's the default
-                $kernel =~ m{/files/boot/grub/menu.lst/title(?:\[(\d+)\])?/kernel}
+                $kernel =~ m{/files/$grub_conf/title(?:\[(\d+)\])?/kernel}
                     or die($kernel);
 
                 my $aug_index;
@@ -2213,11 +2223,11 @@ sub _prepare_bootable
                     $aug_index = 1;
                 }
 
-                $g->aug_set('/files/boot/grub/menu.lst/default',
-                            $aug_index - 1);
+                $g->aug_set("/files/$grub_conf/default", $aug_index - 1);
 
                 # Get the initrd for this kernel
-                $initrd = $g->aug_get("/files/boot/grub/menu.lst/title[$aug_index]/initrd");
+                $initrd =
+                    $g->aug_get("/files/$grub_conf/title[$aug_index]/initrd");
 
                 $found = 1;
                 last;
