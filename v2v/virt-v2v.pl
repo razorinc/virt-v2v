@@ -485,8 +485,7 @@ v2vdie __('Guest doesn\'t define any storage devices')
     unless @{$meta->{disks}} > 0;
 
 # Create the transfer iso if required
-my $transferiso;
-$transferiso = $config->get_transfer_iso();
+my $transferiso = $config->get_transfer_iso();
 
 # Open a libguestfs handle on the guest's storage devices
 my @localpaths = map { $_->{local_path} } @{$meta->{disks}};

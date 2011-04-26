@@ -307,13 +307,21 @@ sub convert
 
     my $g;
     eval {
+        my $transferiso = $config->get_transfer_iso();
+
         $g = new Sys::VirtConvert::GuestfsHandle(
             \@localpaths,
-            $config->get_transfer_iso(),
+            $transferiso,
             $target->isa('Sys::VirtConvert::Connection::RHEVTarget')
         );
 
-        my $root = inspect_guest($g);
+        my $transferdev;
+        if (defined($transferiso)) {
+            my @devices = $g->list_devices();
+            $transferdev = pop(@devices);
+        }
+
+        my $root = inspect_guest($g, $transferdev);
         my $guestcaps =
             Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
         $target->create_guest($g, $root, $meta, $config, $guestcaps,
@@ -376,9 +384,18 @@ END {
 sub inspect_guest
 {
     my $g = shift;
+    my $transferdev = shift;
 
     # Get list of roots, sorted
     my @roots = $g->inspect_os();
+
+    # Filter out the transfer device from the results of inspect_os
+    # There's a libguestfs bug (fixed upstream) which meant the transfer ISO
+    # could be erroneously detected as an unknown Windows OS. As we know what it
+    # is, we can filter out the transfer device here. Even when the fix is
+    # released this is reasonable belt & braces.
+    @roots = grep(!/^\Q$transferdev\E$/, @roots);
+
     @roots = sort @roots;
 
     # Only work on single-root operating systems.
