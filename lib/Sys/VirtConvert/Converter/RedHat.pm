@@ -112,7 +112,7 @@ sub convert
     _init_selinux($g);
     _init_augeas($g);
     _init_modprobe_aliases($g, $desc);
-    _init_kernels($g, $desc);
+    _init_kernels($g, $root, $desc);
     my $modpath = _init_modpath($g);
 
     # Un-configure HV specific attributes which don't require a direct
@@ -583,17 +583,26 @@ sub _list_kernels
 
 sub _init_kernels
 {
-    my ($g, $desc) = @_;
+    my ($g, $root, $desc) = @_;
 
     if ($desc->{os} eq "linux") {
         # Iterate over entries in grub.conf, populating $desc->{boot}
         # For every kernel we find, inspect it and add to $desc->{kernels}
 
-        # All known past and present Red Hat-based distros mount a
-        # boot partition on /boot.  We may have to revisit this if
-        # this assumption changes in future.  (Old Perl inspection
-        # code used to try to detect this setting).
-        my $grub = "/boot";
+        # Find the path which needs to be prepended to paths in grub.conf to
+        # make them absolute
+        # Default to / (no prefix required)
+        my $grub = "";
+
+        # Look for the most specific mount point discovered
+        my %mounts = $g->inspect_get_mountpoints($root);
+        foreach my $path qw(/boot/grub /boot) {
+            if (exists($mounts{$path})) {
+                $grub = $path;
+                last;
+            }
+        }
+
         my $grub_conf = "/etc/grub.conf";
 
         my @boot_configs;
