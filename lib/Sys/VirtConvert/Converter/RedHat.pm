@@ -621,66 +621,63 @@ sub _init_kernels
             if($@) {
                 warn __x("Grub entry {title} has no kernel",
                          title => $config{title});
+                next;
             }
 
-            # Check we've got a kernel entry
-            if(defined($grub_kernel)) {
-                my $path = "$grub$grub_kernel";
+            my $path = "$grub$grub_kernel";
 
-                # Reconstruct the kernel command line
-                my @args = ();
-                foreach my $arg ($g->aug_match("$bootable/kernel/*")) {
-                    $arg =~ m{/kernel/([^/]*)$}
-                        or die("Unexpected return from aug_match: $arg");
+            # Reconstruct the kernel command line
+            my @args = ();
+            foreach my $arg ($g->aug_match("$bootable/kernel/*")) {
+                $arg =~ m{/kernel/([^/]*)$}
+                    or die("Unexpected return from aug_match: $arg");
 
-                    my $name = $1;
-                    my $value;
-                    eval { $value = $g->aug_get($arg); };
+                my $name = $1;
+                my $value;
+                eval { $value = $g->aug_get($arg); };
 
-                    if(defined($value)) {
-                        push(@args, "$name=$value");
-                    } else {
-                        push(@args, $name);
-                    }
-                }
-                $config{cmdline} = join(' ', @args) if(scalar(@args) > 0);
-
-                my $kernel;
-                if ($g->exists($path)) {
-                    $kernel = _inspect_linux_kernel($g, $path);
+                if(defined($value)) {
+                    push(@args, "$name=$value");
                 } else {
-                    warn __x("grub refers to {path}, which doesn't exist\n",
-                             path => $path);
+                    push(@args, $name);
                 }
+            }
+            $config{cmdline} = join(' ', @args) if(scalar(@args) > 0);
 
-                # Check the kernel was recognised
-                if(defined($kernel)) {
-                    # Put this kernel on the top level kernel list
-                    $desc->{kernels} ||= [];
-                    push(@{$desc->{kernels}}, $kernel);
+            my $kernel;
+            if ($g->exists($path)) {
+                $kernel = _inspect_linux_kernel($g, $path);
+            } else {
+                warn __x("grub refers to {path}, which doesn't exist\n",
+                         path => $path);
+            }
 
-                    $config{kernel} = $kernel;
+            # Check the kernel was recognised
+            next unless defined($kernel);
 
-                    # Look for an initrd entry
-                    my $initrd;
-                    eval {
-                        $initrd = $g->aug_get("$bootable/initrd");
-                    };
+            # Put this kernel on the top level kernel list
+            $desc->{kernels} ||= [];
+            push(@{$desc->{kernels}}, $kernel);
 
-                    unless($@) {
-                        $config{initrd} =
-                            _inspect_initrd($g, $desc, "$grub$initrd",
-                                            $kernel->{version});
-                    } else {
-                        warn __x("Grub entry {title} does not specify an ".
-                                 "initrd", title => $config{title});
-                    }
-                }
+            $config{kernel} = $kernel;
+
+            # Look for an initrd entry
+            my $initrd;
+            eval {
+                $initrd = $g->aug_get("$bootable/initrd");
+            };
+
+            unless($@) {
+                $config{initrd} =
+                    _inspect_initrd($g, $desc, "$grub$initrd",
+                                    $kernel->{version});
+            } else {
+                warn __x("Grub entry {title} does not specify an ".
+                         "initrd", title => $config{title});
             }
 
             push(@configs, \%config);
         }
-
 
         # Create the top level boot entry
         my %boot;
