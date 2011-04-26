@@ -102,7 +102,8 @@ sub convert
     my %desc;
 
     $desc{os}               = $g->inspect_get_type($root);
-    $desc{distro}           = $g->inspect_get_distro($root);
+    $desc{distro}           = $g->inspect_get_distro($root)
+        if $desc{os} eq 'linux';
     $desc{product_name}     = $g->inspect_get_product_name($root);
     $desc{major_version}    = $g->inspect_get_major_version($root);
     $desc{minor_version}    = $g->inspect_get_minor_version($root);
