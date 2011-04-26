@@ -848,7 +848,11 @@ sub _get_os_type_windows
     }
 
     if ($major == 6 && $minor == 1) {
-        if ($g->inspect_get_product_variant($root) eq 'Client') {
+        # This API is new in libguestfs 1.10
+        # If it's not present, we can't differentiate between Win7 and Win2k8r2
+        if (defined($g->can('inspect_get_product_variant')) &&
+            $g->inspect_get_product_variant($root) eq 'Client')
+        {
             return "Windows7".$arch_suffix;
         }
 
