@@ -26,7 +26,7 @@ sub ACTION_p2vimagebuilder
 {
     my $self = shift;
 
-    system($self->config('make'), '-C', 'p2v-image-builder') == 0
+    system($self->config('make'), '-C', 'p2v/image-builder') == 0
         or return 1;
 }
 
@@ -243,7 +243,7 @@ my $build = $class->new (
     dist_version_from => 'lib/Sys/VirtConvert.pm',
     confdoc_files => [ 'v2v/virt-v2v.conf.pod' ],
     install_path => { 'locale' => '/usr/local/share/locale' },
-    script_files => [ 'v2v/virt-v2v.pl', 'p2v-server/virt-p2v-server.pl' ],
+    script_files => [ 'v2v/virt-v2v.pl', 'p2v/server/virt-p2v-server.pl' ],
     meta_add => {
         resources => {
           license => "http://www.gnu.org/licenses/gpl.html",

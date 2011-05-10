@@ -165,7 +165,7 @@ virt-p2v-image-builder is a tool to create a bootable virt-p2v live image.
 %{__perl} Build.PL
 ./Build
 
-pushd p2v-client
+pushd p2v/client
 rake gem
 popd
 
@@ -198,7 +198,7 @@ mkdir -p %{buildroot}/%{_bindir}
 mkdir -p %{buildroot}/%{gemdir}
 
 gem install --local --install-dir %{buildroot}%{gemdir} \
-            --force --rdoc p2v-client/pkg/%{gemname}-%{version}.gem
+            --force --rdoc p2v/client/pkg/%{gemname}-%{version}.gem
 mv %{buildroot}%{gemdir}/bin/* %{buildroot}/%{_bindir}
 find %{buildroot}%{geminstdir}/bin -type f | xargs chmod a+x
 cp COPYING %{buildroot}/%{geminstdir}
@@ -207,8 +207,8 @@ cp COPYING %{buildroot}/%{geminstdir}
 %global builderdir %{_datadir}/virt-p2v-image-builder
 builder=%{buildroot}/%{_bindir}/virt-p2v-image-builder
 mkdir -p %{buildroot}%{builderdir}
-cp p2v-image-builder/*.ks %{buildroot}%{builderdir}
-cp p2v-image-builder/virt-p2v-image-builder $builder
+cp p2v/image-builder/*.ks %{buildroot}%{builderdir}
+cp p2v/image-builder/virt-p2v-image-builder $builder
 
 # Set the default data directory
 sed -i -e 's,^DEFAULT_DATADIR=.*,DEFAULT_DATADIR=%{builderdir},' $builder
@@ -217,7 +217,7 @@ sed -i -e 's,^DEFAULT_DATADIR=.*,DEFAULT_DATADIR=%{builderdir},' $builder
 %check
 ./Build test
 
-pushd p2v-client
+pushd p2v/client
 # No tests yet
 #rake test
 popd

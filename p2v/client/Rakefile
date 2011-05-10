@@ -19,7 +19,7 @@ require 'echoe'
 
 Echoe.new("virt-p2v") do |p|
   p.project     = "Virt P2V"
-  p.version     = `../Build version`
+  p.version     = `../../Build version`
   p.author      = "Matthew Booth"
   p.summary     = "Send a machine's storage and metadata to virt-p2v-server"
   p.description = <<EOF
