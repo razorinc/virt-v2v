@@ -79,7 +79,6 @@ BuildRequires:  perl-hivex >= 1.2.2
 
 # virt-p2v build requirements
 BuildRequires:  rubygem(rake)
-BuildRequires:  rubygem(echoe)
 
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
