@@ -72,25 +72,23 @@ GEMSPEC = Gem::Specification.new do |s|
         s.add_dependency(%q<net-ssh>, [">= 0"])
     end
 
-# Source doesn't contain any rdoc
-#    s.extra_rdoc_files = [
-#        "bin/virt-p2v",
-#        "lib/virt-p2v/blockdevice.rb",
-#        "lib/virt-p2v/connection.rb",
-#        "lib/virt-p2v/converter.rb",
-#        "lib/virt-p2v/gtk-queue.rb",
-#        "lib/virt-p2v/netdevice.rb",
-#        "lib/virt-p2v/ui/connect.rb",
-#        "lib/virt-p2v/ui/convert.rb",
-#        "lib/virt-p2v/ui/main.rb",
-#        "lib/virt-p2v/ui/network.rb",
-#        "lib/virt-p2v/ui/p2v.ui",
-#        "lib/virt-p2v/ui/success.rb"
-#    ]
-#    s.rdoc_options = [
-#        "--line-numbers",
-#        "--inline-source",
-#        "--title",
-#        "Virt-p2v"
-#    ]
+    s.extra_rdoc_files = [
+        "bin/virt-p2v",
+        "lib/virt-p2v/blockdevice.rb",
+        "lib/virt-p2v/connection.rb",
+        "lib/virt-p2v/converter.rb",
+        "lib/virt-p2v/gtk-queue.rb",
+        "lib/virt-p2v/netdevice.rb",
+        "lib/virt-p2v/ui/connect.rb",
+        "lib/virt-p2v/ui/convert.rb",
+        "lib/virt-p2v/ui/main.rb",
+        "lib/virt-p2v/ui/network.rb",
+        "lib/virt-p2v/ui/p2v.ui",
+        "lib/virt-p2v/ui/success.rb"
+    ]
+    s.rdoc_options = [
+        "--line-numbers",
+        "--inline-source",
+        "--title", "virt-p2v"
+    ]
 end
