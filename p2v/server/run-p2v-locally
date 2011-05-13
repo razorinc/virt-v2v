@@ -49,4 +49,4 @@ fi
 
 export PERL5LIB LD_LIBRARY_PATH LIBGUESTFS_PATH
 
-exec perl "$VIRTV2V_ROOT/p2v-server/virt-p2v-server.pl" "$@"
+exec perl "$VIRTV2V_ROOT/p2v/server/virt-p2v-server.pl" "$@"
