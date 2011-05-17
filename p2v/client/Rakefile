@@ -16,8 +16,18 @@
 
 require 'rake'
 require 'rake/gempackagetask'
+require 'rake/testtask'
+require 'rake/extensiontask'
 
 task :default => :gem
 
 load 'virt-p2v.gemspec'
 Rake::GemPackageTask.new(GEMSPEC) {}
+
+Rake::TestTask.new { |t|
+    t.libs << 'lib'
+    t.test_files = FileList['test/test_*.rb']
+    t.verbose = true
+}
+
+Rake::ExtensionTask.new('rblibssh2')

@@ -37,6 +37,11 @@ GEMSPEC = Gem::Specification.new do |s|
     s.files = [
         "Rakefile",
         "bin/virt-p2v",
+        "ext/rblibssh2/extconf.rb",
+        "ext/rblibssh2/rblibssh2.c",
+        "ext/rblibssh2/rblibssh2_channel.c",
+        "ext/rblibssh2/rblibssh2.h",
+        "ext/rblibssh2/rblibssh2_session.c",
         "lib/virt-p2v/blockdevice.rb",
         "lib/virt-p2v/connection.rb",
         "lib/virt-p2v/converter.rb",
@@ -52,6 +57,7 @@ GEMSPEC = Gem::Specification.new do |s|
         "Manifest"
     ]
     s.require_paths = ["lib"]
+    s.extensions = "ext/rblibssh2/extconf.rb"
 
     if s.respond_to? :specification_version then
         current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

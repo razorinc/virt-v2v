@@ -103,6 +103,9 @@ eval {
     };
     v2vdie $@ if $@;
 
+    # Send our identification string
+    print "VIRT_P2V_SERVER ".$Sys::VirtConvert::VERSION."\n";
+
     my $msg;
     while ($msg = p2v_receive()) {
         my $type = $msg->{type};

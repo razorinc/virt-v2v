@@ -21,18 +21,15 @@ require 'thread'
 require 'yaml'
 
 require 'virt-p2v/gtk-queue'
+require 'rblibssh2'
 
 module VirtP2V
 
 class Connection
     include GetText
 
-    attr_reader :connected
-
     class InvalidHostnameError < StandardError; end
     class InvalidCredentialsError < StandardError; end
-    class TransportError < StandardError; end
-    class NoP2VError < StandardError; end
     class RemoteError < StandardError; end
     class ProtocolError < StandardError; end
     class NotConnectedError < StandardError; end
@@ -41,107 +38,97 @@ class Connection
         @connection_listeners << cb
     end
 
-    def initialize(hostname, username, password, &cb)
+    def initialize(hostname, username, password)
         @mutex = Mutex.new
         @connection_listeners = []
 
-        # Always send our version number on connection
-        @connection_listeners << Proc.new { |cb|
-            self.version { |result| cb.call(result) }
-        }
+        @hostname = hostname
+        @username = username
+        @password = password
 
-        run(cb) {
-            error = nil
-            begin
-                @ssh = Net::SSH.start(hostname, username, :password => password)
-            rescue SocketError, Errno::EHOSTUNREACH => ex
-                raise InvalidHostnameError
-                raise ex
-            rescue Net::SSH::AuthenticationFailed => ex
-                raise InvalidCredentialsError
-                raise ex
-            end
+        @buffer = ""
 
-            @buffer = ""
-            @connected = false
-
-            Gtk.queue { cb.call(true) }
-        }
+        @session = nil
+        @channel = nil
     end
 
     def connect(&cb)
         run(cb) {
-            @ch = @ssh.open_channel do |ch|
-                ch.exec("virt-p2v-server") do |ch, success|
-                    raise RemoteError,
-                          "could not execute a remote command" unless success
+            begin
+                @session = Libssh2.connect(@hostname, @username, @password) \
+                    if @session.nil?
 
-                    ch.on_data do |ch, data|
-                        @buffer << data
-                    end
+                @channel = @session.exec('LANG=C virt-p2v-server') \
+                    if @channel.nil?
+            #rescue Libssh2::Session::InvalidHostnameError
+            #    raise InvalidHostnameError
+            #rescue Libssh2::Session::InvalidCredentialsError
+            #    raise InvalidCredentialsError
+            #rescue => ex
+            #    raise RemoteError.new(ex.message)
+            end
 
-                    # If we get anything on stderr, raise it as a RemoteError
-                    ch.on_extended_data do |ch, type, data|
-                        close
-                        raise RemoteError, data
-                    end
+            begin
+                line = @channel.read(64)
 
-                    # Clean up local resources if we get eof from the other end
-                    ch.on_eof do |ch|
-                        close
-                    end
-
-                    @connected = true
+                if line !~ /^VIRT_P2V_SERVER /
+                    raise RemoteError.new("Unexpected response: #{line}")
                 end
-
-            end
-
-            # Wait until we're connected
-            @ssh.loop do
-                !@connected
-            end
-
-            i = 0;
-            listener_result = lambda { |result|
-                if result.kind_of?(Exception)
-                    cb.call(result)
+            rescue Libssh2::Channel::ApplicationError => ex
+                if ex.msg =~ /command not found/
+                    raise RemoteError.new(
+                        "virt-p2v-server is not installed on #{@hostname}")
                 else
-                    i += 1
-                    if i == @connection_listeners.length
-                        cb.call(true)
-                    else
-                        Gtk.queue {
-                            @connection_listeners[i].call(listener_result)
-                        }
-                    end
+                    raise RemoteError.new(ex.message)
                 end
-            }
-            Gtk.queue { @connection_listeners[0].call(listener_result) }
+            end
+
+            begin
+                i = 0;
+                listener_result = lambda { |result|
+                    if result.kind_of?(Exception)
+                        cb.call(result)
+                    else
+                        i += 1
+                        if i == @connection_listeners.length
+                            cb.call(true)
+                        else
+                            Gtk.queue {
+                                @connection_listeners[i].call(listener_result)
+                            }
+                        end
+                    end
+                }
+                Gtk.queue { @connection_listeners[0].call(listener_result) }
+            rescue => ex
+                @channel.close unless @channel.nil?
+                raise ex
+            end
         }
+    end
+
+    def connected?
+        return !@channel.nil?
     end
 
     def close
-        @connected = false
-        @buffer = ""
-        @ch.close
-    end
+        unless @channel.nil?
+            @channel.close
+            @channel = nil
+        end
+        unless @session.nil?
+            @session.close
+            @session = nil
+        end
 
-    def version(&cb)
-        raise NotConnectedError unless @connected
-
-        run(cb) {
-            @ch.send_data("VERSION 0\n")
-            result = parse_return
-
-            Gtk.queue { cb.call(result) }
-        }
+        @buffer = ''
     end
 
     def lang(lang, &cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("LANG #{lang}\n")
+            @channel.write("LANG #{lang}\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -149,12 +136,12 @@ class Connection
     end
 
     def metadata(meta, &cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
             payload = YAML::dump(meta)
-            @ch.send_data("METADATA #{payload.length}\n");
-            @ch.send_data(payload)
+            @channel.write("METADATA #{payload.length}\n");
+            @channel.write(payload)
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -162,10 +149,10 @@ class Connection
     end
 
     def path(length, path, &cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("PATH #{length} #{path}\n")
+            @channel.write("PATH #{length} #{path}\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -173,10 +160,10 @@ class Connection
     end
 
     def convert(&cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("CONVERT\n")
+            @channel.write("CONVERT\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -184,10 +171,10 @@ class Connection
     end
 
     def list_profiles(&cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("LIST_PROFILES\n")
+            @channel.write("LIST_PROFILES\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -195,10 +182,10 @@ class Connection
     end
 
     def set_profile(profile, &cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("SET_PROFILE #{profile}\n")
+            @channel.write("SET_PROFILE #{profile}\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -206,10 +193,10 @@ class Connection
     end
 
     def container(type, &cb)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(cb) {
-            @ch.send_data("CONTAINER #{type}\n")
+            @channel.write("CONTAINER #{type}\n")
             result = parse_return
 
             Gtk.queue { cb.call(result) }
@@ -217,40 +204,13 @@ class Connection
     end
 
     def send_data(io, length, progress, &completion)
-        raise NotConnectedError unless @connected
+        raise NotConnectedError if @channel.nil?
 
         run(completion) {
-            @ch.send_data("DATA #{length}\n")
-            total = 0
-            buffer = ''
-            begin
-                # This loop is in the habit of hanging in Net::SSH when sending
-                # a chunk larger than about 2M. Putting the 1 second wait
-                # timeout here kickstarts it if it stops.
-                @ssh.loop(1) {
-                    if io.eof? || total == length then
-                        false
-                    else
-                        if @ch.remote_window_size > 0 then
-                            out = length - total
-                            out = @ch.remote_window_size \
-                                if out > @ch.remote_window_size
-
-                            io.read(out, buffer)
-                            @ch.send_data(buffer)
-
-                            total += buffer.length
-
-                            # Send a progress callback
-                            Gtk.queue { progress.call(total) }
-                        end
-
-                        true
-                    end
-                }
-            rescue => ex
-                Gtk.queue { completion.call(ex) }
-            end
+            @channel.write("DATA #{length}\n")
+            @channel.send_data(io) { |total|
+                Gtk.queue { progress.call(total) }
+            }
 
             result = parse_return
 
@@ -272,26 +232,26 @@ class Connection
                 raise ex
             end
         }
-        t.priority = 1
     end
 
     # Return a single line of output from the remote server
     def readline
-        # Run the event loop until the buffer contains a newline
         index = nil
-        @ssh.loop do
-            if !@ch.eof? then
-                index = @buffer.index("\n")
-                index.nil?
-            else
-                close
-                raise RemoteError, _('Server closed connection unexpectedly')
+        loop {
+            index = @buffer.index("\n")
+            break unless index.nil?
+
+            begin
+                @buffer << @channel.read(64)
+            rescue IOError => ex
+                raise RemoteError,
+                    _("Server closed connection unexpectedly: #{ex.message}")
             end
-        end
+        }
 
         # Remove the line from the buffer and return it with the trailing
         # newline removed
-        @buffer.slice!(0..index).chomp
+        @buffer.slice!(0..index).chomp!
     end
 
     def parse_return

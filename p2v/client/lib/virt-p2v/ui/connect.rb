@@ -145,25 +145,18 @@ module VirtP2V::UI::Connect
         hostname = @hostname_ui.text.strip
         username = @username_ui.text.strip
         password = @password_ui.text
-        connection = VirtP2V::Connection.new(hostname, username, password) \
-        { |result|
+
+        connection = VirtP2V::Connection.new(hostname, username, password)
+        @converter.connection = connection
+        connection.connect { |result|
             case result
             when true
-                @converter.connection = connection
-                connection.connect { |result|
-                    case result
-                    when true
-                        event(EV_ACTIVATION, true)
-                    when VirtP2V::Connection::RemoteError
-                        @connect_error.text = _('Failed to start ' +
-                                                'virt-p2v-server on remote ' +
-                                                'server')
-                        event(EV_ACTIVATION, false)
-                    else
-                        @connect_error.text = result.message
-                        event(EV_ACTIVATION, false)
-                    end
-                }
+                event(EV_ACTIVATION, true)
+            when VirtP2V::Connection::RemoteError
+                @connect_error.text = _('Failed to start ' +
+                                        'virt-p2v-server on remote ' +
+                                        'server')
+                event(EV_ACTIVATION, false)
             when VirtP2V::Connection::InvalidHostnameError
                 @connect_error.text = _"Unable to connect to #{hostname}"
                 event(EV_ACTIVATION, false)
@@ -171,7 +164,8 @@ module VirtP2V::UI::Connect
                 @connect_error.text = _"Invalid username/password"
                 event(EV_ACTIVATION, false)
             else
-                raise result
+                @connect_error.text = result.message
+                event(EV_ACTIVATION, false)
             end
         }
     end

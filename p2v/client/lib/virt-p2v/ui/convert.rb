@@ -159,7 +159,7 @@ module VirtP2V::UI::Convert
             when EV_VALID
                 set_state(UI_STATE_INVALID) if !status
             when EV_BUTTON
-                if @converter.connection.connected then
+                if @converter.connection.connected? then
                     set_state(UI_STATE_CONVERTING)
                     convert
                 else
