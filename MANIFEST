@@ -28,8 +28,12 @@ MANIFEST.SKIP
 META.yml
 metadata-format.txt
 p2v/client/bin/virt-p2v
-p2v/client/ext/ptyfork/extconf.rb
-p2v/client/ext/ptyfork/ptyfork.c
+p2v/client/ext/rblibssh2/extconf.rb
+p2v/client/ext/rblibssh2/rblibssh2.c
+p2v/client/ext/rblibssh2/rblibssh2.h
+p2v/client/ext/rblibssh2/rblibssh2_channel.c
+p2v/client/ext/rblibssh2/rblibssh2_session.c
+p2v/client/ext/rblibssh2/README.txt
 p2v/client/lib/virt-p2v/blockdevice.rb
 p2v/client/lib/virt-p2v/connection.rb
 p2v/client/lib/virt-p2v/converter.rb
