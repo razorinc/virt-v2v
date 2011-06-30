@@ -24,7 +24,7 @@
 ^.project$
 
 # p2v-client gem output directory
-p2v-client/pkg
+p2v/client/pkg
 
 # Local-only files
 .local$
