@@ -21,6 +21,7 @@ use strict;
 use warnings;
 
 use Carp qw(carp);
+use File::Spec;
 use File::Temp qw(tempdir);
 use Data::Dumper;
 use Encode qw(encode decode);
@@ -125,10 +126,35 @@ sub convert
     # Note: disks are already mounted by main virt-v2v script.
 
     _upload_files ($g, $tmpdir, $desc, $config);
-    _add_viostor_to_registry ($g, $tmpdir, $desc, $config);
-    _add_service_to_registry ($g, $tmpdir, $desc, $config);
+
+    # Open the system and software hives
+    my ($sys_guest, $sys_local) = _download_hive($g, $tmpdir, 'system');
+    my ($soft_guest, $soft_local) = _download_hive($g, $tmpdir, 'software');
+
+    my $h_sys = Win::Hivex->open ($sys_local, write => 1)
+        or v2vdie __x('Failed to open {hive} hive: {error}',
+                      hive => 'system', error => $!);
+    my $h_soft = Win::Hivex->open ($soft_local, write => 1)
+        or v2vdie __x('Failed to open {hive} hive: {error}',
+                      hive => 'software', error => $!);
+
+    # Get the 'Current' ControlSet. This is normally 001, but not always.
+    my $select = $h_sys->node_get_child($h_sys->root(), 'Select');
+    my $current_cs = $h_sys->node_get_value($select, 'Current');
+    $current_cs = sprintf("ControlSet%03i", $h_sys->value_dword($current_cs));
+
+    _add_viostor_to_registry($desc, $h_sys, $current_cs);
+    _add_service_to_registry($h_sys, $current_cs);
+
     my ($block, $net) =
-        _prepare_virtio_drivers ($g, $tmpdir, $desc, $config);
+        _prepare_virtio_drivers($g, $desc, $config, $h_soft);
+
+    # Commit and upload the modified registry hives
+    $h_sys->commit(undef); undef $h_sys;
+    $h_soft->commit(undef); undef $h_soft;
+
+    $g->upload($sys_local, $sys_guest);
+    $g->upload($soft_local, $soft_guest);
 
     # Return guest capabilities.
     my %guestcaps;
@@ -144,33 +170,36 @@ sub convert
     return \%guestcaps;
 }
 
-# See http://rwmj.wordpress.com/2010/04/30/tip-install-a-device-driver-in-a-windows-vm/
-sub _add_viostor_to_registry
+sub _download_hive
 {
     my $g = shift;
     my $tmpdir = shift;
-    my $desc = shift;
-    my $config = shift;
+    my $hive = lc(shift);
 
-    # Locate and download the system registry.
-    my $system_filename;
+    my $local = File::Spec->catfile($tmpdir, $hive . '.hive');
+
+    my $guest;
     eval {
-        $system_filename = "/windows/system32/config/system";
-        $system_filename = $g->case_sensitive_path ($system_filename);
-        $g->download ($system_filename, $tmpdir . "/system");
+        $guest = "/windows/system32/config/$hive";
+        $guest = $g->case_sensitive_path ($guest);
+
+        # Retrieve the hive file unless we've already got it
+        $g->download ($guest, $local) unless -e $local;
     };
-    v2vdie __x('Could not download the SYSTEM registry from this Windows '.
-               'guest. The exact error message was: {errmsg}', errmsg => $@)
+    v2vdie __x('Could not download the {hive} registry from this Windows '.
+               'guest. The exact error message was: {errmsg}',
+               hive => uc($hive), errmsg => $@)
         if $@;
 
-    # Open the registry hive.
-    my $h = Win::Hivex->open ($tmpdir . "/system", write => 1)
-        or die "open system hive: $!";
+    return ($guest, $local);
+}
 
-    # Get the 'Current' ControlSet. This is normally 001, but not always.
-    my $select = $h->node_get_child($h->root(), 'Select');
-    my $current_cs = $h->node_get_value($select, 'Current');
-    $current_cs = sprintf("ControlSet%03i", $h->value_dword($current_cs));
+# See http://rwmj.wordpress.com/2010/04/30/tip-install-a-device-driver-in-a-windows-vm/
+sub _add_viostor_to_registry
+{
+    my $desc = shift;
+    my $h = shift;
+    my $current_cs = shift;
 
     # Make the changes.
     my $regedits = <<REGEDITS;
@@ -238,40 +267,17 @@ REGEDITS
     };
 
     reg_import ($io, \&_map);
-
-    $h->commit (undef);
-    undef $h;
-
-    # Upload the new registry.
-    $g->upload ($tmpdir . "/system", $system_filename);
 }
 
 # See http://rwmj.wordpress.com/2010/04/29/tip-install-a-service-in-a-windows-vm/
 sub _add_service_to_registry
 {
-    my $g = shift;
-    my $tmpdir = shift;
-    my $desc = shift;
-    my $config = shift;
-
-    # Locate and download the system registry.
-    my $system_filename;
-    eval {
-        $system_filename = "/windows/system32/config/system";
-        $system_filename = $g->case_sensitive_path ($system_filename);
-        $g->download ($system_filename, $tmpdir . "/system");
-    };
-    v2vdie __x('Could not download the SYSTEM registry from this Windows '.
-               'guest. The exact error message was: {errmsg}', errmsg => $@)
-        if $@;
-
-    # Open the registry hive.
-    my $h = Win::Hivex->open ($tmpdir . "/system", write => 1)
-        or die "open system hive: $!";
+    my $h = shift;
+    my $current_cs = shift;
 
     # Make the changes.
-    my $regedits = '
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\rhev-apt]
+    my $regedits = <<REGEDITS;
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\services\\rhev-apt]
 "Type"=dword:00000010
 "Start"=dword:00000002
 "ErrorControl"=dword:00000001
@@ -279,10 +285,11 @@ sub _add_service_to_registry
 "DisplayName"="RHSrvAny"
 "ObjectName"="LocalSystem"
 
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\rhev-apt\Parameters]
-"CommandLine"="cmd /c \"c:\\\\Temp\\\\V2V\\\\firstboot.bat\""
+[HKEY_LOCAL_MACHINE\\SYSTEM\\$current_cs\\services\\rhev-apt\\Parameters]
+"CommandLine"="cmd /c \\"c:\\\\Temp\\\\V2V\\\\firstboot.bat\"\\"
 "PWD"="c:\\\\Temp\\\\V2V"
-';
+REGEDITS
+
     my $io = IO::String->new ($regedits);
 
     local *_map = sub {
@@ -294,12 +301,6 @@ sub _add_service_to_registry
     };
 
     reg_import ($io, \&_map);
-
-    $h->commit (undef);
-    undef $h;
-
-    # Upload the new registry.
-    $g->upload ($tmpdir . "/system", $system_filename);
 }
 
 # We copy the VirtIO drivers to a directory on the guest and add this directory
@@ -308,9 +309,9 @@ sub _add_service_to_registry
 sub _prepare_virtio_drivers
 {
     my $g = shift;
-    my $tmpdir = shift;
     my $desc = shift;
     my $config = shift;
+    my $h = shift;
 
     # Copy the target VirtIO drivers to the guest
     my $driverdir = File::Spec->catdir($g->case_sensitive_path("/windows"), "Drivers/VirtIO");
@@ -378,16 +379,6 @@ sub _prepare_virtio_drivers
         $g->cp($src, $dst);
     }
 
-    # Locate and download the SOFTWARE hive
-    my $sw_local = File::Spec->catfile($tmpdir, 'software');
-    my $sw_guest = $g->case_sensitive_path('/windows/system32/config/software');
-
-    $g->download($sw_guest, $sw_local);
-
-    # Open the registry hive.
-    my $h = Win::Hivex->open($sw_local, write => 1)
-        or die "open hive $sw_local: $!";
-
     # Find the node \Microsoft\Windows\CurrentVersion
     my $node = $h->root();
     foreach ('Microsoft', 'Windows', 'CurrentVersion') {
@@ -419,12 +410,6 @@ sub _prepare_virtio_drivers
         push (@new, { key => $key, t => $type, value => $data });
     }
     $h->node_set_values($node, \@new);
-
-    $h->commit(undef);
-    undef $h;
-
-    # Upload the new registry.
-    $g->upload($sw_local, $sw_guest);
 
     return ($block, $net);
 }
