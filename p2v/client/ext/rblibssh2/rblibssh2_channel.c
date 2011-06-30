@@ -186,7 +186,7 @@ static void *channel_read_w(void *params)
             rblibssh2_session_set_error(eApplicationError, errbuf);
             return NULL;
         }
-        
+
         l = libssh2_channel_read(c->channel, cd->data, cd->len);
         if (l == LIBSSH2_ERROR_EAGAIN) {
             rblibssh2_session_wait(c->s);
