@@ -145,6 +145,7 @@ sub convert
 
     _add_viostor_to_registry($desc, $h_sys, $current_cs);
     _add_service_to_registry($h_sys, $current_cs);
+    _disable_processor_drivers($h_sys, $current_cs);
 
     my ($block, $net) =
         _prepare_virtio_drivers($g, $desc, $config, $h_soft);
@@ -460,6 +461,35 @@ sub _upload_files
     $g->cp ($files{firstboot}, $path);
     $g->cp ($files{firstbootapp}, $path);
     $g->cp ($files{rhsrvany}, $path);
+}
+
+# http://blogs.msdn.com/b/virtual_pc_guy/archive/2005/10/24/484461.aspx
+sub _disable_processor_drivers
+{
+    my $h = shift;
+    my $current_cs = shift;
+
+    # Find the node \CurrentControlSet\Services
+    my $services = $h->root();
+    foreach ($current_cs, 'Services') {
+        $services = $h->node_get_child($services, $_);
+    }
+
+    foreach ('Processor', 'Intelppm') {
+        my $node = $h->node_get_child($services, $_);
+        next unless defined($node);
+
+        # Update Start to 4, but leave everything else as is
+        my @new;
+        foreach my $v ($h->node_values($node)) {
+            my $key = $h->value_key($v);
+            my ($type, $data) = $h->value_value($v);
+
+            $data = pack("V", 4) if ($key eq 'Start');
+            push (@new, { key => $key, t => $type, value => $data });
+        }
+        $h->node_set_values($node, \@new);
+    }
 }
 
 =back
