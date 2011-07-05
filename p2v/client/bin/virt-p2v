@@ -60,3 +60,5 @@ VirtP2V::NetworkDevice.all_devices.each { |device|
 
 ui.show
 ui.main_loop
+
+exit(0)
