@@ -214,7 +214,7 @@ class Connection
 
             result = parse_return
 
-            Gtk.queue { completion.call(result) }
+            Gtk.queue { progress.call(length); completion.call(result) }
         }
     end
 
