@@ -37,7 +37,34 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 
 # Run virt-p2v
 cat >> /etc/rc.local <<EOF
-export HOME=/root # rubygem Net::SSH needs this
-/usr/bin/xinit /usr/bin/virt-p2v > /root/virt-p2v.log 2>&1
-poweroff
+
+Xlog=/tmp/X.log
+while [ 1 ]; do
+    /usr/bin/xinit /usr/bin/virt-p2v-launcher > $Xlog 2>&1
+    status=$?
+
+    if [ $status == 0 ]; then
+        # virt-p2v-launcher will have touched this file if it ran
+        [ -f /tmp/virt-p2v-launcher ] && exit
+        echo "virt-p2v-launcher failed"
+    else
+        echo "X failed"
+    fi
+
+    select c in \
+        "Try again" \
+        "Debug" \
+        "Power off"
+    do
+        if [ "$c" == "Debug" ]; then
+            echo "Output was written to $Xlog"
+            echo "Exit this shell to run virt-p2v-launcher again"
+            bash -l
+        elif [ "$c" == "Power off" ]; then
+            exit 1
+        fi
+        break
+    done
+done
+/sbin/poweroff
 EOF

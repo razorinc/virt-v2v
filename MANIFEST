@@ -28,6 +28,7 @@ MANIFEST.SKIP
 META.yml
 metadata-format.txt
 p2v/client/bin/virt-p2v
+p2v/client/bin/virt-p2v-launcher
 p2v/client/ext/rblibssh2/extconf.rb
 p2v/client/ext/rblibssh2/rblibssh2.c
 p2v/client/ext/rblibssh2/rblibssh2.h

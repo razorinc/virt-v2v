@@ -1,5 +1,6 @@
 Rakefile
 bin/virt-p2v
+bin/virt-p2v-launcher
 lib/virt-p2v/blockdevice.rb
 lib/virt-p2v/connection.rb
 lib/virt-p2v/converter.rb

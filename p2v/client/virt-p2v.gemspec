@@ -33,10 +33,11 @@ GEMSPEC = Gem::Specification.new do |s|
     s.homepage = %q{http://libguestfs.org}
 
     s.default_executable = %q{virt-p2v}
-    s.executables = ["virt-p2v"]
+    s.executables = ["virt-p2v", "virt-p2v-launcher"]
     s.files = [
         "Rakefile",
         "bin/virt-p2v",
+        "bin/virt-p2v-launcher",
         "ext/rblibssh2/extconf.rb",
         "ext/rblibssh2/rblibssh2.c",
         "ext/rblibssh2/rblibssh2_channel.c",
@@ -80,6 +81,7 @@ GEMSPEC = Gem::Specification.new do |s|
 
     s.extra_rdoc_files = [
         "bin/virt-p2v",
+        "bin/virt-p2v-launcher",
         "lib/virt-p2v/blockdevice.rb",
         "lib/virt-p2v/connection.rb",
         "lib/virt-p2v/converter.rb",
