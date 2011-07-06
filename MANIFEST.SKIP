@@ -25,6 +25,12 @@
 
 # p2v-client gem output directory
 p2v/client/pkg
+# p2v-client extension temporary build directory
+p2v/client/tmp
 
 # Local-only files
 .local$
+
+# Compiled files
+\.o$
+\.so$

@@ -1,2 +1,8 @@
 # Packaging directory
 /pkg
+
+# Temporary build directory
+/tmp
+
+# Built sources
+*.so

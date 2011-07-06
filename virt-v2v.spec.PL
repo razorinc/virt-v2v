@@ -109,20 +109,25 @@ variety of guest operating systems from libvirt-managed hosts and VMware ESX.
 %global gemdir %(ruby -rubygems -e 'puts Gem::dir' 2>/dev/null)
 %global gemname virt-p2v
 %global geminstdir %{gemdir}/gems/%{gemname}-%{version}
+%{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
+
 %global rubyabi 1.8
 
 %package -n rubygem-%{gemname}
 Summary:    Send a machine's storage and metadata to virt-p2v-server
-BuildArch:  noarch
 Requires:   ruby(abi) = %{rubyabi}
+Requires:   rubygems
 Requires:   rubygem(gtk2)
 Requires:   rubygem(gettext)
-Requires:   rubygem(net-ssh)
 Requires:   ruby(dbus)
 
 Requires:   /sbin/blockdev
 Requires:   /usr/bin/hwloc-info
 Requires:   NetworkManager
+Requires:   /usr/bin/openvt
+
+BuildRequires:  rubygems
+BuildRequires:  rubygem(rake-compiler)
 
 Provides:   rubygem(%{gemname}) = %{version}
 
@@ -168,8 +173,13 @@ pushd p2v/client
 rake gem
 popd
 
+mkdir -p .%{gemdir}
+export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
+gem install --local --install-dir .%{gemdir} \
+            --force -V --rdoc p2v/client/pkg/%{gemname}-%{version}.gem
+
 # Neither perl nor ruby need debuginfo
-%define debug_package %{nil}
+#%define debug_package %{nil}
 
 %install
 rm -rf %{buildroot}
@@ -193,13 +203,18 @@ cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
 find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
 
 # Install p2v-client
-mkdir -p %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{gemdir}
+mkdir -p %{buildroot}%{_bindir} \
+         %{buildroot}%{gemdir} %{buildroot}%{ruby_sitearch}
+cp -a .%{gemdir}/* %{buildroot}%{gemdir}/
 
-gem install --local --install-dir %{buildroot}%{gemdir} \
-            --force --rdoc p2v/client/pkg/%{gemname}-%{version}.gem
-mv %{buildroot}%{gemdir}/bin/* %{buildroot}/%{_bindir}
+mv %{buildroot}%{geminstdir}/ext/rblibssh2/rblibssh2.so \
+   %{buildroot}%{ruby_sitearch}
+rm -rf %{buildroot}%{geminstdir}/ext \
+       %{buildroot}%{geminstdir}/lib/rblibssh2.so
+
+mv %{buildroot}%{gemdir}/bin/* %{buildroot}%{_bindir}
 find %{buildroot}%{geminstdir}/bin -type f | xargs chmod a+x
+
 cp COPYING %{buildroot}/%{geminstdir}
 
 # Install p2v-image-builder
@@ -254,6 +269,7 @@ rm -rf %{buildroot}
 %files -n rubygem-%{gemname}
 %defattr(-, root, root, -)
 %{_bindir}/virt-p2v
+%{_bindir}/virt-p2v-launcher
 %dir %{geminstdir}
 %{geminstdir}/bin
 %{geminstdir}/lib
@@ -263,6 +279,7 @@ rm -rf %{buildroot}
 %doc %{geminstdir}/%{gemname}.gemspec
 %{gemdir}/cache/%{gemname}-%{version}.gem
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
+%{ruby_sitearch}/rblibssh2.so
 
 %files -n rubygem-%{gemname}-doc
 %defattr(-, root, root, -)
