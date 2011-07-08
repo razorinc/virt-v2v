@@ -116,8 +116,9 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, undef, $config, $desc, undef) = @_;
+    my ($g, $root, $config, $desc, undef) = @_;
     croak("convert called without g argument") unless defined($g);
+    croak("convert called without root argument") unless defined($root);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);
 
@@ -156,6 +157,8 @@ sub convert
 
     $g->upload($sys_local, $sys_guest);
     $g->upload($soft_local, $soft_guest);
+
+    _fix_ntfs_heads($g, $root);
 
     # Return guest capabilities.
     my %guestcaps;
@@ -490,6 +493,62 @@ sub _disable_processor_drivers
         }
         $h->node_set_values($node, \@new);
     }
+}
+
+# NTFS hardcodes the number of heads on the drive which created it in the
+# filesystem header. Modern versions of Windows ignore it, but both Windows XP
+# and Windows 2000 require it to be correct in order to boot from the drive. If
+# it isn't you get:
+#   'A disk read error occurred. Press Ctrl+Alt+Del to restart'
+#
+# QEMU has some code in block.c:guess_disk_lchs() which on the face of it
+# appears to infer the drive geometry from the MBR if it's valid. However, my
+# tests have shown that a Windows XP guest hosted on both RHEL 5 and F14
+# requires the heads field in NTFS to be the following, based solely on drive
+# size:
+#
+# Range                             Heads
+# size < 2114445312                 0x40
+# 2114445312 <= size < 4228374780   0x80
+# 4228374780 <= size                0xFF
+#
+# I have not tested drive sizes less than 1G, which require fewer heads, as this
+# limitation applies only to the boot device and it is not possible to install
+# XP on a drive this size.
+#
+# The following page has good information on the layout of NTFS in Windows
+# XP/2000:
+#   http://mirror.href.com/thestarman/asm/mbr/NTFSBR.htm
+#
+# Technet has this:
+#   http://technet.microsoft.com/en-us/library/cc781134(WS.10).aspx#w2k3tr_ntfs_how_dhao
+# however, as this is specific to Windows 2003 it lists location 0x1A as unused.
+sub _fix_ntfs_heads
+{
+    my $g = shift;
+    my $root = shift;
+
+    # Check that the root device contains NTFS magic
+    my $magic = $g->pread_device($root, 8, 3);
+    next unless ($magic eq "NTFS    ");
+
+    # Get the size of the disk containing the root partition
+    $root =~ /^(.*?)\d+$/ or die "Unexpected partition: $root";
+    my $disk = $1;
+    my $size = $g->blockdev_getsize64($disk);
+
+    my $heads;
+    if ($size < 2114445312) {
+        $heads = 0x40;
+    } elsif ($size < 4228374780) {
+        $heads = 0x80;
+    } else {
+        $heads = 0xFF;
+    }
+
+    # Update NTFS's idea of the number of disk heads. This is an unsigned 16 bit
+    # big-endian integer offset 0x1A from the beginning of the partition.
+    $g->pwrite_device($root, pack("v", $heads), 0x1A);
 }
 
 =back
