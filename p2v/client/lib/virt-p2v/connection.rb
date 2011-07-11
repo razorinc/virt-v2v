@@ -16,7 +16,6 @@
 
 require 'gettext'
 require 'rubygems'
-require 'net/ssh'
 require 'thread'
 require 'yaml'
 
