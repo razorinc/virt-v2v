@@ -13,6 +13,9 @@ passwd
 rpm
 /usr/sbin/lokkit
 
+# For useful debugging
+vim-minimal
+
 # Remove unnecessary packages
 -audit-libs-python
 -ustr

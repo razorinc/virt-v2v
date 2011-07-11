@@ -137,7 +137,6 @@ keep /usr/share/zoneinfo/UTC
 drop /etc/alsa
 drop /usr/share/alsa
 drop /usr/share/awk
-drop /usr/share/vim
 drop /usr/share/anaconda
 drop /usr/share/backgrounds
 drop /usr/share/wallpapers
