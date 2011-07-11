@@ -36,35 +36,38 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 /usr/sbin/build-locale-archive
 
 # Run virt-p2v
-cat >> /etc/rc.local <<EOF
+cat >> /etc/rc.local <<'EOF'
 
 Xlog=/tmp/X.log
-while [ 1 ]; do
-    /usr/bin/xinit /usr/bin/virt-p2v-launcher > $Xlog 2>&1
-    status=$?
+again=$(mktemp)
 
-    if [ $status == 0 ]; then
-        # virt-p2v-launcher will have touched this file if it ran
-        [ -f /tmp/virt-p2v-launcher ] && exit
-        echo "virt-p2v-launcher failed"
-    else
-        echo "X failed"
+while [ -f "$again" ]; do
+    /usr/bin/xinit /usr/bin/virt-p2v-launcher > $Xlog 2>&1
+
+    # virt-p2v-launcher will have touched this file if it ran
+    if [ -f /tmp/virt-p2v-launcher ]; then
+        rm $again
+        break
     fi
 
-    select c in \
-        "Try again" \
-        "Debug" \
-        "Power off"
-    do
-        if [ "$c" == "Debug" ]; then
-            echo "Output was written to $Xlog"
-            echo "Exit this shell to run virt-p2v-launcher again"
-            bash -l
-        elif [ "$c" == "Power off" ]; then
-            exit 1
-        fi
-        break
-    done
+    /usr/bin/openvt -sw -- /bin/bash -c "
+echo virt-p2v-launcher failed
+select c in \
+    \"Try again\" \
+    \"Debug\" \
+    \"Power off\"
+do
+    if [ \"\$c\" == Debug ]; then
+        echo Output was written to $Xlog
+        echo Exit this shell to run virt-p2v-launcher again
+        bash -l
+    elif [ \"\$c\" == \"Power off\" ]; then
+        rm $again
+    fi
+    break
+done
+"
+
 done
 /sbin/poweroff
 EOF
