@@ -192,6 +192,13 @@ static void *channel_read_w(void *params)
             rblibssh2_session_wait(c->s);
         } else if (l < 0) {
             goto error;
+        } else if (l == 0) {
+            if (libssh2_channel_eof(c->channel)) {
+                rblibssh2_session_set_error(rb_eIOError, "Unexpected EOF");
+                return NULL;
+            }
+            /* Can't think of any other reason we'd get a zero-length return,
+             * but go round again anyway. */
         } else {
             cd->len = l;
             break;

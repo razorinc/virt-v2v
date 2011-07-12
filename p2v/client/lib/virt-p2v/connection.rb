@@ -243,8 +243,15 @@ class Connection
             begin
                 @buffer << @channel.read(64)
             rescue IOError => ex
+                @channel.close
+                @channel = nil
                 raise RemoteError,
                     _("Server closed connection unexpectedly: #{ex.message}")
+            rescue Libssh2::Channel::ApplicationError => ex
+                @channel.close
+                @channel = nil
+                raise RemoteError,
+                    _("virt-p2v-server returned an error: #{ex.message}")
             end
         }
 

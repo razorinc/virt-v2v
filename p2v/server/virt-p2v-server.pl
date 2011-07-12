@@ -169,7 +169,13 @@ eval {
         }
     }
 };
-logmsg FATAL, $@ if $@;
+
+# Wrap any unwrapped error
+if ($@) {
+    die ($@) if $@ =~ /^virt-v2v:/;
+
+    err_and_die($@);
+}
 
 exit(0);
 
