@@ -17,7 +17,6 @@
 require 'rake'
 require 'rake/gempackagetask'
 require 'rake/testtask'
-require 'rake/extensiontask'
 
 task :default => :gem
 
@@ -30,4 +29,9 @@ Rake::TestTask.new { |t|
     t.verbose = true
 }
 
-Rake::ExtensionTask.new('rblibssh2')
+begin
+    require 'rake/extensiontask'
+    Rake::ExtensionTask.new('rblibssh2')
+rescue LoadError => ex
+    print "Install rake/extensiontask to enable compilation tasks\n"
+end
