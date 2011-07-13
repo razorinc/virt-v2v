@@ -127,7 +127,9 @@ Requires:   NetworkManager
 Requires:   /usr/bin/openvt
 
 BuildRequires:  rubygems
-BuildRequires:  rubygem(rake-compiler)
+
+# rblibssh2 dependencies
+BuildRequires:  libssh2-devel
 
 Provides:   rubygem(%{gemname}) = %{version}
 
