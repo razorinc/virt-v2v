@@ -20,13 +20,13 @@ module VirtP2V::UI::Success
     include GetText
 
     def self.init(ui)
-        ui.register_handler('reboot_button_clicked',
-                            method(:reboot_button_clicked))
+        ui.register_handler('poweroff_button_clicked',
+                            method(:poweroff_button_clicked))
 
         @ui = ui
     end
 
-    def self.reboot_button_clicked
+    def self.poweroff_button_clicked
         @ui.quit
     end
 

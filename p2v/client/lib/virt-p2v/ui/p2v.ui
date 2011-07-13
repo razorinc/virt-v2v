@@ -999,7 +999,7 @@
             <property name="visible">True</property>
             <property name="label" translatable="yes">A guest has been successfully created on the target server.
 
-Remove the temporary boot device from this machine and press 'Reboot' to continue.</property>
+Remove the temporary boot device from this machine and press 'Power Off' to continue.</property>
             <property name="justify">center</property>
           </object>
           <packing>
@@ -1012,12 +1012,12 @@ Remove the temporary boot device from this machine and press 'Reboot' to continu
             <property name="xscale">0.25</property>
             <property name="yscale">0.25</property>
             <child>
-              <object class="GtkButton" id="reboot_button">
-                <property name="label" translatable="yes">Reboot</property>
+              <object class="GtkButton" id="poweroff_button">
+                <property name="label" translatable="yes">Power Off</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="reboot_button_clicked"/>
+                <signal name="clicked" handler="poweroff_button_clicked"/>
               </object>
             </child>
           </object>
