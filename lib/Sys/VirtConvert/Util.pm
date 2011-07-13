@@ -326,7 +326,7 @@ sub v2vdie
 {
     my ($msg) = @_;
 
-    logmsg FATAL, $msg, 1;
+    logmsg(FATAL, $msg, 1);
     die "virt-v2v: $msg\n";
 }
 
