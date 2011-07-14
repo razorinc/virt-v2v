@@ -42,6 +42,7 @@ OPTIONS:
   -l    Boot image label.
   -r    Primary yum repository.
   -u    Updates yum repository.
+  -p    Proxy server (e.g. http://bob:s3cr3t@cache.example.com:3128/)
   -h    Show this message.
 EOF
 }
@@ -52,7 +53,7 @@ onlyonce() {
     exit 1
 }
 
-while getopts "a:d:f:hl:r:u:w:" OPTION
+while getopts "a:d:f:hl:p:r:u:w:" OPTION
 do
     case $OPTION in
         a)
@@ -75,6 +76,10 @@ do
             [ -n "$label" ] && onlyonce $OPTION
             label="$OPTARG"
             ;;
+        p)
+            [ -n "$proxy" ] && onlyonce $OPTION
+            proxy="$OPTARG"
+            ;;
         r)
             [ -n "$repo" ] && onlyonce $OPTION
             repo="$OPTARG"
@@ -95,7 +100,7 @@ do
 done
 
 # Split out here for simple editing with sed during installation
-DEFAULT_DATADIR=.
+DEFAULT_DATADIR=/usr/share/virt-p2v-image-builder
 
 # Option defaults
 datadir="${datadir:-$DEFAULT_DATADIR}"
@@ -114,6 +119,12 @@ rm -f "$kstmp"
 ksflatten --config "$datadir/virt-p2v-image.ks" --output "$kstmp"
 # XXX broken ksflatten leaves %include
 sed -i 's/^%include /#&/' "$kstmp"
+
+addrepo() {
+    echo -n "repo --name=$1 $2" >> "$kstmp"
+    [ -n "$proxy" -a -z "$3" ] && echo -n " --proxy=$proxy" >> "$kstmp"
+    echo >> "$kstmp"
+}
 
 if [ -z "$repo" ]; then
     # Set defaults for Fedora if this is a fedora system
@@ -151,18 +162,21 @@ else
 fi
 
 if [ -n "$repo" ]; then
-    echo "repo --name=base $repo" >> "$kstmp"
+    addrepo base $repo
 else
     die "No repository specified, and no default available."
 fi
 if [ -n "$updates" ]; then
-    echo "repo --name=updates $updates" >> "$kstmp"
+    addrepo updates $updates
 fi
 i=0
 for extra in "${extra_repos[@]}"; do
     ((i++))
-    [ -d "$extra" ] && extra="file://$extra"
-    echo "repo --name=extra$i --baseurl=$extra" >> "$kstmp"
+    if [ -d "$extra" ]; then
+        extra="file://$extra"
+        noproxy=1
+    fi
+    addrepo "extra$i" "--baseurl=$extra" $noproxy
 done
 
 selinux_enforcing=$(/usr/sbin/getenforce)
