@@ -202,7 +202,8 @@ cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
 
 # Not clear why this is being created as there is nothing arch-specific in
 # virt-v2v. It isn't packaged, though, so we need to delete it.
-find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
+[ -d "%{buildroot}/%{perl_archlib}" ] &&
+  find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
 
 # Install p2v-client
 mkdir -p %{buildroot}%{_bindir} \
