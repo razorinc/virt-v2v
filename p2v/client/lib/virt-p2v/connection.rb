@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
 require 'rubygems'
 require 'thread'
 require 'yaml'
@@ -25,8 +24,6 @@ require 'rblibssh2'
 module VirtP2V
 
 class Connection
-    include GetText
-
     class InvalidHostnameError < StandardError; end
     class InvalidCredentialsError < StandardError; end
     class RemoteError < StandardError; end
@@ -246,12 +243,12 @@ class Connection
                 @channel.close
                 @channel = nil
                 raise RemoteError,
-                    _("Server closed connection unexpectedly: #{ex.message}")
+                    "Server closed connection unexpectedly: #{ex.message}"
             rescue Libssh2::Channel::ApplicationError => ex
                 @channel.close
                 @channel = nil
                 raise RemoteError,
-                    _("virt-p2v-server returned an error: #{ex.message}")
+                    "virt-p2v-server returned an error: #{ex.message}"
             end
         }
 

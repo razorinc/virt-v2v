@@ -14,14 +14,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
 require 'gtk2'
 require 'ipaddr'
 require 'virt-p2v/netdevice'
 
 module VirtP2V::UI::Network
-    include GetText
-
     # The indices of Device List colums, taken from glade
     DEVCOL_NAME      = 0
     DEVCOL_MAC       = 1

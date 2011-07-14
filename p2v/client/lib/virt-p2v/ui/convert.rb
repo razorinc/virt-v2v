@@ -14,15 +14,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
 require 'gtk2'
 
 require 'virt-p2v/blockdevice'
 require 'virt-p2v/netdevice'
 
 module VirtP2V::UI::Convert
-    include GetText
-
     CONVERT_PROFILE_NAME    = 0
 
     CONVERT_NETWORK_CONVERT = 0
@@ -72,9 +69,9 @@ module VirtP2V::UI::Convert
         converter.on_connection { |conn|
             conn.on_connect { |cb|
                 conn.list_profiles { |profiles|
-                    cb.call(RuntimeError.new(_('Remote server does not ' +
-                                               'define any profiles in ' +
-                                               '/etc/virt-v2v.conf'))) \
+                    cb.call(RuntimeError.new('Remote server does not ' +
+                                             'define any profiles in ' +
+                                             '/etc/virt-v2v.conf')) \
                         if profiles.kind_of?(Exception) or profiles.empty?
 
                     selected = @profile.active_iter
@@ -217,7 +214,7 @@ module VirtP2V::UI::Convert
             @editable.sensitive = true
             @button.sensitive = true
         when UI_STATE_CONNECTING
-            @status.text = _'Failed to start virt-p2v-server on remote server'
+            @status.text = 'Failed to start virt-p2v-server on remote server'
             @editable.sensitive = false
             @button.sensitive = false
         when UI_STATE_CONVERTING
@@ -262,13 +259,13 @@ module VirtP2V::UI::Convert
     end
 
     def self.reconnect
-        @status.text = _('Reconnecting')
+        @status.text = 'Reconnecting'
         @converter.connection.connect { |result|
             if result == true then
                 event(EV_CONNECTION, true)
             else
                 @status.text =
-                    _'Failed to start virt-p2v-server on remote server'
+                    'Failed to start virt-p2v-server on remote server'
                 event(EV_CONNECTION, false)
             end
         }
@@ -394,7 +391,7 @@ module VirtP2V::UI::Convert
         else
             widget.secondary_icon_name = 'gtk-dialog-warning'
             widget.secondary_icon_tooltip_text =
-                _('Value must be an integer greater than 0')
+                'Value must be an integer greater than 0'
         end
 
         update_values

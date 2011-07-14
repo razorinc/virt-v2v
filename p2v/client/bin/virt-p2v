@@ -25,16 +25,10 @@ require 'virt-p2v/ui/success'
 require 'virt-p2v/converter'
 require 'virt-p2v/netdevice'
 
-require 'gettext'
-
-include GetText
-
-bindtextdomain('virt-p2v')
-
 if Process.uid != 0
-    puts _("virt-p2v must be executed with root privileges.\n" +
-           "It is intended to be included in a custom Live image, not " +
-           "run from the command\nline.")
+    puts "virt-p2v must be executed with root privileges.\n" +
+         "It is intended to be included in a custom Live image, not " +
+         "run from the command\nline."
     abort
 end
 

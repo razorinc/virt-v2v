@@ -14,14 +14,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
 require 'gtk2'
 
 require 'virt-p2v/connection'
 
 module VirtP2V::UI::Connect
-    include GetText
-
     UI_STATE_INVALID    = 0
     UI_STATE_VALID      = 1
     UI_STATE_ACTIVATING = 2
@@ -153,15 +150,15 @@ module VirtP2V::UI::Connect
             when true
                 event(EV_ACTIVATION, true)
             when VirtP2V::Connection::RemoteError
-                @connect_error.text = _('Failed to start ' +
-                                        'virt-p2v-server on remote ' +
-                                        'server')
+                @connect_error.text = 'Failed to start ' +
+                                      'virt-p2v-server on remote ' +
+                                      'server'
                 event(EV_ACTIVATION, false)
             when VirtP2V::Connection::InvalidHostnameError
-                @connect_error.text = _"Unable to connect to #{hostname}"
+                @connect_error.text = "Unable to connect to #{hostname}"
                 event(EV_ACTIVATION, false)
             when VirtP2V::Connection::InvalidCredentialsError
-                @connect_error.text = _"Invalid username/password"
+                @connect_error.text = "Invalid username/password"
                 event(EV_ACTIVATION, false)
             else
                 @connect_error.text = result.message

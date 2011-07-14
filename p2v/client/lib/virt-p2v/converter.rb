@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
 require 'rexml/document'
 include REXML
 
@@ -47,8 +46,6 @@ module VirtP2V
 #   vnet_type     bridge
 
 class Converter
-    include GetText
-
     attr_accessor :profile, :name, :cpus, :memory, :arch
     attr_reader :features, :disks, :removables, :nics
 
@@ -77,7 +74,7 @@ class Converter
                 }, cb)
             },
             lambda { |cb|
-                status.call(_('Converting'))
+                status.call('Converting')
                 @connection.convert(&cb)
             }
         ], completion)
@@ -139,7 +136,7 @@ class Converter
         path = "/dev/#{dev}"
         # XXX: No error checking of blockdev execution
         size = Integer(`blockdev --getsize64 #{path}`.chomp)
-        status.call(_("Transferring #{dev}"))
+        status.call("Transferring #{dev}")
         iterate([
             lambda { |cb| @connection.path(size, path, &cb) },
             lambda { |cb| @connection.container('RAW', &cb) },

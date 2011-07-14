@@ -14,11 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-require 'gettext'
-
 module VirtP2V::UI::Success
-    include GetText
-
     def self.init(ui)
         ui.register_handler('poweroff_button_clicked',
                             method(:poweroff_button_clicked))

@@ -15,13 +15,10 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 require 'dbus'
-require 'gettext'
 
 module VirtP2V
 
 class NetworkDevice
-    include GetText
-
     attr_reader :name, :mac, :connected, :activated, :state
 
     # Some NetworkManager names, for convenience
@@ -54,16 +51,16 @@ class NetworkDevice
 
     # Human readable descriptions of NetworkManager Device States
     STATES = {
-        0 => _('Unknown').freeze,           # For completeness
-        1 => _('Unmanaged').freeze,         # For completeness
-        2 => _('No cable connected').freeze,
-        3 => _('Not connected').freeze,
-        4 => _('Preparing to connect').freeze,
-        5 => _('Configuring').freeze,
-        6 => _('Waiting for authentication').freeze,
-        7 => _('Obtaining an IP address').freeze,
-        8 => _('Connected').freeze,
-        9 => _('Connection failed').freeze
+        0 => 'Unknown'.freeze,           # For completeness
+        1 => 'Unmanaged'.freeze,         # For completeness
+        2 => 'No cable connected'.freeze,
+        3 => 'Not connected'.freeze,
+        4 => 'Preparing to connect'.freeze,
+        5 => 'Configuring'.freeze,
+        6 => 'Waiting for authentication'.freeze,
+        7 => 'Obtaining an IP address'.freeze,
+        8 => 'Connected'.freeze,
+        9 => 'Connection failed'.freeze
     }.freeze
 
     def initialize(obj, device, props)
