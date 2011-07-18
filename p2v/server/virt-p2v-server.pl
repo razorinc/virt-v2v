@@ -278,6 +278,9 @@ sub receive_path
             err_and_die($@) if $@;
         }
 
+        # Close explicitly here in case there's any error.
+        $writer->close();
+
         p2v_return_ok();
     }
 }
