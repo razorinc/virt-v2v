@@ -952,11 +952,14 @@
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="spacing">2</property>
             <child>
               <object class="GtkLabel" id="convert_status">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="xpad">12</property>
+                <property name="wrap">True</property>
+                <property name="wrap_mode">char</property>
                 <attributes>
                   <attribute name="foreground" value="#ffff00000000"/>
                 </attributes>
@@ -982,7 +985,6 @@
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
             <property name="position">1</property>
           </packing>
         </child>
