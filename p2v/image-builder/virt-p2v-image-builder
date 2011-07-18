@@ -107,7 +107,9 @@ datadir="${datadir:-$DEFAULT_DATADIR}"
 cachedir="${cachedir:-/var/tmp/p2v-image-builder.$USER}"
 label="${label:-Virt-P2V}"
 
-arch=$(rpm --eval '%{_arch}')
+# We hardcode the arch so it will run on both i386 and x86_64
+#arch=$(rpm --eval '%{_arch}')
+arch=i386
 kstmp=$(mktemp --tmpdir p2v-image-builder.XXXXXXXX)
 
 if pgrep -xl nscd; then
