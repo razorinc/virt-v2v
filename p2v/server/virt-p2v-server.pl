@@ -90,6 +90,13 @@ eval {
     # Set the umask to a reasonable default
     umask(0022);
 
+    # We have seen instances where failures in library functions have occurred
+    # when writing to RHEV because the effective user isn't able to chdir to the
+    # current working directory. To guard against this, and because we don't use
+    # the current working directory for anything, we set chdir to /tmp before we
+    # start.
+    chdir('/tmp');
+
     # Don't buffer output
     # While perl will use line buffering when STDOUT is connected to a tty, when
     # not connected to a tty, for example when invoked directly over ssh, it
