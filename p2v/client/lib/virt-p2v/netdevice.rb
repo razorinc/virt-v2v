@@ -69,7 +69,7 @@ class NetworkDevice
         @nm_obj = obj
         @name   = props.Get(DEVICE, 'Interface')[0]
         @mac    = props.Get(WIRED, 'HwAddress')[0]
-        state   = props.Get(WIRED, 'State')[0]
+        state   = props.Get(DEVICE, 'State')[0]
 
         # Lookup by name
         @@devices[@name] = self
