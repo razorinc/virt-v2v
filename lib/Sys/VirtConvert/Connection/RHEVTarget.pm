@@ -386,7 +386,6 @@ sub _cleanup
 
 package Sys::VirtConvert::Connection::RHEVTarget;
 
-use Data::Dumper;
 use File::Temp qw(tempdir);
 use File::Spec::Functions;
 use POSIX;
