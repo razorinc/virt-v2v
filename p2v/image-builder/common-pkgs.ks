@@ -1,6 +1,6 @@
 # Direct requirements
 rubygem-virt-p2v
-bitstream-vera-sans-fonts
+dejavu-sans-fonts
 xorg-x11-xinit
 xorg-x11-drivers
 xorg-x11-server-Xorg
