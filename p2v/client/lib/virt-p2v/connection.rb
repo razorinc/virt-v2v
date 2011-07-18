@@ -71,7 +71,7 @@ class Connection
                     raise RemoteError.new("Unexpected response: #{line}")
                 end
             rescue Libssh2::Channel::ApplicationError => ex
-                if ex.msg =~ /command not found/
+                if ex.message =~ /command not found/
                     raise RemoteError.new(
                         "virt-p2v-server is not installed on #{@hostname}")
                 else
