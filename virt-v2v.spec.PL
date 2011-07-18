@@ -77,9 +77,6 @@ BuildRequires:  perl(XML::Writer)
 BuildRequires:  perl-libguestfs >= 1:1.6.0
 BuildRequires:  perl-hivex >= 1.2.2
 
-# virt-p2v build requirements
-BuildRequires:  rubygem(rake)
-
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 # Need an explicit package dependency for version requires
@@ -106,82 +103,18 @@ virt-v2v is a tool for converting and importing virtual machines to
 libvirt-managed KVM, or Red Hat Enterprise Virtualization. It can import a
 variety of guest operating systems from libvirt-managed hosts and VMware ESX.
 
-%global gemdir %(ruby -rubygems -e 'puts Gem::dir' 2>/dev/null)
-%global gemname virt-p2v
-%global geminstdir %{gemdir}/gems/%{gemname}-%{version}
-%{!?ruby_sitearch: %global ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
-
-%global rubyabi 1.8
-
-%package -n rubygem-%{gemname}
-Summary:    Send a machine's storage and metadata to virt-p2v-server
-Requires:   ruby(abi) = %{rubyabi}
-Requires:   rubygems
-Requires:   rubygem(gtk2)
-Requires:   rubygem(gettext)
-Requires:   ruby(dbus)
-
-Requires:   /sbin/blockdev
-Requires:   /usr/bin/hwloc-info
-Requires:   NetworkManager
-Requires:   /usr/bin/openvt
-
-BuildRequires:  rubygems
-
-# rblibssh2 dependencies
-BuildRequires:  libssh2-devel
-
-Provides:   rubygem(%{gemname}) = %{version}
-
-%description -n rubygem-%{gemname}
-virt-p2v is a client which connects to a virt-p2v-server and transfer's the host
-machine's storage and metadata. virt-p2v is intended to be run from a live
-image, so it is unlikely you want to install it directly.
-
-%package -n rubygem-%{gemname}-doc
-Summary:    Documentation for rubygem-%{gemname}
-Group:      Documentation
-BuildArch:  noarch
-Requires:   rubygem-%{gemname} = %{version}-%{release}
-
-%description -n rubygem-%{gemname}-doc
-Documentation for rubygem-%{gemname}
-
-%package -n virt-p2v-image-builder
-Summary:    Create a virt-p2v bootable image
-BuildArch:  noarch
-
-# image builder script requires
-Requires:   /usr/bin/ksflatten
-Requires:   /usr/sbin/setenforce
-Requires:   /usr/bin/livecd-creator
-
-# Kickstart nochroot scripts requires
-Requires:   /usr/bin/livecd-iso-to-disk
-Requires:   /usr/bin/livecd-iso-to-pxeboot
-Requires:   /usr/bin/image-minimizer
-
-%description -n virt-p2v-image-builder
-virt-p2v-image-builder is a tool to create a bootable virt-p2v live image.
 
 %prep
 %setup -q -n %{name}-v%{version}
+
 
 %build
 %{__perl} Build.PL
 ./Build
 
-pushd p2v/client
-rake gem
-popd
+# perl doesn't need debuginfo
+%define debug_package %{nil}
 
-mkdir -p .%{gemdir}
-export CONFIGURE_ARGS="--with-cflags='%{optflags}'"
-gem install --local --install-dir .%{gemdir} \
-            --force -V --rdoc p2v/client/pkg/%{gemname}-%{version}.gem
-
-# Neither perl nor ruby need debuginfo
-#%define debug_package %{nil}
 
 %install
 rm -rf %{buildroot}
@@ -205,39 +138,9 @@ cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
 [ -d "%{buildroot}/%{perl_archlib}" ] &&
   find %{buildroot}/%{perl_archlib} -name .packlist -type f | xargs rm
 
-# Install p2v-client
-mkdir -p %{buildroot}%{_bindir} \
-         %{buildroot}%{gemdir} %{buildroot}%{ruby_sitearch}
-cp -a .%{gemdir}/* %{buildroot}%{gemdir}/
-
-mv %{buildroot}%{geminstdir}/ext/rblibssh2/rblibssh2.so \
-   %{buildroot}%{ruby_sitearch}
-rm -rf %{buildroot}%{geminstdir}/ext \
-       %{buildroot}%{geminstdir}/lib/rblibssh2.so
-
-mv %{buildroot}%{gemdir}/bin/* %{buildroot}%{_bindir}
-find %{buildroot}%{geminstdir}/bin -type f | xargs chmod a+x
-
-cp COPYING %{buildroot}/%{geminstdir}
-
-# Install p2v-image-builder
-%global builderdir %{_datadir}/virt-p2v-image-builder
-builder=%{buildroot}/%{_bindir}/virt-p2v-image-builder
-mkdir -p %{buildroot}%{builderdir}
-cp p2v/image-builder/*.ks %{buildroot}%{builderdir}
-cp p2v/image-builder/virt-p2v-image-builder $builder
-
-# Set the default data directory
-sed -i -e 's,^DEFAULT_DATADIR=.*,DEFAULT_DATADIR=%{builderdir},' $builder
-
 
 %check
 ./Build test
-
-pushd p2v/client
-# No tests yet
-#rake test
-popd
 
 
 %clean
@@ -268,30 +171,6 @@ rm -rf %{buildroot}
 
 %config(noreplace) %{_sysconfdir}/virt-v2v.conf
 %config(noreplace) %{_localstatedir}/lib/virt-v2v/software
-
-%files -n rubygem-%{gemname}
-%defattr(-, root, root, -)
-%{_bindir}/virt-p2v
-%{_bindir}/virt-p2v-launcher
-%dir %{geminstdir}
-%{geminstdir}/bin
-%{geminstdir}/lib
-%doc %{geminstdir}/COPYING
-%doc %{geminstdir}/Manifest
-%doc %{geminstdir}/Rakefile
-%doc %{geminstdir}/%{gemname}.gemspec
-%{gemdir}/cache/%{gemname}-%{version}.gem
-%{gemdir}/specifications/%{gemname}-%{version}.gemspec
-%{ruby_sitearch}/rblibssh2.so
-
-%files -n rubygem-%{gemname}-doc
-%defattr(-, root, root, -)
-%{gemdir}/doc/%{gemname}-%{version}
-
-%files -n virt-p2v-image-builder
-%defattr(-, root, root, -)
-%{_bindir}/virt-p2v-image-builder
-%{builderdir}
 
 
 %changelog

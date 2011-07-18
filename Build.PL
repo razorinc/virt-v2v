@@ -253,7 +253,7 @@ my $build = $class->new (
         },
     },
     syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ],
-    PL_files => [ 'virt-v2v.spec.PL' ],
+    PL_files => [ 'virt-v2v.spec.PL', 'virt-p2v.spec.PL' ],
 );
 
 $build->add_build_element('confdoc');

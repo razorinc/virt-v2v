@@ -9,6 +9,7 @@
 /MANIFEST.bak
 /cover_db
 /virt-v2v.spec
+/virt-p2v.spec
 
 # Files related to 'Build dist'
 /META.yml

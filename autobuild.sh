@@ -57,7 +57,16 @@ if [ -f /usr/bin/rpmbuild ]; then
     NOW=`date +"%s"`
     EXTRA_RELEASE=".$USER$NOW"
   fi
-  rpmbuild --nodeps -ta --define "extra_release $EXTRA_RELEASE" --clean $NAME-*.tar.gz
+
+  rpmbuild --nodeps -ba \
+           --define "_sourcedir `pwd`" \
+           --define "extra_release $EXTRA_RELEASE" \
+           --clean virt-v2v.spec
+
+  rpmbuild --nodeps -ba --target i686 \
+           --define "_sourcedir `pwd`" \
+           --define "extra_release $EXTRA_RELEASE" \
+           --clean virt-p2v.spec
 fi
 
 exit 0
