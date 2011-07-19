@@ -25,7 +25,7 @@ GEMSPEC = Gem::Specification.new do |s|
     s.date = %q{2011-05-10}
     s.summary = %q{Send a machine's storage and metadata to virt-p2v-server}
     s.description = %q{
-        virt-p2v is a client which connects to a virt-p2v-server and transfer's
+        virt-p2v is a client which connects to a virt-p2v-server and transfers
         the host machine's storage and metadata. virt-p2v is intended to be run
         from a live image, so it is unlikely you want to install it.
     }
