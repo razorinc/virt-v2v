@@ -442,7 +442,7 @@ static void channel_send_data_cb(void *arg) {
     sent = csd->sent;
     pthread_mutex_unlock(&csd->mutex);
 
-    VALUE sent_rv = INT2NUM(sent);
+    VALUE sent_rv = ULL2NUM(sent);
     rb_yield(sent_rv);
 }
 
