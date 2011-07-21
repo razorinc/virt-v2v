@@ -92,6 +92,16 @@ sub new
     return $self;
 }
 
+sub _trim
+{
+    my $s = shift;
+
+    $s =~ s/^\s+//;
+    $s =~ s/\s+$//;
+
+    return $s;
+}
+
 =item get_transfer_iso
 
 Return the path to an iso image containing all software defined in the config
@@ -109,7 +119,7 @@ sub get_transfer_iso
 
     # path-root doesn't have to be defined
     my ($root) = $dom->findnodes('/virt-v2v/path-root/text()');
-    $root = $root->getData() if (defined($root));
+    $root = _trim($root->getData()) if (defined($root));
 
     # Construct a list of path arguments to mkisofs from paths referenced in the
     # config file
@@ -117,7 +127,7 @@ sub get_transfer_iso
     my %path_args;
     my %paths;
     foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
-        $path = $path->getData();
+        $path = _trim($path->getData());
 
         my $abs;
         if (File::Spec->file_name_is_absolute($path) || !defined($root)) {
@@ -147,7 +157,7 @@ sub get_transfer_iso
     # We need this
     v2vdie __('<iso-path> must be specified in the configuration file.')
         unless defined($iso_path);
-    $iso_path = $iso_path->getData();
+    $iso_path = _trim($iso_path->getData());
 
     # Create the transfer iso
     my $eh = Sys::VirtConvert::ExecHelper->run
@@ -246,11 +256,11 @@ sub match_app
     my ($path) = $app->findnodes('path/text()');
     v2vdie __x('app entry in config doesn\'t contain a path: {xml}',
                xml => $app->toString()) unless defined($path);
-    $path = $path->getData();
+    $path = _trim($path->getData());
 
     my @deps;
     foreach my $dep ($app->findnodes('dep/text()')) {
-        push(@deps, $dep->getData());
+        push(@deps, _trim($dep->getData()));
     }
 
     return ($path, \@deps);
@@ -478,12 +488,13 @@ sub use_profile
     my ($method) = $profile->findnodes('method/text()');
     v2vdie __x('Profile {name} doesn\'t specify an output method.',
                name => $name) unless defined($method);
-    $self->{output_method} = $method->getData();
+    $self->{output_method} = _trim($method->getData());
 
     my ($storage) = $profile->findnodes('storage');
     if (defined($storage)) {
         my ($location) = $storage->findnodes('text()');
-        $self->{output_storage} = $location->getData() if defined($location);
+        $self->{output_storage} = _trim($location->getData())
+            if defined($location);
 
         my %opts;
         $self->{output_storage_opts} = \%opts;
