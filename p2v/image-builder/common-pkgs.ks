@@ -15,6 +15,7 @@ rpm
 
 # For useful debugging
 vim-minimal
+/usr/bin/scp    # For extracting log files
 
 # Remove unnecessary packages
 -audit-libs-python
