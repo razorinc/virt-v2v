@@ -496,7 +496,9 @@
                             <child>
                               <object class="GtkEntry" id="server_username">
                                 <property name="visible">True</property>
+                                <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
+                                <property name="editable">False</property>
                                 <property name="invisible_char">&#x2022;</property>
                                 <property name="width_chars">40</property>
                                 <property name="text" translatable="yes">root</property>
