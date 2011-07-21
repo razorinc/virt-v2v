@@ -12,7 +12,7 @@ C<virt-v2v.conf> describes:
 
 =item *
 
-a set of profiles which pre-define a set of output options.
+a set of target profiles which pre-define a set of output options.
 
 =item *
 
@@ -30,14 +30,14 @@ software which can be installed by virt-v2v during the conversion process.
 The configuration file is an XML document whose root element is
 E<lt>virt-v2vE<gt>.
 
-=head2 Profiles
+=head2 Target Profiles
 
-A profile is used to group a set of configuration options defining a specific
-destination for a conversion. A user can specify a profile in place of the
-equivalent command line options.
+A target profile is used to group a set of configuration options defining a
+specific destination for a conversion. A user can specify a target profile in
+place of the equivalent command line options.
 
-A profile is defined by an element in virt-v2v.conf which is a child of the
-top-level virt-v2v element. For example:
+A target profile is defined by an element in virt-v2v.conf which is a child of
+the top-level virt-v2v element. For example:
 
  <profile name='kvm1'>
    <method>libvirt</method>
@@ -50,7 +50,7 @@ top-level virt-v2v element. For example:
    </network>
  </profile>
 
-A profile is identified by its I<name> attribute. Allowed elements are:
+A target profile is identified by its I<name> attribute. Allowed elements are:
 
 =over
 

@@ -281,7 +281,7 @@ my $list_profiles = 0;
 
 =item B<--list-profiles>
 
-Display a list of profile names specified in the configuration file.
+Display a list of target profile names specified in the configuration file.
 
 =item B<--help>
 
@@ -382,7 +382,7 @@ umask(0022);
 my $config = Sys::VirtConvert::Config->new($config_file);
 
 if ($list_profiles) {
-    print STDOUT (__"Defined profiles:")."\n";
+    print STDOUT (__"Defined target profiles:")."\n";
     foreach my $profile ($config->list_profiles()) {
         print "  $profile\n";
     }
