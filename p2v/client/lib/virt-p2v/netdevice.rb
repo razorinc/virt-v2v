@@ -132,6 +132,16 @@ class NetworkDevice
 
             break i if conn.GetSettings()[0]['connection']['uuid'] == uuid
         }
+        # XXX: mbooth@redhat.com - 22/7/2011
+        # The first time this code runs on a RHEL 6 system
+        # (NetworkManager-0.8.1-9.el6_1.1.i686), conn will be an
+        # array containing a single element: the connection. This will cause
+        # ActivateConnection below to return an error, and the p2v client to
+        # crash. If you run p2v client a second time, conn will be a simple
+        # value, not a single element array, and ActivateConnection works fine.
+        # I assume this is a bug in NetworkManager. I don't see this behaviour
+        # in F14.
+        conn = conn[0] if conn.kind_of?(Array)
 
         nm = @@nm_service.object('/org/freedesktop/NetworkManager')
         nm.introspect
