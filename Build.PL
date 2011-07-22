@@ -195,6 +195,7 @@ sub ACTION_distmeta
 
     # Add a dependency on changelog
     $self->depends_on('changelog') == 0 or return 1;
+    $self->depends_on('code') == 0 or return 1;
 
     # Run the regular distmeta action
     return $self->SUPER::ACTION_distmeta;
