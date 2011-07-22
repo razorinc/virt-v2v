@@ -189,7 +189,7 @@ rm -rf %{buildroot}
 
 %files -n virt-p2v-image-builder
 %defattr(-, root, root, -)
-%{_bindir}/virt-p2v-image-builder
+%attr(0755, root, root) %{_bindir}/virt-p2v-image-builder
 %{builderdir}
 
 
