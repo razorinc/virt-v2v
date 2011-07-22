@@ -100,9 +100,10 @@ class NetworkDevice
     end
 
     def activate(auto, ip, prefix, gateway, dns)
-        # Get an IP config dependent on whether @ip_address is IPv4 or IPv6
+        # Get an IP config dependent on whether ip is IPv4 or IPv6
         ip_config = auto ? get_config_auto :
-                           ip.ipv4? ? get_config_ipv4() : get_config_ipv6()
+                         ip.ipv4? ? get_config_ipv4(ip, prefix, gateway, dns) :
+                                    get_config_ipv6(ip, prefix, gateway, dns)
 
         # Create a new NetworkManager connection object
         settings = @@nm_service.object(
@@ -180,22 +181,21 @@ class NetworkDevice
         ipaddr.hton().unpack("I")[0]
     end
 
-    def get_config_ipv4
-        addresses = [[ ipv4_to_nm(@ip_address), @ip_prefix,
-                       ipv4_to_nm(@ip_gateway) ]]
+    def get_config_ipv4(ip, prefix, gateway, dns)
+        addresses = [[ ipv4_to_nm(ip), prefix, ipv4_to_nm(gateway) ]]
 
-        dns = []
-        @ip_dns.each{ |ipaddr|
+        dns_nm = []
+        dns.each{ |ipaddr|
             # Only use IPv4 DNS servers
             next unless ipaddr.ipv4?
-            dns.push(ipv4_to_nm(ipaddr))
+            dns_nm.push(ipv4_to_nm(ipaddr))
         }
 
         {
             'ipv4' => {
                 'method' => 'manual',
                 'addresses' => [ 'aau', addresses ],
-                'dns' => [ 'au', dns ]
+                'dns' => [ 'au', dns_nm ]
             },
             'ipv6' => {
                 'method' => 'ignore'
@@ -207,12 +207,12 @@ class NetworkDevice
         ipaddr.hton().unpack("c*")
     end
 
-    def get_config_ipv6
-        dns = []
-        @ip_dns.each { |ipaddr|
+    def get_config_ipv6(ip, prefix, gateway, dns)
+        dns_nm = []
+        dns.each { |ipaddr|
             # Only use IPv6 DNS servers
             next unless ipaddr.ipv6?
-            dns.push(ipv6_to_nm(ipaddr))
+            dns_nm.push(ipv6_to_nm(ipaddr))
         }
 
         {
@@ -222,14 +222,13 @@ class NetworkDevice
             'ipv6' => {
                 'method' => 'manual',
                 'addresses' => [ 'a(ayu)', [[
-                    ipv6_to_nm(@ip_address),
-                    @ip_prefix
+                    ipv6_to_nm(ip), prefix
                 ]] ],
                 'routes' => [ 'a(ayuayu)', [[
                     [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], 0,
-                    ipv6_to_nm(@ip_gateway), 1024
+                    ipv6_to_nm(gateway), 1024
                 ]] ],
-                'dns' => [ 'aay', dns ]
+                'dns' => [ 'aay', dns_nm ]
             }
         }
     end
