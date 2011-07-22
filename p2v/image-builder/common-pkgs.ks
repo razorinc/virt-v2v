@@ -16,6 +16,7 @@ rpm
 # For useful debugging
 vim-minimal
 /usr/bin/scp    # For extracting log files
+/usr/bin/gzip   # For compressing core files
 
 # Remove unnecessary packages
 -audit-libs-python
@@ -32,7 +33,6 @@ vim-minimal
 -fedora-release
 -fedora-release-notes
 -dmraid
--gzip
 -less
 -which
 -parted

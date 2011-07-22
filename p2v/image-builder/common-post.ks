@@ -38,6 +38,16 @@ mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 # Run virt-p2v
 cat >> /etc/rc.local <<'EOF'
 
+# Configure the machine to write compressed core files to /tmp
+cat > /tmp/core.sh <<'CORE'
+#!/bin/sh
+/usr/bin/gzip -c > /tmp/$1.core.gz
+CORE
+
+chmod 755 /tmp/core.sh
+echo "|/tmp/core.sh %h-%e-%p-%t" > /proc/sys/kernel/core_pattern
+ulimit -c unlimited
+
 Xlog=/tmp/X.log
 again=$(mktemp)
 
@@ -59,6 +69,7 @@ select c in \
 do
     if [ \"\$c\" == Debug ]; then
         echo Output was written to $Xlog
+        echo Any core files will have been written to /tmp
         echo Exit this shell to run virt-p2v-launcher again
         bash -l
     elif [ \"\$c\" == \"Power off\" ]; then

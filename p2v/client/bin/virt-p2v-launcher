@@ -89,6 +89,7 @@ loop {
     system('/usr/bin/openvt', '-sw', '--', '/bin/sh', '-c', <<DEBUG)
 clear
 echo Output was written to #{LOG}
+echo Any core files will have been written to /tmp
 echo Exit this shell to run virt-p2v again.
 bash -l
 clear
