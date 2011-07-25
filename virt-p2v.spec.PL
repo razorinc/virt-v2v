@@ -105,6 +105,7 @@ Requires:   /usr/bin/livecd-iso-to-disk
 Requires:   /usr/bin/livecd-iso-to-pxeboot
 Requires:   /usr/bin/image-minimizer
 
+
 %description -n virt-p2v-image-builder
 virt-p2v-image-builder is a tool to create a bootable virt-p2v live image.
 
