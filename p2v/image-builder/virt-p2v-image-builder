@@ -39,6 +39,7 @@ OPTIONS:
   -c    Yum cache directory.
   -d    Directory containing virt-p2v-image.ks.
   -f    Specific Fedora mirror to use if building a Fedora image.
+  -k    Don't run livecd-creator, just write the kickstart file to stdout.
   -l    Boot image label.
   -r    Primary yum repository.
   -u    Updates yum repository.
@@ -53,7 +54,8 @@ onlyonce() {
     exit 1
 }
 
-while getopts "a:d:f:hl:p:r:u:w:" OPTION
+ksonly=0
+while getopts "a:d:f:hkl:p:r:u:w:" OPTION
 do
     case $OPTION in
         a)
@@ -71,6 +73,9 @@ do
         f)
             [ -n "$fedora_url" ] && onlyonce $OPTION
             fedora_url="$OPTARG"
+            ;;
+        k)
+            ksonly=1
             ;;
         l)
             [ -n "$label" ] && onlyonce $OPTION
@@ -181,24 +186,29 @@ for extra in "${extra_repos[@]}"; do
     addrepo "extra$i" "--baseurl=$extra" $noproxy
 done
 
-selinux_enforcing=$(/usr/sbin/getenforce)
-case "$selinux_enforcing" in
-    Enforcing) sudo /usr/sbin/setenforce Permissive ;;
-    Permissive) ;;
-    *) if grep -q '^selinux --disabled' "$kstmp";
-           then
-               warn "WARNING: SELinux disabled in kickstart"
-           else
-               die "ERROR: SELinux enabled in kickstart, \
-               but disabled on the build machine"
-       fi ;;
-esac
+if [ $ksonly == 0 ]; then
+    selinux_enforcing=$(/usr/sbin/getenforce)
+    case "$selinux_enforcing" in
+        Enforcing) sudo /usr/sbin/setenforce Permissive ;;
+        Permissive) ;;
+        *) if grep -q '^selinux --disabled' "$kstmp";
+               then
+                   warn "WARNING: SELinux disabled in kickstart"
+               else
+                   die "ERROR: SELinux enabled in kickstart, \
+                   but disabled on the build machine"
+           fi ;;
+    esac
 
-mkdir -p $cachedir
-sudo livecd-creator -c "$kstmp" -f "$label" --cache="$cachedir"
+    mkdir -p $cachedir
+    sudo livecd-creator -c "$kstmp" -f "$label" --cache="$cachedir"
 
-# Clean up
-rm -f $kstmp
-if [ "$selinux_enforcing" = Enforcing ]; then
-    sudo /usr/sbin/setenforce Enforcing
+    # Clean up
+    if [ "$selinux_enforcing" = Enforcing ]; then
+        sudo /usr/sbin/setenforce Enforcing
+    fi
+else
+    cat $kstmp
 fi
+
+rm -f $kstmp
