@@ -4,26 +4,3 @@ Option to create a log of changes made to a guest during conversion
 
 Add metadata to RHEV OVF to identify guest as converted
   Include additional information about source hypervisor
-
-Correctly populate OS description in RHEV OVF output
-  Unassigned
-  WindowsXP
-  Windows2003
-  Windows2008
-  OtherLinux
-  Other
-  RHEL5
-  RHEL4
-  RHEL3
-  Windows2003x64
-  Windows7
-  Windows7x64
-  RHEL5x64
-  RHEL4x64
-  RHEL3x64
-  Windows2008x64
-  Windows2008R2x64
-
-When converting to RHEV (only), delete transferred images on conversion failure
-  We can't re-used them on the next conversion attempt, and RHEV doesn't provide
-  a UI to delete them.
