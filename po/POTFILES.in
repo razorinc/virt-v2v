@@ -16,5 +16,5 @@
 ../lib/Sys/VirtConvert/Converter/RedHat.pm
 ../lib/Sys/VirtConvert/Converter/Windows.pm
 ../lib/Sys/VirtConvert/GuestfsHandle.pm
-../p2v-server/virt-p2v-server.pl
+../p2v/server/virt-p2v-server.pl
 ../v2v/virt-v2v.pl
