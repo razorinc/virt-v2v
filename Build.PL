@@ -21,15 +21,6 @@ sub ACTION_po
         or return 1;
 }
 
-# Define a 'p2vimagebuilder' which runs make under p2v_image_builder
-sub ACTION_p2vimagebuilder
-{
-    my $self = shift;
-
-    system($self->config('make'), '-C', 'p2v/image-builder') == 0
-        or return 1;
-}
-
 # Generate locale files and install them to blib/locale
 sub process_locale_files
 {
@@ -188,17 +179,33 @@ sub ACTION_changelog
     return 0;
 }
 
-# ChangeLog is part of distmeta
-sub ACTION_distmeta
+# Create all generated files
+sub ACTION_generated
 {
     my $self = shift;
 
-    # Add a dependency on changelog
+    # Changelog
     $self->depends_on('changelog') == 0 or return 1;
+
+    # Runs .PL files to generate spec files
     $self->depends_on('code') == 0 or return 1;
 
-    # Run the regular distmeta action
-    return $self->SUPER::ACTION_distmeta;
+    my $version = $self->{properties}->{dist_version};
+    $version =~ /^v(.*)$/ and $version = $1;
+
+    # Write p2v/image-builder/version.ks
+    my $kspath = "p2v/image-builder/version.ks";
+    $self->log_info("Creating $kspath\n");
+
+    my $ks;
+    unless(open($ks, '>', $kspath)) {
+        $self->log_info("Failed to open $kspath for writing: $!\n");
+        return 1;
+    }
+    print $ks "VERSION=$version\n";
+    close($ks) or return 1;
+
+    return 0;
 }
 
 # Include version.ks in p2v-image-builder in dist
@@ -206,8 +213,8 @@ sub ACTION_dist
 {
     my $self = shift;
 
-    # Add a dependency on p2vimagebuilder
-    $self->depends_on('p2vimagebuilder') == 0 or return 1;
+    # Ensure we can include all generated flies
+    $self->depends_on('generated') == 0 or return 1;
 
     return $self->SUPER::ACTION_dist;
 }
