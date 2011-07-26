@@ -67,7 +67,6 @@ BuildRequires:  perl(Net::SSL)
 BuildRequires:  perl(Sys::Guestfs)
 BuildRequires:  perl(Sys::Guestfs::Lib)
 BuildRequires:  perl(Sys::Virt)
-BuildRequires:  perl(Term::ProgressBar)
 BuildRequires:  perl(URI)
 BuildRequires:  perl(XML::DOM)
 BuildRequires:  perl(XML::DOM::XPath)
@@ -87,6 +86,10 @@ Requires:       perl-hivex >= 1.2.2
 # Sys::VirtConvert::Transfer::ESX. The dependency isn't automatically
 # discovered.
 Requires:       perl(Net::SSL)
+
+# Term::ProgressBar is loaded conditionally. The dependency isn't automatically
+# discovered
+Requires:       perl(Term::ProgressBar)
 
 # Need >= 0.8.1 for rpc fix talking to RHEL 5 libvirt
 Requires:       libvirt >= 0.8.1
