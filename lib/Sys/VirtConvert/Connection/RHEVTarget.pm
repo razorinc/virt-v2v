@@ -910,10 +910,11 @@ sub _disks
     my $driveno = 1;
 
     foreach my $disk (@{$meta->{disks}}) {
+        my $path = $disk->{dst}->get_path();
         my $vol = Sys::VirtConvert::Connection::RHEVTarget::Vol->_get_by_path
-            ($disk->{path});
+            ($path);
 
-        die('metadata contains path not written by virt-v2v: ', $disk->{path})
+        die('metadata contains path not written by virt-v2v: ', $path)
             unless defined($vol);
 
         my $fileref = catdir($vol->_get_imageuuid(), $vol->_get_voluuid());

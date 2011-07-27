@@ -159,7 +159,7 @@ sub copy_storage
     my $meta = $self->get_meta();
 
     foreach my $disk (@{$meta->{disks}}) {
-        my $src = $self->get_volume($disk->{path});
+        my $src = $disk->{src};
         my $dst;
         if ($target->volume_exists($src->get_name())) {
             logmsg WARN, __x('Storage volume {name} already exists on the '.
@@ -175,16 +175,16 @@ sub copy_storage
                 defined($output_sparse) ? $output_sparse : $src->is_sparse()
             );
 
-            # This will die if libguestfs can't use the result directly, so we
-            # do it before copying all the data.
-            $disk->{local_path} = $dst->get_local_path();
+            # Conversion will fail if libguestfs isn't able to use the copied
+            # storage directly. We fail early here by testing if the destination
+            # volume can return a local path. get_local_path() will die if it
+            # can't.
+            $dst->get_local_path();
 
             _volume_copy($src, $dst);
         }
 
-        # Update the volume path to point to the copy
-        $disk->{path} = $dst->get_path();
-        $disk->{is_block} = $dst->is_block();
+        $disk->{dst} = $dst;
     }
 }
 

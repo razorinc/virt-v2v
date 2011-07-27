@@ -9,15 +9,9 @@ differs significantly from, the XML representation used by libvirt.
   features[]    An array containing 'features', as defined by libvirt
   disks[]       An array containing hashrefs of disk descriptions
     device          The name of the disk as seen by the guest (eg sda)
-    path            The path to the device's storage, as known to the source
-                      or target hypervisor. This will probably not be a valid
-                      local path
-    (local_path)    A local path to the device's storage, as usable by
-                      libguestfs during conversion. This is populated by
-                      copy_storage()
-    is_block        1 if the device uses block storage, 0 if it uses a file.
-    format          The file format used by the underlying storage, as known to
-                      qemu (eg raw,qcow)
+    src             An initialised Volume object for the source disk
+    (dst)           An initialised Volume object for the copied disk. This is
+                      populated by copy_storage().
   removables[]  An array containing hashrefs of removable media devices
     device          The name of the device, as seen by the guest (eg fd0)
     type            The device type, as defined by libvirt (eg floppy,cdrom)

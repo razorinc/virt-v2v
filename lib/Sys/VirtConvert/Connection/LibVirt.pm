@@ -153,7 +153,7 @@ sub _get_transfer
 
 sub _parse_dom
 {
-    my ($dom) = @_;
+    my ($source, $dom) = @_;
 
     my %meta;
     my $root = $dom->getDocumentElement();
@@ -172,10 +172,9 @@ sub _parse_dom
     foreach my $disk ($root->findnodes('devices/disk[@device=\'disk\']')) {
         my %info;
 
-        $info{device}   = _node_val($disk, 'target/@dev');
-        $info{path}     = _node_val($disk, 'source/@file | source/@dev');
-        $info{is_block} = _node_val($disk, '@type') eq 'file' ? 0 : 1;
-        $info{format}   = _node_val($disk, 'driver/@type');
+        $info{device} = _node_val($disk, 'target/@dev');
+        my $path      = _node_val($disk, 'source/@file | source/@dev');
+        $info{src}    = $source->get_volume($path);
 
         push(@{$meta{disks}}, \%info);
     }

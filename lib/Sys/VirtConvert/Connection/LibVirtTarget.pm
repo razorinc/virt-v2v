@@ -339,7 +339,7 @@ DOM
     my ($devices) = $root->findnodes('devices');
     foreach my $disk (sort { $a->{device} cmp $b->{device} } @{$meta->{disks}})
     {
-        my $is_block = $disk->{is_block};
+        my $is_block = $disk->{dst}->is_block();
 
         my $diskE = _append_elem($devices, 'disk');
         $diskE->setAttribute('device', 'disk');
@@ -347,10 +347,11 @@ DOM
 
         my $driver = _append_elem($diskE, 'driver');
         $driver->setAttribute('name', 'qemu');
-        $driver->setAttribute('type', $disk->{format});
+        $driver->setAttribute('type', $disk->{dst}->get_format());
 
         my $source = _append_elem($diskE, 'source');
-        $source->setAttribute($is_block ? 'dev' : 'file', $disk->{path});
+        $source->setAttribute($is_block ? 'dev' : 'file',
+                              $disk->{dst}->get_path());
 
         my $target = _append_elem($diskE, 'target');
         $target->setAttribute('dev', $prefix.$suffix); $suffix++;

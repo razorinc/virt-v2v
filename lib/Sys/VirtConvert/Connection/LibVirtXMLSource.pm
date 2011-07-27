@@ -104,7 +104,8 @@ sub _get_meta
     v2vdie __x('{path} doesn\'t look like a libvirt domain XML file',
                path => $self->{path}) unless defined($dummy);
 
-    $self->{meta} = Sys::VirtConvert::Connection::LibVirt::_parse_dom($dom);
+    $self->{meta} = Sys::VirtConvert::Connection::LibVirt::_parse_dom($self,
+                                                                      $dom);
 }
 
 =item get_volume(path)
