@@ -488,7 +488,7 @@ v2vdie __('Guest doesn\'t define any storage devices')
 my $transferiso = $config->get_transfer_iso();
 
 # Open a libguestfs handle on the guest's storage devices
-my @localpaths = map { $_->{local_path} } @{$meta->{disks}};
+my @localpaths = map { $_->{dst}->get_local_path() } @{$meta->{disks}};
 my $g = new Sys::VirtConvert::GuestfsHandle(
     \@localpaths,
     $transferiso,
@@ -511,6 +511,8 @@ eval {
     # Modify the guest and its metadata
     $guestcaps =
         Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
+
+    $target->create_guest($g, $root, $meta, $config, $guestcaps, $output_name);
 };
 
 # If any of the above commands result in failure, we need to ensure that the
@@ -521,8 +523,6 @@ if ($@) {
     $g->close();
     die($err);
 }
-
-$target->create_guest($g, $root, $meta, $config, $guestcaps, $output_name);
 
 $g->close();
 
