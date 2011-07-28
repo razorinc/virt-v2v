@@ -44,12 +44,12 @@ virt-v2v - Convert a guest to use KVM
 
 =head1 SYNOPSIS
 
- virt-v2v -i libvirtxml -op imported --network default guest-domain.xml
+ virt-v2v -i libvirtxml -os imported --network default guest-domain.xml
 
- virt-v2v -ic esx://esx.server/ -op imported --network default esx_guest
+ virt-v2v -ic esx://esx.server/ -os imported --network default esx_guest
 
  virt-v2v -ic esx://esx.server/ \
-          -o rhev -osd rhev.nfs.storage:/export_domain --network rhevm \
+          -o rhev -os rhev.nfs.storage:/export_domain --network rhevm \
           esx_guest
 
 =head1 DESCRIPTION
@@ -109,13 +109,16 @@ Specifies the output method. Supported output methods are:
 
 =item libvirt
 
-Create a libvirt guest. See the I<-oc> and I<-op> options. I<-op> must be
-specified for the libvirt output method.
+Create a libvirt guest. I<-os> must specify a libvirt storage pool for the
+libvirt output method.
+
+Also see the I<-oc> option.
 
 =item rhev
 
 Create a guest on a RHEV 'Export' storage domain, which can later be imported
-into RHEV using the UI. I<-osd> must be specified for the rhev output method.
+into RHEV using the UI. I<-os> must specify the location of a RHEV export
+storage domain for the RHEV output method.
 
 =back
 
@@ -725,7 +728,7 @@ storage referred to in the domain XML is available locally at the same paths.
 
 To perform the conversion, run:
 
- virt-v2v -i libvirtxml -op <pool> [--network <network name>] \
+ virt-v2v -i libvirtxml -os <pool> [--network <network name>] \
           <domain>.xml
 
 where C<< <domain>.xml >> is the path to the exported guest domain's xml, and
@@ -760,7 +763,7 @@ storage is transferred.
 The guest MUST be shut down in ESX before conversion starts. virt-v2v will not
 proceed if the guest is still running. To convert the guest, run:
 
- virt-v2v -ic esx://<esx.server>/ -op <pool> [--network <network name>] \
+ virt-v2v -ic esx://<esx.server>/ -os <pool> [--network <network name>] \
           <domain>
 
 where:
@@ -830,27 +833,25 @@ Local libvirt/KVM guests
 
 =back
 
-To export to RHEV, specify:
-
- ... -o rhev -osd <export_sd> ...
-
-on the command line in place of I<-op> as in the following examples:
+To export to RHEV, specify I<-o rhev> on the command line, and ensure I<-os>
+specifies the location of a RHEV export storage domain as in the following
+examples:
 
 =over
 
 =item Exporting a local Xen guest to RHEV
 
- virt-v2v -i libvirtxml -o rhev -osd <export_sd> \
+ virt-v2v -i libvirtxml -o rhev -os <export_sd> \
           [--network <network name>] <domain>.xml
 
 =item Export a VMWare ESX guest to RHEV
 
- virt-v2v -ic esx://<esx.server>/ -o rhev -osd <export_sd> \
+ virt-v2v -ic esx://<esx.server>/ -o rhev -os <export_sd> \
           [--network <network name>] <domain>
 
 =item Export a local libvirt/KVM guest to RHEV
 
- virt-v2v -o rhev -osd <export_sd> [--network <network name>] \
+ virt-v2v -o rhev -os <export_sd> [--network <network name>] \
           <domain>
 
 =back
