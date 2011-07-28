@@ -346,7 +346,10 @@ GetOptions ("help|?"      => sub {
 
                 pod2usage({ -message => __("--network may only be specified ".
                                            "once"),
-                            -exitval => 1 }) if (defined($network));
+                            -exitval => 1 }) if defined($network);
+                pod2usage({ -message => __("--network and --bridge are ".
+                                           "mutually exclusive"),
+                            -exitval => 1 }) if defined($bridge);
                 $network = $value;
             },
             "b|bridge=s"  => sub {
@@ -354,7 +357,10 @@ GetOptions ("help|?"      => sub {
 
                 pod2usage({ -message => __("--bridge may only be specified ".
                                            "once"),
-                            -exitval => 1 }) if (defined($bridge));
+                            -exitval => 1 }) if defined($bridge);
+                pod2usage({ -message => __("--network and --bridge are ".
+                                           "mutually exclusive"),
+                            -exitval => 1 }) if defined($network);
                 $bridge = $value;
             },
             "root=s"      => \$root_choice,
