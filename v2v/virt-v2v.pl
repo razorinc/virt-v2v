@@ -474,8 +474,8 @@ v2vdie __x('Domain {name} already exists on the target.',
            name => $output_name)
     if $target->guest_exists($output_name);
 
-# Copy source storage to target
-$source->copy_storage($target, $output_format, $output_sparse);
+# Create the transfer iso if required
+my $transferiso = $config->get_transfer_iso();
 
 # Get a libvirt configuration for the guest
 my $meta = $source->get_meta();
@@ -484,8 +484,8 @@ exit(1) unless(defined($meta));
 v2vdie __('Guest doesn\'t define any storage devices')
     unless @{$meta->{disks}} > 0;
 
-# Create the transfer iso if required
-my $transferiso = $config->get_transfer_iso();
+# Copy source storage to target
+$source->copy_storage($target, $output_format, $output_sparse);
 
 # Open a libguestfs handle on the guest's storage devices
 my @localpaths = map { $_->{dst}->get_local_path() } @{$meta->{disks}};

@@ -34,3 +34,6 @@
 
 # Ignore any .iso images we might leave lying around
 *.iso
+
+# Ignore local config files
+*.local
