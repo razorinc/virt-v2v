@@ -41,7 +41,7 @@ Sys::VirtConvert::Config - Manage virt-v2v's configuration file
 
  use Sys::VirtConvert::Config;
 
- $eh = Sys::VirtConvert::Config->new($config_path);
+ $eh = Sys::VirtConvert::Config->new(@config_paths);
 
  my $isopath = $config->get_transfer_iso();
  my ($path, $deps) = $config->match_app($desc, $name, $arch);
@@ -49,46 +49,55 @@ Sys::VirtConvert::Config - Manage virt-v2v's configuration file
 
 =head1 DESCRIPTION
 
-Sys::VirtConvert::Config parses and queries the virt-v2v config file.
+Sys::VirtConvert::Config parses and queries virt-v2v configuration files.
 
 =head1 METHODS
 
 =over
 
-=item new(path)
+=item new(paths)
 
-Create a new Sys::VirtConvert::Config object to operate on the config file at
-I<path>.
+Create a new Sys::VirtConvert::Config object to operate on the configuration
+files I<paths>.
 
 =cut
 
 sub new
 {
     my $class = shift;
-    my ($path) = @_;
+    my (@paths) = @_;
 
     my $self = {};
     bless($self, $class);
 
-    # No further config required if no config path was specified
-    return $self if (!defined($path));
+    # No further config required if no config paths were specified
+    return $self if (@paths < 0);
 
-    v2vdie __x('Config file {path} doesn\'t exist', path => $path)
-        unless -e $path;
-    v2vdie __x('Don\'t have permissions to read {path}', path => $path)
-        unless -r $path;
+    my @doms;
+    foreach my $path (@paths) {
+        v2vdie __x('Config file {path} doesn\'t exist', path => $path)
+            unless -e $path;
+        v2vdie __x('Don\'t have permissions to read {path}', path => $path)
+            unless -r $path;
 
-    eval {
-        $self->{dom} = new XML::DOM::Parser->parsefile($path);
-    };
-    v2vdie __x('Unable to parse config file {path}: {error}',
-               path => $path, error => $@) if $@;
+        eval {
+            push(@doms, new XML::DOM::Parser->parsefile($path));
+        };
+        v2vdie __x('Unable to parse config file {path}: {error}',
+                   path => $path, error => $@) if $@;
+    }
 
-    my ($net_default) = $self->{dom}->findnodes
-        ('/virt-v2v/network[@type=\'default\']');
-    $self->_parse_net_default($net_default) if defined($net_default);
+    $self->{doms} = \@doms;
 
-    $self->{path} = $path;
+    foreach my $dom (@doms) {
+        my ($net_default) = $dom->findnodes
+            ('/virt-v2v/network[@type=\'default\']');
+        if (defined($net_default)) {
+            $self->_parse_net_default($net_default);
+            last;
+        }
+    }
+
     return $self;
 }
 
@@ -113,36 +122,16 @@ sub get_transfer_iso
 {
     my $self = shift;
 
-    my $dom = $self->{dom};
-
     return $self->{iso} if (exists($self->{iso}));
-
-    # path-root doesn't have to be defined
-    my ($root) = $dom->findnodes('/virt-v2v/path-root/text()');
-    $root = _trim($root->getData()) if (defined($root));
 
     # Construct a list of path arguments to mkisofs from paths referenced in the
     # config file
     # We use a hash here to avoid duplicates
     my %path_args;
     my %paths;
-    foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
-        $path = _trim($path->getData());
 
-        my $abs;
-        if (File::Spec->file_name_is_absolute($path) || !defined($root)) {
-            $abs = $path;
-        }
-
-        # Make relative paths relative to iso-root if it was defined
-        else {
-            $abs = File::Spec->catfile($root, $path);
-        }
-
-        if (-r $abs) {
-            $path_args{"$path=$abs"} = 1;
-            $paths{$abs} = 1;
-        }
+    foreach my $dom (@{$self->{doms}}) {
+        _get_transfer_iso_dom($dom, \%path_args, \%paths);
     }
 
     # Nothing further to do if there are no paths
@@ -152,7 +141,11 @@ sub get_transfer_iso
     }
 
     # Get the path of the transfer iso
-    my ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
+    my $iso_path;
+    foreach my $dom (@{$self->{doms}}) {
+        ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
+        last if defined($iso_path);
+    }
 
     # We need this
     v2vdie __('<iso-path> must be specified in the configuration file.')
@@ -170,6 +163,34 @@ sub get_transfer_iso
 
     $self->{iso} = $iso_path;
     return $iso_path;
+}
+
+sub _get_transfer_iso_dom
+{
+    my ($dom, $path_args, $paths) = @_;
+
+    # path-root doesn't have to be defined
+    my ($root) = $dom->findnodes('/virt-v2v/path-root/text()');
+    $root = _trim($root->getData()) if (defined($root));
+
+    foreach my $path ($dom->findnodes('/virt-v2v/app/path/text()')) {
+        $path = _trim($path->getData());
+
+        my $abs;
+        if (File::Spec->file_name_is_absolute($path) || !defined($root)) {
+            $abs = $path;
+        }
+
+        # Make relative paths relative to iso-root if it was defined
+        else {
+            $abs = File::Spec->catfile($root, $path);
+        }
+
+        if (-r $abs) {
+            $path_args->{"$path=$abs"} = 1;
+            $paths->{$abs} = 1;
+        }
+    }
 }
 
 =item get_transfer_path(path)
@@ -247,8 +268,6 @@ sub match_app
 {
     my $self = shift;
     my ($desc, $name, $arch) = @_;
-
-    my $dom = $self->{dom};
 
     my $app = $self->_match_element('app', $desc, $name, $arch);
 
@@ -341,11 +360,22 @@ sub _match_element
     my $self = shift;
     my ($type, $desc, $name, $arch) = @_;
 
-    my $dom = $self->{dom};
-
     v2vdie __x('No config specified. No {type} match for {search}.',
                type => $type, search => _get_search($desc, $name, $arch))
-        unless defined($dom);
+        if @{$self->{doms}} == 0;
+
+    foreach my $dom (@{$self->{doms}}) {
+        my $match = _match_element_dom($dom, $type, $desc, $name, $arch);
+        return $match if defined($match);
+    }
+
+    v2vdie __x('No {type} in config matches {search}',
+               type => $type, search => _get_search($desc, $name, $arch));
+}
+
+sub _match_element_dom
+{
+    my ($dom, $type, $desc, $name, $arch) = @_;
 
     my $os     = $desc->{os};
     my $distro = $desc->{distro};
@@ -386,8 +416,7 @@ sub _match_element
         return $element if (defined($element));
     }
 
-    v2vdie __x('No {type} in config matches {search}',
-               type => $type, search => _get_search($desc, $name, $arch));
+    return undef;
 }
 
 =item map_network(oldname, oldtype)
@@ -402,9 +431,10 @@ sub map_network
     my $self = shift;
     my ($oldname, $oldtype) = @_;
 
-    my $dom = $self->{dom};
-
-    my @search = $dom->findnodes('/virt-v2v');
+    my @search = ();
+    foreach my $dom (@{$self->{doms}}) {
+        push(@search, $dom->findnodes('/virt-v2v'));
+    }
     # Search profile first if it's defined
     unshift(@search, $self->{profile}) if defined($self->{profile});
 
@@ -479,10 +509,13 @@ sub use_profile
     my $self = shift;
     my ($name) = @_;
 
-    my ($profile) = $self->{dom}->findnodes
-        ("/virt-v2v/profile[\@name='$name']");
-    v2vdie __x('No profile {name} defined in {path}',
-               name => $name, path => $self->{path}) unless defined($profile);
+    my $profile;
+    foreach my $dom (@{$self->{doms}}) {
+        ($profile) = $dom->findnodes("/virt-v2v/profile[\@name='$name']");
+        last if defined($profile);
+    }
+    v2vdie __x('There is no profile named {name}',
+               name => $name) unless defined($profile);
     $self->{profile} = $profile;
 
     my ($method) = $profile->findnodes('method/text()');
@@ -599,8 +632,8 @@ sub list_profiles
 {
     my $self = shift;
 
-    return map { $_->getValue() } $self->{dom}->findnodes
-        ('/virt-v2v/profile/@name');
+    return map { $_->getValue() }
+           map { $_->findnodes('/virt-v2v/profile/@name') } @{$self->{doms}};
 }
 
 =back

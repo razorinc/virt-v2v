@@ -81,6 +81,7 @@ t/003-syntax.t
 t/004-ExecHelper.t
 TODO.txt
 v2v/run-v2v-locally
+v2v/virt-v2v.db
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
 v2v/virt-v2v.pl

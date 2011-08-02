@@ -201,12 +201,14 @@ as the input name.
 
 =cut
 
-my $config_file;
-$config_file = '/etc/virt-v2v.conf';
+my @config_files;
 
 =item B<-f file> | B<--config file>
 
-Load the virt-v2v configuration from I<file>. Defaults to /etc/virt-v2v.conf.
+Load a virt-v2v configuration from I<file>. Multiple configuration files can be
+specified, which will be searched in the order they are specified on the command
+line. If no configuration is specified, defaults to /etc/virt-v2v.conf and
+/var/lib/virt-v2v/virt-v2v.db in that order.
 
 =cut
 
@@ -340,7 +342,7 @@ GetOptions ("help|?"      => sub {
                 $output_sparse = parse_allocation($value);
             },
             "on=s"        => \$output_name,
-            "f|config=s"  => \$config_file,
+            "f|config=s"  => \@config_files,
             "n|network=s" => sub {
                 my (undef, $value) = @_;
 
@@ -368,6 +370,13 @@ GetOptions ("help|?"      => sub {
             "list-profiles" => \$list_profiles
 ) or pod2usage(2);
 
+# Set the default configuration files if none are specified
+if (@config_files == 0) {
+    push(@config_files, '/etc/virt-v2v.conf') if -r '/etc/virt-v2v.conf';
+    push(@config_files, '/var/lib/virt-v2v/virt-v2v.db')
+        if -r '/var/lib/virt-v2v/virt-v2v.db';
+}
+
 sub parse_allocation
 {
     my $allocation = shift;
@@ -388,7 +397,7 @@ sub parse_allocation
 umask(0022);
 
 # Read the config file
-my $config = Sys::VirtConvert::Config->new($config_file);
+my $config = Sys::VirtConvert::Config->new(@config_files);
 
 if ($list_profiles) {
     print STDOUT (__"Defined target profiles:")."\n";

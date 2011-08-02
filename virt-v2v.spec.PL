@@ -133,6 +133,7 @@ mkdir -p $statedir/software
 
 mkdir -p %{buildroot}%{_sysconfdir}
 cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/
+cp v2v/virt-v2v.db $statedir/
 
 %find_lang %{name}
 
@@ -173,6 +174,7 @@ rm -rf %{buildroot}
 %dir %{_localstatedir}/lib/virt-v2v
 
 %config(noreplace) %{_sysconfdir}/virt-v2v.conf
+%config %{_localstatedir}/lib/virt-v2v/virt-v2v.db
 %config(noreplace) %{_localstatedir}/lib/virt-v2v/software
 
 

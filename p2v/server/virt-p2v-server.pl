@@ -104,7 +104,8 @@ eval {
 
     # Read the config file
     eval {
-        $config = Sys::VirtConvert::Config->new('/etc/virt-v2v.conf');
+        $config = Sys::VirtConvert::Config->new
+            ('/etc/virt-v2v.conf', '/var/lib/virt-v2v/virt-v2v.db');
     };
     v2vdie $@ if $@;
 
