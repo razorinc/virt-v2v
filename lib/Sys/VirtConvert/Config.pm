@@ -329,13 +329,13 @@ sub match_capability
         my %props;
         foreach my $prop ('name', 'minversion') {
             my ($val) = $dep->findnodes('@'.$prop);
-            $val &&= $val->getData();
-            v2vdie __x('Capability in config contains a dependency '.
-                       'with no {property} attribute: {xml}',
-                       property => $prop, xml => $cap->toString())
-                unless defined($val);
-            $props{$prop} = $val;
+            $props{$prop} = $val->getData() if defined($val);
         }
+
+        v2vdie __x('Capability in config contains a dependency '.
+                   'with no {property} attribute: {xml}',
+                   property => 'name', xml => $cap->toString())
+            unless exists($props{name});
 
         my ($ifinstalled) = $dep->findnodes('@ifinstalled');
         $ifinstalled &&= $ifinstalled->getData();

@@ -1128,15 +1128,17 @@ sub _install_capability
 
         # Parse epoch, version and release from minversion
         my ($min_epoch, $min_version, $min_release);
-        eval {
-            ($min_epoch, $min_version, $min_release) =
-                _parse_evr($props->{minversion});
-        };
-        v2vdie __x('Unrecognised format for {field} in config: '.
-                   '{value}. {field} must be in the format '.
-                   '[epoch:]version[-release].',
-                   field => 'minversion', value => $props->{minversion})
-            if $@;
+        if (exists($props->{minversion})) {
+            eval {
+                ($min_epoch, $min_version, $min_release) =
+                    _parse_evr($props->{minversion});
+            };
+            v2vdie __x('Unrecognised format for {field} in config: '.
+                       '{value}. {field} must be in the format '.
+                       '[epoch:]version[-release].',
+                       field => 'minversion', value => $props->{minversion})
+                if $@;
+        }
 
         # Kernels are special
         if ($name eq 'kernel') {
@@ -1180,8 +1182,9 @@ sub _install_capability
                         _get_installed("$kernel_pkg.$kernel_arch", $g);
 
                     if (!defined($inst) ||
-                        _evr_cmp($inst->[0], $inst->[1], $inst->[2],
-                                 $min_epoch, $min_version, $min_release) < 0)
+                        (defined($min_version) &&
+                         _evr_cmp($inst->[0], $inst->[1], $inst->[2],
+                                  $min_epoch, $min_version, $min_release) < 0))
                     {
                         # filter out xen/xenU from release field
                         if (defined($kernel_release) &&
@@ -1192,7 +1195,8 @@ sub _install_capability
 
                         # If the guest kernel is new enough, but PV, try to
                         # replace it with an equivalent version FV kernel
-                        if (_evr_cmp($kernel_epoch, $kernel_ver,
+                        if (!defined($min_version) ||
+                            _evr_cmp($kernel_epoch, $kernel_ver,
                                      $kernel_release,
                                      $min_epoch, $min_version,
                                      $min_release) >= 0)
@@ -1210,8 +1214,10 @@ sub _install_capability
                 }
 
                 # If the kernel is too old, grab the latest replacement
-                elsif (_evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
-                                $min_epoch, $min_version, $min_release) < 0) {
+                elsif (defined($min_version) &&
+                       _evr_cmp($kernel_epoch, $kernel_ver, $kernel_release,
+                                $min_epoch, $min_version, $min_release) < 0)
+                {
                     $kernel = [$kernel_pkg, $kernel_arch];
                 }
             }
@@ -1223,25 +1229,33 @@ sub _install_capability
             # Ignore an 'ifinstalled' dep if it's not currently installed
             next if (@installed == 0 && $ifinstalled);
 
-            # Check if any installed version meets the minimum version
-            my $found = 0;
-            foreach my $app (@installed) {
-                my ($epoch, $version, $release) = @$app;
+            # Ok if any version is installed and no minversion was specified
+            next if (@installed > 0 && !defined($min_version));
 
-                if (_evr_cmp($app->[0], $app->[1], $app->[2],
-                             $min_epoch, $min_version, $min_release) >= 0) {
-                    $found = 1;
-                    last;
-                }
-            }
+            if (defined($min_version)) {
+                # Check if any installed version meets the minimum version
+                my $found = 0;
+                foreach my $app (@installed) {
+                    my ($epoch, $version, $release) = @$app;
 
-            # Install the latest available version of the dep if it wasn't found
-            if (!$found) {
-                if (@installed == 0) {
-                    push(@install, [$name]);
-                } else {
-                    push(@upgrade, [$name]);
+                    if (_evr_cmp($app->[0], $app->[1], $app->[2],
+                                 $min_epoch, $min_version, $min_release) >= 0) {
+                        $found = 1;
+                        last;
+                    }
                 }
+
+                # Install the latest available version of the dep if it wasn't
+                # found
+                if (!$found) {
+                    if (@installed == 0) {
+                        push(@install, [$name]);
+                    } else {
+                        push(@upgrade, [$name]);
+                    }
+                }
+            } else {
+                push(@install, [$name]);
             }
         }
     }
