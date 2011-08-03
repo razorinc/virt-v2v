@@ -130,7 +130,7 @@ sub convert
 
     # Configure the rest of the system
     _configure_console($g, $grub_conf);
-    _configure_display_driver($g);
+    _configure_display_driver($g, $config, $meta, $desc);
     _remap_block_devices($meta, $virtio, $g, $desc);
     _configure_kernel_modules($g, $desc, $virtio, $modpath);
     _configure_boot($kernel, $virtio, $g, $root, $desc);
@@ -512,9 +512,10 @@ sub _configure_console
 
 sub _configure_display_driver
 {
-    my ($g) = @_;
+    my ($g, $config, $meta, $desc) = @_;
 
     # Update the display driver if it exists
+    my $updated = 0;
     eval {
         my $xorg;
 
@@ -536,6 +537,7 @@ sub _configure_display_driver
 
         foreach my $path ($g->aug_match('/files'.$xorg.'/Device/Driver')) {
             $g->aug_set($path, 'cirrus');
+            $updated = 1;
         }
 
         # Remove VendorName and BoardName if present
@@ -551,6 +553,16 @@ sub _configure_display_driver
 
     # Propagate augeas errors
     augeas_error($g, $@) if ($@);
+
+    # If we updated the X driver, check if X itself is actually installed. If it
+    # is, ensure the cirrus driver is installed.
+    if ($updated &&
+        ($g->exists('/usr/bin/X') || $g->exists('/usr/bin/X11/X')) &&
+        !_install_capability('cirrus', $g, $config, $meta, $desc))
+    {
+        logmsg WARN, __('Display driver was updated to cirrus, but unable to '.
+                        'install cirrus driver. X may not function correctly');
+    }
 }
 
 sub _list_kernels
