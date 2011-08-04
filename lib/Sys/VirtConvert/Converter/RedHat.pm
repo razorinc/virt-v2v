@@ -660,11 +660,7 @@ sub _init_kernels
 
             my $grub_kernel;
             eval { $grub_kernel = $g->aug_get("$bootable/kernel"); };
-            if($@) {
-                warn __x("Grub entry {title} has no kernel",
-                         title => $config{title});
-                next;
-            }
+            next if $@;
 
             my $path = "$grub$grub_kernel";
 
