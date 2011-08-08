@@ -203,37 +203,70 @@ function will also ensure that the transfer iso is mounted.
 sub get_transfer_path
 {
     my $self = shift;
-    my ($g, $path) = @_;
+    my ($path) = @_;
 
-    # Check that the transfer iso is mounted
     if (!exists($self->{transfer_mount})) {
-        # Existing code expects the mount to exist, but handles the case where
-        # files in it don't exist. Therefore we always create the mount point,
-        # but only mount anything on it if there's actually a transfer iso.
-
-        # Create the transfer mount point
-        # We create this under / because it's guaranteed to exist in the
-        # appliance, regardless of the guest OS.
-        $self->{transfer_mount} = $g->mkdtemp("/transferXXXXXX");
-
-        # Only mount the transfer iso if there is one
-        if (defined($self->get_transfer_iso())) {
-            # Find the transfer device
-            my @devices = $g->list_devices();
-            my $transfer = $devices[$#devices];
-
-            $g->mount_ro($transfer, $self->{transfer_mount});
-
-            # Umount and remove the transfer mount point before the guestfs
-            # handle is closed
-            $g->add_on_close(sub {
-                $g->umount($self->{transfer_mount});
-                $g->rmdir($self->{transfer_mount});
-            });
-        }
+        use Carp 'confess';
+        confess 'get_transfer_path with no transfer mount';
     }
 
     return File::Spec->catfile($self->{transfer_mount}, $path);
+}
+
+=item mount_transfer(g)
+
+Mount the transfer iso if it is not already mounted, and return the path where
+it was mounted.
+
+=cut
+
+sub mount_transfer
+{
+    my $self = shift;
+    my ($g) = @_;
+
+    return $self->{transfer_mount} if exists($self->{transfer_mount});
+
+    # Create the transfer mount point
+    # We create this under / because it's guaranteed to exist in the
+    # appliance, regardless of the guest OS.
+    $self->{transfer_mount} = $g->mkdtemp("/transferXXXXXX");
+
+    # Only mount the transfer iso if there is one
+    if (defined($self->get_transfer_iso())) {
+        # Find the transfer device
+        my @devices = $g->list_devices();
+        my $transfer = $devices[$#devices];
+
+        $g->mount_ro($transfer, $self->{transfer_mount});
+
+        # Umount and remove the transfer mount point before the guestfs
+        # handle is closed
+        $g->add_on_close(sub {
+            $self->unmount_transfer($g);
+        });
+    }
+
+    return $self->{transfer_mount};
+}
+
+=item unmount_transfer(g)
+
+Unmount the transfer iso if it is currently mounted.
+
+=cut
+
+sub unmount_transfer
+{
+    my $self = shift;
+    my ($g) = @_;
+
+    return unless exists($self->{transfer_mount});
+
+    $g->umount($self->{transfer_mount});
+    $g->rmdir($self->{transfer_mount});
+
+    delete($self->{transfer_mount});
 }
 
 sub _get_search

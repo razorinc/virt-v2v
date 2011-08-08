@@ -97,6 +97,8 @@ sub convert
         print __x("{e} (ignored)\n", e => $@) if $@;
     }
 
+    $config->mount_transfer($g);
+
     # Construct the "$desc" hashref which contains the main features
     # found by inspection.
     my %desc;
@@ -116,6 +118,8 @@ sub convert
             last;
         }
     }
+
+    $config->unmount_transfer($g);
 
     unless (defined($guestcaps)) {
         my $block = 'ide';
