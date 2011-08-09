@@ -75,6 +75,8 @@ po/uk.po
 po/virt-v2v.pot
 po/zh_CN.po
 README-NLS
+rubygem-virt-p2v.spec
+rubygem-virt-p2v.spec.PL
 t/001-pod.t
 t/002-pod-coverage.t
 t/003-syntax.t
@@ -85,8 +87,6 @@ v2v/virt-v2v.db
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
 v2v/virt-v2v.pl
-virt-p2v.spec
-virt-p2v.spec.PL
 virt-v2v.spec
 virt-v2v.spec.PL
 windows/firstboot.bat
