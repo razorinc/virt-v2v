@@ -91,7 +91,8 @@ my $input_uri = "qemu:///system";
 =item B<-ic URI>
 
 Specifies the connection to use when using the libvirt input method. If omitted,
-this defaults to qemu:///system.
+this defaults to qemu:///system when virt-v2v runs as root, or qemu:///session
+when virt-v2v runs as a regular user.
 
 B<N.B.> virt-v2v can currently automatically obtain guest storage from local
 libvirt connections, ESX connections, and connections over SSH. Other types of
@@ -126,7 +127,7 @@ If no output type is specified, it defaults to libvirt.
 
 =cut
 
-my $output_uri = "qemu:///system";
+my $output_uri = $> == 0 ? 'qemu:///system' : 'qemu:///session';
 
 =item B<-oc URI>
 
