@@ -66,7 +66,7 @@ if [ -f /usr/bin/rpmbuild ]; then
   rpmbuild --nodeps -ba --target i686 \
            --define "_sourcedir `pwd`" \
            --define "extra_release $EXTRA_RELEASE" \
-           --clean virt-p2v.spec
+           --clean rubygem-virt-p2v.spec
 fi
 
 exit 0
