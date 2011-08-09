@@ -204,10 +204,6 @@ Paths given in E<lt>pathE<gt> must be absolute, unless there is a top level
 E<lt>path-rootE<gt> element. If it exists, all E<lt>pathE<gt> elements will be
 relative to E<lt>path-rootE<gt>.
 
-virt-v2v passes software to the guest by creating an iso image and passing it to
-the guest as a cd-rom drive. The path to this iso image must be specified in a
-top level E<lt>iso-pathE<gt> element.
-
 The following example specifies the location of 'kernel' for RHEL 5, all minor
 versions, on i686:
 
@@ -226,16 +222,13 @@ versions, on i686:
  </app>
 
  <path-root>/var/lib/virt-v2v/software</path-root>
- <iso-path>/var/lib/virt-v2v/transfer.iso</iso-path>
 
 The kernel can be found at
 /var/lib/virt-v2v/software/rhel/5/kernel-2.6.18-128.el5.i686.rpm. It has 2
 direct dependencies: ecryptfs and lvm2. ecryptfs-utils has no additional
 dependencies, but lvm2 has 2 further dependencies (not shown for brevity). All
 dependencies will also be installed if they are not present, or are too old. All
-dependency paths are also relative to /var/lib/virt-v2v/software.  virt-v2v will
-create a transfer iso image containing all paths and dependencies at
-/var/lib/virt-v2v/transfer.iso.
+dependency paths are also relative to /var/lib/virt-v2v/software.
 
 =head3 Searching
 

@@ -23,6 +23,7 @@ use warnings;
 use Carp;
 use File::Spec;
 use File::stat;
+use File::Temp;
 use XML::DOM;
 use XML::DOM::XPath;
 
@@ -122,7 +123,10 @@ sub get_transfer_iso
 {
     my $self = shift;
 
-    return $self->{iso} if (exists($self->{iso}));
+    if (exists($self->{iso})) {
+        my $iso = $self->{iso};
+        return defined($iso) ? $iso->filename() : undef;
+    }
 
     # Construct a list of path arguments to mkisofs from paths referenced in the
     # config file
@@ -140,29 +144,20 @@ sub get_transfer_iso
         return undef;
     }
 
-    # Get the path of the transfer iso
-    my $iso_path;
-    foreach my $dom (@{$self->{doms}}) {
-        ($iso_path) = $dom->findnodes('/virt-v2v/iso-path/text()');
-        last if defined($iso_path);
-    }
-
-    # We need this
-    v2vdie __('<iso-path> must be specified in the configuration file.')
-        unless defined($iso_path);
-    $iso_path = _trim($iso_path->getData());
+    # Create a temporary file for the transfer ISO
+    my $iso = File::Temp->new();
 
     # Create the transfer iso
     my $eh = Sys::VirtConvert::ExecHelper->run
-        ('mkisofs', '-o', $iso_path,
+        ('mkisofs', '-o', $iso->filename(),
          '-r', '-J',
          '-V', '__virt-v2v_transfer__',
          '-graft-points', keys(%path_args));
     v2vdie __x("Failed to create transfer iso. Command output was:\n{output}",
                output => $eh->output()) unless $eh->status() == 0;
 
-    $self->{iso} = $iso_path;
-    return $iso_path;
+    $self->{iso} = $iso;
+    return $iso->filename();
 }
 
 sub _get_transfer_iso_dom
