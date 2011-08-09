@@ -211,6 +211,10 @@ specified, which will be searched in the order they are specified on the command
 line. If no configuration is specified, defaults to /etc/virt-v2v.conf and
 /var/lib/virt-v2v/virt-v2v.db in that order.
 
+When overriding the default config file it is recommended that
+/var/lib/virt-v2v/virt-v2v.db is also specified, as it contains default
+configuration data required for conversions.
+
 =cut
 
 my $network;
