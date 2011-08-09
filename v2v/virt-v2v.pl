@@ -632,7 +632,7 @@ sub inspect_guest
                 print __x("Enter number between 1 and {i}: ", i => $i);
                 $j = int (<STDIN>);
             }
-            $root_dev = $roots[$j];
+            $root_dev = $roots[$j-1];
         }
         elsif ($root_choice eq "single") {
             v2vdie __('Multi-boot operating systems are not supported by virt-v2v. Use the --root option to change how virt-v2v handles this.')
