@@ -146,6 +146,7 @@ sub get_transfer_iso
 
     # Create a temporary file for the transfer ISO
     my $iso = File::Temp->new();
+    chmod(0644, $iso->filename());
 
     # Create the transfer iso
     my $eh = Sys::VirtConvert::ExecHelper->run
