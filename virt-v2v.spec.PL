@@ -98,7 +98,10 @@ Requires:       libvirt >= 0.8.1
 Requires:       /usr/bin/mkisofs
 
 # For guest image inspection
-Requires:      /usr/bin/qemu-img
+Requires:       /usr/bin/qemu-img
+
+# For ssh transfers
+Requires:       /usr/bin/ssh
 
 
 %description
