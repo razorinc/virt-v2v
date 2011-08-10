@@ -413,7 +413,10 @@ sub _configure_kernel_modules
     # virtio. For simplicity we always ensure this is set for virtio disks.
     my $scsi_hostadapter = 0;
 
-    foreach my $device (keys(%$modules)) {
+    # Iterate over all discovered modules, and update them if necessary.
+    # If we're removing multiple scsi_hostadapter entries, we want to leave only
+    # the lowest entry in place, so we sort this list.
+    foreach my $device (sort keys(%$modules)) {
         # Replace network modules with virtio_net
         if($device =~ /^eth\d+$/) {
             # Make a note that we updated an old-HV specific kernel module
@@ -434,8 +437,17 @@ sub _configure_kernel_modules
             }
 
             if ($virtio) {
-                _update_kernel_module($g, $device, 'virtio_blk', $modpath,
-                                      $desc);
+                # There's only 1 virtio controller in the converted guest.
+                # Ensure there's only 1 entry in the converted configuration
+                if ($scsi_hostadapter) {
+                    _disable_kernel_module($g, $device, $desc);
+                }
+
+                else {
+                    _update_kernel_module($g, $device, 'virtio_blk', $modpath,
+                                          $desc);
+                }
+
                 $scsi_hostadapter = 1;
             }
 
