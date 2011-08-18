@@ -739,13 +739,11 @@ B<N.B.> When exporting to RHEV, virt-v2v must run as root.
 
 =head3 Import the appropriate Guest Tools ISO
 
-Conversion of Windows guests requires that the Guest Tools ISO has been
-installed B<before> the guest is converted. This must be done using the ISO
+When converting Windows guests, it is strongly recommended that the Guest Tools
+ISO is installed before the guest is converted. This must be done using the ISO
 Uploader, which can be found on your RHEV-M system under Start->Red Hat->RHEV
-Manager->ISO Uploader.
-
-Failure to do this will result in drivers not being correctly installed in the
-guest after conversion.
+Manager->ISO Uploader. This will allow RHEV to automatically update the guest's
+drivers to the latest versions and install any required agents.
 
 =head1 CONVERTING A LOCAL XEN GUEST
 
@@ -882,38 +880,6 @@ examples:
 
 =back
 
-=head2 CONVERTING A WINDOWS GUEST
-
-When exporting to RHEV, virt-v2v can additionally convert Windows guests. In
-this case, the conversion process is split into 2 stages:
-
-=over
-
-=item 1
-
-Offline conversion.
-
-=item 2
-
-First boot.
-
-=back
-
-The guest will be bootable after the offline conversion stage, but will not yet
-have all necessary drivers installed to work correctly in RHEV. These will be
-installed automatically the first time the guest boots.
-
-B<N.B.> The first boot stage can take several minutes to run, and must not be
-interrupted. It will run automatically without any administrator intervention
-other than powering on the guest. To ensure the process is not interrupted, we
-strongly recommend that nobody logs in to the machine until it has quiesced the
-first time it is booted after conversion. You can check for this in the RHEV
-Manager UI.
-
-B<N.B.> Driver installation on first boot requires that the Guest Tools ISO has
-been previously uploaded using RHEV Manager's ISO Uploader tool. RHEV will
-present this ISO to the guest automatically the first time it is booted.
-
 =head1 RUNNING THE CONVERTED GUEST
 
 =head2 Libvirt output method
@@ -941,6 +907,30 @@ documentation for additional details.
 virt-v2v cannot currently reconfigure a guest's network configuration. If the
 converted guest is not connected to the same subnet as the source, its network
 configuration may have to be updated.
+
+=head2 Converting a Windows guest
+
+When converting a Windows guests, the conversion process is split into 2 stages:
+
+=over
+
+=item 1
+
+Offline conversion.
+
+=item 2
+
+First boot.
+
+=back
+
+The guest will be bootable after the offline conversion stage, but will not yet
+have all necessary drivers installed to work correctly. These will be installed
+automatically the first time the guest boots.
+
+B<N.B.> Take care not to interrupt the automatic driver installation process
+when logging in to the guest for the first time, as this may prevent the guest
+from subsequently booting correctly.
 
 =head1 GUEST CONFIGURATION CHANGES
 
