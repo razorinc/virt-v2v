@@ -473,7 +473,7 @@ Sys::VirtConvert::Transfer::Local - Access local storage
 
 =over
 
-=item new(path, is_sparse)
+=item new(path, is_block, format, is_sparse)
 
 Create a new Local transfer object.
 

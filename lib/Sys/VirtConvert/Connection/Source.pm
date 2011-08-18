@@ -76,6 +76,13 @@ sub _volume_copy
 
     # Do we need to do format conversion?
     my $convert = $src->get_format() eq $dst->get_format() ? 0 : 1;
+
+    # We need to do a converting copy if we're changing the sparseness of a qemu
+    # image
+    $convert = 1 if (!$convert &&
+                     $src->get_format() ne 'raw' &&
+                     $src->is_sparse() != $dst->is_sparse);
+
     $src_s = $src->get_read_stream($convert);
     $dst_s = $dst->get_write_stream($convert);
 
@@ -144,7 +151,7 @@ sub _volume_copy
     return $dst;
 }
 
-=item copy_storage(target, format, is_sparse)
+=item copy_storage(target, output_format, output_sparse)
 
 Copy all of a guests storage devices to I<target>. Update the guest metadata to
 reflect their new locations and properties.

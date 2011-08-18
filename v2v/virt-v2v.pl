@@ -687,6 +687,17 @@ sub inspect_guest
 
 =head1 PREPARING TO CONVERT A GUEST
 
+=head2 Local storage requirements
+
+Whenever possible, virt-v2v copies a guest's storage directly from the source
+hypervisor to the target hypervisor without using any local storage. However,
+this is not possible in all circumstances. Specifically when transferring a
+guest's storage over SSH and also either doing a format conversion, or changing
+the allocation policy of qcow2 storage, virt-v2v will cache a local copy of the
+guest's storage. By default, this local cache will be created in /tmp.  If /tmp
+does not have sufficient storage space, it can be written to another directory
+by setting the I<TMPDIR> environment variable.
+
 =head2 Local Xen guests
 
 B<N.B.> The following is required when converting guests on a host which used to

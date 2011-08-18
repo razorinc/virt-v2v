@@ -123,7 +123,7 @@ sub _libvirt_new
 sub _get_transfer
 {
     my $self = shift;
-    my ($path, $is_block, $format, $is_sparse) = @_;
+    my ($name, $path, $format, $is_sparse, $is_block) = @_;
 
     my $uri = $self->{uri};
 
@@ -140,10 +140,11 @@ sub _get_transfer
     }
 
     elsif ($uri->scheme =~ /\+ssh$/) {
-        return new Sys::VirtConvert::Transfer::SSH($path, $format,
+        return new Sys::VirtConvert::Transfer::SSH($name, $path, $format,
                                                    $self->{hostname},
                                                    $self->{username},
-                                                   $is_sparse);
+                                                   $is_sparse,
+                                                   $is_block);
     }
 
     # Default to Local

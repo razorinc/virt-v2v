@@ -118,7 +118,7 @@ sub get_volume
     if ($uri->scheme eq "esx") {
         $format = "raw";
 
-        $transfer = $self->_get_transfer($path, 0, $format, 0);
+        $transfer = $self->_get_transfer(undef, $path, $format, 0, 0);
 
         $name = $transfer->esx_get_name();
         $size = $transfer->esx_get_size();
@@ -158,7 +158,8 @@ sub get_volume
         ($name, $format, $size, $usage, $is_sparse, $is_block) =
             parse_libvirt_volinfo($vol);
 
-        $transfer = $self->_get_transfer($path, $is_block, $format, $is_sparse);
+        $transfer = $self->_get_transfer($name, $path, $format,
+                                         $is_sparse, $is_block);
     }
 
     return new Sys::VirtConvert::Connection::Volume($name, $format, $path,

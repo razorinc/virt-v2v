@@ -185,14 +185,25 @@ use Locale::TextDomain 'virt-v2v';
 sub new
 {
     my $class = shift;
-    my ($path, $hostname, $username, $is_sparse) = @_;
+    my ($path, $hostname, $username, $is_sparse, $is_block) = @_;
 
-    my $self = $class->SUPER::new($hostname, $username, "dd if=$path");
+    my $sizecmd;
+    if ($is_block) {
+        $sizecmd = "blockdev --getsize64 $path";
+    } else {
+        $sizecmd = "stat -c %s $path";
+    }
+
+    my $self = $class->SUPER::new($hostname, $username, "$sizecmd;dd if=$path");
 
     $self->{path} = $path;
 
     # Check that the stream becomes readable without anything on stderr
     $self->SUPER::_check_stderr(0, sub { $self->_read_error(@_) } );
+
+    # Read the file size
+    my $stdout = $self->{stdout};
+    $self->{size} = <$stdout>;
 
     return $self;
 }
@@ -217,6 +228,11 @@ sub _read_error
 
     v2vdie __x('Error reading from {path}: {error}',
                path => $self->{path}, error => $error);
+}
+
+sub _get_size
+{
+    return shift->{size};
 }
 
 package Sys::VirtConvert::Transfer::SSH::WriteStream;
@@ -261,11 +277,12 @@ sub _write_error
 
 package Sys::VirtConvert::Transfer::SSH;
 
-use POSIX;
 use File::Spec;
 use File::stat;
+use File::Temp;
 
 use Sys::VirtConvert::Util;
+use Sys::VirtConvert::Transfer::Local;
 use Locale::TextDomain 'virt-v2v';
 
 =pod
@@ -278,7 +295,7 @@ Sys::VirtConvert::Transfer::SSH - Transfer data over an SSH connection
 
 =over
 
-=item new(path, hostname, username, is_sparse)
+=item new(path, hostname, username, is_sparse, is_block)
 
 Create a new SSH transfer object.
 
@@ -287,16 +304,19 @@ Create a new SSH transfer object.
 sub new
 {
     my $class = shift;
-    my ($path, $format, $hostname, $username, $is_sparse) = @_;
+    my ($name, $path, $format, $hostname, $username,
+        $is_sparse, $is_block) = @_;
 
     my $self = {};
     bless($self, $class);
 
+    $self->{name}      = $name;
     $self->{path}      = $path;
     $self->{format}    = $format;
     $self->{hostname}  = $hostname;
     $self->{username}  = $username;
     $self->{is_sparse} = $is_sparse;
+    $self->{is_block}  = $is_block;
 
     return $self;
 }
@@ -324,16 +344,72 @@ sub get_read_stream
     my $self = shift;
     my ($convert) = @_;
 
-    v2vdie __('When reading from an SSH connection, virt-v2v can '.
-              'only currently convert raw volumes.')
-        if $convert && $self->{format} ne 'raw';
+    if ($convert && $self->{format} ne 'raw') {
+        # We need to copy the file locally to convert it
+        my $cache = new File::Temp;
 
-    return new Sys::VirtConvert::Transfer::SSH::ReadStream(
-        $self->{path},
-        $self->{hostname},
-        $self->{username},
-        $self->{is_sparse}
-    );
+        my $t = new Sys::VirtConvert::Transfer::SSH::ReadStream(
+            $self->{path},
+            $self->{hostname},
+            $self->{username},
+            $self->{is_sparse},
+            $self->{is_block}
+        );
+
+        # Initialize a progress bar if STDERR is on a tty
+        my $progress;
+        if (-t STDERR) {
+            # Load a progress bar if Term::ProgressBar is available
+            my $name = __x('Caching {name}', name => $self->{name});
+            eval {
+                use Term::ProgressBar;
+                $progress = new Term::ProgressBar({name => $name,
+                                                   count => $t->_get_size(),
+                                                   ETA => 'linear' });
+            };
+        }
+
+        logmsg NOTICE, __x('Caching {name}: {size} bytes',
+                           name => $self->{name}, size => $t->_get_size())
+            unless defined($progress);
+
+        my $total = 0;
+        my $next_update = 0;
+        for (;;) {
+            my $buf = $t->read(4 * 1024 * 1024);
+            last if (length($buf) == 0);
+
+            $total += length($buf);
+            print $cache $buf;
+
+            $next_update = $progress->update($total)
+                if (defined($progress) && $total > $next_update);
+        }
+        if (defined($progress)) {
+            # Indicate that we finished regardless of how much data was written
+            $progress->update($t->_get_size());
+            # The progress bar doesn't print a newline on completion
+            print STDERR "\n";
+        }
+
+        $t->close();
+        $cache->close();
+
+        my $local = new Sys::VirtConvert::Transfer::Local($cache->filename(), 0,
+                                                          $self->{format},
+                                                          $self->{is_sparse});
+        return $local->get_read_stream($convert);
+    }
+
+    else {
+        return new Sys::VirtConvert::Transfer::SSH::ReadStream(
+            $self->{path},
+            $self->{hostname},
+            $self->{username},
+            $self->{is_sparse},
+            $self->{is_block}
+        );
+    }
 }
 
 =item get_write_stream(convert)
