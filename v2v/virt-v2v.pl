@@ -285,6 +285,12 @@ would mean to use the second partition on the first hard drive. If
 the named root device does not exist or was not detected as a root
 device, then virt-v2v will fail.
 
+Note that there is a bug in grub which prevents it from successfully booting a
+multiboot system if VirtIO is enabled. Grub is only able to boot an operating
+system from the first VirtIO disk. Specifically, /boot must be on the first
+VirtIO disk, and it cannot chainload an OS which is not in the first VirtIO
+disk.
+
 =cut
 
 my $list_profiles = 0;
