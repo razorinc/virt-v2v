@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # mdbooth <mbooth@redhat.com>, 2011.
 # Piotr Drąg <piotrdrag@gmail.com>, 2011.
 msgid ""
