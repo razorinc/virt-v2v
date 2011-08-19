@@ -174,8 +174,10 @@ sub _init_grub
     }
 
     my $grub_conf;
-    foreach my $path qw(boot/grub/grub.conf boot/grub/menu.lst) {
-        if ($g->exists("/$path")) {
+
+    foreach my $path qw(/boot/grub/menu.lst /boot/grub/grub.conf)
+    {
+        if ($g->exists($path)) {
             $grub_conf = $path;
             last;
         }
@@ -372,7 +374,7 @@ sub _configure_console
 
     # Update any kernel console lines
     foreach my $augpath
-        ($g->aug_match("/files/$grub_conf/title/kernel/console"))
+        ($g->aug_match("/files$grub_conf/title/kernel/console"))
     {
         my $console = $g->aug_get($augpath);
         if ($console =~ /\b(x|h)vc0\b/) {
@@ -451,7 +453,7 @@ sub _list_kernels
     # Get the default kernel from grub if it's set
     my $default;
     eval {
-        $default = $g->aug_get("/files/$grub_conf/default");
+        $default = $g->aug_get("/files$grub_conf/default");
     };
     # Doesn't matter if get fails
 
@@ -461,9 +463,9 @@ sub _list_kernels
     # Look for a kernel, starting with the default
     my @paths;
     eval {
-        push(@paths, $g->aug_match("/files/$grub_conf/title[$default]/kernel"))
+        push(@paths, $g->aug_match("/files$grub_conf/title[$default]/kernel"))
             if defined($default);
-        push(@paths, $g->aug_match("/files/$grub_conf/title/kernel"));
+        push(@paths, $g->aug_match("/files$grub_conf/title/kernel"));
     };
     augeas_error($g, $@) if ($@);
 
@@ -530,7 +532,7 @@ sub _init_kernels
 
         my @configs = ();
         # Get all configurations from grub
-        foreach my $bootable ($g->aug_match("/files/$grub_conf/title"))
+        foreach my $bootable ($g->aug_match("/files$grub_conf/title"))
         {
             my %config = ();
             $config{title} = $g->aug_get($bootable);
@@ -601,7 +603,7 @@ sub _init_kernels
         $boot->{configs} = \@configs;
 
         # Add the default configuration
-        eval { $boot->{default} = $g->aug_get("/files/$grub_conf/default") };
+        eval { $boot->{default} = $g->aug_get("/files$grub_conf/default") };
     }
 }
 
@@ -1629,7 +1631,7 @@ sub _check_grub
 
     # Nothing to do if there's already a grub entry
     return if eval {
-        foreach my $augpath ($g->aug_match("/files/$grub_conf/title/kernel")) {
+        foreach my $augpath ($g->aug_match("/files$grub_conf/title/kernel")) {
             return 1 if ($grubfs.$g->aug_get($augpath) eq $kernel);
         }
 
@@ -1654,17 +1656,17 @@ sub _check_grub
 
     my $default;
     # Doesn't matter if there's no default
-    eval { $default = $g->aug_get("/files/$grub_conf/default"); };
+    eval { $default = $g->aug_get("/files$grub_conf/default"); };
 
     eval {
         if (defined($default)) {
             $g->aug_defvar('template',
-                 "/files/$grub_conf/title[".($default + 1).']');
+                 "/files$grub_conf/title[".($default + 1).']');
         }
 
         # If there's no default, take the first entry with a kernel
         else {
-            my ($match) = $g->aug_match("/files/$grub_conf/title/kernel");
+            my ($match) = $g->aug_match("/files$grub_conf/title/kernel");
             die("No template kernel found in grub.") unless defined($match);
 
             $match =~ s/\/kernel$//;
@@ -1672,7 +1674,7 @@ sub _check_grub
         }
 
         # Add a new title node at the end
-        $g->aug_defnode('new', "/files/$grub_conf/title[last()+1]", $title);
+        $g->aug_defnode('new', "/files$grub_conf/title[last()+1]", $title);
 
         # N.B. Don't change the order of root, kernel and initrd below, or the
         # guest will not boot.
@@ -1705,7 +1707,7 @@ sub _check_grub
         my ($new) = $g->aug_match('$new');
         $new =~ /\[(\d+)\]$/;
 
-        $g->aug_set("/files/$grub_conf/default", defined($1) ? $1 - 1 : 0);
+        $g->aug_set("/files$grub_conf/default", defined($1) ? $1 - 1 : 0);
         $g->aug_save();
     };
     augeas_error($g, $@) if ($@);
@@ -2075,11 +2077,11 @@ sub _prepare_bootable
         }
 
         my $grub_conf = $desc->{boot}->{grub_conf};
-        foreach my $kernel ($g->aug_match("/files/$grub_conf/title/kernel")) {
+        foreach my $kernel ($g->aug_match("/files$grub_conf/title/kernel")) {
 
             if($g->aug_get($kernel) eq "$prefix/vmlinuz-$version") {
                 # Ensure it's the default
-                $kernel =~ m{/files/$grub_conf/title(?:\[(\d+)\])?/kernel}
+                $kernel =~ m{/files$grub_conf/title(?:\[(\d+)\])?/kernel}
                     or die($kernel);
 
                 my $aug_index;
@@ -2089,11 +2091,11 @@ sub _prepare_bootable
                     $aug_index = 1;
                 }
 
-                $g->aug_set("/files/$grub_conf/default", $aug_index - 1);
+                $g->aug_set("/files$grub_conf/default", $aug_index - 1);
 
                 # Get the initrd for this kernel
                 $initrd =
-                    $g->aug_get("/files/$grub_conf/title[$aug_index]/initrd");
+                    $g->aug_get("/files$grub_conf/title[$aug_index]/initrd");
 
                 $found = 1;
                 last;
