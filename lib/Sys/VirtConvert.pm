@@ -20,7 +20,7 @@ package Sys::VirtConvert;
 use strict;
 use warnings;
 
-$Sys::VirtConvert::VERSION = "0.8.2";
+$Sys::VirtConvert::VERSION = "0.8.3";
 
 =pod
 
