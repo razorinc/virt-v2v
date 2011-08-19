@@ -114,9 +114,7 @@ sub convert
 
     _init_selinux($g);
     _init_augeas($g, $grub_conf);
-    _init_modprobe_aliases($g, $desc);
     _init_kernels($g, $desc);
-    my $modpath = _init_modpath($g);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
@@ -132,7 +130,7 @@ sub convert
     _configure_console($g, $grub_conf);
     _configure_display_driver($g, $config, $meta, $desc);
     _remap_block_devices($meta, $virtio, $g, $desc);
-    _configure_kernel_modules($g, $desc, $virtio, $modpath);
+    _configure_kernel_modules($g, $virtio);
     _configure_boot($kernel, $virtio, $g, $root, $desc);
 
     my %guestcaps;
@@ -218,68 +216,37 @@ sub _init_augeas
     augeas_error($g, $@) if ($@);
 }
 
-# Find all modprobe aliases. Specifically, this looks in the following
-# locations:
-#  * /etc/conf.modules
-#  * /etc/modules.conf
-#  * /etc/modprobe.conf
-#  * /etc/modprobe.d/*
-#
-# This sets the $desc->{modprobe_aliases} field.
-
-sub _init_modprobe_aliases
+# Execute an augeas modprobe query against all possible modprobe locations
+sub _aug_modprobe
 {
-    local $_;
-    my $g = shift;
-    my $desc = shift;
+    my ($g, $query) = @_;
 
-    my %modprobe_aliases;
-
+    my @paths;
     for my $pattern qw(/files/etc/conf.modules/alias
                        /files/etc/modules.conf/alias
                        /files/etc/modprobe.conf/alias
                        /files/etc/modprobe.d/*/alias) {
-        for my $path ( $g->aug_match($pattern) ) {
-            $path =~ m{^/files(.*)/alias(?:\[\d*\])?$}
-                or die __x("{path} doesn't match augeas pattern",
-                           path => $path);
-            my $file = $1;
-
-            my $alias;
-            $alias = $g->aug_get($path);
-
-            my $modulename;
-            $modulename = $g->aug_get($path.'/modulename');
-
-            my %aliasinfo;
-            $aliasinfo{modulename} = $modulename;
-            $aliasinfo{augeas} = $path;
-            $aliasinfo{file} = $file;
-
-            $modprobe_aliases{$alias} = \%aliasinfo;
-        }
+        push(@paths, $g->aug_match($pattern.'['.$query.']'));
     }
 
-    $desc->{modprobe_aliases} = \%modprobe_aliases;
+    return @paths;
 }
 
-sub _init_modpath
+# Check how new modules should be configured. Possibilities, in descending
+# order of preference, are:
+#   modprobe.d/
+#   modprobe.conf
+#   modules.conf
+#   conf.modules
+sub _discover_modpath
 {
     my ($g) = @_;
 
-    # Check how new modules should be configured. Possibilities, in descending
-    # order of preference, are:
-    #   modprobe.d/
-    #   modprobe.conf
-    #   modules.conf
-    #   conf.modules
+    my $modpath;
 
     # Note that we're checking in ascending order of preference so that the last
     # discovered method will be chosen
 
-    my $modpath;
-
-    # Files which the augeas Modprobe lens doesn't look for by default
     foreach my $file qw(/etc/conf.modules /etc/modules.conf) {
         if($g->exists($file)) {
             $modpath = $file;
@@ -302,175 +269,73 @@ sub _init_modpath
     return $modpath;
 }
 
-# We can't rely on the index in the augeas path because it will change if
-# something has been inserted or removed before it.
-# Look for the alias again in the same file which contained it on the first
-# pass.
-sub _check_augeas_device
-{
-    my ($g, $device, $path) = @_;
-
-    $path =~ m{^(.*)/alias(?:\[\d+\])?$}
-        or die("Unexpected augeas modprobe alias path: $path");
-
-    my $augeas;
-    eval {
-        my @aliases = $g->aug_match($1."/alias");
-
-        foreach my $alias (@aliases) {
-            if($g->aug_get($alias) eq $device) {
-                $augeas = $alias;
-                last;
-            }
-        }
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-
-    return $augeas;
-}
-
-sub _update_kernel_module
-{
-    my ($g, $device, $module, $modules, $desc) = @_;
-
-    # We expect the module to have been discovered during inspection
-    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
-
-    # Error if the module isn't defined
-    die("$augeas isn't defined") unless defined($augeas);
-
-    $augeas = _check_augeas_device($g, $device, $augeas);
-
-    # If the module has mysteriously disappeared, just add a new one
-    return _enable_kernel_module($g, $device, $module, $modules)
-        if (!defined($augeas));
-
-    eval {
-        $g->aug_set($augeas."/modulename", $module);
-        $g->aug_save();
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
-
-sub _enable_kernel_module
-{
-    my ($g, $device, $module, $modules) = @_;
-
-    eval {
-        $g->aug_set("/files".$modules."/alias[last()+1]", $device);
-        $g->aug_set("/files".$modules."/alias[last()]/modulename", $module);
-        $g->aug_save();
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
-
-sub _disable_kernel_module
-{
-    my ($g, $device, $desc) = @_;
-
-    # We expect the module to have been discovered during inspection
-    my $augeas = $desc->{modprobe_aliases}->{$device}->{augeas};
-
-    # Nothing to do if the module isn't defined
-    return if(!defined($augeas));
-
-    $augeas = _check_augeas_device($g, $device, $augeas);
-
-    # Nothing to do if the module has gone away
-    return if (!defined($augeas));
-
-    eval {
-        $g->aug_rm($augeas);
-    };
-
-    # Propagate augeas errors
-    augeas_error($g, $@) if ($@);
-}
-
-
 sub _configure_kernel_modules
 {
-    my ($g, $desc, $virtio, $modpath) = @_;
-
-    # Get a list of all old-hypervisor specific kernel modules which need to be
-    # replaced or removed
-    my %hvs_devices;
-    foreach my $device (_find_hv_kernel_modules($desc)) {
-        $hvs_devices{$device} = undef;
-    }
-
-    # Go through all kernel modules looking for network or scsi devices
-    my $modules = $desc->{modprobe_aliases};
+    my ($g, $virtio, $modpath) = @_;
 
     # Make a note of whether we've added scsi_hostadapter
     # We need this on RHEL 4/virtio because mkinitrd can't detect root on
     # virtio. For simplicity we always ensure this is set for virtio disks.
     my $scsi_hostadapter = 0;
 
-    # Iterate over all discovered modules, and update them if necessary.
-    # If we're removing multiple scsi_hostadapter entries, we want to leave only
-    # the lowest entry in place, so we sort this list.
-    foreach my $device (sort keys(%$modules)) {
-        # Replace network modules with virtio_net
-        if($device =~ /^eth\d+$/) {
-            # Make a note that we updated an old-HV specific kernel module
-            if(exists($hvs_devices{$device})) {
-                $hvs_devices{$device} = 1;
-            }
-
-            _update_kernel_module($g, $device,
-                                  $virtio == 1 ? 'virtio_net' : 'e1000',
-                                  $modpath, $desc);
+    eval {
+        foreach my $path (_aug_modprobe($g, ". =~ regexp('eth[0-9]+')"))
+        {
+            $g->aug_set($path.'/modulename',
+                        $virtio == 1 ? 'virtio_net' : 'e1000');
         }
 
-        # Replace block drivers with virtio_blk
-        if($device =~ /^scsi_hostadapter/) {
-            # Make a note that we updated an old-HV specific kernel module
-            if(exists($hvs_devices{$device})) {
-                $hvs_devices{$device} = 1;
+        my @paths = _aug_modprobe($g, ". =~ glob('scsi_hostadapter*')");
+        if ($virtio) {
+            # There's only 1 scsi controller in the converted guest.
+            # Convert only the first scsi_hostadapter entry to virtio.
+
+            # Note that we delete paths in reverse order. This means we don't
+            # have to worry about alias indices being changed.
+            while (@paths > 1) {
+                $g->aug_rm(pop(@paths));
             }
 
-            if ($virtio) {
-                # There's only 1 virtio controller in the converted guest.
-                # Ensure there's only 1 entry in the converted configuration
-                if ($scsi_hostadapter) {
-                    _disable_kernel_module($g, $device, $desc);
-                }
-
-                else {
-                    _update_kernel_module($g, $device, 'virtio_blk', $modpath,
-                                          $desc);
-                }
-
+            if (@paths == 1) {
+                $g->aug_set(pop(@paths).'/modulename', 'virtio_blk');
                 $scsi_hostadapter = 1;
             }
+        }
 
-            # IDE doesn't need scsi_hostadapter
-            else {
-                _disable_kernel_module($g, $device, $desc);
+        else {
+            # There's no scsi controller in an IDE guest
+            while (@paths) {
+                $g->aug_rm(pop(@paths));
             }
         }
-    }
 
-    # Add an explicit scsi_hostadapter if it wasn't there before
-    if ($virtio && !$scsi_hostadapter) {
-        _enable_kernel_module($g, 'scsi_hostadapter', 'virtio_blk', $modpath);
-    }
+        # Display a warning about any leftover xen modules which we haven't
+        # converted
+        my @xen_modules = qw(xennet xen-vnif xenblk xen-vbd);
+        my $query = '('.join('|', @xen_modules).')';
 
-    # Warn if any old-HV specific kernel modules weren't updated
-    foreach my $device (keys(%hvs_devices)) {
-        logmsg WARN, __x('Don\'t know how to update '.
-                         '{device}, which loads the {module} module.',
-                         device => $device,
-                         module => $modules->{$device}->{modulename})
-            unless defined($hvs_devices{$device});
-    }
+        foreach my $path (_aug_modprobe($g, "modulename =~ regexp('$query')")) {
+            my $device = $g->aug_get($path);
+            my $module = $g->aug_get($path.'/modulename');
+
+            logmsg WARN, __x("Don't know how to update ".
+                             '{device}, which loads the {module} module.',
+                             device => $device, module => $module);
+        }
+
+        # Add an explicit scsi_hostadapter if it wasn't there before
+        if ($virtio && !$scsi_hostadapter) {
+            my $modpath = _discover_modpath($g);
+
+            $g->aug_set("/files$modpath/alias[last()+1]",
+                        'scsi_hostadapter');
+            $g->aug_set("/files$modpath/alias[last()]/modulename",
+                        'virtio_blk');
+        }
+
+        $g->aug_save();
+    };
+    augeas_error($g, $@) if $@;
 }
 
 # We configure a console on ttyS0. Make sure existing console references use it.
@@ -1086,40 +951,6 @@ sub _unconfigure_vmware
     }
 }
 
-# Get a list of all foreign hypervisor specific kernel modules which are being
-# used by the guest
-sub _find_hv_kernel_modules
-{
-    my ($desc) = @_;
-
-    return _find_xen_kernel_modules($desc);
-}
-
-# Get a list of xen specific kernel modules which are being used by the guest
-sub _find_xen_kernel_modules
-{
-    my ($desc) = @_;
-    carp("find_kernel_modules called without desc argument")
-        unless defined($desc);
-
-    my $aliases = $desc->{modprobe_aliases};
-    return unless defined($aliases);
-
-    my @modules = ();
-    foreach my $alias (keys(%$aliases)) {
-        my $modulename = $aliases->{$alias}->{modulename};
-
-        foreach my $xen_module qw(xennet xen-vnif xenblk xen-vbd) {
-            if($modulename eq $xen_module) {
-                push(@modules, $alias);
-                last;
-            }
-        }
-    }
-
-    return @modules;
-}
-
 sub _install_capability
 {
     my ($name, $g, $config, $meta, $desc) = @_;
@@ -1499,6 +1330,7 @@ sub _install_config
 # Install a set of rpms
 sub _install_rpms
 {
+    local $_;
     my ($g, $config, $upgrade, @rpms) = @_;
 
     # Nothing to do if we got an empty set
