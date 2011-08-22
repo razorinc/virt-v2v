@@ -146,8 +146,13 @@ sub ACTION_changelog
         return 1;
     }
 
+    unless(system("git", "submodule", "init") == 0) {
+        $self->log_info("Failed to initialise git2cl submodule: $@\n");
+        return 1;
+    }
+
     unless(system("git", "submodule", "update") == 0) {
-        $self->log_info("Failed to initialise git2cl: $@\n");
+        $self->log_info("Failed to update git2cl submodule: $@\n");
         return 1;
     }
 
