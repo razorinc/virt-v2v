@@ -229,6 +229,9 @@ sub ACTION_test
 {
     my $self = shift;
 
+    # Ensure we can include all generated flies
+    $self->depends_on('generated') == 0 or return 1;
+
     # Ensure distmeta runs first
     $self->depends_on('distmeta') == 0 or return 1;
 
