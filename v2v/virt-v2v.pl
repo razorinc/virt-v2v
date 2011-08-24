@@ -943,6 +943,19 @@ B<N.B.> Take care not to interrupt the automatic driver installation process
 when logging in to the guest for the first time, as this may prevent the guest
 from subsequently booting correctly.
 
+=head2 Windows Recovery Console
+
+virt-v2v does not support conversion of the Windows Recovery Console. If a guest
+has a recovery console installed and VirtIO was enabled during conversion,
+attempting to boot the recovery console will result in a BSOD.
+
+Windows XP x86 does not support the Windows Recovery Console on VirtIO systems,
+so there is no resolution to this. However, on Windows XP AMD64 and Windows 2003
+(x86 and AMD64), the recovery console can be re-installed after conversion. The
+re-installation procedure is the same as the initial installation procedure. It
+is not necessary to remove the recovery console first.  Following
+re-installation, the recovery console will work as intended.
+
 =head1 GUEST CONFIGURATION CHANGES
 
 As well as configuring libvirt appropriately, virt-v2v will make certain changes
