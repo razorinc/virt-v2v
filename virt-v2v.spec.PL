@@ -82,6 +82,9 @@ Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:       perl-libguestfs >= 1:1.6.0
 Requires:       perl-hivex >= 1.2.2
 
+# Required for passing flags to get_xml_description
+Requires:       perl(Sys::Virt) >= 0.2.4
+
 # Net::SSL is loaded dynamically by Net::HTTPS in
 # Sys::VirtConvert::Transfer::ESX. The dependency isn't automatically
 # discovered.

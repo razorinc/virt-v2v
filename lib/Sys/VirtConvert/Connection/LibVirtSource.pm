@@ -243,7 +243,7 @@ sub _get_meta
     # Warn and exit if we didn't find it
     return undef unless(defined($domain));
 
-    my $dom = new XML::DOM::Parser->parse($domain->get_xml_description());
+    my $dom = new XML::DOM::Parser->parse($domain->get_xml_description(1));
     $self->{meta} = Sys::VirtConvert::Connection::LibVirt::_parse_dom($self,
                                                                       $dom);
 }

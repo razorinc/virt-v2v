@@ -307,7 +307,6 @@ sub _meta_to_domxml
   <devices>
     <input type='tablet' bus='usb'/>
     <input type='mouse' bus='ps2'/>
-    <graphics type='vnc' port='-1' listen='127.0.0.1'/>
     <video>
       <model type='cirrus' vram='9216' heads='1'/>
     </video>
@@ -337,6 +336,14 @@ DOM
     my $nide = 0;
 
     my ($devices) = $root->findnodes('devices');
+
+    my $graphics = _append_elem($devices, 'graphics');
+    $graphics->setAttribute('type', $meta->{display}->{type});
+    $graphics->setAttribute('keymap', $meta->{display}->{keymap})
+        if (defined($meta->{display}->{keymap}));
+    $graphics->setAttribute('passwd', $meta->{display}->{password})
+        if (defined($meta->{display}->{password}));
+
     foreach my $disk (sort { $a->{device} cmp $b->{device} } @{$meta->{disks}})
     {
         my $is_block = $disk->{dst}->is_block();

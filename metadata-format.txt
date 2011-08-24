@@ -7,6 +7,10 @@ differs significantly from, the XML representation used by libvirt.
   cpus          The number of cpus assigned to the domain
   arch          The architecture of the domain (eg i686,x86_64)
   features[]    An array containing 'features', as defined by libvirt
+  display       A hashref containing display properties
+    type            vnc/spice (Only vnc right now)
+    keymap          The keyboard map used for the guest
+    password        A password required to view the display. Optional.
   disks[]       An array containing hashrefs of disk descriptions
     device          The name of the disk as seen by the guest (eg sda)
     src             An initialised Volume object for the source disk

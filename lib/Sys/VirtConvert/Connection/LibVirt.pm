@@ -169,6 +169,23 @@ sub _parse_dom
         push(@{$meta{features}}, $feature->getNodeName());
     }
 
+    $meta{display} = {};
+    my ($display) = $root->findnodes('devices/graphics');
+    if (defined($display)) {
+        $meta{display}->{type} = _node_val($display, '@type');
+
+        my $password = _node_val($display, '@passwd');
+        $meta{display}->{password} = $password if defined($password);
+
+        my $keymap = _node_val($display, '@keymap');
+        $meta{display}->{keymap} = $keymap if defined($keymap);
+    }
+
+    # If there's no display element, default it to VNC with no password
+    else {
+        $meta{display}->{type} = 'vnc';
+    }
+
     $meta{disks} = [];
     foreach my $disk ($root->findnodes('devices/disk[@device=\'disk\']')) {
         my %info;
