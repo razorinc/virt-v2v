@@ -144,12 +144,12 @@ sub convert
     my $current_cs = $h_sys->node_get_value($select, 'Current');
     $current_cs = sprintf("ControlSet%03i", $h_sys->value_dword($current_cs));
 
-    _add_viostor_to_registry($desc, $h_sys, $current_cs);
     _add_service_to_registry($h_sys, $current_cs);
     _disable_processor_drivers($h_sys, $current_cs);
 
     my ($block, $net) =
         _prepare_virtio_drivers($g, $desc, $config, $h_soft);
+    _add_viostor_to_registry($desc, $h_sys, $current_cs) if $block eq 'virtio';
 
     # Commit and upload the modified registry hives
     $h_sys->commit(undef); undef $h_sys;
