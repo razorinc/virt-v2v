@@ -181,11 +181,6 @@ sub _parse_dom
         $meta{display}->{keymap} = $keymap if defined($keymap);
     }
 
-    # If there's no display element, default it to VNC with no password
-    else {
-        $meta{display}->{type} = 'vnc';
-    }
-
     $meta{disks} = [];
     foreach my $disk ($root->findnodes('devices/disk[@device=\'disk\']')) {
         my %info;

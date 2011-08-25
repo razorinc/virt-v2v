@@ -701,11 +701,11 @@ sub create_guest
 </ovf:Envelope>
 EOF
 
-    logmsg WARN, __('Guest specifies a password for connection to its '.
+    logmsg WARN, __('This guest requires a password for connection to its '.
                     'display, but this is not supported by RHEV. The '.
                     'converted guest\'s display will not require a separate '.
                     'password to connect.')
-        if exists($meta->{display}->{password});
+        if exists($meta->{display}) && exists($meta->{display}->{password});
 
     $self->_disks($ovf, $meta, $guestcaps);
     $self->_networks($ovf, $meta, $config, $guestcaps);

@@ -337,12 +337,23 @@ DOM
 
     my ($devices) = $root->findnodes('devices');
 
+    my $display_type;
+    my $display_keymap;
+    my $display_password;
+    if (defined($meta->{display})) {
+        $display_type       = $meta->{display}->{type};
+        $display_keymap     = $meta->{display}->{keymap};
+        $display_password   = $meta->{display}->{password};
+    } else {
+        $display_type = 'vnc';
+    }
+
     my $graphics = _append_elem($devices, 'graphics');
-    $graphics->setAttribute('type', $meta->{display}->{type});
-    $graphics->setAttribute('keymap', $meta->{display}->{keymap})
-        if (defined($meta->{display}->{keymap}));
-    $graphics->setAttribute('passwd', $meta->{display}->{password})
-        if (defined($meta->{display}->{password}));
+    $graphics->setAttribute('type', $display_type);
+    $graphics->setAttribute('keymap', $display_keymap)
+        if defined($display_keymap);
+    $graphics->setAttribute('passwd', $display_password)
+        if defined($display_password);
 
     foreach my $disk (sort { $a->{device} cmp $b->{device} } @{$meta->{disks}})
     {
