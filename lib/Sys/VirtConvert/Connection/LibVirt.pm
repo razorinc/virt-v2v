@@ -169,9 +169,9 @@ sub _parse_dom
         push(@{$meta{features}}, $feature->getNodeName());
     }
 
-    $meta{display} = {};
     my ($display) = $root->findnodes('devices/graphics');
     if (defined($display)) {
+        $meta{display} = {};
         $meta{display}->{type} = _node_val($display, '@type');
 
         my $password = _node_val($display, '@passwd');
