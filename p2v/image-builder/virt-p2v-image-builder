@@ -22,8 +22,8 @@
 # Based on oVirt's node-creator
 
 # Current fedora data
-cur_rawhide=16
-cur_devel=15
+cur_rawhide=17
+cur_devel=16
 
 me=$(basename "$0")
 warn() { printf '%s: %s\n' "$me" "$*" >&2; }
