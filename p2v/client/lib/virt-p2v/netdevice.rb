@@ -22,11 +22,9 @@ class NetworkDevice
     attr_reader :name, :mac, :connected, :activated, :state
 
     # Some NetworkManager names, for convenience
-    CONNECTION      = 'org.freedesktop.NetworkManagerSettings.Connection'.freeze
     DEVICE          = 'org.freedesktop.NetworkManager.Device'.freeze
     NETWORKMANAGER  = 'org.freedesktop.NetworkManager'.freeze
     PROPERTIES      = 'org.freedesktop.DBus.Properties'.freeze
-    SETTINGS        = 'org.freedesktop.NetworkManagerSettings'.freeze
     WIRED           = 'org.freedesktop.NetworkManager.Device.Wired'.freeze
 
     # NetworkManager device types
@@ -36,32 +34,6 @@ class NetworkDevice
     TYPE_WIFI     = 2
     TYPE_GSM      = 3
     TYPE_CDMA     = 4
-
-    # NetworkManager device states
-    STATE_UNKNOWN         = 0
-    STATE_UNMANAGED       = 1
-    STATE_UNAVAILABLE     = 2
-    STATE_DISCONNECTED    = 3
-    STATE_PREPARE         = 4
-    STATE_CONFIG          = 5
-    STATE_NEED_AUTH       = 6
-    STATE_IP_CONFIG       = 7
-    STATE_ACTIVATED       = 8
-    STATE_FAILED          = 9
-
-    # Human readable descriptions of NetworkManager Device States
-    STATES = {
-        0 => 'Unknown'.freeze,           # For completeness
-        1 => 'Unmanaged'.freeze,         # For completeness
-        2 => 'No cable connected'.freeze,
-        3 => 'Not connected'.freeze,
-        4 => 'Preparing to connect'.freeze,
-        5 => 'Configuring'.freeze,
-        6 => 'Waiting for authentication'.freeze,
-        7 => 'Obtaining an IP address'.freeze,
-        8 => 'Connected'.freeze,
-        9 => 'Connection failed'.freeze
-    }.freeze
 
     def initialize(obj, device, props)
         device.default_iface = WIRED
@@ -106,13 +78,12 @@ class NetworkDevice
                                     get_config_ipv6(ip, prefix, gateway, dns)
 
         # Create a new NetworkManager connection object
-        settings = @@nm_service.object(
-            '/org/freedesktop/NetworkManagerSettings')
+        settings = @@nm_service.object(SETTINGS_PATH)
         settings.introspect()
         settings.default_iface = SETTINGS
 
         uuid = `uuidgen`.chomp
-        settings.AddConnection(
+        conn = settings.AddConnection(
             'connection' => {
                 'uuid' => uuid,
                 'id' => 'P2V',
@@ -124,37 +95,44 @@ class NetworkDevice
             'ipv6' => ip_config['ipv6']
         )
 
-        # Find the connection we just created
-        # XXX: There must be a better way to get this!
-        conn = settings.ListConnections()[0].each { |i|
-            conn = @@nm_service.object(i)
-            conn.introspect
-            conn.default_iface = CONNECTION
-
-            break i if conn.GetSettings()[0]['connection']['uuid'] == uuid
-        }
-        # XXX: mbooth@redhat.com - 22/7/2011
-        # The first time this code runs on a RHEL 6 system
-        # (NetworkManager-0.8.1-9.el6_1.1.i686), conn will be an
-        # array containing a single element: the connection. This will cause
-        # ActivateConnection below to return an error, and the p2v client to
-        # crash. If you run p2v client a second time, conn will be a simple
-        # value, not a single element array, and ActivateConnection works fine.
-        # I assume this is a bug in NetworkManager. I don't see this behaviour
-        # in F14.
-        conn = conn[0] if conn.kind_of?(Array)
-
         nm = @@nm_service.object('/org/freedesktop/NetworkManager')
         nm.introspect
         nm.default_iface = NETWORKMANAGER
-        nm.ActivateConnection('org.freedesktop.NetworkManagerSystemSettings',
-                             conn, @nm_obj, '/')
+
+        if NM_API_09
+            nm.ActivateConnection(conn[0], @nm_obj, '/')
+        else
+            # Find the connection we just created
+            # NM before version 0.9 didn't provide a sensible way to get the
+            # path of the connection object we just created
+            conn = settings.ListConnections()[0].each { |i|
+                conn = @@nm_service.object(i)
+                conn.introspect
+                conn.default_iface = CONNECTION
+                break i if conn.GetSettings()[0]['connection']['uuid'] == uuid
+            }
+
+            # XXX: mbooth@redhat.com - 22/7/2011 The first time this code runs
+            # on a RHEL 6 system (NetworkManager-0.8.1-9.el6_1.1.i686), conn
+            # will be an array containing a single element: the connection. This
+            # will cause ActivateConnection below to return an error, and the
+            # p2v client to crash. If you run p2v client a second time, conn
+            # will be a simple value, not a single element array, and
+            # ActivateConnection works fine.  I assume this is a bug in
+            # NetworkManager. I don't see this behaviour in F14.
+            conn = conn[0] if conn.kind_of?(Array)
+
+            nm.ActivateConnection(
+                'org.freedesktop.NetworkManagerSystemSettings',
+                conn, @nm_obj, '/'
+            )
+        end
     end
 
     private
 
     def state_updated(state)
-        @connected = state > 2
+        @connected = state > STATE_UNAVAILABLE
         @state  = STATES[state]
 
         if state == STATE_ACTIVATED then
@@ -242,6 +220,75 @@ class NetworkDevice
         nm = @@nm_service.object('/org/freedesktop/NetworkManager')
         nm.introspect
         nm.default_iface = NETWORKMANAGER
+
+        # API differences between versions 0.8 and 0.9
+        version = nm[PROPERTIES].Get(NETWORKMANAGER, 'Version')[0]
+        version = version.split(/\./).map{|n| Integer(n)}
+        self.const_set('STATE_UNKNOWN', 0)
+        if (version <=> [ 0, 8, 9]) > 0
+            self.const_set('STATE_UNMANAGED', 10)
+            self.const_set('STATE_UNAVAILABLE', 20)
+            self.const_set('STATE_DISCONNECTED', 30)
+            self.const_set('STATE_PREPARE', 40)
+            self.const_set('STATE_CONFIG', 50)
+            self.const_set('STATE_NEED_AUTH', 60)
+            self.const_set('STATE_IP_CONFIG', 70)
+            self.const_set('STATE_IP_CHECK', 80)
+            self.const_set('STATE_IP_SECONDARIES', 90)
+            self.const_set('STATE_ACTIVATED', 100)
+            self.const_set('STATE_DEACTIVATING', 110)
+            self.const_set('STATE_FAILED', 120)
+
+            self.const_set('CONNECTION',
+                'org.freedesktop.NetworkManager.Settings.Connection'.freeze)
+            self.const_set('SETTINGS',
+                'org.freedesktop.NetworkManager.Settings'.freeze)
+            self.const_set('SETTINGS_PATH',
+                '/org/freedesktop/NetworkManager/Settings'.freeze)
+
+            self.const_set('NM_API_09', true)
+        else
+            self.const_set('STATE_UNMANAGED', 1)
+            self.const_set('STATE_UNAVAILABLE', 2)
+            self.const_set('STATE_DISCONNECTED', 3)
+            self.const_set('STATE_PREPARE', 4)
+            self.const_set('STATE_CONFIG', 5)
+            self.const_set('STATE_NEED_AUTH', 6)
+            self.const_set('STATE_IP_CONFIG', 7)
+            self.const_set('STATE_IP_CHECK', nil)
+            self.const_set('STATE_IP_SECONDARIES', nil)
+            self.const_set('STATE_ACTIVATED', 8)
+            self.const_set('STATE_DEACTIVATING', nil)
+            self.const_set('STATE_FAILED', 9)
+
+            self.const_set('CONNECTION',
+                'org.freedesktop.NetworkManagerSettings.Connection'.freeze)
+            self.const_set('SETTINGS',
+                'org.freedesktop.NetworkManagerSettings'.freeze)
+            self.const_set('SETTINGS_PATH',
+                '/org/freedesktop/NetworkManagerSettings'.freeze)
+
+            self.const_set('NM_API_09', false)
+        end
+
+        # Human readable descriptions of NetworkManager Device States
+        self.const_set('STATES',
+            {
+                STATE_UNKNOWN           => 'Unknown'.freeze,
+                STATE_UNMANAGED         => 'Unmanaged'.freeze,
+                STATE_UNAVAILABLE       => 'No cable connected'.freeze,
+                STATE_DISCONNECTED      => 'Not connected'.freeze,
+                STATE_PREPARE           => 'Preparing to connect'.freeze,
+                STATE_CONFIG            => 'Configuring'.freeze,
+                STATE_NEED_AUTH         => 'Waiting for authentication'.freeze,
+                STATE_IP_CONFIG         => 'Obtaining an IP address'.freeze,
+                STATE_IP_CHECK          => 'Testing'.freeze,
+                STATE_IP_SECONDARIES    => 'Waiting for secondary connection'.freeze,
+                STATE_ACTIVATED         => 'Connected'.freeze,
+                STATE_DEACTIVATING      => 'Deactivating'.freeze,
+                STATE_FAILED            => 'Connection failed'.freeze
+            }.freeze
+        )
 
         @@devices = {}
         nm.GetDevices()[0].each { |obj|
