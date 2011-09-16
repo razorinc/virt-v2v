@@ -22,7 +22,6 @@ use warnings;
 
 use Carp;
 use File::Spec;
-use File::stat;
 use File::Temp;
 use XML::DOM;
 use XML::DOM::XPath;
