@@ -853,8 +853,12 @@ sub _get_os_type_windows
     }
 
     if ($major == 6 && $minor == 1) {
+        # The only 32 bit Windows 6.1 is Windows 7
+        return "Windows7" if length($arch_suffix) == 0;
+
         # This API is new in libguestfs 1.10
         # If it's not present, we can't differentiate between Win7 and Win2k8r2
+        # for amd64
         if (defined($g->can('inspect_get_product_variant')) &&
             $g->inspect_get_product_variant($root) eq 'Client')
         {
