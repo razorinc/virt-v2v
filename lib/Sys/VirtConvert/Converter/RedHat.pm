@@ -2201,7 +2201,6 @@ sub _supports_virtio
 
     my %checklist = (
         "virtio_net" => 0,
-        "virtio_pci" => 0,
         "virtio_blk" => 0
     );
 
