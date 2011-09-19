@@ -280,6 +280,7 @@ package Sys::VirtConvert::Transfer::SSH;
 use File::Spec;
 use File::stat;
 use File::Temp;
+use Term::ProgressBar;
 
 use Sys::VirtConvert::Util;
 use Sys::VirtConvert::Transfer::Local;
@@ -359,19 +360,14 @@ sub get_read_stream
         # Initialize a progress bar if STDERR is on a tty
         my $progress;
         if (-t STDERR) {
-            # Load a progress bar if Term::ProgressBar is available
             my $name = __x('Caching {name}', name => $self->{name});
-            eval {
-                use Term::ProgressBar;
-                $progress = new Term::ProgressBar({name => $name,
-                                                   count => $t->_get_size(),
-                                                   ETA => 'linear' });
-            };
+            $progress = new Term::ProgressBar({name => $name,
+                                               count => $t->_get_size(),
+                                               ETA => 'linear' });
+        } else {
+            logmsg NOTICE, __x('Caching {name}: {size} bytes',
+                               name => $self->{name}, size => $t->_get_size());
         }
-
-        logmsg NOTICE, __x('Caching {name}: {size} bytes',
-                           name => $self->{name}, size => $t->_get_size())
-            unless defined($progress);
 
         my $total = 0;
         my $next_update = 0;
