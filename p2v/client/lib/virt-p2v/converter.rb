@@ -188,9 +188,7 @@ class Converter
             'disks'     => @disks.map { |device|
                 {
                     'device'    => device,
-                    'path'      => "/dev/#{device}",
-                    'is_block'  => '1',
-                    'format'    => 'raw'
+                    'path'      => "/dev/#{device}"
                 }
             },
             'removables' => @removables.map { |device|
