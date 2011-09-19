@@ -12,7 +12,9 @@
 /rubygem-virt-p2v.spec
 
 # Files related to 'Build dist'
+/META.json
 /META.yml
+/MYMETA.json
 /MYMETA.yml
 /virt-v2v*.tar.gz
 /virt-v2v-v*

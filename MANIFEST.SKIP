@@ -5,6 +5,7 @@
 ^virt-v2v-v(\d+(\.\d+)*)(\.tar\.gz$|/)
 ^cover_db/
 ^MYMETA.yml$
+^MYMETA.json$
 
 # Built translations
 ^po/.*\.mo$
