@@ -32,7 +32,6 @@ GEMSPEC = Gem::Specification.new do |s|
     s.email = %q{libguestfs@redhat.com}
     s.homepage = %q{http://libguestfs.org}
 
-    s.default_executable = %q{virt-p2v}
     s.executables = ["virt-p2v", "virt-p2v-launcher"]
     s.files = [
         "Rakefile",
