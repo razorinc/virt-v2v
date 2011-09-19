@@ -254,6 +254,10 @@ sub ACTION_version
 SUBCLASS
 
 my $build = $class->new (
+    configure_requires => {
+        'Module::Build' => 0.36
+    },
+
     license      => 'gpl',
     dist_name    => 'virt-v2v',
     dist_version_from => 'lib/Sys/VirtConvert.pm',
