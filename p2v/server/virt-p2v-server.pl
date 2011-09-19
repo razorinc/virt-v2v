@@ -202,6 +202,9 @@ sub receive_path
     my $name = $meta->{name}.'-'.$disk->{device};
     $name =~ s,/,_,g;       # e.g. cciss devices have a directory structure
 
+    $disk->{src} = new Sys::VirtConvert::Connection::Volume
+        ($name, 'raw', $path, $length, $length, 0, 1, undef);
+
     my $sopts = $config->get_storage_opts();
 
     my $convert = 0;
@@ -239,6 +242,8 @@ sub receive_path
     };
     err_and_die($@) if $@;
     p2v_return_ok();
+
+    $disk->{dst} = $vol;
 
     # Receive an initial container
     my $msg = p2v_receive();
