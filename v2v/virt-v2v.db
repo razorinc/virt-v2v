@@ -35,6 +35,15 @@ the modifications or additions to /etc/virt-v2v.conf instead. Configuration in
   <!-- RHEL 4 bundles the cirrus driver with the main X package -->
   <capability os='linux' distro='rhel' major='4' name='cirrus'/>
 
+  <!-- All current versions of Fedora support VirtIO -->
+  <capability os='linux' distro='fedora' name='virtio'/>
+
+  <!-- All current versions of fedora package the cirrus driver in
+       xorg-x11-drv-cirrus -->
+  <capability os='linux' distro='fedora' name='cirrus'>
+    <dep name='xorg-x11-drv-cirrus'/>
+  </capability>
+
   <!--
     Local applications
 
