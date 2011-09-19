@@ -464,6 +464,9 @@ sub DESTROY
         my $pool = $i->[0];
         my $name = $i->[1];
 
+        logmsg INFO, __x('Automatically cleaning up volume {vol} from pool '.
+                         '{pool}.', vol => $name, pool => $pool);
+
         # Lookup the volume in the pool
         my $vol;
         eval {
