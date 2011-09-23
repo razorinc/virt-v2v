@@ -222,8 +222,15 @@ class NetworkDevice
         nm.default_iface = NETWORKMANAGER
 
         # API differences between versions 0.8 and 0.9
-        version = nm[PROPERTIES].Get(NETWORKMANAGER, 'Version')[0]
-        version = version.split(/\./).map{|n| Integer(n)}
+        version = nil
+        begin
+            version = nm[PROPERTIES].Get(NETWORKMANAGER, 'Version')[0]
+            version = version.split(/\./).map{ |n| Integer(n) }
+        rescue DBus::Error
+            # Versions prior to 0.8 didn't have Version
+            version = [ 0, 7, 0 ]
+        end
+
         self.const_set('STATE_UNKNOWN', 0)
         if (version <=> [ 0, 8, 9]) > 0
             self.const_set('STATE_UNMANAGED', 10)
