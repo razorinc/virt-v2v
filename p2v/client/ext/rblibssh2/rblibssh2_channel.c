@@ -317,97 +317,25 @@ struct channel_send_data {
     pthread_mutex_t mutex;
 };
 
-static pthread_mutex_t cb_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cb_cond = PTHREAD_COND_INITIALIZER;
-static unsigned short int cb_reading = 0;
-
-static void cb_completion(union sigval dummy)
-{
-    pthread_mutex_lock(&cb_mutex);
-    cb_reading = !cb_reading;
-    pthread_cond_signal(&cb_cond);
-    pthread_mutex_unlock(&cb_mutex);
-}
-
 static void *channel_send_data_w(void *params)
 {
     struct channel_send_data *csd = (struct channel_send_data *) params;
     struct channel *c = csd->c;
 
-    char buf[2][2*1024*1024];
-    struct aiocb64 cbs[2] = {
-        {
-            .aio_fildes = csd->fd,
-            .aio_buf = buf[0],
-            .aio_nbytes = sizeof(buf[0]),
-            .aio_sigevent = {
-                .sigev_notify = SIGEV_THREAD,
-                .sigev_notify_function = cb_completion,
-                .sigev_value = {
-                    .sival_int = 0
-                }
-            }
-        },
-        {
-            .aio_fildes = csd->fd,
-            .aio_buf = buf[1],
-            .aio_nbytes = sizeof(buf[0]),
-            .aio_sigevent = {
-                .sigev_notify = SIGEV_THREAD,
-                .sigev_notify_function = cb_completion,
-                .sigev_value = {
-                    .sival_int = 0
-                }
-            }
-        }
-    };
-
-    unsigned short int cb_sending = 0;
-    __off64_t read_pos = 0;
-
-    /* Read the first block */
-    pthread_mutex_lock(&cb_mutex);
-    if (aio_read64(&cbs[cb_reading]) < 0) {
-        pthread_mutex_unlock(&cb_mutex);
-        rblibssh2_session_set_error(rb_eIOError,
-                "Error scheduling read request: %m");
-        return NULL;
-    }
-    pthread_mutex_unlock(&cb_mutex);
+    char buf[2*1024*1024];
 
     for(;;) {
-        /* Wait if we're still reading the next block */
-        pthread_mutex_lock(&cb_mutex);
-        while (cb_reading == cb_sending)
-            pthread_cond_wait(&cb_cond, &cb_mutex);
-
-        ssize_t in = aio_return64(&cbs[cb_sending]);
+        ssize_t in = read(csd->fd, buf, sizeof(buf));
         if (in == 0) {
-            pthread_mutex_unlock(&cb_mutex);
             break;
         } else if (in < 0) {
-            pthread_mutex_unlock(&cb_mutex);
-            rblibssh2_session_set_error(rb_eIOError,
-                    "Error reading data: %s", strerror(-in));
+            rblibssh2_session_set_error(rb_eIOError, "Error reading data: %m");
             return NULL;
         }
-        read_pos += in;
-
-        /* Start reading the next block */
-        cbs[cb_reading].aio_offset = read_pos;
-        if (aio_read64(&cbs[cb_reading]) < 0) {
-            pthread_mutex_unlock(&cb_mutex);
-            rblibssh2_session_set_error(rb_eIOError,
-                    "Error scheduling read request: %m");
-            return NULL;
-        }
-
-        pthread_mutex_unlock(&cb_mutex);
 
         ssize_t sent = 0;
         while (sent < in) {
-            ssize_t out = libssh2_channel_write(c->channel,
-                                                buf[cb_sending] + sent,
+            ssize_t out = libssh2_channel_write(c->channel, &buf[sent],
                                                 in - sent);
             if (out == LIBSSH2_ERROR_EAGAIN) {
                 rblibssh2_session_wait(c->s);
@@ -426,7 +354,6 @@ static void *channel_send_data_w(void *params)
         pthread_mutex_lock(&csd->mutex);
         csd->sent += sent;
         pthread_mutex_unlock(&csd->mutex);
-        cb_sending = !cb_sending;
     }
     libssh2_channel_flush(c->channel);
 
