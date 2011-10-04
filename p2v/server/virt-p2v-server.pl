@@ -375,7 +375,7 @@ sub convert
     # point.
     if ($@) {
         my $err = $@;
-        $g->close();
+        $g->close() if defined($g);
 
         # We trust the error was already logged
         p2v_return_err($err);
