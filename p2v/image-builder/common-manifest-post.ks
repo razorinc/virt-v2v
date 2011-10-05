@@ -24,7 +24,7 @@ echo -n "."
 
 %post --nochroot
 # Move manifests to ISO
-mv $INSTALL_ROOT/manifest-* $LIVE_ROOT/isolinux
+mv $INSTALL_ROOT/manifest-* $LIVE_ROOT/
 echo "done"
 
 # only works on x86, x86_64
