@@ -201,7 +201,8 @@ if [ $ksonly == 0 ]; then
     esac
 
     mkdir -p $cachedir
-    sudo livecd-creator -c "$kstmp" -f "$label" --cache="$cachedir"
+    sudo livecd-creator -c "$kstmp" -f "$label" --cache="$cachedir" \
+        --compression-type=gzip
 
     # Clean up
     if [ "$selinux_enforcing" = Enforcing ]; then
