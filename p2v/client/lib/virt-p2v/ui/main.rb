@@ -39,6 +39,11 @@ class Main
         # Display the main window
         main = self.get_object('main_window')
         main.show_all()
+
+        # Explicitly set a cursor
+        # This doesn't seem to happen automatically when the client is started
+        # from xinit, leaving the user with no visible cursor.
+        main.window.cursor = Gdk::Cursor.new(Gdk::Cursor::Type::X_CURSOR)
     end
 
     def register_handler(signal, handler)
