@@ -744,9 +744,13 @@ sub _configure_kernel
         unless defined($boot_kernel);
 
     # Ensure DEFAULTKERNEL is set to boot kernel package name
-    my ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
+    my $kernel_pkg;
+    # It's not fatal if this rpm command fails
+    eval {
+        ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
                                           "/lib/modules/$boot_kernel",
                                           '--qf', '%{NAME}\n']);
+    };
     if (defined($kernel_pkg) && $g->exists('/etc/sysconfig/kernel')) {
         eval {
             foreach my $path ($g->aug_match('/files/etc/sysconfig/kernel'.
