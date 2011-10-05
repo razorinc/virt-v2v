@@ -287,7 +287,7 @@ sub _configure_kernel_modules
                         $virtio == 1 ? 'virtio_net' : 'e1000');
         }
 
-        my @paths = _aug_modprobe($g, ". =~ glob('scsi_hostadapter*')");
+        my @paths = _aug_modprobe($g, ". =~ regexp('scsi_hostadapter.*')");
         if ($virtio) {
             # There's only 1 scsi controller in the converted guest.
             # Convert only the first scsi_hostadapter entry to virtio.
