@@ -153,7 +153,7 @@ class Converter
                     # Only update the progress if it has increased by
                     # at least 1%
                     if Integer(npc) > pc then
-                        pc += 1
+                        pc = Integer(npc)
                         progress.call(dev, pc)
                     end
                 }, &cb)
