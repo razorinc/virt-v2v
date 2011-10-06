@@ -346,6 +346,7 @@ sub _prepare_virtio_drivers
     }
 
     my ($block, $net);
+    # This will not return undef because we already checked it in _upload_files
     $virtio = $config->get_transfer_path($virtio);
 
     if ($g->exists(File::Spec->catfile($virtio, 'viostor.inf'))) {
@@ -432,7 +433,7 @@ sub _upload_files
     for my $file ("virtio", "firstboot", "firstbootapp", "rhsrvany") {
         my ($path) = $config->match_app ($desc, $file, $desc->{arch});
         my $local = $config->get_transfer_path($path);
-        push (@missing, $path) unless ($g->exists($local));
+        push (@missing, $path) unless (defined($local) && $g->exists($local));
 
         $files{$file} = $local;
     }

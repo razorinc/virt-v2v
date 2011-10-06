@@ -205,7 +205,12 @@ sub get_transfer_path
         confess 'get_transfer_path with no transfer mount';
     }
 
-    return File::Spec->catfile($self->{transfer_mount}, $path);
+    my $transfer_mount = $self->{transfer_mount};
+
+    # No transfer path if there's no transfer iso
+    return undef unless defined($transfer_mount);
+
+    return File::Spec->catfile($transfer_mount, $path);
 }
 
 =item mount_transfer(g)
@@ -222,13 +227,13 @@ sub mount_transfer
 
     return $self->{transfer_mount} if exists($self->{transfer_mount});
 
-    # Create the transfer mount point
-    # We create this under / because it's guaranteed to exist in the
-    # appliance, regardless of the guest OS.
-    $self->{transfer_mount} = $g->mkdtemp("/transferXXXXXX");
-
     # Only mount the transfer iso if there is one
     if (defined($self->get_transfer_iso())) {
+        # Create the transfer mount point
+        # We create this under / because it's guaranteed to exist in the
+        # appliance, regardless of the guest OS.
+        $self->{transfer_mount} = $g->mkdtemp("/transferXXXXXX");
+
         # Find the transfer device
         my @devices = $g->list_devices();
         my $transfer = $devices[$#devices];
@@ -240,6 +245,9 @@ sub mount_transfer
         $g->add_on_close(sub {
             $self->unmount_transfer($g);
         });
+    } else {
+        # No need for a transfer mount if there's no transfer iso
+        $self->{transfer_mount} = undef;
     }
 
     return $self->{transfer_mount};
@@ -258,8 +266,12 @@ sub unmount_transfer
 
     return unless exists($self->{transfer_mount});
 
-    $g->umount($self->{transfer_mount});
-    $g->rmdir($self->{transfer_mount});
+    my $transfer_mount = $self->{transfer_mount};
+
+    if (defined($transfer_mount)) {
+        $g->umount($transfer_mount);
+        $g->rmdir($transfer_mount);
+    }
 
     delete($self->{transfer_mount});
 }

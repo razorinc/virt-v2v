@@ -1309,10 +1309,11 @@ sub _install_config
     }
 
     my @missing;
-    if (defined($kernel) &&
-        !$g->exists($config->get_transfer_path($kernel)))
-    {
-        push(@missing, $kernel);
+    if (defined($kernel)) {
+        my $transfer_path = $config->get_transfer_path($kernel);
+        if (!defined($transfer_path) || !$g->exists($transfer_path)) {
+            push(@missing, $kernel);
+        }
     }
 
     my @user_paths = _get_deppaths($g, $config, $desc,
@@ -1343,6 +1344,8 @@ sub _install_rpms
     return if(scalar(@rpms) == 0);
 
     # All paths are relative to the transfer mount. Need to make them absolute.
+    # No need to check get_transfer_path here as all paths have been previously
+    # checked
     @rpms = map { $_ = $config->get_transfer_path($_) } @rpms;
 
     $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
@@ -1365,13 +1368,14 @@ sub _get_deppaths
     foreach my $app (@apps) {
         my ($path, $deps) = $config->match_app($desc, $app, $arch);
 
-        my $exists = $g->exists($config->get_transfer_path($path));
+        my $transfer_path = $config->get_transfer_path($path);
+        my $exists = defined($transfer_path) && $g->exists($transfer_path);
 
         if (!$exists) {
             push(@$missing, $path);
         }
 
-        if (!$exists || !_newer_installed($path, $g, $config)) {
+        if (!$exists || !_newer_installed($transfer_path, $g, $config)) {
             $required{$path} = 1;
 
             foreach my $deppath (_get_deppaths($g, $config, $desc,
@@ -1393,8 +1397,8 @@ sub _get_deppaths
             };
 
             if (defined($path)) {
-                if (!$g->exists($config->get_transfer_path($path)))
-                {
+                $transfer_path = $config->get_transfer_path($path);
+                if (!defined($transfer_path) || !$g->exists($transfer_path)) {
                     push(@$missing, $path);
 
                     foreach my $deppath (_get_deppaths($g, $config, $desc,
@@ -1434,8 +1438,6 @@ sub _newer_installed
 sub _get_nevra
 {
     my ($rpm, $g, $config) = @_;
-
-    $rpm = $config->get_transfer_path($rpm);
 
     # Get NEVRA for the rpm to be installed
     my $nevra = $g->command(['rpm', '-qp', '--qf',
