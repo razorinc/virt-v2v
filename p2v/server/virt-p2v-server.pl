@@ -80,7 +80,20 @@ my $target;
 logmsg_init('syslog');
 #logmsg_level(DEBUG);
 
+# Uncomment these 2 lines to capture debug information from the conversion
+# process
+#$ENV{'LIBGUESTFS_DEBUG'} = 1;
+#$ENV{'LIBGUESTFS_TRACE'} = 1;
+
 logmsg NOTICE, __x("{program} started.", program => 'p2v-server');
+
+# Create a temporary log file to capture output to stderr
+my $stderr;
+my $stderr_filename = '/var/log/virt-p2v-server.'.time().'.log';
+open($stderr, '>', $stderr_filename)
+    or v2vdie __x("Unable to open log file {file}: {error}",
+                  file => $stderr_filename, error => $!);
+open(*STDERR, ">&", $stderr) or v2vdie "dup failed: $!";
 
 # Wrap everything in a big eval to catch any die(). N.B. $SIG{__DIE__} is no
 # good for this, as it catches every die(), even those inside an eval
@@ -103,14 +116,13 @@ eval {
     STDOUT->autoflush(1);
 
     # Read the config file
-    eval {
-        $config = Sys::VirtConvert::Config->new
-            ('/etc/virt-v2v.conf', '/var/lib/virt-v2v/virt-v2v.db');
-    };
-    v2vdie $@ if $@;
+    $config = Sys::VirtConvert::Config->new
+        ('/etc/virt-v2v.conf', '/var/lib/virt-v2v/virt-v2v.db');
 
     # Send our identification string
     print "VIRT_P2V_SERVER ".$Sys::VirtConvert::VERSION."\n";
+
+    my $converted = 0;
 
     my $msg;
     while ($msg = p2v_receive()) {
@@ -124,9 +136,9 @@ eval {
             }
 
             else {
-                err_and_die(__x('This version of virt-p2v-server does not '.
-                                'support protocol version {version}.',
-                                version => $version));
+                die(__x('This version of virt-p2v-server does not '.
+                        "support protocol version {version}.\n",
+                        version => $version));
             }
         }
 
@@ -141,7 +153,7 @@ eval {
         elsif ($type eq MSG_METADATA) {
             my $yaml = p2v_read($msg->{args}[0]);
             eval { $meta = Load($yaml); };
-            err_and_die('Error parsing metadata: '.$@) if $@;
+            die('Error parsing metadata: '.$@."\n") if $@;
 
             p2v_return_ok();
         }
@@ -158,6 +170,7 @@ eval {
         # CONVERT
         elsif ($type eq MSG_CONVERT) {
             convert();
+            $converted = 1;
         }
 
         # LIST_PROFILES
@@ -174,13 +187,14 @@ eval {
             unexpected_msg($type);
         }
     }
+
+    unexpected_close() unless $converted;
 };
 
 # Wrap any unwrapped error
 if ($@) {
-    die ($@) if $@ =~ /^virt-v2v:/;
-
-    err_and_die($@);
+    p2v_return_err($@);
+    v2vdie $@;
 }
 
 exit(0);
@@ -190,13 +204,13 @@ sub receive_path
 {
     my ($path, $length) = @_;
 
-    err_and_die('PATH without prior SET_PROFILE command')
+    die("PATH without prior SET_PROFILE command\n")
         unless defined($target);
-    err_and_die('PATH without prior METADATA command')
+    die("PATH without prior METADATA command\n")
         unless defined($meta);
 
     my ($disk) = grep { $_->{path} eq $path } @{$meta->{disks}};
-    err_and_die("$path not found in metadata") unless defined($disk);
+    die("$path not found in metadata\n") unless defined($disk);
 
     # Construct a volume name based on the path and hostname
     my $name = $meta->{name}.'-'.$disk->{device};
@@ -226,33 +240,29 @@ sub receive_path
     } elsif ($allocation eq 'sparse') {
         $sparse = 1;
     } else {
-        err_and_die(__x('Invalid allocation policy {policy} in profile.',
-                        policy => $allocation));
+        die(__x("Invalid allocation policy {policy} in profile.\n",
+                policy => $allocation));
     }
 
     # Create the target volume
-    my $vol;
-    eval {
-        $vol = $target->create_volume(
+    my $vol = $target->create_volume(
             $name,
             $format,
             $length,
             $sparse
         );
-    };
-    err_and_die($@) if $@;
     p2v_return_ok();
 
     $disk->{dst} = $vol;
 
     # Receive an initial container
     my $msg = p2v_receive();
+    unexpected_close() unless defined($msg);
     unexpected_msg($msg->{type}) unless $msg->{type} eq MSG_CONTAINER;
 
     # We only support RAW container
     my $ctype = $msg->{args}[0];
-    err_and_die("Received unknown container type: $ctype")
-        unless $ctype eq CONT_RAW;
+    die("Received unknown container type: $ctype\n") unless $ctype eq CONT_RAW;
     p2v_return_ok();
 
     # Update the disk entry with the new volume details
@@ -266,7 +276,7 @@ sub receive_path
     my $received = 0;
     while ($received < $length) {
         my $data = p2v_receive();
-
+        unexpected_close() unless defined($data);
         unexpected_msg($data->command) unless $data->{type} eq MSG_DATA;
 
         # Read the data message in chunks of up to 4M
@@ -278,8 +288,7 @@ sub receive_path
             $received += $chunk;
             $remaining -= $chunk;
 
-            eval { $writer->write($buf); };
-            err_and_die($@) if $@;
+            $writer->write($buf);
         }
 
         # Close explicitly here in case there's any error.
@@ -302,7 +311,7 @@ sub set_profile
             last;
         }
     }
-    err_and_die(__x('Invalid profile: {profile}', profile => $profile))
+    die(__x("Invalid profile: {profile}\n", profile => $profile))
         unless ($found);
 
     $config->use_profile($profile);
@@ -315,8 +324,8 @@ sub set_profile
     } elsif ($method eq 'rhev') {
         $target = new Sys::VirtConvert::Connection::RHEVTarget($storage);
     } else {
-        err_and_die(__x('Profile {profile} specifies invalid method {method}.',
-                        profile => $profile, method => $method));
+        die(__x("Profile {profile} specifies invalid method {method}.\n",
+                profile => $profile, method => $method));
     }
 
     p2v_return_ok();
@@ -324,11 +333,8 @@ sub set_profile
 
 sub convert
 {
-    err_and_die('CONVERT without prior SET_PROFILE command')
-        unless (defined($target));
-
-    err_and_die('CONVERT without prior METADATA command')
-        unless defined($meta);
+    die("CONVERT without prior SET_PROFILE command\n") unless defined($target);
+    die("CONVERT without prior METADATA command\n") unless defined($meta);
 
     my @localpaths = map { $_->{local_path} } @{$meta->{disks}};
 
@@ -377,8 +383,6 @@ sub convert
         my $err = $@;
         $g->close() if defined($g);
 
-        # We trust the error was already logged
-        p2v_return_err($err);
         die($@);
     }
 
@@ -387,18 +391,26 @@ sub convert
 
 sub unexpected_msg
 {
-    err_and_die('Received unexpected command: '.shift);
+    die('Received unexpected command: '.shift."\n");
 }
 
-sub err_and_die
+sub unexpected_close
 {
-    my $err = shift;
-    p2v_return_err($err);
-    v2vdie $err;
+    die __("Client closed connection unexpectedly.\n");
 }
 
 END {
     my $err = $?;
+
+    # Delete the stderr log file if it's empty
+    use Fcntl 'SEEK_CUR';
+    my $stderr_pos = sysseek($stderr, 0, SEEK_CUR);
+    if ($stderr_pos == 0) {
+        unlink($stderr_filename);
+    } else {
+        logmsg WARN, __x('Error messages were written to {file}.',
+                         file => $stderr_filename);
+    }
 
     logmsg NOTICE, __x("{program} exited.", program => 'p2v-server');
 
@@ -426,10 +438,10 @@ sub inspect_guest
     @roots = sort @roots;
 
     # Only work on single-root operating systems.
-    v2vdie __('No root device found in this operating system image.')
+    die __("No root device found in this operating system image.\n")
         if @roots == 0;
 
-    v2vdie __('Multiboot operating systems are not supported.')
+    die __("Multiboot operating systems are not supported.\n")
         if @roots > 1;
 
     return $roots[0];
@@ -438,12 +450,12 @@ sub inspect_guest
 sub p2v_receive
 {
     my $in = <>;
-    v2vdie __('Client closed connection unexpectedly') unless defined($in);
+    return undef unless defined($in);
 
     # Messages consist of the message type followed by 0 or more arguments,
     # terminated by a newline
     chomp($in);
-    $in =~ /^([A-Z_]+)( .+)?$/ or err_and_die("Received invalid message: $in");
+    $in =~ /^([A-Z_]+)( .+)?$/ or die("Received invalid message: $in\n");
 
     my %msg;
     $msg{type} = $1;
@@ -470,7 +482,7 @@ sub p2v_read
 
     while($total < $length) {
         my $in = read(STDIN, $buf, $length, $total)
-            or err_and_die(__x('Error receiving data: {error}', error => $@));
+            or die(__x("Error receiving data: {error}\n", error => $@));
         logmsg DEBUG, "Read $in bytes";
         $total += $in;
     }
