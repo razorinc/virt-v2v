@@ -14,6 +14,9 @@ ulimit -c unlimited
 Xlog=/tmp/X.log
 again=$(mktemp)
 
+# Launch a getty on tty2 to allow debugging while the program runs
+/usr/bin/setsid mingetty --autologin root /dev/tty2 &
+
 while [ -f "$again" ]; do
     /usr/bin/xinit /usr/bin/virt-p2v-launcher > $Xlog 2>&1
 

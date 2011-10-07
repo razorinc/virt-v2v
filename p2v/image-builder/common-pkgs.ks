@@ -4,6 +4,7 @@ dejavu-sans-fonts
 xorg-x11-xinit
 xorg-x11-drivers
 xorg-x11-server-Xorg
+/usr/bin/setsid
 
 # Boot requirements
 device-mapper
