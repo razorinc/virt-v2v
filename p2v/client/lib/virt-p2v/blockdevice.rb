@@ -85,8 +85,12 @@ begin
         # We've got a real block device. Check if it's removable or not
         File.open("/sys/block/#{dev}/removable") { |fd|
             removable = fd.gets.chomp
+
+            # cciss device /dev/cciss/c0d0 will be cciss!c0d0 under /sys/block
+            devpath = dev.gsub("!", "/")
+
             if removable == "0" then
-                FixedBlockDevice.new(dev)
+                FixedBlockDevice.new(devpath)
             else
                 # Look in device/modalias to work out what kind of removable
                 # device this is
@@ -103,7 +107,7 @@ begin
                     end
                 }
 
-                RemovableBlockDevice.new(dev, type) unless type.nil?
+                RemovableBlockDevice.new(devpath, type) unless type.nil?
             end
         }
     }
