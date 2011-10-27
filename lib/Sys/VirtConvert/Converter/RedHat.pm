@@ -1891,7 +1891,8 @@ sub _remap_block_devices
     # libguestfs, which means their device name in the appliance can be
     # inferred.
 
-    # If the guest is using libata, IDE drives could be renamed.
+    # If the guest is using libata, IDE drives could have different names in the
+    # guest from their libvirt device names.
 
     # Modern distros use libata, and IDE devices are presented as sdX
     my $libata = 1;
@@ -1911,81 +1912,22 @@ sub _remap_block_devices
     # that all Fedora distributions in use use libata.
 
     if ($libata) {
-        # Look for IDE and SCSI devices in guest config files
-        my %guestif;
-        eval {
-            my @guestdevs;
+        # If there are any IDE devices, the guest will have named these sdX
+        # before any SCSI devices. i.e. If we have disks hda, hdb, sda and sdb,
+        # these will have been presented to the guest as sda, sdb, sdc and sdd
+        # respectively.
+        #
+        # Here we take advantage of the fact that 'hd' comes alphabetically
+        # before 'sd' to rename all 'hd' and 'sd' devices into a single 'sd'
+        # namespace, with IDE devices coming first.
 
-            foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
-                my $device = $g->aug_get($spec);
-
-                push(@guestdevs, $device);
-            }
-
-            foreach my $key ($g->aug_match('/files/boot/grub/device.map/*')) {
-                $key =~ m{/files/boot/grub/device.map/(.*)} or die;
-                my $gdev = $1;
-
-                next if ($gdev =~ /^#comment/);
-
-                my $odev = $g->aug_get($key);
-                push(@guestdevs, $odev);
-            }
-
-            foreach my $dev (@guestdevs) {
-                next unless($dev =~ m{^/dev/(sd|hd)([a-z]+)});
-                $guestif{$1} ||= {};
-                $guestif{$1}->{$1.$2} = 1;
-            }
-        };
-
-        augeas_error($g, $@) if ($@);
-
-        # If guest config contains references to sdX, these could refer to IDE
-        # or SCSI devices. We may need to update them.
-        if (exists($guestif{sd})) {
-            # Look for IDE and SCSI devices from the domain definition
-            my %domainif;
-            foreach my $device (@devices) {
-                foreach my $type ('hd', 'sd') {
-                    if ($device =~ m{^$type([a-z]+)}) {
-                        $domainif{$type} ||= {};
-                        $domainif{$type}->{$device} = 1;
-                    }
-                }
-            }
-
-            my %map;
-
-            my $letter = 'a';
-            # IDE drives are presented first
-            foreach my $old (sort { _drivecmp('hd', $a, $b) }
-                                  keys(%{$domainif{hd}}))
-            {
-                $map{$old} = "sd$letter";
-                $letter++;
-            }
-
-            # Followed by SCSI drives
-            foreach my $old (sort { _drivecmp('sd', $a, $b) }
-                                  keys(%{$domainif{sd}}))
-            {
-                $map{$old} = "sd$letter";
-                $letter++;
-            }
-
-            my @newdevices;
-            foreach my $device (@devices) {
-                my $map = $map{$device};
-
-                unless (defined($map)) {
-                    warn ("No mapping for device $device");
-                    next;
-                }
-                push(@newdevices, $map);
-            }
-            @devices = @newdevices;
+        my @newdevices;
+        my $suffix = 'a';
+        foreach my $device (@devices) {
+            $device = 'sd'.$suffix++ if ($device =~ /(h|s)d([a-z]+)/);
+            push(@newdevices, $device);
         }
+        @devices = @newdevices;
     }
 
     # We now assume that @devices contains an ordered list of device names, as
@@ -2010,35 +1952,57 @@ sub _remap_block_devices
     }
 
     eval {
-        # Update bare device references in fstab
-        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec')) {
+        # Update bare device references in fstab and grub's device.map
+        foreach my $spec ($g->aug_match('/files/etc/fstab/*/spec'),
+                          $g->aug_match('/files/boot/grub/device.map/*'.
+                                            '[label() != "#comment"]'))
+        {
             my $device = $g->aug_get($spec);
 
-            next unless($device =~ m{^/dev/([a-z]+)(\d*)});
-            my $name = $1;
-            my $part = $2;
+            # Match device names and partition numbers
+            my $name; my $part;
+            foreach my $r (qr{^/dev/(cciss/c\d+d\d+)(?:p(\d+))?$},
+                           qr{^/dev/([a-z]+)(\d+)?$}) {
+                if ($device =~ $r) {
+                    $name = $1;
+                    $part = $2;
+                    last;
+                }
+            }
 
-            next unless(exists($map{$name}));
+            # Ignore this entry if it isn't a device name
+            next unless defined($name);
 
-            $g->aug_set($spec, "/dev/".$map{$name}.$part);
+            # Ignore this entry if it refers to a device we don't know anything
+            # about. The user will have to fix this post-conversion.
+            if (!exists($map{$name})) {
+                my $warned = 0;
+                for my $file ('/etc/fstab', '/boot/grub/device.map') {
+                    if ($spec =~ m{^/files$file}) {
+                        logmsg WARN, __x('{file} references unknown device '.
+                                         '{device}. This entry must be '.
+                                         'manually fixed after conversion.',
+                                         file => $file, device => $device);
+                        $warned = 1;
+                    }
+                }
+
+                # Shouldn't happen. Not fatal if it does, though.
+                if (!$warned) {
+                    logmsg WARN, 'Please report this warning as a bug. '.
+                                 "augeas path $spec refers to unknown device ".
+                                 "$device. This entry must be manually fixed ".
+                                 'after conversion.'
+                }
+
+                next;
+            }
+
+            my $mapped = '/dev/'.$map{$name};
+            $mapped .= $part if defined($part);
+            $g->aug_set($spec, $mapped);
         }
-        # Update device.map
-        foreach my $key ($g->aug_match('/files/boot/grub/device.map/*')) {
-            $key =~ m{/files/boot/grub/device.map/(.*)} or die;
-            my $gdev = $1;
 
-            next if ($gdev =~ /^#comment/);
-
-            my $odev = $g->aug_get($key);
-
-            next unless($odev =~ m{^/dev/([a-z]+)(\d*)});
-            my $name = $1;
-            my $part = $2;
-
-            next unless(exists($map{$name}));
-
-            $g->aug_set($key, "/dev/".$map{$name}.$part);
-        }
         $g->aug_save();
     };
 
