@@ -23,7 +23,6 @@ use warnings;
 use Carp qw(carp);
 use File::Spec;
 use File::Temp qw(tempdir);
-use Data::Dumper;
 use Encode qw(encode decode);
 use IO::String;
 use XML::DOM;

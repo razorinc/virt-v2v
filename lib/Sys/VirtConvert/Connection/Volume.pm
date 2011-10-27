@@ -20,8 +20,6 @@ package Sys::VirtConvert::Connection::Volume;
 use strict;
 use warnings;
 
-use Data::Dumper;
-
 use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';

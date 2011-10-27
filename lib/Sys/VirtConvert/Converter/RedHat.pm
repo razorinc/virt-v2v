@@ -20,7 +20,6 @@ package Sys::VirtConvert::Converter::RedHat;
 use strict;
 use warnings;
 
-use Data::Dumper;
 use Locale::TextDomain 'virt-v2v';
 
 use XML::DOM;
