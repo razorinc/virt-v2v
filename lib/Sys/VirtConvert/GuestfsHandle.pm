@@ -22,7 +22,6 @@ use warnings;
 
 use Carp;
 
-use Sys::Guestfs::Lib qw(open_guest);
 use Sys::VirtConvert::Util qw(rhev_helper);
 
 use Locale::TextDomain 'virt-v2v';
@@ -55,18 +54,19 @@ close() method, and the ability to register pre-close callbacks.
 
 =over
 
-=item new(storage, transferiso, isrhev)
+=item new(disks, transferiso, isrhev)
 
 Create a new object. Open a new Sys::Guestfs handle to proxy, using the disks
-defined in the array I<storage>. Add I<transferiso> as a read-only drive if it
-is given. If I<isrhev> is true, the handle will use user and group 36:36.
+defined in I<disks>, which is taken from the guest metadata. Add I<transferiso>
+as a read-only drive if it is given. If I<isrhev> is true, the handle will use
+user and group 36:36.
 
 =cut
 
 sub new
 {
     my $class = shift;
-    my ($storage, $transfer, $isrhev) = @_;
+    my ($disks, $transfer, $isrhev) = @_;
 
     my $self = {};
 
@@ -75,10 +75,20 @@ sub new
     my $open = sub {
         my $interface = "ide";
 
-        $g = open_guest($storage, rw => 1, interface => $interface);
+        $g = Sys::Guestfs->new();
+        foreach my $disk (@{$disks}) {
+            my $vol = $disk->{dst};
+
+            $g->add_drive_opts($vol->get_path(),
+                               format => $vol->get_format(),
+                               iface => $interface,
+                               name => $disk->{device});
+        }
 
         # Add the transfer iso if there is one
-        $g->add_drive_ro_with_if($transfer, $interface) if (defined($transfer));
+        $g->add_drive_opts($transfer,
+                           format => 'raw', iface => $interface, readonly => 1)
+            if defined($transfer);
 
         # Enable networking in the guest
         $g->set_network(1);

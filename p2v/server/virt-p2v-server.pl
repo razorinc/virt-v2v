@@ -336,14 +336,12 @@ sub convert
     die("CONVERT without prior SET_PROFILE command\n") unless defined($target);
     die("CONVERT without prior METADATA command\n") unless defined($meta);
 
-    my @localpaths = map { $_->{local_path} } @{$meta->{disks}};
-
     my $g;
     eval {
         my $transferiso = $config->get_transfer_iso();
 
         $g = new Sys::VirtConvert::GuestfsHandle(
-            \@localpaths,
+            $meta->{disks},
             $transferiso,
             $target->isa('Sys::VirtConvert::Connection::RHEVTarget')
         );
