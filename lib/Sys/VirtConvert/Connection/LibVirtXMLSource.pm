@@ -120,27 +120,38 @@ sub get_volume
     my $self = shift;
     my ($path) = @_;
 
+    die __x("Guest disk image {path} is not readable.\n", path => $path)
+        unless (-r $path);
+
     # Use the output of qemu-img to inspect the path
     open(my $qemuimg, '-|', 'env', 'LANG=C', 'qemu-img', 'info', $path)
-        or die("Unable to execute qemu-img: $!");
+        or die __x("Unable to execute qemu-img: {error}\n", error => $!);
 
     # qemu-img outputs data similar to:
     # image: /var/lib/libvirt/images/p2v.img
     # file format: raw
     # virtual size: 8.0G (8589934592 bytes)
     # disk size: 8.0G
+    my $output = '';
     my %info;
     while(<$qemuimg>) {
+        $output .= $_;
         next unless /^([^:]+):\s+(.*?)\s*$/;
         $info{$1} = $2;
     }
 
     my (undef, undef, $name) = File::Spec->splitpath($path);
-    my $format = $info{'file format'};
 
+    my $format = $info{'file format'};
     my $vsize = $info{'virtual size'};
+
+    die __x("Unexpected output from qemu-img:\n{output}\n",
+            output => $output)
+        unless (defined($format) && defined($vsize));
+
     $vsize =~ /\s+\((\d+)\s+bytes\)$/
-        or die("qemu-img returned unexpected virtual size: $vsize");
+        or die __x("qemu-img returned unexpected virtual size: {size}\n",
+                   size => $vsize);
     my $size = $1;
 
     # For $usage, $is_sparse and $is_block, we need to know if it's a block
