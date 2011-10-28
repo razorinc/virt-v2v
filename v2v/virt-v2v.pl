@@ -86,7 +86,7 @@ Guest argument is the path to an XML file containing a libvirt domain.
 
 =cut
 
-my $input_uri = "qemu:///system";
+my $input_uri = $> == 0 ? 'qemu:///system' : 'qemu:///session';
 
 =item B<-ic URI>
 
@@ -131,8 +131,9 @@ my $output_uri = $> == 0 ? 'qemu:///system' : 'qemu:///session';
 
 =item B<-oc URI>
 
-Specifies the libvirt connection to use to create the converted guest. If
-ommitted, this defaults to qemu:///system.
+Specifies the libvirt connection to use to create the converted guest.  If
+omitted, this defaults to qemu:///system when virt-v2v runs as root, or
+qemu:///session when virt-v2v runs as a regular user.
 
 B<N.B.> virt-v2v must be able to write directly to storage described by this
 libvirt connection. This makes writing to a remote connection impractical at
