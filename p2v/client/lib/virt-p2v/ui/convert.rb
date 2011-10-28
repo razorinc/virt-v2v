@@ -250,6 +250,7 @@ module VirtP2V::UI::Convert
             # an Exception, which would also return true if evaluated alone
             if result == true then
                 @status.text = ''
+                @converter.connection.close
                 event(EV_CONVERTED, true)
             else
                 @status.text = result.message
