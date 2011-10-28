@@ -4,14 +4,18 @@
 # you have to adhere to make syntax.
 LINGUAS = \
     es \
+    es_ES \
+    fr \
     it \
     nl \
     or \
     pl \
+    pt_BR \
     ru \
     te \
     uk \
-    zh_CN
+    zh_CN \
+    zh_TW
 
 # Textdomain for our package.
 TEXTDOMAIN = virt-v2v
