@@ -244,7 +244,7 @@ class Connection
                 @channel = nil
                 raise RemoteError,
                     "Server closed connection unexpectedly: #{ex.message}"
-            rescue Libssh2::Channel::ApplicationError => ex
+            rescue => ex
                 @channel.close
                 @channel = nil
                 raise RemoteError,
