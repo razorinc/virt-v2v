@@ -1,20 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
+# Translators:
+# mdbooth <mbooth@redhat.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2011-09-19 14:28+0100\n"
-"PO-Revision-Date: 2011-04-19 09:40+0000\n"
+"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
+"POT-Creation-Date: 2011-10-28 16:45+0100\n"
+"PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
-"Language-Team: Oriya <None>\n"
-"Language: or\n"
+"Language-Team: Oriya (http://www.transifex.net/projects/p/fedora/team/or/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: or\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:97
@@ -183,21 +184,36 @@ msgstr ""
 msgid "{path} doesn't look like a libvirt domain XML file"
 msgstr ""
 
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:123
+#, perl-brace-format
+msgid "Guest disk image {path} is not readable.\n"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:128
+#, perl-brace-format
+msgid "Unable to execute qemu-img: {error}\n"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:148
+#, perl-brace-format
+msgid ""
+"Unexpected output from qemu-img:\n"
+"{output}\n"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm:153
+#, perl-brace-format
+msgid "qemu-img returned unexpected virtual size: {size}\n"
+msgstr ""
+
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the "
-"volume doesn't exist, or because the volume exists but is not contained in a "
-"storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to "
-"contain the volume. Note that you do not have to re-create or move the "
-"volume itself, only define a pool which contains it. libvirt will "
-"automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection "
-"Details from the application menu. Storage pools are displayed in the "
-"Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
@@ -243,17 +259,17 @@ msgstr ""
 msgid "{name} isn't a valid guest name"
 msgstr "{name} ଟି ଗୋଟିଏ ବୈଧ ଅତିଥି ନାମନୁହଁ"
 
-#: ../lib/Sys/VirtConvert/Connection/Source.pm:116
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:112
 #, perl-brace-format
 msgid "Transferring storage volume {name}: {size} bytes"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/Source.pm:146
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:142
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/Source.pm:172
+#: ../lib/Sys/VirtConvert/Connection/Source.pm:168
 #, perl-brace-format
 msgid ""
 "Storage volume {name} already exists on the target. NOT copying it again. "
@@ -349,7 +365,7 @@ msgstr ""
 msgid "Error writing data to {path}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:332
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:333
 msgid "virt-v2v cannot yet write to an SSH connection"
 msgstr ""
 
@@ -358,12 +374,12 @@ msgstr ""
 msgid "Caching {name}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:372
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:368
 #, perl-brace-format
 msgid "Caching {name}: {size} bytes"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:427
+#: ../lib/Sys/VirtConvert/Transfer/SSH.pm:423
 msgid ""
 "When writing to an SSH connection, virt-v2v can only currently convert "
 "volumes to raw format"
@@ -427,8 +443,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username}"
+" from .netrc."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:454
@@ -458,160 +474,160 @@ msgid ""
 "{output}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:304
+#: ../lib/Sys/VirtConvert/Config.pm:316
 #, perl-brace-format
 msgid "app entry in config doesn't contain a path: {xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:363
+#: ../lib/Sys/VirtConvert/Config.pm:375
 #, perl-brace-format
 msgid ""
 "Capability in config contains a dependency with no {property} attribute: "
 "{xml}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:391
+#: ../lib/Sys/VirtConvert/Config.pm:403
 #, perl-brace-format
 msgid "No config specified. No {type} match for {search}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:400
+#: ../lib/Sys/VirtConvert/Config.pm:412
 #, perl-brace-format
 msgid "No {type} in config matches {search}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:414
+#: ../lib/Sys/VirtConvert/Config.pm:426
 msgid "Didn't detect operating system"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:482
+#: ../lib/Sys/VirtConvert/Config.pm:494
 #, perl-brace-format
 msgid ""
 "No mapping found for {type} interface {name} in config file. The converted "
 "guest may not start until its network interface is updated."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:496
+#: ../lib/Sys/VirtConvert/Config.pm:508
 #, perl-brace-format
 msgid "Invalid network mapping in config: {config}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:503
+#: ../lib/Sys/VirtConvert/Config.pm:515
 #, perl-brace-format
 msgid "Unknown interface type {type} in network mapping: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:545
+#: ../lib/Sys/VirtConvert/Config.pm:557
 #, perl-brace-format
 msgid "There is no profile named {name}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:550
+#: ../lib/Sys/VirtConvert/Config.pm:562
 #, perl-brace-format
 msgid "Profile {name} doesn't specify an output method."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:569
+#: ../lib/Sys/VirtConvert/Config.pm:581
 #, perl-brace-format
 msgid "Profile {name} doesn't specify output storage."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:582
+#: ../lib/Sys/VirtConvert/Config.pm:594
 #, perl-brace-format
 msgid "Default network doesn't contain a mapping: {config}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Config.pm:592
+#: ../lib/Sys/VirtConvert/Config.pm:604
 #, perl-brace-format
 msgid "Invalid network mapping: {config}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:268
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:267
 msgid "Unable to find any valid modprobe configuration"
 msgstr "କୌଣସି ବୈଧ modprobe ସଂରଚନାକୁ ଖୋଜି ପାଇବାରେ ଅସମର୍ଥ"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:323
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:322
 #, perl-brace-format
 msgid "Don't know how to update {device}, which loads the {module} module."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:442
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:441
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X "
-"may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X"
+" may not function correctly"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:496
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:495
 #, perl-brace-format
 msgid "grub refers to {path}, which doesn't exist."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:568
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:567
 #, perl-brace-format
 msgid "grub refers to {path}, which doesn't exist\n"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:592
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:591
 #, perl-brace-format
 msgid "Grub entry {title} does not specify an initrd"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:627
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:626
 #, perl-brace-format
 msgid "{filename}: could not read initrd format"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:677
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:676
 #, perl-brace-format
 msgid "Didn't find modules directory {modules} for kernel {path}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:685
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:684
 #, perl-brace-format
 msgid "Couldn't guess kernel version number from path for kernel {path}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:742
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:741
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:903
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:906
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "/etc/rc.local କୁ ଖୋଲିବାରେ ଅସମର୍ଥ: {error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:946
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:949
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was: "
-"{error}"
+"VMware Tools was detected, but uninstallation failed. The error message was:"
+" {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:970
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:973
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:989
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:992
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1206
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1209
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1269
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1272
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1318
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1322
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:441
 #, perl-brace-format
 msgid ""
@@ -619,45 +635,52 @@ msgid ""
 "configuration file are required, but missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1740
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1745
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2112
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1981
+#, perl-brace-format
+msgid ""
+"{file} references unknown device {device}. This entry must be manually fixed"
+" after conversion."
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2081
 #, perl-brace-format
 msgid "Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2168
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2137
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/Windows.pm:136
-#: ../lib/Sys/VirtConvert/Converter/Windows.pm:139
-#, fuzzy, perl-brace-format
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:135
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:138
+#, perl-brace-format
 msgid "Failed to open {hive} hive: {error}"
-msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
+msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/Windows.pm:193
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:192
 #, perl-brace-format
 msgid ""
 "Could not download the {hive} registry from this Windows guest. The exact "
 "error message was: {errmsg}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/Windows.pm:259
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:258
 #, perl-brace-format
 msgid "Guest is not a supported version of Windows ({major}.{minor})"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/Windows.pm:334
+#: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest "
-"will be configured with a {block} block storage adapter and a {net} network "
-"adapter, but no drivers will be installed for them. If the {block} driver is "
-"not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest"
+" will be configured with a {block} block storage adapter and a {net} network"
+" adapter, but no drivers will be installed for them. If the {block} driver "
+"is not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -681,158 +704,173 @@ msgid ""
 "conversion."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:166
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:176
 msgid "libguestfs did not shut down cleanly"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:83
+#: ../p2v/server/virt-p2v-server.pl:88
 #, perl-brace-format
 msgid "{program} started."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:127
+#: ../p2v/server/virt-p2v-server.pl:94
+#, perl-brace-format
+msgid "Unable to open log file {file}: {error}"
+msgstr ""
+
+#: ../p2v/server/virt-p2v-server.pl:139
 #, perl-brace-format
 msgid ""
-"This version of virt-p2v-server does not support protocol version {version}."
+"This version of virt-p2v-server does not support protocol version "
+"{version}.\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:229
+#: ../p2v/server/virt-p2v-server.pl:243
 #, perl-brace-format
-msgid "Invalid allocation policy {policy} in profile."
+msgid "Invalid allocation policy {policy} in profile.\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:305
+#: ../p2v/server/virt-p2v-server.pl:314
 #, perl-brace-format
-msgid "Invalid profile: {profile}"
+msgid "Invalid profile: {profile}\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:318
+#: ../p2v/server/virt-p2v-server.pl:327
 #, perl-brace-format
-msgid "Profile {profile} specifies invalid method {method}."
+msgid "Profile {profile} specifies invalid method {method}.\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:358 ../v2v/virt-v2v.pl:559
+#: ../p2v/server/virt-p2v-server.pl:362 ../v2v/virt-v2v.pl:559
 #, perl-brace-format
 msgid "{name} configured with virtio drivers."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:361 ../v2v/virt-v2v.pl:562
+#: ../p2v/server/virt-p2v-server.pl:365 ../v2v/virt-v2v.pl:562
 #, perl-brace-format
 msgid "{name} configured with virtio storage only."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:364 ../v2v/virt-v2v.pl:565
+#: ../p2v/server/virt-p2v-server.pl:368 ../v2v/virt-v2v.pl:565
 #, perl-brace-format
 msgid "{name} configured with virtio networking only."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:367 ../v2v/virt-v2v.pl:568
+#: ../p2v/server/virt-p2v-server.pl:371 ../v2v/virt-v2v.pl:568
 #, perl-brace-format
 msgid "{name} configured without virtio drivers."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:403
+#: ../p2v/server/virt-p2v-server.pl:397
+msgid "Client closed connection unexpectedly.\n"
+msgstr ""
+
+#: ../p2v/server/virt-p2v-server.pl:409
+#, perl-brace-format
+msgid "Error messages were written to {file}."
+msgstr ""
+
+#: ../p2v/server/virt-p2v-server.pl:413
 #, perl-brace-format
 msgid "{program} exited."
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:429 ../v2v/virt-v2v.pl:613
-msgid "No root device found in this operating system image."
+#: ../p2v/server/virt-p2v-server.pl:439
+msgid "No root device found in this operating system image.\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:432
-msgid "Multiboot operating systems are not supported."
+#: ../p2v/server/virt-p2v-server.pl:442
+msgid "Multiboot operating systems are not supported.\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:441
-msgid "Client closed connection unexpectedly"
-msgstr ""
-
-#: ../p2v/server/virt-p2v-server.pl:457
+#: ../p2v/server/virt-p2v-server.pl:467
 #, perl-brace-format
 msgid "Received: {command} {args}"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:473
+#: ../p2v/server/virt-p2v-server.pl:483
 #, perl-brace-format
-msgid "Error receiving data: {error}"
+msgid "Error receiving data: {error}\n"
 msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:484 ../p2v/server/virt-p2v-server.pl:496
-#: ../p2v/server/virt-p2v-server.pl:503
+#: ../p2v/server/virt-p2v-server.pl:494 ../p2v/server/virt-p2v-server.pl:506
+#: ../p2v/server/virt-p2v-server.pl:513
 #, perl-brace-format
 msgid "Sent: {msg}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:339
+#: ../v2v/virt-v2v.pl:340
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:360
+#: ../v2v/virt-v2v.pl:361
 msgid "--network may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:363 ../v2v/virt-v2v.pl:374
+#: ../v2v/virt-v2v.pl:364 ../v2v/virt-v2v.pl:375
 msgid "--network and --bridge are mutually exclusive"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:371
+#: ../v2v/virt-v2v.pl:372
 msgid "--bridge may only be specified once"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:399
+#: ../v2v/virt-v2v.pl:400
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:414
+#: ../v2v/virt-v2v.pl:415
 msgid "Defined target profiles:"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:441
+#: ../v2v/virt-v2v.pl:442
 msgid "You must specify an output storage location"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:455
+#: ../v2v/virt-v2v.pl:456
 #, perl-brace-format
 msgid "{output} is not a valid output method."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:463
+#: ../v2v/virt-v2v.pl:464
 msgid "You must specify a filename"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:468
+#: ../v2v/virt-v2v.pl:469
 #, perl-brace-format
 msgid "{modulename} only takes a single filename."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:477
+#: ../v2v/virt-v2v.pl:478
 msgid "You must specify a guest"
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:485
+#: ../v2v/virt-v2v.pl:486
 #, perl-brace-format
 msgid "{modulename} only takes a single domain name."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:491
+#: ../v2v/virt-v2v.pl:492
 #, perl-brace-format
 msgid "{input} is not a valid input method."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:502
+#: ../v2v/virt-v2v.pl:503
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:513
+#: ../v2v/virt-v2v.pl:514
 msgid "Guest doesn't define any storage devices"
 msgstr ""
 
 #: ../v2v/virt-v2v.pl:588
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
+msgstr ""
+
+#: ../v2v/virt-v2v.pl:613
+msgid "No root device found in this operating system image."
 msgstr ""
 
 #: ../v2v/virt-v2v.pl:623
@@ -861,3 +899,5 @@ msgstr ""
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr ""
+
+
