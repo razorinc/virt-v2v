@@ -1,21 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # brian_ch <chalegabrian@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-10-28 16:45+0100\n"
 "PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Portuguese (Brazilian) <trans-pt_br@lists.fedoraproject.org>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:97
@@ -63,8 +63,7 @@ msgstr "Falha ao criar diretório {dir}: {error}"
 msgid ""
 "Failed to create new volume {path} with format {format}. Error was: {error}"
 msgstr ""
-"Falha ao criar novo volume {path} com o formato {format}. O erro foi: "
-"{error}"
+"Falha ao criar novo volume {path} com o formato {format}. O erro foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:112
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:727
@@ -91,8 +90,7 @@ msgstr "RHEV não pode manipular volumes do formato {format}"
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
 msgstr ""
-"Não foi possível mover o volume da localização temporária {tmpdir} para "
-"{dir}"
+"Não foi possível mover o volume da localização temporária {tmpdir} para {dir}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:381
 #, perl-brace-format
@@ -217,11 +215,18 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
@@ -453,8 +458,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username}"
-" from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:454
@@ -563,8 +568,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:441
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X"
-" may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X "
+"may not function correctly"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:495
@@ -611,8 +616,8 @@ msgstr "Não foi possível abrir /etc/rc.local: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:949
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was:"
-" {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
 msgstr ""
 "VMware Tools foi detectado, mas desinstalação falhou. A mensagem de erro "
 "foi: {error}"
@@ -660,8 +665,8 @@ msgstr "Erro executando {command}: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1981
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed"
-" after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed "
+"after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2081
@@ -671,8 +676,7 @@ msgstr "Kernel versão {version} não tem uma entrada initrd no grub."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2137
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
-msgstr ""
-"Não encontrei mkinitrd ou dracut. Não foi possível atualizar o initrd."
+msgstr "Não encontrei mkinitrd ou dracut. Não foi possível atualizar o initrd."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:135
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:138
@@ -695,10 +699,10 @@ msgstr "Convidado não é uma versão suportada do Windows ({major}:{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest"
-" will be configured with a {block} block storage adapter and a {net} network"
-" adapter, but no drivers will be installed for them. If the {block} driver "
-"is not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -917,5 +921,3 @@ msgstr ""
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr ""
-
-

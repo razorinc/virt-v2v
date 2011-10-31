@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Guido Grazioli <guido.grazioli@gmail.com>, 2011.
 # mdbooth <mbooth@redhat.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-10-28 16:45+0100\n"
 "PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Italian <trans-it@lists.fedoraproject.org>\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:97
@@ -90,8 +90,7 @@ msgstr "RHEV non gestisce volumi formattati {format}"
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:363
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
-msgstr ""
-"Impossibile spostare volumi dalla location temporanea {tmpdir} a {dir}"
+msgstr "Impossibile spostare volumi dalla location temporanea {tmpdir} a {dir}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:381
 #, perl-brace-format
@@ -113,8 +112,7 @@ msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
-"Montaggio {path} fallito. Comando chiuso in status {status}. Output: "
-"{output}"
+"Montaggio {path} fallito. Comando chiuso in status {status}. Output: {output}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:454
 #, perl-brace-format
@@ -219,17 +217,32 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
 msgstr ""
-"Impossibile recuperare le informazioni del volume per {path}. Ciò potrebbe essere dovuto al fatto che il volume non esiste, o perché il volume esiste ma non è contenuto in un pool di memorizzazione.\n"
+"Impossibile recuperare le informazioni del volume per {path}. Ciò potrebbe "
+"essere dovuto al fatto che il volume non esiste, o perché il volume esiste "
+"ma non è contenuto in un pool di memorizzazione.\n"
 "\n"
-"In quest'ultimo caso, è necessario creare un pool di memorizzazione del tipo corretto che contenga il volume. Si noti che non è necessario ricreare o spostare ilvolume stesso, basta solo definire un pool che lo contiene. libvirt rileverà automaticamente il volume quando verrà eseguita la scansione del pool dopo la creazione.\n"
+"In quest'ultimo caso, è necessario creare un pool di memorizzazione del tipo "
+"corretto che contenga il volume. Si noti che non è necessario ricreare o "
+"spostare ilvolume stesso, basta solo definire un pool che lo contiene. "
+"libvirt rileverà automaticamente il volume quando verrà eseguita la "
+"scansione del pool dopo la creazione.\n"
 "\n"
-"virt-manager è in grado di creare pool di memorizzazione. Selezionare Modifica-> Dettagli di Connessionedal menu dell'applicazione. I pool di memorizzazione sono visualizzati nel tab Storage."
+"virt-manager è in grado di creare pool di memorizzazione. Selezionare "
+"Modifica-> Dettagli di Connessionedal menu dell'applicazione. I pool di "
+"memorizzazione sono visualizzati nel tab Storage."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
 #, perl-brace-format
@@ -470,8 +483,8 @@ msgstr "Impossibile scrivere con una connessione ESX"
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username}"
-" from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 "Errore di autenticazione nella connessione a {server}. Usate le credenziali "
 "per {username} dal file .netrc."
@@ -495,8 +508,7 @@ msgstr "Non si hanno i permessi di lettura per {path} "
 #, perl-brace-format
 msgid "Unable to parse config file {path}: {error}"
 msgstr ""
-"Impossibile eseguire il parsing del file di configurazione in {path}: "
-"{error}"
+"Impossibile eseguire il parsing del file di configurazione in {path}: {error}"
 
 #: ../lib/Sys/VirtConvert/Config.pm:156
 #, perl-brace-format
@@ -523,8 +535,7 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Config.pm:403
 #, perl-brace-format
 msgid "No config specified. No {type} match for {search}."
-msgstr ""
-"Nessuna configurazione specificata. Nessun {type} trovato per {search}"
+msgstr "Nessuna configurazione specificata. Nessun {type} trovato per {search}"
 
 #: ../lib/Sys/VirtConvert/Config.pm:412
 #, perl-brace-format
@@ -541,8 +552,8 @@ msgid ""
 "No mapping found for {type} interface {name} in config file. The converted "
 "guest may not start until its network interface is updated."
 msgstr ""
-"Nessun mapping per l'interfaccia {type} {name} nel file di configurazione.Il"
-" guest convertito potrebbe non avviarsi fino all'aggiornamento della sua "
+"Nessun mapping per l'interfaccia {type} {name} nel file di configurazione.Il "
+"guest convertito potrebbe non avviarsi fino all'aggiornamento della sua "
 "interfaccia di rete."
 
 #: ../lib/Sys/VirtConvert/Config.pm:508
@@ -593,8 +604,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:441
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X"
-" may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X "
+"may not function correctly"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:495
@@ -643,8 +654,8 @@ msgstr "Impossibile aprire /etc/rc.local: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:949
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was:"
-" {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
 msgstr ""
 "É stato rilevato VMware Tools, ma non è stato possibile disinstallarlo. Il "
 "messaggio di errore riportato è: {error}"
@@ -692,16 +703,16 @@ msgstr "Impossibile avviare {command}: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1981
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed"
-" after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed "
+"after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2081
 #, perl-brace-format
 msgid "Kernel version {version} doesn't have an initrd entry in grub."
 msgstr ""
-"Il kernel versione {version} non ha una elemento initrd corrispondente nella"
-" configurazione di grub."
+"Il kernel versione {version} non ha una elemento initrd corrispondente nella "
+"configurazione di grub."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2137
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
@@ -728,10 +739,10 @@ msgstr "Il guest non è una versione Windows supportata ({major}.{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest"
-" will be configured with a {block} block storage adapter and a {net} network"
-" adapter, but no drivers will be installed for them. If the {block} driver "
-"is not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -951,5 +962,3 @@ msgstr ""
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr ""
-
-

@@ -1,23 +1,24 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # mdbooth <mbooth@redhat.com>, 2011.
 # Piotr Drąg <piotrdrag@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-10-28 16:45+0100\n"
 "PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Polish (http://www.transifex.net/projects/p/fedora/team/pl/)\n"
+"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pl\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:97
 #, perl-brace-format
@@ -119,8 +120,8 @@ msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
-"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem"
-" {status}. Wyjście: {output}"
+"Zamontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:454
 #, perl-brace-format
@@ -154,8 +155,8 @@ msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
 msgstr ""
-"Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem"
-" {status}. Wyjście: {output}"
+"Odmontowanie {path} nie powiodło się. Polecenie zostało zakończone ze stanem "
+"{status}. Wyjście: {output}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:524
 #, perl-brace-format
@@ -168,8 +169,8 @@ msgid ""
 "not supported by RHEV. The converted guest's display will not require a "
 "separate password to connect."
 msgstr ""
-"Ten gość wymaga hasła do połączenia z ekranem, co nie jest obsługiwane przez"
-" RHEV. Ekran przekonwertowanego gościa nie będzie wymagał oddzielnego hasła "
+"Ten gość wymaga hasła do połączenia z ekranem, co nie jest obsługiwane przez "
+"RHEV. Ekran przekonwertowanego gościa nie będzie wymagał oddzielnego hasła "
 "do połączenia."
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:814
@@ -230,17 +231,32 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
 msgstr ""
-"Pobranie informacji o woluminie dla {path} nie powiodło się. Może być to powodowane tym, że wolumin nie istnieje lub tym, że wolumin istnieje, ale nie jest zawarty w puli pamięci masowej.\n"
+"Pobranie informacji o woluminie dla {path} nie powiodło się. Może być to "
+"powodowane tym, że wolumin nie istnieje lub tym, że wolumin istnieje, ale "
+"nie jest zawarty w puli pamięci masowej.\n"
 "\n"
-"W drugim przypadku należy utworzyć pulę pamięci masowej poprawnego typu, aby zawrzeć w niej wolumin. Proszę zauważyć, że nie trzeba ponownie tworzyć lub przenosić samego woluminu, a tylko określić pulę, która go zawiera. Biblioteka libvirt automatycznie wykryje wolumin, kiedy przeskanuje pulę po utworzeniu.\n"
+"W drugim przypadku należy utworzyć pulę pamięci masowej poprawnego typu, aby "
+"zawrzeć w niej wolumin. Proszę zauważyć, że nie trzeba ponownie tworzyć lub "
+"przenosić samego woluminu, a tylko określić pulę, która go zawiera. "
+"Biblioteka libvirt automatycznie wykryje wolumin, kiedy przeskanuje pulę po "
+"utworzeniu.\n"
 "\n"
-"Program virt-manager może tworzyć pule pamięci masowej. Należy wybrać Edycja->Informacje o połączeniu z menu aplikacji. Pule pamięci masowej są wyświetlane w karcie Pamięć masowa."
+"Program virt-manager może tworzyć pule pamięci masowej. Należy wybrać Edycja-"
+">Informacje o połączeniu z menu aplikacji. Pule pamięci masowej są "
+"wyświetlane w karcie Pamięć masowa."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
 #, perl-brace-format
@@ -481,8 +497,8 @@ msgstr "Nie można zapisać do połączenia ESX"
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username}"
-" from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 "Błąd uwierzytelnienia podczas łączenia się z {server}. Użyto danych "
 "uwierzytelniających dla {username} z pliku .netrc."
@@ -549,8 +565,8 @@ msgid ""
 "No mapping found for {type} interface {name} in config file. The converted "
 "guest may not start until its network interface is updated."
 msgstr ""
-"Nie odnaleziono mapowania dla {type} interfejsu {name} w pliku konfiguracji."
-" Przekonwertowany gość może się nie uruchamiać, dopóki jego interfejs "
+"Nie odnaleziono mapowania dla {type} interfejsu {name} w pliku konfiguracji. "
+"Przekonwertowany gość może się nie uruchamiać, dopóki jego interfejs "
 "sieciowy nie zostanie zaktualizowany."
 
 #: ../lib/Sys/VirtConvert/Config.pm:508
@@ -600,8 +616,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:441
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X"
-" may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X "
+"may not function correctly"
 msgstr ""
 "Sterownik ekranu został zaktualizowany do sterownika cirrus, ale nie można "
 "go zainstalować. System X może nie działać poprawnie"
@@ -652,8 +668,8 @@ msgstr "Nie można otworzyć /etc/rc.local: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:949
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was:"
-" {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
 msgstr ""
 "Wykryto VMware Tools, ale odinstalowanie nie powiodło się. Komunikat błędu: "
 "{error}"
@@ -669,8 +685,8 @@ msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
 msgstr ""
-"Nierozpoznany format dla {field} w konfiguracji: {value}. {field} musi być w"
-" formacie [epoch:]version[-release]."
+"Nierozpoznany format dla {field} w konfiguracji: {value}. {field} musi być w "
+"formacie [epoch:]version[-release]."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1209
 #, perl-brace-format
@@ -704,8 +720,8 @@ msgstr "Błąd podczas wykonywania {command}: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1981
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed"
-" after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed "
+"after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2081
@@ -742,10 +758,10 @@ msgstr "Gość nie jest obsługiwaną wersją systemu Windows ({major}.{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest"
-" will be configured with a {block} block storage adapter and a {net} network"
-" adapter, but no drivers will be installed for them. If the {block} driver "
-"is not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -764,11 +780,11 @@ msgid ""
 "storage adapter, but no driver will be installed for it. If the {block} "
 "driver is not already installed in the guest, it will fail to boot."
 msgstr ""
-"Brak dostępnych sterowników virtio w katalogu podanym dla tej wersji systemu"
-" Windows. Gość zostanie skonfigurowany za pomocą adaptera blokowej pamięci "
+"Brak dostępnych sterowników virtio w katalogu podanym dla tej wersji systemu "
+"Windows. Gość zostanie skonfigurowany za pomocą adaptera blokowej pamięci "
 "masowej {block}, ale nie zostaną dla niego zainstalowane żadne sterowniki. "
-"Jeśli sterownik {block} nie jest już zainstalowany w gościu, to uruchomienie"
-" się nie powiedzie."
+"Jeśli sterownik {block} nie jest już zainstalowany w gościu, to uruchomienie "
+"się nie powiedzie."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:369
 #, perl-brace-format
@@ -779,8 +795,8 @@ msgid ""
 "already installed in the guest, you must install it manually after "
 "conversion."
 msgstr ""
-"Brak dostępnych sterowników virtio w katalogu podanym dla tej wersji systemu"
-" Windows. Gość zostanie skonfigurowany za pomocą adaptera sieci {net}, ale "
+"Brak dostępnych sterowników virtio w katalogu podanym dla tej wersji systemu "
+"Windows. Gość zostanie skonfigurowany za pomocą adaptera sieci {net}, ale "
 "nie zostaną dla niego zainstalowane żadne sterowniki. Jeśli sterownik {net} "
 "nie jest już zainstalowany w gościu, to należy go zainstalować ręcznie po "
 "konwersji."
@@ -960,7 +976,8 @@ msgid ""
 "that contains the main operating system from the list below:\n"
 msgstr ""
 "Wykryto systemy operacyjne \"Dualboot\" lub \"Multiboot\". Proszę wybrać\n"
-"główny system plików zawierający główny system operacyjny z poniższej listy:\n"
+"główny system plików zawierający główny system operacyjny z poniższej "
+"listy:\n"
 
 #: ../v2v/virt-v2v.pl:638
 #, perl-brace-format
@@ -978,11 +995,10 @@ msgstr ""
 #: ../v2v/virt-v2v.pl:660 ../v2v/virt-v2v.pl:674
 #, perl-brace-format
 msgid "Root device \"{choice}\" not found. Roots found were: {roots}."
-msgstr "Nie odnaleziono głównego urządzenia \"{choice}\". Odnaleziono: {roots}."
+msgstr ""
+"Nie odnaleziono głównego urządzenia \"{choice}\". Odnaleziono: {roots}."
 
 #: ../v2v/virt-v2v.pl:680
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr "Nieznana opcja --root \"{choice}\"."
-
-

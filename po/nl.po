@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Geert Warrink <geert.warrink@onsnet.nu>, 2011.
 # mdbooth <mbooth@redhat.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
 "POT-Creation-Date: 2011-10-28 16:45+0100\n"
 "PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Dutch (http://www.transifex.net/projects/p/fedora/team/nl/)\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:97
@@ -32,8 +32,8 @@ msgid ""
 "without manual reconfiguration. The domain will present all storage devices "
 "as {block}, all network interfaces as {net} and the host as {arch}."
 msgstr ""
-"Kan dit gast besturingssysteem niet converteren. De opslag ervan zal omgezet"
-" worden en er wordt een domein voor aangemaakt, maar het zal misschien niet "
+"Kan dit gast besturingssysteem niet converteren. De opslag ervan zal omgezet "
+"worden en er wordt een domein voor aangemaakt, maar het zal misschien niet "
 "correct werken zonder opnieuw handmatige te configureren. Het domein "
 "presenteert alle opslagapparaten als {block}, alle netwerkinterfaces als "
 "{net} en de host als {arch}.  "
@@ -169,9 +169,9 @@ msgid ""
 "not supported by RHEV. The converted guest's display will not require a "
 "separate password to connect."
 msgstr ""
-"Deze gast vereist een wachtwoord voor verbinding naar zijn display, maar dit"
-" wordt niet ondersteund door RHEV. Het display van de geconverteerde gast "
-"zal geen apart wachtwoord vereisen om te verbinden."
+"Deze gast vereist een wachtwoord voor verbinding naar zijn display, maar dit "
+"wordt niet ondersteund door RHEV. Het display van de geconverteerde gast zal "
+"geen apart wachtwoord vereisen om te verbinden."
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:814
 #, perl-brace-format
@@ -231,17 +231,32 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
 msgstr ""
-"Het ophalen van volume informatie voor {path} mislukte. Dit kan zijn omdat het volume niet bestaat of omdat het volume bestaat maar geen deel uitmaakt van een opslag poel.\n"
+"Het ophalen van volume informatie voor {path} mislukte. Dit kan zijn omdat "
+"het volume niet bestaat of omdat het volume bestaat maar geen deel uitmaakt "
+"van een opslag poel.\n"
 "\n"
-"In het laatste geval, moet je een opslag poel van het juiste type aanmaken om het volume te bevatten. Merk op dat je het volume zelf niet opnieuw hoeft aan te maken of te verplaatsen, definiëer alleen een pool die het bevat. libvirt detecteert automatisch het volume als het de poel scant na het aanmaken.\n"
+"In het laatste geval, moet je een opslag poel van het juiste type aanmaken "
+"om het volume te bevatten. Merk op dat je het volume zelf niet opnieuw hoeft "
+"aan te maken of te verplaatsen, definiëer alleen een pool die het bevat. "
+"libvirt detecteert automatisch het volume als het de poel scant na het "
+"aanmaken.\n"
 "\n"
-"virt-manager kan opslag poelen aanmaken. Selecteer Bewerken-> Verbinding details in het toepassing menu. Opslag poelen worden getoond in het tabblad Opslag."
+"virt-manager kan opslag poelen aanmaken. Selecteer Bewerken-> Verbinding "
+"details in het toepassing menu. Opslag poelen worden getoond in het tabblad "
+"Opslag."
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
 #, perl-brace-format
@@ -296,8 +311,7 @@ msgstr "Overdracht van opslag volume {name}: {size} bytes"
 #, perl-brace-format
 msgid "Didn't receive full volume. Received {received} of {total} bytes."
 msgstr ""
-"Ontving geen volledig volume. {received} van de {total} bytes zijn "
-"ontvangen."
+"Ontving geen volledig volume. {received} van de {total} bytes zijn ontvangen."
 
 #: ../lib/Sys/VirtConvert/Connection/Source.pm:168
 #, perl-brace-format
@@ -484,8 +498,8 @@ msgstr "Kan niet naar een ESX verbinding schrijven"
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:449
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username}"
-" from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 "Authenticatie fout bij het verbinden met {server}. Legitimatie voor "
 "{username} werd uit .netrc gebruikt."
@@ -604,8 +618,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:441
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X"
-" may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X "
+"may not function correctly"
 msgstr ""
 "Display driver werd vernieuwd naar cirrus, maar kan cirrus driver niet "
 "installeren. X werkt misschien niet correct"
@@ -638,15 +652,15 @@ msgstr "Kan module map {modules} voor kernel {path} niet vinden"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:684
 #, perl-brace-format
 msgid "Couldn't guess kernel version number from path for kernel {path}"
-msgstr ""
-"Kan kernel versie nummer niet ontdekken uit het pad naar kernel {path}"
+msgstr "Kan kernel versie nummer niet ontdekken uit het pad naar kernel {path}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:741
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
 msgstr ""
-"Er zijn geen opstartbare kernels geïnstalleerd, en er is geen vervanging beschikbaar.\n"
+"Er zijn geen opstartbare kernels geïnstalleerd, en er is geen vervanging "
+"beschikbaar.\n"
 "Kan niet verder gaan."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:906
@@ -657,8 +671,8 @@ msgstr "Kan /etc/rc.local niet openen: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:949
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was:"
-" {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
 msgstr ""
 "VMware Tools werd gedetecteerd, naar installatie verwijderen mislukte. De "
 "foutboodschap was: {error}"
@@ -706,8 +720,8 @@ msgstr "Fout bij het draaien van {command}: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1981
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed"
-" after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed "
+"after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2081
@@ -742,10 +756,10 @@ msgstr "Gast is geen ondersteunde versie van Windows ({major}.{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest"
-" will be configured with a {block} block storage adapter and a {net} network"
-" adapter, but no drivers will be installed for them. If the {block} driver "
-"is not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -753,8 +767,8 @@ msgstr ""
 "zal geconfigureerd worden met een {block} blokopslag adapter en een {net} "
 "netwerk adapter, maar voor deze worden geen drivers geïnstalleerd. Als de "
 "{block} driver nog niet op de gast geïnstalleerd is, zal deze niet "
-"opstarten. Als de {net} driver nog niet op de gast geïnstalleerd is, moet je"
-" deze na de conversie handmatig installeren."
+"opstarten. Als de {net} driver nog niet op de gast geïnstalleerd is, moet je "
+"deze na de conversie handmatig installeren."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:355
 #, perl-brace-format
@@ -765,9 +779,9 @@ msgid ""
 "driver is not already installed in the guest, it will fail to boot."
 msgstr ""
 "Er is geen virtio blokdriver beschikbaar in de map gespecificeerd voor deze "
-"Windows versie. De gast zal geconfigureerd worden met een {block} blokopslag"
-" adapter, maar er wordt geen driver voor geïnstalleerd. Als de {block} "
-"driver nog niet op de gast geïnstalleerd is, zal deze niet opstarten."
+"Windows versie. De gast zal geconfigureerd worden met een {block} blokopslag "
+"adapter, maar er wordt geen driver voor geïnstalleerd. Als de {block} driver "
+"nog niet op de gast geïnstalleerd is, zal deze niet opstarten."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:369
 #, perl-brace-format
@@ -779,10 +793,10 @@ msgid ""
 "conversion."
 msgstr ""
 "Er is geen virtio netwerkdriver beschikbaar in de map gespecificeerd voor "
-"deze Windows versie. De gast zal geconfigureerd worden met een {net} netwerk"
-" adapter, maar er wordt geen driver voor geïnstalleerd. Als de {net} driver "
-"nog niet op de gast geïnstalleerd is, moet je deze na de conversie handmatig"
-" installeren."
+"deze Windows versie. De gast zal geconfigureerd worden met een {net} netwerk "
+"adapter, maar er wordt geen driver voor geïnstalleerd. Als de {net} driver "
+"nog niet op de gast geïnstalleerd is, moet je deze na de conversie handmatig "
+"installeren."
 
 #: ../lib/Sys/VirtConvert/GuestfsHandle.pm:176
 msgid "libguestfs did not shut down cleanly"
@@ -959,7 +973,8 @@ msgid ""
 "Dual- or multi-boot operating system detected. Choose the root filesystem\n"
 "that contains the main operating system from the list below:\n"
 msgstr ""
-"Dual- of multi-boot besturingssystemen ontdekt. Kies in de lijst hieronder het\n"
+"Dual- of multi-boot besturingssystemen ontdekt. Kies in de lijst hieronder "
+"het\n"
 "root bestandssysteem dat het hoofd besturingssysteem bevat:\n"
 
 #: ../v2v/virt-v2v.pl:638
@@ -972,8 +987,8 @@ msgid ""
 "Multi-boot operating systems are not supported by virt-v2v. Use the --root "
 "option to change how virt-v2v handles this."
 msgstr ""
-"Multi-boot besturingssystemen worden niet ondersteund door virt-v2v. Gebruik"
-" de --root optie om virt-v2v te veranderen om dit af te handelen."
+"Multi-boot besturingssystemen worden niet ondersteund door virt-v2v. Gebruik "
+"de --root optie om virt-v2v te veranderen om dit af te handelen."
 
 #: ../v2v/virt-v2v.pl:660 ../v2v/virt-v2v.pl:674
 #, perl-brace-format
@@ -986,5 +1001,3 @@ msgstr ""
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr "Onbekende --root optie \"{choice}\"."
-
-
