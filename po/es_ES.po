@@ -680,7 +680,7 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1272
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
-msgstr "Fallo al instalar paquetes usando yum. La salida fue:{outpu}"
+msgstr "Fallo al instalar paquetes usando yum. La salida fue: {output}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1322
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:441
@@ -747,8 +747,8 @@ msgstr ""
 " El huesped puede configurar un {block} dispositivo de almacenamiento y de "
 "red, pero ningun controlador sera instalado para ellos. Si el controlador de"
 " almacenamiento {block} no se encuentra pre instalado en el huesped, el "
-"puede fallar en el arranque. Si el controlador para el adaptador de red no "
-"se encuentra instalado en el huesped, usted tendra que instalarlo "
+"puede fallar en el arranque. Si el controlador para el adaptador de red "
+"({net}) no se encuentra instalado en el huesped, usted tendra que instalarlo "
 "manualmente al terminar."
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:355
@@ -893,7 +893,7 @@ msgstr "--bridge solo puede ser especificado una vez"
 #: ../v2v/virt-v2v.pl:400
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
-msgstr "El esquema de asignación tiene que ser {sparce} o {preallocated}"
+msgstr "El esquema de asignación tiene que ser {sparse} o {preallocated}"
 
 #: ../v2v/virt-v2v.pl:415
 msgid "Defined target profiles:"

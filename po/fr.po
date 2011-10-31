@@ -736,7 +736,7 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:138
 #, perl-brace-format
 msgid "Failed to open {hive} hive: {error}"
-msgstr "Impossible d'ouvrir {hive} hive : {erreur}"
+msgstr "Impossible d'ouvrir {hive} hive : {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:192
 #, perl-brace-format
