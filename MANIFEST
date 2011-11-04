@@ -61,7 +61,9 @@ p2v/image-builder/virt-p2v-image-builder
 p2v/image-builder/virt-p2v-image.ks
 p2v/server/run-p2v-locally
 p2v/server/virt-p2v-server.pl
+po/es_ES.po
 po/es.po
+po/fr.po
 po/it.po
 po/Makefile
 po/nl.po
@@ -69,11 +71,13 @@ po/or.po
 po/PACKAGE
 po/pl.po
 po/POTFILES.in
+po/pt_BR.po
 po/ru.po
 po/te.po
 po/uk.po
 po/virt-v2v.pot
 po/zh_CN.po
+po/zh_TW.po
 README-NLS
 rubygem-virt-p2v.spec
 rubygem-virt-p2v.spec.PL
