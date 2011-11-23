@@ -61,8 +61,8 @@ p2v/image-builder/version.ks
 p2v/image-builder/virt-p2v-image-builder
 p2v/image-builder/virt-p2v-image.ks
 p2v/server/virt-p2v-server.pl
-po/es_ES.po
 po/es.po
+po/es_ES.po
 po/fr.po
 po/it.po
 po/Makefile
@@ -87,9 +87,9 @@ t/002-pod-coverage.t
 t/003-syntax.t
 t/004-ExecHelper.t
 TODO.txt
-v2v/virt-v2v.db
 v2v/virt-v2v.conf
 v2v/virt-v2v.conf.pod
+v2v/virt-v2v.db
 v2v/virt-v2v.pl
 virt-v2v.spec
 virt-v2v.spec.PL

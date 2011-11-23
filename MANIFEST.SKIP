@@ -35,3 +35,6 @@ p2v/client/tmp
 # Compiled files
 \.o$
 \.so$
+
+# ISO file created when running image-builder in the build tree
+^p2v/image-builder/Virt-P2V.iso
