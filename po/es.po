@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Héctor Daniel Cabrera <logan@fedoraproject.org>, 2011.
 # Hugo Jiménez Hernández <hjimenezhdez@gmail.com>, 2011.
@@ -839,7 +839,7 @@ msgstr "Politica de asignación invalida {policy} en perfil.\n"
 #: ../p2v/server/virt-p2v-server.pl:314
 #, perl-brace-format
 msgid "Invalid profile: {profile}\n"
-msgstr "Perfil Invalido:{perfil}\n"
+msgstr "Perfil Invalido: {profile}\n"
 
 #: ../p2v/server/virt-p2v-server.pl:327
 #, perl-brace-format
