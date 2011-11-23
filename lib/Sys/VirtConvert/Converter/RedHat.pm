@@ -1972,6 +1972,9 @@ sub _remap_block_devices
             # Ignore this entry if it isn't a device name
             next unless defined($name);
 
+            # Ignore md devices, which don't need to be mapped
+            next if $name eq 'md';
+
             # Ignore this entry if it refers to a device we don't know anything
             # about. The user will have to fix this post-conversion.
             if (!exists($map{$name})) {
