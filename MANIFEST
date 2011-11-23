@@ -56,6 +56,7 @@ p2v/image-builder/common-pkgs.ks
 p2v/image-builder/common-post-nochroot.ks
 p2v/image-builder/common-post.ks
 p2v/image-builder/Makefile
+p2v/image-builder/p2v-post.ks
 p2v/image-builder/version.ks
 p2v/image-builder/virt-p2v-image-builder
 p2v/image-builder/virt-p2v-image.ks
