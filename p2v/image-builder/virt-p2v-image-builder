@@ -23,7 +23,7 @@
 
 # Current fedora data
 cur_rawhide=17
-cur_devel=16
+cur_devel=17
 
 me=$(basename "$0")
 warn() { printf '%s: %s\n' "$me" "$*" >&2; }
