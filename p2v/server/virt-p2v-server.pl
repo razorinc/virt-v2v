@@ -90,9 +90,12 @@ logmsg NOTICE, __x("{program} started.", program => 'p2v-server');
 # Create a temporary log file to capture output to stderr
 my $stderr;
 my $stderr_filename = '/var/log/virt-p2v-server.'.time().'.log';
-open($stderr, '>', $stderr_filename)
-    or v2vdie __x("Unable to open log file {file}: {error}",
-                  file => $stderr_filename, error => $!);
+
+if(!open($stderr, '>', $stderr_filename)) {
+    $stderr = undef;
+    v2vdie __x("Unable to open log file {file}: {error}",
+               file => $stderr_filename, error => $!);
+}
 open(*STDERR, ">&", $stderr) or v2vdie "dup failed: $!";
 
 # Wrap everything in a big eval to catch any die(). N.B. $SIG{__DIE__} is no
@@ -401,13 +404,15 @@ END {
     my $err = $?;
 
     # Delete the stderr log file if it's empty
-    use Fcntl 'SEEK_CUR';
-    my $stderr_pos = sysseek($stderr, 0, SEEK_CUR);
-    if ($stderr_pos == 0) {
-        unlink($stderr_filename);
-    } else {
-        logmsg WARN, __x('Error messages were written to {file}.',
-                         file => $stderr_filename);
+    if (defined($stderr)) {
+        use Fcntl 'SEEK_CUR';
+        my $stderr_pos = sysseek($stderr, 0, SEEK_CUR);
+        if ($stderr_pos == 0) {
+            unlink($stderr_filename);
+        } else {
+            logmsg WARN, __x('Error messages were written to {file}.',
+                             file => $stderr_filename);
+        }
     }
 
     logmsg NOTICE, __x("{program} exited.", program => 'p2v-server');
