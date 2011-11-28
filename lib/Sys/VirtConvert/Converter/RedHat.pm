@@ -165,7 +165,7 @@ sub _init_grub
 
     # Look for the most specific mount point discovered
     my %mounts = $g->inspect_get_mountpoints($root);
-    foreach my $path qw(/boot/grub /boot) {
+    foreach my $path ('/boot/grub', '/boot') {
         if (exists($mounts{$path})) {
             $grub = $path;
             last;
@@ -174,7 +174,7 @@ sub _init_grub
 
     my $grub_conf;
 
-    foreach my $path qw(/boot/grub/menu.lst /boot/grub/grub.conf)
+    foreach my $path ('/boot/grub/menu.lst', '/boot/grub/grub.conf')
     {
         if ($g->exists($path)) {
             $grub_conf = $path;
@@ -223,10 +223,10 @@ sub _aug_modprobe
     my ($g, $query) = @_;
 
     my @paths;
-    for my $pattern qw(/files/etc/conf.modules/alias
-                       /files/etc/modules.conf/alias
-                       /files/etc/modprobe.conf/alias
-                       /files/etc/modprobe.d/*/alias) {
+    for my $pattern ('/files/etc/conf.modules/alias',
+                     '/files/etc/modules.conf/alias',
+                     '/files/etc/modprobe.conf/alias',
+                     '/files/etc/modprobe.d/*/alias') {
         push(@paths, $g->aug_match($pattern.'['.$query.']'));
     }
 
@@ -248,7 +248,7 @@ sub _discover_modpath
     # Note that we're checking in ascending order of preference so that the last
     # discovered method will be chosen
 
-    foreach my $file qw(/etc/conf.modules /etc/modules.conf) {
+    foreach my $file ('/etc/conf.modules', '/etc/modules.conf') {
         if($g->exists($file)) {
             $modpath = $file;
         }
