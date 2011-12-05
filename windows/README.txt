@@ -1,2 +1,2 @@
-Windows conversion additionally requires the RHEV Application Provisioning Tool
-and 'rhsrvany', which are not currently distributed with the virt-v2v sources.
+Windows conversion can additionally install the RHEV Application Provisioning
+Tool, which is not currently distributed with the virt-v2v sources.

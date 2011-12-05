@@ -63,7 +63,6 @@ BuildRequires:  perl(IO::String)
 BuildRequires:  perl(Locale::TextDomain)
 BuildRequires:  perl(Module::Pluggable)
 BuildRequires:  perl(Net::HTTPS)
-BuildRequires:  perl(Net::SSL)
 BuildRequires:  perl(Sys::Guestfs)
 BuildRequires:  perl(Sys::Virt)
 BuildRequires:  perl(Term::ProgressBar)
@@ -132,6 +131,12 @@ rm -rf %{buildroot}
 # Create lib directory, used for holding software to be installed in guests
 statedir=%{buildroot}%{_localstatedir}/lib/virt-v2v
 mkdir -p $statedir/software
+
+# Copy Windows dependencies into place
+windir=$statedir/software/windows
+mkdir -p $windir
+
+cp windows/rhsrvany.exe windows/firstboot.bat $windir/
 
 mkdir -p %{buildroot}%{_sysconfdir}
 cp v2v/virt-v2v.conf %{buildroot}%{_sysconfdir}/

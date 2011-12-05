@@ -95,3 +95,4 @@ virt-v2v.spec
 virt-v2v.spec.PL
 windows/firstboot.bat
 windows/README.txt
+windows/rhsrvany.exe

@@ -272,7 +272,8 @@ my $build = $class->new (
           MailingList => "http://www.redhat.com/mailman/listinfo/libguestfs",
         },
     },
-    syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS" ],
+    syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS",
+                             "windows/rhsrvany.exe" ],
     PL_files => [ 'virt-v2v.spec.PL', 'rubygem-virt-p2v.spec.PL' ],
 );
 
