@@ -125,7 +125,7 @@ sub convert
 
     # Note: disks are already mounted by main virt-v2v script.
 
-    _upload_files ($g, $tmpdir, $desc, $config);
+    my $firstboot = _upload_files ($g, $tmpdir, $desc, $config);
 
     # Open the system and software hives
     my ($sys_guest, $sys_local) = _download_hive($g, $tmpdir, 'system');
@@ -143,7 +143,7 @@ sub convert
     my $current_cs = $h_sys->node_get_value($select, 'Current');
     $current_cs = sprintf("ControlSet%03i", $h_sys->value_dword($current_cs));
 
-    _add_service_to_registry($h_sys, $current_cs);
+    _add_service_to_registry($h_sys, $current_cs) if $firstboot;
     _disable_processor_drivers($h_sys, $current_cs);
 
     my ($block, $net) =
@@ -418,6 +418,8 @@ sub _prepare_virtio_drivers
     return ($block, $net);
 }
 
+# Upload necessary files from the host to the guest.
+# Returns 1 if RHEV APT is available, 0 otherwise.
 sub _upload_files
 {
     my $g = shift;
@@ -425,27 +427,42 @@ sub _upload_files
     my $desc = shift;
     my $config = shift;
 
-    # Check we have all required files
-    my @missing;
-    my %files;
-
-    for my $file ("virtio", "firstboot", "firstbootapp", "rhsrvany") {
-        my ($path) = $config->match_app ($desc, $file, $desc->{arch});
-        my $local = $config->get_transfer_path($path);
-        push (@missing, $path) unless (defined($local) && $g->exists($local));
-
-        $files{$file} = $local;
-    }
+    # Check we have virtio
+    my ($v_path) = $config->match_app ($desc, 'virtio', $desc->{arch});
+    my $v_local = $config->get_transfer_path($v_path);
 
     # We can't proceed if there are any files missing
     v2vdie __x('Installation failed because the following '.
                'files referenced in the configuration file are '.
                'required, but missing: {list}',
-               list => join(' ', @missing)) if scalar(@missing) > 0;
+               list => $v_path)
+        unless (defined($v_local) && $g->exists($v_local));
 
     # Copy viostor directly into place as it's a critical boot device
-    $g->cp (File::Spec->catfile($files{virtio}, 'viostor.sys'),
+    $g->cp (File::Spec->catfile($v_local, 'viostor.sys'),
             $g->case_sensitive_path ("/windows/system32/drivers"));
+
+    # Check if we have the files available to install firstboot
+    my @fb_missing;
+    my @fb_files;
+    for my $file ("firstboot", "firstbootapp", "rhsrvany") {
+        my ($path) = $config->match_app ($desc, $file, $desc->{arch});
+        my $local = $config->get_transfer_path($path);
+
+        if (defined($local) && $g->exists($local)) {
+            push(@fb_files, $local);
+        } else {
+            push (@fb_missing, $path)
+        }
+    }
+
+    if (@fb_missing > 0) {
+        logmsg WARN, __x('The RHEV Application Provisioning Tool cannot be '.
+                         'configured because the following files referenced '.
+                         'in the configuration file are required, but '.
+                         'missing: {list}', list => join(' ', @fb_missing));
+        return 0;
+    }
 
     # Copy other files into a temp directory on the guest
     # N.B. This directory must match up with the configuration of rhsrvany
@@ -461,9 +478,11 @@ sub _upload_files
         }
     }
 
-    $g->cp ($files{firstboot}, $path);
-    $g->cp ($files{firstbootapp}, $path);
-    $g->cp ($files{rhsrvany}, $path);
+    foreach my $file (@fb_files) {
+        $g->cp($file, $path);
+    }
+
+    return 1;
 }
 
 # http://blogs.msdn.com/b/virtual_pc_guy/archive/2005/10/24/484461.aspx
