@@ -1,5 +1,10 @@
 # Run virt-p2v
-cat >> /etc/rc.local <<'EOF'
+if [ ! -e /etc/rc.d/rc.local ]; then
+    echo "#!/bin/sh" > /etc/rc.d/rc.local
+    chmod 755 /etc/rc.d/rc.local
+fi
+
+cat >> /etc/rc.d/rc.local <<'EOF'
 
 # Configure the machine to write compressed core files to /tmp
 cat > /tmp/core.sh <<'CORE'
