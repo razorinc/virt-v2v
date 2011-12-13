@@ -57,9 +57,9 @@ close() method, and the ability to register pre-close callbacks.
 =item new(disks, transferiso, isrhev)
 
 Create a new object. Open a new Sys::Guestfs handle to proxy, using the disks
-defined in I<disks>, which is taken from the guest metadata. Add I<transferiso>
-as a read-only drive if it is given. If I<isrhev> is true, the handle will use
-user and group 36:36.
+defined in I<disks>, which is list of disk metadata defined as: [ [ name, path,
+format ], ... ]. Add I<transferiso> as a read-only drive if it is given. If
+I<isrhev> is true, the handle will use user and group 36:36.
 
 =cut
 
@@ -77,12 +77,12 @@ sub new
 
         $g = Sys::Guestfs->new();
         foreach my $disk (@{$disks}) {
-            my $vol = $disk->{dst};
+            my ($name, $path, $format) = @$disk;
 
-            $g->add_drive_opts($vol->get_path(),
-                               format => $vol->get_format(),
+            $g->add_drive_opts($path,
+                               format => $format,
                                iface => $interface,
-                               name => $disk->{device});
+                               name => $name);
         }
 
         # Add the transfer iso if there is one

@@ -343,8 +343,12 @@ sub convert
     eval {
         my $transferiso = $config->get_transfer_iso();
 
+        my @disks = map { [ $_->{device},
+                            $_->{dst}->get_path(),
+                            $_->{dst}->get_format() ] } @{$meta->{disks}};
+
         $g = new Sys::VirtConvert::GuestfsHandle(
-            $meta->{disks},
+            \@disks,
             $transferiso,
             $target->isa('Sys::VirtConvert::Connection::RHEVTarget')
         );

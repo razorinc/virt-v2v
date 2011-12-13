@@ -179,12 +179,13 @@ package Sys::VirtConvert::Transfer::GuestfsStream;
 sub new
 {
     my $class = shift;
-    my ($path) = @_;
+    my ($path, $format) = @_;
 
     my $self = {};
     bless($self, $class);
 
-    $self->{g} = new Sys::VirtConvert::GuestfsHandle([$path], undef, 0);
+    $self->{g} = new Sys::VirtConvert::GuestfsHandle([['sda', $path, $format]],
+                                                     undef, 0);
 
     return $self;
 }

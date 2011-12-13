@@ -518,8 +518,12 @@ v2vdie __('Guest doesn\'t define any storage devices')
 $source->copy_storage($target, $output_format, $output_sparse);
 
 # Open a libguestfs handle on the guest's storage devices
+my @disks = map { [ $_->{device},
+                    $_->{dst}->get_path(),
+                    $_->{dst}->get_format() ] } @{$meta->{disks}};
+
 my $g = new Sys::VirtConvert::GuestfsHandle(
-    $meta->{disks},
+    \@disks,
     $transferiso,
     $output_method eq 'rhev'
 );
