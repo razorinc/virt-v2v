@@ -48,7 +48,7 @@ the modifications or additions to /etc/virt-v2v.conf instead. Configuration in
        the user to install custom packages during linux conversions. Don't edit
        this entry; instead add a more specific match rule containing custom
        dependencies to /etc/virt-v2v.conf. -->
-  <capability name='user-custom'/>
+  <capability name='user-custom' os='linux'/>
 
   <!--
     Local applications
