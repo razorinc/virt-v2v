@@ -74,14 +74,8 @@ sub new
         # Note that this will always create a sparse volume. We make it
         # non-sparse if required by explicitly writing zeroes to it while
         # copying.
-        my @qemuimg = ('qemu-img', 'create', '-f', $format);
-        # Preallocate qcow2 metadata
-        # N.B. If you don't do this, the performance penalty while writing is
-        # about a 8x slowdown.
-        if ($format eq 'qcow2') {
-            push (@qemuimg, '-o', 'preallocation=metadata');
-        }
-        push (@qemuimg, $path, $volume->get_size());
+        my @qemuimg = ('qemu-img', 'create', '-f', $format,
+                                             $path, $volume->get_size());
 
         my $eh = Sys::VirtConvert::ExecHelper->run(@qemuimg);
         v2vdie __x('Failed to create new volume {path} '.
