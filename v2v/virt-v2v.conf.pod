@@ -305,9 +305,20 @@ os
 If virt-v2v doesn't find a match it will quit with an error describing what it
 was looking for.
 
+=head2 Installing custom software during conversion
+
+The 'Red Hat' converter, which converts RHEL and Fedora guests, includes a hook
+which allows custom software to be installed during conversion. The user can
+define a capability with the name 'user-custom'. The dependencies of this
+capability will be installed during conversion in the same way as the
+dependencies of other capabilities.
+
+It is recommended that custom configuration changes are added to
+/etc/virt-v2v.conf rather than /var/lib/virt-v2v/virt-v2v.db.
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Red Hat Inc.
+Copyright (C) 2009-2012 Red Hat Inc.
 
 =head1 SEE ALSO
 

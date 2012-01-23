@@ -1,5 +1,5 @@
 # Sys::VirtConvert::Converter::RedHat
-# Copyright (C) 2009-2011 Red Hat Inc.
+# Copyright (C) 2009-2012 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -124,6 +124,11 @@ sub convert
 
     # Get an appropriate kernel, and remove non-bootable kernels
     my $kernel = _configure_kernel($virtio, $g, $config, $desc, $meta);
+
+    # Install user custom packages
+    if (! _install_capability('user-custom', $g, $config, $meta, $desc)) {
+        logmsg WARN, __('Failed to install user-custom packages');
+    }
 
     # Configure the rest of the system
     _configure_console($g, $grub_conf);
