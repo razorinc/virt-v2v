@@ -450,6 +450,12 @@ sub _match_element_dom
     push(@queries, _match_query($type, $name, $os, $distro,
                                 undef, undef, undef));
 
+    push(@queries, _match_query($type, $name, $os, undef,
+                                undef, undef, $arch))
+        if defined($arch);
+    push(@queries, _match_query($type, $name, $os, undef,
+                                undef, undef, undef));
+
     # Use the results of the first query which returns a result
     foreach my $query (@queries) {
         my ($element) = $dom->findnodes($query);
