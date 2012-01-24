@@ -1966,7 +1966,7 @@ sub _remap_block_devices
             # Match device names and partition numbers
             my $name; my $part;
             foreach my $r (qr{^/dev/(cciss/c\d+d\d+)(?:p(\d+))?$},
-                           qr{^/dev/([a-z]+)(\d+)?$}) {
+                           qr{^/dev/([a-z]+)(\d*)?$}) {
                 if ($device =~ $r) {
                     $name = $1;
                     $part = $2;
