@@ -501,16 +501,9 @@ sub _disable_processor_drivers
         my $node = $h->node_get_child($services, $_);
         next unless defined($node);
 
-        # Update Start to 4, but leave everything else as is
-        my @new;
-        foreach my $v ($h->node_values($node)) {
-            my $key = $h->value_key($v);
-            my ($type, $data) = $h->value_value($v);
-
-            $data = pack("V", 4) if ($key eq 'Start');
-            push (@new, { key => $key, t => $type, value => $data });
-        }
-        $h->node_set_values($node, \@new);
+        # It seems that disabling these services doesn't always work. Deleting
+        # them is more effective. See RHBZ#737600
+        $h->node_delete_child($node);
     }
 }
 
