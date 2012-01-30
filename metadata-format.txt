@@ -24,3 +24,4 @@ differs significantly from, the XML representation used by libvirt.
     vnet            The name of the virtual network the NIC will connect to
     vnet_type       The type of virtual network the NIC will connect to, as
                       defined by libvirt (eg network,bridge)
+  vmtype        An optional string containing either 'desktop' or 'server'

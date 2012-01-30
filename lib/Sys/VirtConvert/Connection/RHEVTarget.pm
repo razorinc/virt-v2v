@@ -621,6 +621,7 @@ sub create_guest
     my $vmuuid = rhev_util::get_uuid();
 
     my $ostype = _get_os_type($g, $root);
+    my $vmtype = _get_vm_type($g, $root, $meta);
 
     my $ovf = new XML::DOM::Parser->parse(<<EOF);
 <ovf:Envelope
@@ -652,7 +653,7 @@ sub create_guest
         <TimeZone/>
         <IsStateless>False</IsStateless>
         <Origin>0</Origin>
-        <VmType>1</VmType>
+        <VmType>$vmtype</VmType>
         <DefaultDisplayType>0</DefaultDisplayType>
 
         <Section ovf:id="$vmuuid" ovf:required="false" xsi:type="ovf:OperatingSystemSection_Type">
@@ -884,6 +885,96 @@ sub _get_os_type_linux
 
     # Unlike Windows, Linux has its own fall-through option
     return "OtherLinux";
+}
+
+use constant DESKTOP => 0;
+use constant SERVER => 1;
+
+sub _get_vm_type
+{
+    my ($g, $root, $meta) = @_;
+
+    # Return whatever we were explicitly passed on the command line
+    my $vmtype = $meta->{vmtype};
+    return $vmtype eq "desktop" ? DESKTOP : SERVER if (defined($vmtype));
+
+    # Make an informed guess based on the OS type
+    return _get_vm_type_linux($g, $root)
+        if ($g->inspect_get_type($root) eq 'linux');
+
+    return _get_vm_type_windows($g, $root)
+        if ($g->inspect_get_type($root) eq 'windows');
+}
+
+sub _get_vm_type_windows
+{
+    my ($g, $root) = @_;
+
+    my $major   = $g->inspect_get_major_version($root);
+    my $minor   = $g->inspect_get_minor_version($root);
+    my $product = $g->inspect_get_product_name($root);
+
+    if ($major == 5) {
+        # Windows XP
+        if ($minor == 1 ||
+            # Windows XP Pro x64 is identified as version 5.2
+            ($minor == 2 && $product =~ /\bXP\b/))
+        {
+            return DESKTOP;
+        }
+
+        # Windows 2003
+        if ($minor == 2) {
+            return SERVER;
+        }
+    }
+
+    # Windows 2008 & Vista
+    if ($major == 6 && $minor == 0) {
+        return SERVER if $product =~ /\bServer\b/;
+        return DESKTOP;
+    }
+
+    # Windows 2008r2 & 7
+    if ($major == 6 && $minor == 1) {
+        return SERVER if $product =~ /\bServer\b/;
+        return DESKTOP;
+    }
+
+    return SERVER;
+}
+
+sub _get_vm_type_linux
+{
+    my ($g, $root) = @_;
+
+    my $distro  = $g->inspect_get_distro($root);
+    my $major   = $g->inspect_get_major_version($root);
+    my $product = $g->inspect_get_product_name($root);
+
+    if ($distro eq 'rhel') {
+        if ($major >= 5) {
+            # This is accurate for RHEL 5 and RHEL 6. We can only guess about
+            # future versions of RHEL, but it's as good a guess as any. We
+            # negate this test to ensure we default to SERVER if our guess is
+            # wrong.
+            return DESKTOP if $product !~ /\bServer\b/;
+            return SERVER;
+        }
+
+        if ($major == 4 || $major == 3) {
+            return SERVER if $product =~ /\b(ES|AS)\b/;
+            return DESKTOP;
+        }
+
+        return SERVER if $major == 2;
+    }
+
+    elsif ($distro eq 'fedora') {
+        return DESKTOP;
+    }
+
+    return SERVER;
 }
 
 sub _format_time

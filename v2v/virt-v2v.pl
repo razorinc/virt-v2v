@@ -203,6 +203,15 @@ as the input name.
 
 =cut
 
+my $vmtype;
+
+=item B<--vmtype type>
+
+Specify the type of guest which will be created on a RHEV target. Options are
+I<desktop> or I<server>.
+
+=cut
+
 my @config_files;
 
 =item B<-f file> | B<--config file>
@@ -354,6 +363,7 @@ GetOptions ("help|?"      => sub {
                 $output_sparse = parse_allocation($value);
             },
             "on=s"        => \$output_name,
+            "vmtype=s"    => \$vmtype,
             "f|config=s"  => \@config_files,
             "n|network=s" => sub {
                 my (undef, $value) = @_;
@@ -423,6 +433,13 @@ if (defined($network)) {
     $config->set_default_net_mapping($network, 'network');
 } elsif (defined($bridge)) {
     $config->set_default_net_mapping($bridge, 'bridge');
+}
+
+# Add vmtype to metadata if it was given on the command line
+if (defined($vmtype)) {
+    $vmtype = lc($vmtype);
+    $vmtype =~ /^(desktop|server)$/ or
+        v2vdie __('vmtype must be either \'desktop\' or \'server\'.');
 }
 
 if (defined($profile)) {
@@ -510,6 +527,8 @@ my $transferiso = $config->get_transfer_iso();
 # Get a libvirt configuration for the guest
 my $meta = $source->get_meta();
 exit(1) unless(defined($meta));
+
+$meta->{vmtype} = $vmtype if defined($vmtype);
 
 v2vdie __('Guest doesn\'t define any storage devices')
     unless @{$meta->{disks}} > 0;
