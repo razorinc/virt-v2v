@@ -42,7 +42,7 @@ sub new
     my $pid = fork();
     if ($pid == 0) {
         my @command;
-        push(@command, 'ssh');
+        push(@command, 'ssh', '-q');
         push(@command, '-l', $username) if (defined($username));
         push(@command, $hostname);
         push(@command, $command);
