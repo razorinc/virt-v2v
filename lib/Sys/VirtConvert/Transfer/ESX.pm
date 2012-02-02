@@ -76,8 +76,10 @@ sub new {
         $ENV{HTTPS_CA_DIR} = "" unless (exists($ENV{HTTPS_CA_DIR}));
     }
 
+    # Die if we need certificate verification but we're using the wrong SSL
+    # library
     die('Invalid configuration of Net::HTTPS')
-        unless(Net::HTTPS->isa('Net::SSL'));
+        unless $noverify || Net::HTTPS->isa('Net::SSL');
 
     return $self;
 }
