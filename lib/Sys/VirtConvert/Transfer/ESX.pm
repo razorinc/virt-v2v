@@ -38,10 +38,21 @@ use Locale::TextDomain 'virt-v2v';
 # To try to fix this situation, we hardcode here that we want Net::SSL. In the
 # constructor, we check that Net::SSL was actually used, and die() if it wasn't.
 # We subsequently only include configuration for Net::SSL.
+
+# The initialisation code below is extremely dark magic. Do not mess with it
+# unless you already have an old priest and a young priest.
+# A simpler version used to work, but broke some time around F16 for 'reasons
+# unknown'. This version is intended to do the same as the old version for
+# compatibility, but also work in the new environment.
 BEGIN {
-    use Net::HTTPS;
+    $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL";
+
+    require Net::SSL;
+    require Net::HTTPS;
 
     $Net::HTTPS::SSL_SOCKET_CLASS = "Net::SSL";
+
+    import Net::HTTPS;
 }
 
 sub new {

@@ -84,10 +84,10 @@ Requires:       perl-hivex >= 1.2.2
 # Required for passing flags to get_xml_description
 Requires:       perl(Sys::Virt) >= 0.2.4
 
-# Net::SSL is loaded dynamically by Net::HTTPS in
-# Sys::VirtConvert::Transfer::ESX. The dependency isn't automatically
-# discovered.
+# Net::SSL and Net::HTTPS are loaded with require rather than use, which
+# rpmbuild doesn't seem to discover automatically.
 Requires:       perl(Net::SSL)
+Requires:       perl(Net::HTTPS)
 
 # Need >= 0.8.1 for rpc fix talking to RHEL 5 libvirt
 Requires:       libvirt >= 0.8.1
