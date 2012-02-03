@@ -49,6 +49,15 @@ Sys::VirtConvert::Converter::RedHat converts a Red Hat based guest to use KVM.
 
 =over
 
+=cut
+
+sub _is_rhel_family
+{
+    my ($desc) = @_;
+
+    return $desc->{distro} =~ /^(rhel|centos|scientificlinux|redhat-based)$/;
+}
+
 =item Sys::VirtConvert::Converter::RedHat->can_handle(desc)
 
 Return 1 if Sys::VirtConvert::Converter::RedHat can convert the guest described
@@ -64,7 +73,7 @@ sub can_handle
     carp("can_handle called without desc argument") unless defined($desc);
 
     return ($desc->{os} eq 'linux' &&
-            $desc->{distro} =~ /^(rhel|fedora)$/);
+            _is_rhel_family($desc) || $desc->{distro} eq 'fedora');
 }
 
 =item Sys::VirtConvert::Converter::RedHat->convert(g, root, config, meta, desc)
@@ -1521,7 +1530,7 @@ sub _get_replacement_kernel_name
     # about
 
     # RHEL 5
-    if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '5') {
+    if (_is_rhel_family($desc) && $desc->{major_version} eq '5') {
         if ($arch eq 'i686') {
             # XXX: This assumes that PAE will be available in the hypervisor.
             # While this is almost certainly true, it's theoretically possible
@@ -1538,7 +1547,7 @@ sub _get_replacement_kernel_name
     }
 
     # RHEL 4
-    elsif ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+    elsif (_is_rhel_family($desc) && $desc->{major_version} eq '4') {
         if ($arch eq 'i686') {
             # If the guest has > 10G RAM, give it a hugemem kernel
             if ($meta->{memory} > 10 * 1024 * 1024 * 1024) {
@@ -1903,7 +1912,7 @@ sub _remap_block_devices
 
     # RHEL 2, 3 and 4 didn't use libata
     # RHEL 5 does use libata, but udev rules call IDE devices hdX anyway
-    if ($desc->{distro} eq 'rhel') {
+    if (_is_rhel_family($desc)) {
         if ($desc->{major_version} eq '2' ||
             $desc->{major_version} eq '3' ||
             $desc->{major_version} eq '4' ||
@@ -2133,7 +2142,7 @@ sub _prepare_bootable
             # by setting root_lvm=1 in its environment. This overrides an
             # internal variable in mkinitrd, and is therefore extremely nasty
             # and applicable only to a particular version of mkinitrd.
-            if ($desc->{distro} eq 'rhel' && $desc->{major_version} eq '4') {
+            if (_is_rhel_family($desc) && $desc->{major_version} eq '4') {
                 push(@env, 'root_lvm=1') if ($g->is_lv($root));
             }
 
@@ -2164,7 +2173,7 @@ sub _supports_acpi
 
     # Blacklist configurations which are known to fail
     # RHEL 3, x86_64
-    if ($desc->{distro} eq 'rhel' && $desc->{major_version} == 3 &&
+    if (_is_rhel_family($desc) && $desc->{major_version} == 3 &&
         $arch eq 'x86_64') {
         return 0;
     }
