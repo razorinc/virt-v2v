@@ -72,14 +72,15 @@ BuildRequires:  perl(XML::DOM)
 BuildRequires:  perl(XML::DOM::XPath)
 BuildRequires:  perl(XML::Writer)
 
-# Need an explicit package dependency for version requires
-BuildRequires:  perl-libguestfs >= 1:1.6.0
+BuildRequires:  perl-Sys-Guestfs >= 1:1.14.0
 BuildRequires:  perl-hivex >= 1.2.2
 
 Requires:  perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
-# Need an explicit package dependency for version requires
-Requires:       perl-libguestfs >= 1:1.6.0
+# Required for the name optional argument to add_drive_opts
+Requires:       perl-Sys-Guestfs >= 1:1.14.0
+
+# Undocumented from antiquity
 Requires:       perl-hivex >= 1.2.2
 
 # Required for passing flags to get_xml_description
