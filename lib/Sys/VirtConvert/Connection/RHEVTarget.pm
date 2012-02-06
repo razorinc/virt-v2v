@@ -1042,6 +1042,7 @@ sub _disks
         # IDE = 0, SCSI = 1, VirtIO = 2
         $diske->setAttribute('ovf:disk-interface',
                              $guestcaps->{block} eq 'virtio' ? 'VirtIO' : 'IDE');
+        $diske->setAttribute('ovf:disk-type', 'System'); # RHBZ#744538
         # The libvirt QEMU driver marks the first disk (in document order) as
         # bootable
         $diske->setAttribute('ovf:boot', $driveno == 1 ? 'True' : 'False');
