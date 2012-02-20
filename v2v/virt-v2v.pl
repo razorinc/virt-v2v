@@ -626,7 +626,7 @@ sub inspect_guest
     # could be erroneously detected as an unknown Windows OS. As we know what it
     # is, we can filter out the transfer device here. Even when the fix is
     # released this is reasonable belt & braces.
-    @roots = grep(!/^\Q$transferdev\E$/, @roots);
+    @roots = grep(!/^\Q$transferdev\E$/, @roots) if defined($transferdev);
 
     @roots = sort @roots;
 
