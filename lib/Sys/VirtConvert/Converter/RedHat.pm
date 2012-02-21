@@ -1937,7 +1937,7 @@ sub _remap_block_devices
         my @newdevices;
         my $suffix = 'a';
         foreach my $device (@devices) {
-            $device = 'sd'.$suffix++ if ($device =~ /(h|s)d([a-z]+)/);
+            $device = 'sd'.$suffix++ if ($device =~ /(?:h|s)d[a-z]+/);
             push(@newdevices, $device);
         }
         @devices = @newdevices;
