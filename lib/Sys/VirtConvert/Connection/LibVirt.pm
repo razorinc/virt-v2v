@@ -164,6 +164,8 @@ sub _parse_dom
     $meta{cpus}   = _node_val($root, 'vcpu/text()');
     $meta{arch}   = _node_val($root, 'os/type/@arch');
 
+    $meta{src_type} = _node_val($root, '/domain/@type');
+
     $meta{features} = [];
     foreach my $feature ($root->findnodes('features/*')) {
         push(@{$meta{features}}, $feature->getNodeName());

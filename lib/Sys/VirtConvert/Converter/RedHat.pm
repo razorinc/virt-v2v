@@ -1960,7 +1960,16 @@ sub _remap_block_devices
 
     my $letter = 'a';
     foreach my $device (@devices) {
-        $map{$device} = $prefix.$letter;
+        my $mapped = $prefix.$letter;
+
+
+        # If a Xen guest has non-PV devices, Xen also simultaneously presents
+        # these as xvd devices. i.e. hdX and xvdX both exist and are the same
+        # device.
+        if ($meta->{src_type} eq 'xen' && $device =~ /^(?:h|s)d([a-z]+)/) {
+            $map{'xvd'.$1} = $mapped;
+        }
+        $map{$device} = $mapped;
         $letter++;
     }
 
