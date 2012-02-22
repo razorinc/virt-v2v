@@ -208,7 +208,48 @@ my $vmtype;
 =item B<--vmtype type>
 
 Specify the type of guest which will be created on a RHEV target. Options are
-I<desktop> or I<server>.
+I<desktop> or I<server>. If this option is not specified, a default option will
+be chosen based on the detected guest operating system:
+
+=over
+
+=item Desktop
+
+=over
+
+=item *
+
+Fedora
+
+=item *
+
+RHEL Client/Workstation/Desktop
+
+=item *
+
+Windows XP/Vista/7
+
+=back
+
+=item Server
+
+=over
+
+=item *
+
+RHEL Server/AS/ES
+
+=item *
+
+Windows 2003/2003r2/2008/2008r2
+
+=back
+
+=back
+
+=back
+
+If the guest OS is not detected as any of the above, it will default to server.
 
 =cut
 
