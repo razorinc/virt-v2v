@@ -904,6 +904,9 @@ sub _get_vm_type
 
     return _get_vm_type_windows($g, $root)
         if ($g->inspect_get_type($root) eq 'windows');
+
+    # Final fall-through is server
+    return SERVER;
 }
 
 sub _get_vm_type_windows
