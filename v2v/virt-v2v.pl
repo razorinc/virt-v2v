@@ -247,8 +247,6 @@ Windows 2003/2003r2/2008/2008r2
 
 =back
 
-=back
-
 If the guest OS is not detected as any of the above, it will default to server.
 
 =cut
