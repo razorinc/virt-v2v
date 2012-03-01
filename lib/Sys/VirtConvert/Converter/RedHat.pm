@@ -73,7 +73,7 @@ sub can_handle
     carp("can_handle called without desc argument") unless defined($desc);
 
     return ($desc->{os} eq 'linux' &&
-            _is_rhel_family($desc) || $desc->{distro} eq 'fedora');
+            (_is_rhel_family($desc) || $desc->{distro} eq 'fedora'));
 }
 
 =item Sys::VirtConvert::Converter::RedHat->convert(g, root, config, meta, desc)
