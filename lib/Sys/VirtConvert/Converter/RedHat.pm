@@ -841,11 +841,14 @@ sub _is_hv_kernel
     return 0;
 }
 
-sub _remove_application
+sub _remove_applications
 {
-    my ($name, $g) = @_;
+    my ($g, @apps) = @_;
 
-    $g->command(['rpm', '-e', $name]);
+    # Nothing to do if we were given an empty list
+    return if scalar(@apps) == 0;
+
+    $g->command(['rpm', '-e', @apps]);
 
     # Make augeas reload in case the removal changed anything
     eval {
@@ -880,20 +883,19 @@ sub _unconfigure_xen
 {
     my ($g, $desc, $apps) = @_;
 
-    my $found_kmod = 0;
-
     # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
+    my @remove;
     foreach my $app (@$apps) {
         my $name = $app->{app_name};
 
         if($name =~ /^kmod-xenpv(-.*)?$/) {
-            _remove_application($name, $g);
-            $found_kmod = 1;
+            push(@remove, $name);
         }
     }
+    _remove_applications($g, @remove);
 
     # Undo related nastiness if kmod-xenpv was installed
-    if($found_kmod) {
+    if(scalar(@remove) > 0) {
         # kmod-xenpv modules may have been manually copied to other kernels.
         # Hunt them down and destroy them.
         foreach my $dir (grep(m{/xenpv$}, $g->find('/lib/modules'))) {
@@ -942,14 +944,78 @@ sub _unconfigure_vmware
 {
     my ($g, $desc, $apps) = @_;
 
+    # Look for any configured vmware yum repos, and disable them
+    foreach my $repo ($g->aug_match(
+        '/files/etc/yum.repos.d/*/*'.
+        '[baseurl =~ regexp(\'https?://([^/]+\.)?vmware\.com/.*\')]'))
+    {
+        eval {
+            $g->aug_set($repo.'/enabled', 0);
+            $g->aug_save();
+        };
+        augeas_error($g, $@) if ($@);
+    }
+
     # Uninstall VMwareTools
+    my @remove;
+    my @libraries;
     foreach my $app (@$apps) {
         my $name = $app->{app_name};
 
-        if ($name eq "VMwareTools") {
-            _remove_application($name, $g);
+        if ($name =~ /^vmware-tools-libraries-/) {
+            push(@libraries, $name);
+        }
+        elsif ($name eq "VMwareTools" || $name =~ /^(?:kmod-)?vmware-tools-/) {
+            push(@remove, $name);
         }
     }
+
+    # VMware tools includes 'libraries' packages which provide custom versions
+    # of core functionality. We need to install non-custom versions of
+    # everything provided by these packages before attempting to uninstall them,
+    # or we'll hit dependency issues
+    if (@libraries > 0) {
+        # We only support removal of these libraries packages on systems which
+        # use yum.
+        if ($g->exists('/usr/bin/yum')) {
+            _net_run($g, sub {
+                foreach my $library (@libraries) {
+                    eval {
+                        my @provides = $g->command_lines
+                                (['rpm', '-q', '--provides', $library]);
+
+                        # The packages also explicitly provide themselves.
+                        # Filter this out.
+                        @provides = grep {$_ !~ /$library/}
+
+                        # Trim whitespace
+                                    map { s/^\s*(\S+)\s*$/$1/; $_ } @provides;
+
+                        # Install the dependencies with yum. We use yum
+                        # explicitly here, as up2date wouldn't work anyway and
+                        # local install is impractical due to the large number
+                        # of required dependencies out of our control.
+                        my %alts;
+                        foreach my $alt ($g->command_lines
+                                       (['yum', '-q', 'resolvedep', @provides]))
+                        {
+                            $alts{$alt} = 1;
+                        }
+
+                        $g->command(['yum', 'install', '-y', keys(%alts)]);
+
+                        push(@remove, $library);
+                    };
+                    logmsg WARN, __x('Failed to install replacement '.
+                                     'dependencies for {lib}. Package will '.
+                                     'not be uninstalled. Error was: {error}',
+                                     lib => $library, error => $@) if $@;
+                }
+            });
+        }
+    }
+
+    _remove_applications($g, @remove);
 
     # VMwareTools may have been installed from tarball, in which case the above
     # won't detect it. Look for the uninstall tool, and run it if it's present.
@@ -1147,36 +1213,40 @@ sub _install_capability
     return $success;
 }
 
-sub _install_any
-{
-    my ($kernel, $install, $upgrade, $g, $config, $desc) = @_;
+sub _net_run {
+    my ($g, $sub) = @_;
 
     my $resolv_bak = $g->exists('/etc/resolv.conf');
     $g->mv('/etc/resolv.conf', '/etc/resolv.conf.v2vtmp') if ($resolv_bak);
 
-    # XXX We should get the nameserver from the appliance here. However,
-    # there's no current api other than debug to do this, and in any case
-    # resolv.conf in the appliance is both hardcoded and currently wrong.
-    $g->write_file('/etc/resolv.conf', "nameserver 169.254.2.3", 0);
-
-    my $success;
-    eval {
-        # Try to fetch these dependencies using the guest's native update tool
-        $success = _install_up2date($kernel, $install, $upgrade, $g);
-        $success = _install_yum($kernel, $install, $upgrade, $g)
-            unless ($success);
-
-        # Fall back to local config if the above didn't work
-        $success = _install_config($kernel, $install, $upgrade,
-                                   $g, $config, $desc)
-            unless ($success);
-    };
-    if ($@) {
-        warn($@);
-        $success = 0;
-    }
+    eval &$sub();
+    my $err = $@;
 
     $g->mv('/etc/resolv.conf.v2vtmp', '/etc/resolv.conf') if ($resolv_bak);
+
+    die $err if $err;
+}
+
+sub _install_any
+{
+    my ($kernel, $install, $upgrade, $g, $config, $desc) = @_;
+
+    my $success = 0;
+    _net_run($g, sub {
+        eval {
+            # Try to fetch these dependencies using the guest's native update
+            # tool
+            $success = _install_up2date($kernel, $install, $upgrade, $g);
+            $success = _install_yum($kernel, $install, $upgrade, $g)
+                unless ($success);
+
+            # Fall back to local config if the above didn't work
+            $success = _install_config($kernel, $install, $upgrade,
+                                       $g, $config, $desc)
+                unless ($success);
+        };
+        warn($@) if $@;
+    });
 
     # Make augeas reload to pick up any altered configuration
     eval {
