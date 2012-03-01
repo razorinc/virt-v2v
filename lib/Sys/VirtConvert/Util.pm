@@ -31,7 +31,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(v2vdie logmsg DEBUG INFO NOTICE WARN FATAL);
-@EXPORT_OK = qw(augeas_error parse_libvirt_volinfo rhev_helper
+@EXPORT_OK = qw(augeas_error parse_libvirt_volinfo rhev_helper rhev_ids
                     logmsg_init logmsg_level);
 
 use constant DEBUG  => 0;
@@ -163,9 +163,27 @@ sub parse_libvirt_volinfo
     return ($name, $format, $size, $allocation, $is_sparse, $is_block);
 }
 
+=item rhev_ids
+
+Return the uid and gid required by RHEV.
+
+=cut
+
+sub rhev_ids
+{
+    my $_uid = getpwnam("vdsm");
+    my $_gid = getgrnam("kvm");
+
+    # Default to 36:36 if they aren't available locally
+    $_uid ||= 36;
+    $_gid ||= 36;
+
+    return ($_uid, $_gid);
+}
+
 =item rhev_helper(sub)
 
-Execute I<sub> sete(u|g)id 36:36. Signals will be deferred until after I<sub>
+Execute I<sub> sete(u|g)id vdsm:kvm. Signals will be deferred until after I<sub>
 exits, and if it die()s, the die() will be thrown after resetting permissions to
 root.
 
@@ -185,9 +203,11 @@ sub rhev_helper
         $sig_received = shift;
     };
 
+    my ($_uid, $_gid) = rhev_ids();
+
     my $egid = $);
-    $) = "36 36";
-    $> = "36";
+    $) = "$_gid $_gid";
+    $> = "$_uid";
 
     eval {
         &$sub();

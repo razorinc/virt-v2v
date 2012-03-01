@@ -59,7 +59,7 @@ close() method, and the ability to register pre-close callbacks.
 Create a new object. Open a new Sys::Guestfs handle to proxy, using the disks
 defined in I<disks>, which is list of disk metadata defined as: [ [ name, path,
 format ], ... ]. Add I<transferiso> as a read-only drive if it is given. If
-I<isrhev> is true, the handle will use user and group 36:36.
+I<isrhev> is true, the handle will use user and group vdsm:kvm.
 
 =cut
 

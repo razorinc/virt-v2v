@@ -386,7 +386,7 @@ use POSIX;
 use Time::gmtime;
 
 use Sys::VirtConvert::ExecHelper;
-use Sys::VirtConvert::Util qw(:DEFAULT rhev_helper);
+use Sys::VirtConvert::Util qw(:DEFAULT rhev_helper rhev_ids);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -423,9 +423,11 @@ sub new
 
     my $mountdir = tempdir();
 
-    # Needs to be read by 36:36
-    chown(36, 36, $mountdir)
-        or v2vdie __x('Unable to change ownership of {mountdir} to 36:36',
+    my ($_uid, $_gid) = rhev_ids();
+
+    # Needs to be read by vdsm:kvm
+    chown($_uid, $_gid, $mountdir)
+        or v2vdie __x('Unable to change ownership of {mountdir} to vdsm:kvm',
                       mountdir => $mountdir);
 
     my $self = {};
