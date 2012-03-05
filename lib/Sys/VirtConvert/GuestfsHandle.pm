@@ -103,9 +103,6 @@ sub new
         &$open();
     }
 
-    # Enable autosync to defend against data corruption on unclean shutdown
-    $g->set_autosync(1);
-
     $self->{g} = $g;
 
     $self->{onclose} = [];
