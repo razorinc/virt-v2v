@@ -396,7 +396,8 @@ sub convert
 
 sub unexpected_msg
 {
-    die('Received unexpected command: '.shift."\n");
+    my $msg = shift;
+    die("Received unexpected command: $msg\n");
 }
 
 sub unexpected_close
@@ -518,7 +519,8 @@ sub p2v_return_list
 
 sub p2v_return_err
 {
-    my $msg = 'ERROR '.shift;
+    my $msg = shift;
+    $msg = "ERROR $msg";
     logmsg DEBUG, __x('Sent: {msg}', msg => $msg);
     print $msg,"\n";
 }
