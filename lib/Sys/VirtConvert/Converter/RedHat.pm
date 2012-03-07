@@ -1219,6 +1219,10 @@ sub _net_run {
     my $resolv_bak = $g->exists('/etc/resolv.conf');
     $g->mv('/etc/resolv.conf', '/etc/resolv.conf.v2vtmp') if ($resolv_bak);
 
+    # XXX We should get the nameserver from the appliance here, but
+    # there's no current api other than debug to do this.
+    $g->write_file('/etc/resolv.conf', "nameserver 169.254.2.3", 0);
+
     eval &$sub();
     my $err = $@;
 
