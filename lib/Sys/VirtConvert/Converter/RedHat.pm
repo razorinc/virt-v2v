@@ -889,6 +889,7 @@ sub _unconfigure_hv
     my @apps = $g->inspect_list_applications($root);
 
     _unconfigure_xen($g, $desc, \@apps);
+    _unconfigure_vbox($g, $desc, \@apps);
     _unconfigure_vmware($g, $desc, \@apps);
 }
 
@@ -950,6 +951,48 @@ sub _unconfigure_xen
 
             $g->write_file('/etc/rc.local', join("\n", @rc_local)."\n", $size);
         }
+    }
+}
+
+# Unconfigure VirtualBox specific guest modifications
+sub _unconfigure_vbox
+{
+    my ($g, $desc, $apps) = @_;
+
+    # Uninstall VirtualBox Guest Additions
+    my @remove;
+    foreach my $app (@$apps) {
+        my $name = $app->{app_name};
+
+        if ($name eq "virtualbox-guest-additions") {
+            push(@remove, $name);
+        }
+    }
+    _remove_applications($g, @remove);
+
+    # VirtualBox Guest Additions may have been installed from tarball, in which
+    # case the above won't detect it. Look for the uninstall tool, and run it
+    # if it's present.
+    #
+    # Note that it's important we do this early in the conversion process, as
+    # this uninstallation script naively overwrites configuration files with
+    # versions it cached prior to installation.
+    my $vboxconfig = '/var/lib/VBoxGuestAdditions/config';
+    my $vboxuninstall;
+    foreach (split /\n/, $g->cat($vboxconfig)) {
+        if ($_ =~ /^INSTALL_DIR=(.*$)/) {
+            $vboxuninstall = $1 . '/uninstall.sh';
+        }
+    }
+    if ($g->exists($vboxuninstall)) {
+        eval { $g->command([$vboxuninstall]) };
+        logmsg WARN, __x('VirtualBox Guest Additions were detected, but '.
+                         'uninstallation failed. The error message was: '.
+                         '{error}', error => $@) if $@;
+
+        # Reload augeas to detect changes made by vbox tools uninstallation
+        eval { $g->aug_load() };
+        augeas_error($g, $@) if $@;
     }
 }
 
