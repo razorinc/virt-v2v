@@ -145,7 +145,7 @@ static VALUE session_exec(VALUE self_rv, VALUE cmd_rv)
         .cmd = StringValueCStr(cmd_rv)
     };
 
-    rblibssh2_session_runthread(s, session_exec_w, &p, xfree, NULL, NULL, NULL);
+    rblibssh2_session_runthread(s, session_exec_w, &p, NULL, NULL, NULL, NULL);
 
     return channel_rv;
 }
