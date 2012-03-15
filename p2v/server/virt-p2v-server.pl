@@ -489,8 +489,8 @@ sub p2v_read
     my $total = 0;
 
     while($total < $length) {
-        my $in = read(STDIN, $buf, $length, $total)
-            or die(__x("Error receiving data: {error}\n", error => $@));
+        my $in = read(STDIN, $buf, $length, $total);
+        die(__x("Unexpected EOF while receiving data.\n")) if $in == 0;
         logmsg DEBUG, "Read $in bytes";
         $total += $in;
     }
