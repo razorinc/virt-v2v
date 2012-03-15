@@ -41,6 +41,5 @@ void rblibssh2_session_init(void);
 void rblibssh2_channel_init(void);
 
 LIBSSH2_SESSION *rblibssh2_session_get(struct session *s);
-int rblibssh2_session_wait(struct session *s);
 void rblibssh2_session_channel_add(struct session *s, VALUE channel);
 void rblibssh2_session_channel_remove(struct session *s, VALUE channel);

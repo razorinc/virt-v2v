@@ -86,32 +86,15 @@ static void *session_exec_w(void *params)
     struct channel *c = se->c;
 
     LIBSSH2_SESSION *session = rblibssh2_session_get(c->s);
-
-    for (;;) {
-        c->channel = libssh2_channel_open_session(session);
-        if (c->channel == NULL) {
-            char *err;
-            if (libssh2_session_last_error(session, &err, NULL, 0) ==
-                LIBSSH2_ERROR_EAGAIN)
-            {
-                rblibssh2_session_wait(c->s);
-                continue;
-            } else {
-                rblibssh2_session_set_error(rb_eIOError,
-                        "Failed to open channel: %s", err);
-                return NULL;
-            }
-        }
-        break;
+    c->channel = libssh2_channel_open_session(session);
+    if (c->channel == NULL) {
+        char *err;
+        rblibssh2_session_set_error(rb_eIOError,
+                "Failed to open channel: %s", err);
+        return NULL;
     }
 
-    int rc;
-    while ((rc = libssh2_channel_exec(c->channel, se->cmd)) ==
-        LIBSSH2_ERROR_EAGAIN)
-    {
-        rblibssh2_session_wait(c->s);
-    }
-
+    int rc = libssh2_channel_exec(c->channel, se->cmd);
     if (rc != 0) {
         char *err;
         libssh2_session_last_error(session, &err, NULL, 0);
@@ -168,11 +151,16 @@ static void *channel_read_w(void *params)
     struct channel_data *cd = (struct channel_data *) params;
     struct channel *c = cd->c;
 
+    LIBSSH2_SESSION *session = rblibssh2_session_get(c->s);
+
     for (;;) {
         char errbuf[1024];
         ssize_t l;
-
+        /* Don't block waiting for stderr */
+        libssh2_session_set_blocking(session, 0);
         l = libssh2_channel_read_stderr(c->channel, errbuf, sizeof(errbuf));
+        libssh2_session_set_blocking(session, 1);
+
         if (l == LIBSSH2_ERROR_EAGAIN || l == 0) {
             /* Nothing, fall through */
         } else if (l < 0) {
@@ -188,9 +176,7 @@ static void *channel_read_w(void *params)
         }
 
         l = libssh2_channel_read(c->channel, cd->data, cd->len);
-        if (l == LIBSSH2_ERROR_EAGAIN) {
-            rblibssh2_session_wait(c->s);
-        } else if (l < 0) {
+        if (l < 0) {
             goto error;
         } else if (l == 0) {
             if (libssh2_channel_eof(c->channel)) {
@@ -245,13 +231,17 @@ static void *channel_write_w(void *params)
 {
     struct channel_data *cd = (struct channel_data *)params;
     struct channel *c = cd->c;
+    LIBSSH2_SESSION *session = rblibssh2_session_get(c->s);
 
     size_t written = 0;
     while (written < cd->len) {
         char errbuf[1024];
         ssize_t l;
-
+        /* Don't block reading from stderr */
+        libssh2_session_set_blocking(session, 0);
         l = libssh2_channel_read_stderr(c->channel, errbuf, sizeof(errbuf));
+        libssh2_session_set_blocking(session, 1);
+
         if (l == LIBSSH2_ERROR_EAGAIN || l == 0) {
             /* Nothing, fall through */
         } else if (l < 0) {
@@ -267,9 +257,7 @@ static void *channel_write_w(void *params)
         }
 
         l = libssh2_channel_write(c->channel, cd->data, cd->len);
-        if (l == LIBSSH2_ERROR_EAGAIN) {
-            rblibssh2_session_wait(c->s);
-        } else if (l < 0) {
+        if (l < 0) {
             goto error;
         } else {
             written += l;
@@ -337,9 +325,7 @@ static void *channel_send_data_w(void *params)
         while (sent < in) {
             ssize_t out = libssh2_channel_write(c->channel, &buf[sent],
                                                 in - sent);
-            if (out == LIBSSH2_ERROR_EAGAIN) {
-                rblibssh2_session_wait(c->s);
-            } else if (out < 0) {
+            if (out < 0) {
                 char *err;
                 LIBSSH2_SESSION *session = rblibssh2_session_get(c->s);
                 libssh2_session_last_error(session, &err, NULL, 0);
@@ -416,10 +402,7 @@ static void *channel_close_w(void *arg)
 {
     struct channel *c = (struct channel *) arg;
 
-    int rc;
-
-    while ((rc = libssh2_channel_send_eof(c->channel)) == LIBSSH2_ERROR_EAGAIN)
-        rblibssh2_session_wait(c->s);
+    int rc = libssh2_channel_send_eof(c->channel);
     if (rc != 0) {
         char *err;
         libssh2_session_last_error(rblibssh2_session_get(c->s), &err, NULL, 0);
@@ -427,8 +410,7 @@ static void *channel_close_w(void *arg)
                 "Error sending EOF: %s", err);
     }
 
-    while ((rc = libssh2_channel_wait_eof(c->channel)) == LIBSSH2_ERROR_EAGAIN)
-        rblibssh2_session_wait(c->s);
+    rc = libssh2_channel_wait_eof(c->channel);
     if (rc != 0) {
         char *err;
         libssh2_session_last_error(rblibssh2_session_get(c->s), &err, NULL, 0);
@@ -436,8 +418,7 @@ static void *channel_close_w(void *arg)
                 "Error waiting for EOF ack: %s", err);
     }
 
-    while ((rc = libssh2_channel_close(c->channel)) == LIBSSH2_ERROR_EAGAIN)
-        rblibssh2_session_wait(c->s);
+    rc = libssh2_channel_close(c->channel);
     if (rc != 0) {
         char *err;
         libssh2_session_last_error(rblibssh2_session_get(c->s), &err, NULL, 0);
@@ -445,11 +426,7 @@ static void *channel_close_w(void *arg)
                 "Error closing channel client side: %s", err);
     }
 
-    while ((rc = libssh2_channel_wait_closed(c->channel)) ==
-           LIBSSH2_ERROR_EAGAIN)
-    {
-        rblibssh2_session_wait(c->s);
-    }
+    rc = libssh2_channel_wait_closed(c->channel);
     if (rc != 0) {
         char *err;
         libssh2_session_last_error(rblibssh2_session_get(c->s), &err, NULL, 0);
