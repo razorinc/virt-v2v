@@ -246,15 +246,21 @@ module VirtP2V::UI::Convert
                 }
             }
         ) { |result|
+            @converter.connection.close
+
             # N.B. Explicit test against true is required here, as result may be
             # an Exception, which would also return true if evaluated alone
             if result == true then
                 @status.text = ''
-                @converter.connection.close
                 event(EV_CONVERTED, true)
             else
                 @status.text = result.message
                 event(EV_CONVERTED, false)
+
+                # Reset transfer progress bars to zero
+                @fixeds.each { |model, path, iter|
+                    iter[CONVERT_FIXED_PROGRESS] = 0
+                }
             end
         }
     end
