@@ -183,8 +183,9 @@ void *rblibssh2_session_runthread(struct session *s,
     close(signal[0]);
     close(signal[1]);
 
-    void *result;
-    if (pthread_join(s->thread, &result) < 0) {
+    void *result = NULL;
+    errno = pthread_join(s->thread, &result);
+    if (errno < 0) {
         s->running = 0;
         rb_sys_fail("Failed to join worker thread");
     }
