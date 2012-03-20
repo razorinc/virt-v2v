@@ -18,6 +18,8 @@ rpm
 vim-minimal
 /usr/bin/scp    # For extracting log files
 /usr/bin/gzip   # For compressing core files
+less
+strace
 
 # Remove unnecessary packages
 -audit-libs-python
@@ -34,7 +36,6 @@ vim-minimal
 -fedora-release
 -fedora-release-notes
 -dmraid
--less
 -which
 -parted
 -tar
