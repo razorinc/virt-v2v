@@ -41,6 +41,7 @@ OPTIONS:
   -f    Specific Fedora mirror to use if building a Fedora image.
   -k    Don't run livecd-creator, just write the kickstart file to stdout.
   -l    Boot image label.
+  -n    Don't add any repositories to kickstart. Useful in conjunction with -k.
   -r    Primary yum repository.
   -u    Updates yum repository.
   -p    Proxy server (e.g. http://bob:s3cr3t@cache.example.com:3128/)
@@ -54,8 +55,9 @@ onlyonce() {
     exit 1
 }
 
+norepos=0
 ksonly=0
-while getopts "a:d:f:hkl:p:r:u:w:" OPTION
+while getopts "a:d:f:hkl:np:r:u:w:" OPTION
 do
     case $OPTION in
         a)
@@ -80,6 +82,9 @@ do
         l)
             [ -n "$label" ] && onlyonce $OPTION
             label="$OPTARG"
+            ;;
+        n)
+            norepos=1
             ;;
         p)
             [ -n "$proxy" ] && onlyonce $OPTION
@@ -128,9 +133,11 @@ ksflatten --config "$datadir/virt-p2v-image.ks" --output "$kstmp"
 sed -i 's/^%include /#&/' "$kstmp"
 
 addrepo() {
-    echo -n "repo --name=$1 $2" >> "$kstmp"
-    [ -n "$proxy" -a -z "$3" ] && echo -n " --proxy=$proxy" >> "$kstmp"
-    echo >> "$kstmp"
+    if [ "$norepos" == 0 ]; then
+        echo -n "repo --name=$1 $2" >> "$kstmp"
+        [ -n "$proxy" -a -z "$3" ] && echo -n " --proxy=$proxy" >> "$kstmp"
+        echo >> "$kstmp"
+    fi
 }
 
 if [ -z "$repo" ]; then
