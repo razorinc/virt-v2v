@@ -124,6 +124,8 @@ sub convert
     _init_augeas($g, $grub_conf);
     _init_kernels($g, $desc);
 
+    _clean_rpmdb($g);
+
     # Un-configure HV specific attributes which don't require a direct
     # replacement
     _unconfigure_hv($g, $root, $desc);
@@ -617,6 +619,18 @@ sub _init_kernels
 
         # Add the default configuration
         eval { $boot->{default} = $g->aug_get("/files$grub_conf/default") };
+    }
+}
+
+# If the guest was shutdown uncleanly, it's possible that transient state was
+# left lying around in the rpm database. Given we know that nothing is using the
+# rpmdb at this point, it's safe to delete these files.
+sub _clean_rpmdb
+{
+    my $g = shift;
+
+    foreach my $f ($g->glob_expand('/var/lib/rpm/__db.00?')) {
+        $g->rm($f);
     }
 }
 
