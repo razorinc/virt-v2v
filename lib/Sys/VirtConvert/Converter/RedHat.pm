@@ -978,21 +978,23 @@ sub _unconfigure_vbox
     # this uninstallation script naively overwrites configuration files with
     # versions it cached prior to installation.
     my $vboxconfig = '/var/lib/VBoxGuestAdditions/config';
-    my $vboxuninstall;
-    foreach (split /\n/, $g->cat($vboxconfig)) {
-        if ($_ =~ /^INSTALL_DIR=(.*$)/) {
-            $vboxuninstall = $1 . '/uninstall.sh';
+    if ($g->exists($vboxconfig)) {
+        my $vboxuninstall;
+        foreach (split /\n/, $g->cat($vboxconfig)) {
+            if ($_ =~ /^INSTALL_DIR=(.*$)/) {
+                $vboxuninstall = $1 . '/uninstall.sh';
+            }
         }
-    }
-    if ($g->exists($vboxuninstall)) {
-        eval { $g->command([$vboxuninstall]) };
-        logmsg WARN, __x('VirtualBox Guest Additions were detected, but '.
-                         'uninstallation failed. The error message was: '.
-                         '{error}', error => $@) if $@;
+        if ($g->exists($vboxuninstall)) {
+            eval { $g->command([$vboxuninstall]) };
+            logmsg WARN, __x('VirtualBox Guest Additions were detected, but '.
+                             'uninstallation failed. The error message was: '.
+                             '{error}', error => $@) if $@;
 
-        # Reload augeas to detect changes made by vbox tools uninstallation
-        eval { $g->aug_load() };
-        augeas_error($g, $@) if $@;
+            # Reload augeas to detect changes made by vbox tools uninstallation
+            eval { $g->aug_load() };
+            augeas_error($g, $@) if $@;
+        }
     }
 }
 
