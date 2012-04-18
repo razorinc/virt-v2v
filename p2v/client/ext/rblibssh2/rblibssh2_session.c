@@ -143,16 +143,30 @@ void *rblibssh2_session_runthread(struct session *s,
     /* Wait for a byte from the signal pipe, ensuring we allow other ruby
      * threads to run while we wait */
     for (;;) {
+#ifdef HAVE_RB_THREAD_FD_SELECT
+        rb_fdset_t fds;
+        rb_fd_init(&fds);
+        rb_fd_set(signal[0], &fds);
+#else
         fd_set fds;
         FD_ZERO(&fds);
         FD_SET(signal[0], &fds);
+#endif /* HAVE_RB_THREAD_FD_SELECT */
 
         int rc;
         if (cb) {
             struct timeval tv_c = *tv;
+#ifdef HAVE_RB_THREAD_FD_SELECT
+            rc = rb_thread_fd_select(signal[0] + 1, &fds, NULL, NULL, &tv_c);
+#else
             rc = rb_thread_select(signal[0] + 1, &fds, NULL, NULL, &tv_c);
+#endif
         } else {
+#ifdef HAVE_RB_THREAD_FD_SELECT
+            rc = rb_thread_fd_select(signal[0] + 1, &fds, NULL, NULL, NULL);
+#else
             rc = rb_thread_select(signal[0] + 1, &fds, NULL, NULL, NULL);
+#endif
         }
 
         /* Timeout, call the registered callback */

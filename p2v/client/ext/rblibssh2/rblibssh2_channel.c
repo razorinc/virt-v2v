@@ -16,7 +16,11 @@
  */
 
 #include <ruby.h>
+#ifdef HAVE_RUBYIO_H
 #include <rubyio.h>
+#elif HAVE_RUBY_IO_H
+#include <ruby/io.h>
+#endif
 
 #include <aio.h>
 #include <unistd.h>
@@ -394,7 +398,11 @@ static VALUE channel_send_data(VALUE self_rv, VALUE io_rv)
 
     struct channel_send_data *csd = xmalloc(sizeof(*csd));
     csd->c = c;
+#ifdef HAVE_STRUCT_RB_IO_T_F
     csd->fd = fileno(io->f);
+#elif HAVE_STRUCT_RB_IO_T_FD
+    csd->fd = io->fd;
+#endif
     csd->sent = 0;
 
     int rc;
