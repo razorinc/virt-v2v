@@ -78,7 +78,7 @@ my $target;
 
 # Initialize logging
 logmsg_init('syslog');
-#logmsg_level(DEBUG);
+logmsg_level(DEBUG);
 
 # Uncomment these 2 lines to capture debug information from the conversion
 # process
@@ -266,7 +266,6 @@ sub receive_path
     # We only support RAW container
     my $ctype = $msg->{args}[0];
     die("Received unknown container type: $ctype\n") unless $ctype eq CONT_RAW;
-    p2v_return_ok();
 
     # Update the disk entry with the new volume details
     $disk->{local_path} = $vol->get_local_path();
@@ -274,6 +273,7 @@ sub receive_path
     $disk->{is_block} = $vol->is_block();
 
     my $writer = $vol->get_write_stream($convert);
+    p2v_return_ok();
 
     # Receive volume data in chunks
     my $received = 0;
