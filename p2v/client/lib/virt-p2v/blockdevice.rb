@@ -62,6 +62,10 @@ class RemovableBlockDevice
     end
 end
 
+def ignore_unknown_device(device)
+    print "Ignoring unknown block device #{device}\n"
+end
+
 # Detect and instantiate all fixed and removable block devices in the system
 begin
     # Look for block devices
@@ -91,23 +95,46 @@ begin
 
             if removable == "0" then
                 FixedBlockDevice.new(devpath)
-            else
+            elsif File.exist?("/sys/block/#{dev}/device/modalias")
                 # Look in device/modalias to work out what kind of removable
                 # device this is
-                type = File.open(
+                File.open(
                     "/sys/block/#{dev}/device/modalias") \
                 { |modalias_f|
                     modalias = modalias_f.gets.chomp
                     if modalias =~ /floppy/ then
-                        'floppy'
+                        RemovableBlockDevice.new(devpath, 'floppy')
                     elsif modalias =~ /cdrom/ then
-                        'cdrom'
+                        RemovableBlockDevice.new(devpath, 'cdrom')
+                    elsif modalias =~ /^scsi:t-/ then
+                        # All this tells us is that we have a SCSI device: it
+                        # could still be anything. Look at the device type to
+                        # find out what it is. These values are defined in
+                        # /usr/include/scsi/scsi.h
+                        begin
+                            File.open("/sys/block/#{dev}/device/type") \
+                            { |type_f|
+                                type = type_f.gets.chomp
+                                # DISK or MOD
+                                if type == "0" || type == "7"
+                                    FixedBlockDevice.new(devpath)
+
+                                # WORM or ROM
+                                elsif type == "4" || type == "5"
+                                    RemovableBlockDevice.new(devpath, 'cdrom')
+                                else
+                                    ignore_device(devpath)
+                                end
+                            }
+                        rescue Errno::ENOENT
+                            ignore_unknown_device(devpath)
+                        end
                     else
-                        # We don't know what this is, ignore it
+                        ignore_unknown_device(devpath)
                     end
                 }
-
-                RemovableBlockDevice.new(devpath, type) unless type.nil?
+            else
+                ignore_unknown_device(devpath)
             end
         }
     }
