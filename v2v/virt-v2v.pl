@@ -594,6 +594,12 @@ if (defined($transferiso)) {
     $transferdev = pop(@devices);
 }
 
+# RHEV doesn't support a serial console, so automatically disable it
+my %options;
+if ($output_method eq 'rhev') {
+    $options{NO_SERIAL_CONSOLE} = 1;
+}
+
 my $guestcaps;
 my $root;
 eval {
@@ -602,7 +608,8 @@ eval {
 
     # Modify the guest and its metadata
     $guestcaps =
-        Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
+        Sys::VirtConvert::Converter->convert($g, $config, $root, $meta,
+                                             \%options);
 
     $target->create_guest($g, $root, $meta, $config, $guestcaps, $output_name);
 };

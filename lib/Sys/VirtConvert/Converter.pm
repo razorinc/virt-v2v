@@ -81,11 +81,14 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $config, $root, $meta) = @_;
+    my ($g, $config, $root, $meta, $options) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without root argument") unless defined($root);
     croak("convert called without meta argument") unless defined($meta);
+
+    # Initialize options to an empty hash if it's not set
+    $options ||= {};
 
     my $guestcaps;
 
@@ -114,7 +117,8 @@ sub convert
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
         if($module->can_handle(\%desc)) {
-            $guestcaps = $module->convert($g, $root, $config, \%desc, $meta);
+            $guestcaps = $module->convert($g, $root, $config, \%desc, $meta,
+                                          $options);
             last;
         }
     }

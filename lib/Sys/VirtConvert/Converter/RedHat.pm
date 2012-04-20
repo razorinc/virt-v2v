@@ -110,12 +110,13 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $root, $config, $desc, $meta) = @_;
+    my ($g, $root, $config, $desc, $meta, $options) = @_;
     croak("convert called without g argument") unless defined($g);
     croak("convert called without root argument") unless defined($root);
     croak("convert called without config argument") unless defined($config);
     croak("convert called without desc argument") unless defined($desc);
     croak("convert called without meta argument") unless defined($meta);
+    croak("convert called without options argument") unless defined($options);
 
     _init_grub($g, $root, $desc);
     my $grub_conf = $desc->{boot}->{grub_conf};
@@ -142,7 +143,9 @@ sub convert
     }
 
     # Configure the rest of the system
-    _configure_console($g, $grub_conf);
+    my $remove_serial_console = exists($options->{NO_SERIAL_CONSOLE});
+    _configure_console($g, $grub_conf, $remove_serial_console);
+
     _configure_display_driver($g, $config, $meta, $desc);
     _remap_block_devices($meta, $virtio, $g, $desc);
     _configure_kernel_modules($g, $virtio);
@@ -362,9 +365,12 @@ sub _configure_kernel_modules
 # /dev/hvc0, so ideally we would just leave it alone. However, RHEL 6 libvirt
 # doesn't yet support this device so we can't attach to it. We therefore use
 # /dev/ttyS0 for RHEL 6 anyway.
+#
+# If the target doesn't support a serial console, we want to remove all
+# references to it instead.
 sub _configure_console
 {
-    my ($g, $grub_conf) = @_;
+    my ($g, $grub_conf, $remove) = @_;
 
     # Look for gettys which use xvc0 or hvc0
     # RHEL 6 doesn't use /etc/inittab, but this doesn't hurt
@@ -373,8 +379,16 @@ sub _configure_console
 
         # If the process mentions xvc0, change it to ttyS0
         if ($proc =~ /\b(x|h)vc0\b/) {
-            $proc =~ s/\b(x|h)vc0\b/ttyS0/g;
-            $g->aug_set($augpath, $proc);
+            if ($remove) {
+                $g->aug_rm($augpath.'/..');
+            } else {
+                $proc =~ s/\b(x|h)vc0\b/ttyS0/g;
+                $g->aug_set($augpath, $proc);
+            }
+        }
+
+        if ($remove && $proc =~ /\bttyS0\b/) {
+            $g->aug_rm($augpath.'/..');
         }
     }
 
@@ -383,7 +397,15 @@ sub _configure_console
         my $tty = $g->aug_get($augpath);
 
         if($tty eq "xvc0" || $tty eq "hvc0") {
-            $g->aug_set($augpath, 'ttyS0');
+            if ($remove) {
+                $g->aug_set($augpath, 'ttyS0');
+            } else {
+                $g->aug_rm($augpath);
+            }
+        }
+
+        if ($remove && $tty eq 'ttyS0') {
+            $g->aug_rm($augpath);
         }
     }
 
@@ -393,8 +415,16 @@ sub _configure_console
     {
         my $console = $g->aug_get($augpath);
         if ($console =~ /\b(x|h)vc0\b/) {
-            $console =~ s/\b(x|h)vc0\b/ttyS0/g;
-            $g->aug_set($augpath, $console);
+            if ($remove) {
+                $g->aug_rm($augpath);
+            } else {
+                $console =~ s/\b(x|h)vc0\b/ttyS0/g;
+                $g->aug_set($augpath, $console);
+            }
+        }
+
+        if ($remove && $console =~ /\bttyS0\b/) {
+            $g->aug_rm($augpath);
         }
     }
 

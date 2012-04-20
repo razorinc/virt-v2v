@@ -359,9 +359,15 @@ sub convert
             $transferdev = pop(@devices);
         }
 
+        my %options;
+        if ($config->get_method() eq 'rhev') {
+            $options{NO_SERIAL_CONSOLE} = 1;
+        }
+
         my $root = inspect_guest($g, $transferdev);
         my $guestcaps =
-            Sys::VirtConvert::Converter->convert($g, $config, $root, $meta);
+            Sys::VirtConvert::Converter->convert($g, $config, $root, $meta,
+                                                 \%options);
         $target->create_guest($g, $root, $meta, $config, $guestcaps,
                               $meta->{name});
 
