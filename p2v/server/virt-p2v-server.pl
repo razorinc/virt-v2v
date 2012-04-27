@@ -78,7 +78,7 @@ my $target;
 
 # Initialize logging
 logmsg_init('syslog');
-logmsg_level(DEBUG);
+#logmsg_level(DEBUG);
 
 # Uncomment these 2 lines to capture debug information from the conversion
 # process
