@@ -66,7 +66,6 @@ Requires:   rubygems
 Requires:   rubygem(gtk2)
 Requires:   ruby(dbus)
 
-Requires:   /sbin/blockdev
 Requires:   /usr/bin/hwloc-info
 Requires:   NetworkManager
 Requires:   /usr/bin/openvt

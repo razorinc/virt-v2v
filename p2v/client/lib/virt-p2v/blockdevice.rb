@@ -31,10 +31,24 @@ class FixedBlockDevice
         @@devices[device]
     end
 
-    attr_reader :device
+    attr_reader :device, :size
 
     def initialize(device)
+        size = 0
+        begin
+            # Get the device size, in blocks
+            File.open("/sys/block/#{device}/size") \
+                { |size_f| size = Integer(size_f.gets.chomp) }
+
+            # Get the size in bytes by multiplying by the block size
+            File.open("/sys/block/#{device}/queue/logical_block_size") \
+                { |size_f| size *= Integer(size_f.gets.chomp) }
+        rescue Errno::ENOENT
+            # Unlikely, but not fatal
+        end
+
         @device = device
+        @size = size
         @@devices[device] = self
     end
 end

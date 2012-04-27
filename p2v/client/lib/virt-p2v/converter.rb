@@ -134,8 +134,7 @@ class Converter
 
     def disk(dev, status, progress, completion)
         path = "/dev/#{dev}"
-        # XXX: No error checking of blockdev execution
-        size = Integer(`blockdev --getsize64 #{path}`.chomp)
+        size = FixedBlockDevice[dev].size
         status.call("Transferring #{dev}")
         iterate([
             lambda { |cb| @connection.path(size, path, &cb) },
