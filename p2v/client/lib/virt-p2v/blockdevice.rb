@@ -17,6 +17,7 @@
 module VirtP2V
 
 class NoSuchDeviceError < StandardError; end
+class InvalidDevice < StandardError; end
 
 class FixedBlockDevice
     @@devices = {}
@@ -46,6 +47,8 @@ class FixedBlockDevice
         rescue Errno::ENOENT
             # Unlikely, but not fatal
         end
+
+        raise InvalidDevice if size == 0
 
         @device = device
         @size = size
@@ -108,7 +111,11 @@ begin
             devpath = dev.gsub("!", "/")
 
             if removable == "0" then
-                FixedBlockDevice.new(devpath)
+                begin
+                    FixedBlockDevice.new(devpath)
+                rescue InvalidDevice
+                    # Not fatal: ignore the device
+                end
             elsif File.exist?("/sys/block/#{dev}/device/modalias")
                 # Look in device/modalias to work out what kind of removable
                 # device this is
@@ -130,8 +137,11 @@ begin
                             { |type_f|
                                 type = type_f.gets.chomp
                                 # DISK or MOD
-                                if type == "0" || type == "7"
+                                if type == "0" || type == "7" then begin
                                     FixedBlockDevice.new(devpath)
+                                rescue InvalidDevice
+                                    # Not fatal: ignore the device
+                                end
 
                                 # WORM or ROM
                                 elsif type == "4" || type == "5"
