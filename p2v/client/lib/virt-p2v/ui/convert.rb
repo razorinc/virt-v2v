@@ -28,6 +28,7 @@ module VirtP2V::UI::Convert
     CONVERT_FIXED_CONVERT   = 0
     CONVERT_FIXED_DEVICE    = 1
     CONVERT_FIXED_PROGRESS  = 2
+    CONVERT_FIXED_SIZE_GB   = 3
 
     CONVERT_REMOVABLE_CONVERT   = 0
     CONVERT_REMOVABLE_DEVICE    = 1
@@ -95,6 +96,7 @@ module VirtP2V::UI::Convert
             fixed[CONVERT_FIXED_CONVERT]    = true
             fixed[CONVERT_FIXED_DEVICE]     = dev.device
             fixed[CONVERT_FIXED_PROGRESS]   = 0
+            fixed[CONVERT_FIXED_SIZE_GB]    = dev.size / 1024 / 1024 / 1024
         }
 
         VirtP2V::RemovableBlockDevice.all_devices.each { |dev|
