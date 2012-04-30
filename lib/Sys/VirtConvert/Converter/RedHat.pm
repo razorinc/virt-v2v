@@ -635,7 +635,7 @@ sub _init_kernels
                                     $kernel->{version});
             } else {
                 warn __x("Grub entry {title} does not specify an ".
-                         "initrd", title => $config{title});
+                         "initrd\n", title => $config{title});
             }
 
             push(@configs, \%config);
@@ -681,7 +681,7 @@ sub _inspect_initrd
         unless ($@) {
             @modules = grep { m{([^/]+)\.(?:ko|o)$} } @modules;
         } else {
-            warn __x("{filename}: could not read initrd format",
+            warn __x("{filename}: could not read initrd format\n",
                      filename => "$path");
         }
     }
@@ -732,7 +732,7 @@ sub _inspect_linux_kernel
             # Check /lib/modules/$version exists
             if(!$g->is_dir("/lib/modules/$version")) {
                 warn __x("Didn't find modules directory {modules} for kernel ".
-                         "{path}", modules => "/lib/modules/$version",
+                         "{path}\n", modules => "/lib/modules/$version",
                          path => $path);
 
                 # Give up
@@ -740,7 +740,7 @@ sub _inspect_linux_kernel
             }
         } else {
             warn __x("Couldn't guess kernel version number from path for ".
-                     "kernel {path}", path => $path);
+                     "kernel {path}\n", path => $path);
 
             # Give up
             return undef;
