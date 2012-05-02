@@ -53,7 +53,7 @@ class FixedBlockDevice
         # cciss device /dev/cciss/c0d0 will be cciss!c0d0 under /sys/block
         @device = device.gsub("!", "/")
         @size = size
-        @@devices[device] = self
+        @@devices[@device] = self
     end
 end
 
