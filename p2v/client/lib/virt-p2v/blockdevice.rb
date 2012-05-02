@@ -50,7 +50,8 @@ class FixedBlockDevice
 
         raise InvalidDevice if size == 0
 
-        @device = device
+        # cciss device /dev/cciss/c0d0 will be cciss!c0d0 under /sys/block
+        @device = device.gsub("!", "/")
         @size = size
         @@devices[device] = self
     end
@@ -107,12 +108,9 @@ begin
         File.open("/sys/block/#{dev}/removable") { |fd|
             removable = fd.gets.chomp
 
-            # cciss device /dev/cciss/c0d0 will be cciss!c0d0 under /sys/block
-            devpath = dev.gsub("!", "/")
-
             if removable == "0" then
                 begin
-                    FixedBlockDevice.new(devpath)
+                    FixedBlockDevice.new(dev)
                 rescue InvalidDevice
                     # Not fatal: ignore the device
                 end
@@ -124,9 +122,9 @@ begin
                 { |modalias_f|
                     modalias = modalias_f.gets.chomp
                     if modalias =~ /floppy/ then
-                        RemovableBlockDevice.new(devpath, 'floppy')
+                        RemovableBlockDevice.new(dev, 'floppy')
                     elsif modalias =~ /cdrom/ then
-                        RemovableBlockDevice.new(devpath, 'cdrom')
+                        RemovableBlockDevice.new(dev, 'cdrom')
                     elsif modalias =~ /^scsi:t-/ then
                         # All this tells us is that we have a SCSI device: it
                         # could still be anything. Look at the device type to
@@ -138,27 +136,27 @@ begin
                                 type = type_f.gets.chomp
                                 # DISK or MOD
                                 if type == "0" || type == "7" then begin
-                                    FixedBlockDevice.new(devpath)
+                                    FixedBlockDevice.new(dev)
                                 rescue InvalidDevice
                                     # Not fatal: ignore the device
                                 end
 
                                 # WORM or ROM
                                 elsif type == "4" || type == "5"
-                                    RemovableBlockDevice.new(devpath, 'cdrom')
+                                    RemovableBlockDevice.new(dev, 'cdrom')
                                 else
-                                    ignore_device(devpath)
+                                    ignore_device(dev)
                                 end
                             }
                         rescue Errno::ENOENT
-                            ignore_unknown_device(devpath)
+                            ignore_unknown_device(dev)
                         end
                     else
-                        ignore_unknown_device(devpath)
+                        ignore_unknown_device(dev)
                     end
                 }
             else
-                ignore_unknown_device(devpath)
+                ignore_unknown_device(dev)
             end
         }
     }
