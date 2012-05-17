@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # virt-p2v-server
-# Copyright (C) 2011 Red Hat Inc.
+# Copyright (C) 2012 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -542,7 +542,7 @@ Matthew Booth <mbooth@redhat.com>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Red Hat Inc.
+Copyright (C) 2012 Red Hat Inc.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

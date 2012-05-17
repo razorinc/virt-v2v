@@ -2385,7 +2385,7 @@ sub _supports_virtio
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Red Hat Inc.
+Copyright (C) 2009-2012 Red Hat Inc.
 
 =head1 LICENSE
 
