@@ -865,7 +865,7 @@ complex mappings, see L<virt-v2v.conf(5)>.
 
 If it is not possible to provide software updates over the network in your
 environment, software will be installed as specified in virt-v2v.conf. See
-L<virt-v2v.conf(5)> for a details.
+L<virt-v2v.conf(5)> for details.
 
 It is possible to avoid specifying replacement kernels in the virt-v2v config
 file by ensuring that the guest has an appropriate kernel installed prior to
