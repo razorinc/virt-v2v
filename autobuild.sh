@@ -50,6 +50,10 @@ fi
 rm -f $NAME-*.tar.gz
 ./Build dist
 
+if [ -z "$ARCH" ]; then
+    ARCH=`uname -p`
+fi
+
 if [ -f /usr/bin/rpmbuild ]; then
   if [ -n "$AUTOBUILD_COUNTER" ]; then
     EXTRA_RELEASE=".auto$AUTOBUILD_COUNTER"
@@ -63,10 +67,13 @@ if [ -f /usr/bin/rpmbuild ]; then
            --define "extra_release $EXTRA_RELEASE" \
            --clean virt-v2v.spec
 
-  rpmbuild --nodeps -ba --target i686 \
-           --define "_sourcedir `pwd`" \
-           --define "extra_release $EXTRA_RELEASE" \
-           --clean rubygem-virt-p2v.spec
+  # virt-p2v only can be built on i686 platform now
+  if [ "$ARCH" = "i686" ]; then
+      rpmbuild --nodeps -ba --target $ARCH \
+               --define "_sourcedir `pwd`" \
+               --define "extra_release $EXTRA_RELEASE" \
+               --clean rubygem-virt-p2v.spec
+  fi
 fi
 
 exit 0
