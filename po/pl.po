@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2012-03-02 12:25+0000\n"
+"POT-Creation-Date: 2012-06-25 11:37+0100\n"
 "PO-Revision-Date: 2011-11-02 19:39+0000\n"
 "Last-Translator: raven <piotrdrag@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.net/projects/p/fedora/team/pl/)\n"
@@ -20,12 +20,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2)\n"
 
-#: ../lib/Sys/VirtConvert/Converter.pm:97
+#: ../lib/Sys/VirtConvert/Converter.pm:100
 #, perl-brace-format
 msgid "{e} (ignored)\n"
 msgstr "{e} (zignorowano)\n"
 
-#: ../lib/Sys/VirtConvert/Converter.pm:129
+#: ../lib/Sys/VirtConvert/Converter.pm:133
 #, perl-brace-format
 msgid ""
 "Unable to convert this guest operating system. Its storage will be "
@@ -606,21 +606,21 @@ msgstr "Domyślna sieć nie zawiera mapowania: {config}."
 msgid "Invalid network mapping: {config}"
 msgstr "Nieprawidłowe mapowanie sieci: {config}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:139
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:142
 msgid "Failed to install user-custom packages"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:281
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:286
 msgid "Unable to find any valid modprobe configuration"
 msgstr "Nie można odnaleźć żadnej prawidłowej konfiguracji modprobe"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:336
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:341
 #, perl-brace-format
 msgid "Don't know how to update {device}, which loads the {module} module."
 msgstr ""
 "Nie wiadomo, jak zaktualizować {device}, które wczytuje moduł {module}."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:455
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:487
 msgid ""
 "Display driver was updated to cirrus, but unable to install cirrus driver. X "
 "may not function correctly"
@@ -628,37 +628,37 @@ msgstr ""
 "Sterownik ekranu został zaktualizowany do sterownika cirrus, ale nie można "
 "go zainstalować. System X może nie działać poprawnie"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:509
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:541
 #, perl-brace-format
 msgid "grub refers to {path}, which doesn't exist."
 msgstr "Program GRUB odwołuje się do {path}, który nie istnieje."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:581
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:613
 #, perl-brace-format
 msgid "grub refers to {path}, which doesn't exist\n"
 msgstr "program GRUB odnosi się do {path}, który nie istnieje\n"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:605
-#, perl-brace-format
-msgid "Grub entry {title} does not specify an initrd"
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:637
+#, fuzzy, perl-brace-format
+msgid "Grub entry {title} does not specify an initrd\n"
 msgstr "Wpis programu GRUB {title} nie podaje initrd"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:640
-#, perl-brace-format
-msgid "{filename}: could not read initrd format"
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:684
+#, fuzzy, perl-brace-format
+msgid "{filename}: could not read initrd format\n"
 msgstr "{filename}: nie można odczytać formatu initrd"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:690
-#, perl-brace-format
-msgid "Didn't find modules directory {modules} for kernel {path}"
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:734
+#, fuzzy, perl-brace-format
+msgid "Didn't find modules directory {modules} for kernel {path}\n"
 msgstr "Nie odnaleziono katalogu modułów {modules} dla jądra {path}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:698
-#, perl-brace-format
-msgid "Couldn't guess kernel version number from path for kernel {path}"
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:742
+#, fuzzy, perl-brace-format
+msgid "Couldn't guess kernel version number from path for kernel {path}\n"
 msgstr "Nie można odgadnąć numeru wersji jądra ze ścieżki do jądra {path}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:755
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:799
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
@@ -666,12 +666,21 @@ msgstr ""
 "Nie zainstalowano startowych jąder i żaden zamiennik nie jest dostępny.\n"
 "Nie można kontynuować."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:922
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:967
 #, perl-brace-format
 msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Nie można otworzyć /etc/rc.local: {error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1009
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1020
+#, fuzzy, perl-brace-format
+msgid ""
+"VirtualBox Guest Additions were detected, but uninstallation failed. The "
+"error message was: {error}"
+msgstr ""
+"Wykryto VMware Tools, ale odinstalowanie nie powiodło się. Komunikat błędu: "
+"{error}"
+
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1098
 #, fuzzy, perl-brace-format
 msgid ""
 "Failed to install replacement dependencies for {lib}. Package will not be "
@@ -680,7 +689,7 @@ msgstr ""
 "Zainstalowanie pakietów używając programu up2date nie powiodło się. "
 "Komunikat błędu: {error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1029
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1118
 #, perl-brace-format
 msgid ""
 "VMware Tools was detected, but uninstallation failed. The error message was: "
@@ -689,12 +698,12 @@ msgstr ""
 "Wykryto VMware Tools, ale odinstalowanie nie powiodło się. Komunikat błędu: "
 "{error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1053
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1142
 #, perl-brace-format
 msgid "{name} capability not found in configuration"
 msgstr "Nie odnaleziono możliwości {name} w konfiguracji"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1072
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1161
 #, perl-brace-format
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
@@ -703,21 +712,21 @@ msgstr ""
 "Nierozpoznany format dla {field} w konfiguracji: {value}. {field} musi być w "
 "formacie [epoch:]version[-release]."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1293
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1386
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
 msgstr ""
 "Zainstalowanie pakietów używając programu up2date nie powiodło się. "
 "Komunikat błędu: {error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1356
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1449
 #, perl-brace-format
 msgid "Failed to install packages using yum. Output was: {output}"
 msgstr ""
 "Zainstalowanie pakietów używając programu yum nie powiodło się. Wyjście: "
 "{output}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1406
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1499
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:435
 #, perl-brace-format
 msgid ""
@@ -727,12 +736,12 @@ msgstr ""
 "Instalacja nie powiodła się, ponieważ następujące pliki wspomniane w pliku "
 "konfiguracji są wymagane, ale ich nie ma: {list}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1829
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1922
 #, perl-brace-format
 msgid "Error running {command}: {error}"
 msgstr "Błąd podczas wykonywania {command}: {error}"
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2077
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2170
 #, perl-brace-format
 msgid ""
 "{file} references unknown device {device}. This entry must be manually fixed "
@@ -741,12 +750,12 @@ msgstr ""
 "{file} odnosi się do nieznanego urządzenia {device}. Ten wpis będzie musiał "
 "zostać ręcznie naprawiony po konwersji."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2177
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2270
 #, perl-brace-format
 msgid "Kernel version {version} doesn't have an initrd entry in grub."
 msgstr "Wersja jądra {version} nie posiada wpisu initrd w programie GRUB."
 
-#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2233
+#: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2326
 msgid "Didn't find mkinitrd or dracut. Unable to update initrd."
 msgstr ""
 "Nie odnaleziono polecenia mkinitrd lub dracut. Nie można zaktualizować "
@@ -828,7 +837,7 @@ msgstr ""
 "Instalacja nie powiodła się, ponieważ następujące pliki wspomniane w pliku "
 "konfiguracji są wymagane, ale ich nie ma: {list}"
 
-#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:176
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:173
 msgid "libguestfs did not shut down cleanly"
 msgstr "Biblioteka libguestfs nie została poprawnie zakończona"
 
@@ -851,159 +860,158 @@ msgstr ""
 "Ta wersja programu virt-p2v-server nie obsługuje wersji protokołu "
 "{version}.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:246
+#: ../p2v/server/virt-p2v-server.pl:250
 #, perl-brace-format
 msgid "Invalid allocation policy {policy} in profile.\n"
 msgstr "Nieprawidłowa polityka przydzielania {policy} w profilu.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:317
+#: ../p2v/server/virt-p2v-server.pl:321
 #, perl-brace-format
 msgid "Invalid profile: {profile}\n"
 msgstr "Nieprawidłowy profil: {profile}\n"
 
-#: ../p2v/server/virt-p2v-server.pl:330
+#: ../p2v/server/virt-p2v-server.pl:334
 #, perl-brace-format
 msgid "Profile {profile} specifies invalid method {method}.\n"
 msgstr "Profil {profile} określa nieprawidłową metodę {method}.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:369 ../v2v/virt-v2v.pl:621
+#: ../p2v/server/virt-p2v-server.pl:379 ../v2v/virt-v2v.pl:629
 #, perl-brace-format
 msgid "{name} configured with virtio drivers."
 msgstr "{name} jest skonfigurowane ze sterownikami virtio."
 
-#: ../p2v/server/virt-p2v-server.pl:372 ../v2v/virt-v2v.pl:624
+#: ../p2v/server/virt-p2v-server.pl:382 ../v2v/virt-v2v.pl:632
 #, perl-brace-format
 msgid "{name} configured with virtio storage only."
 msgstr "{name} zostało skonfigurowane tylko z pamięcią masową virtio."
 
-#: ../p2v/server/virt-p2v-server.pl:375 ../v2v/virt-v2v.pl:627
+#: ../p2v/server/virt-p2v-server.pl:385 ../v2v/virt-v2v.pl:635
 #, perl-brace-format
 msgid "{name} configured with virtio networking only."
 msgstr "{name} zostało skonfigurowane tylko z siecią virtio."
 
-#: ../p2v/server/virt-p2v-server.pl:378 ../v2v/virt-v2v.pl:630
+#: ../p2v/server/virt-p2v-server.pl:388 ../v2v/virt-v2v.pl:638
 #, perl-brace-format
 msgid "{name} configured without virtio drivers."
 msgstr "{name} jest skonfigurowane bez sterowników virtio."
 
-#: ../p2v/server/virt-p2v-server.pl:404
+#: ../p2v/server/virt-p2v-server.pl:415
 msgid "Client closed connection unexpectedly.\n"
 msgstr "Klient nieoczekiwanie zamknął połączenie.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:417
+#: ../p2v/server/virt-p2v-server.pl:428
 #, perl-brace-format
 msgid "Error messages were written to {file}."
 msgstr "Komunikaty błędów zostały zapisane do pliku {file}."
 
-#: ../p2v/server/virt-p2v-server.pl:422
+#: ../p2v/server/virt-p2v-server.pl:433
 #, perl-brace-format
 msgid "{program} exited."
 msgstr "{program} został zakończony."
 
-#: ../p2v/server/virt-p2v-server.pl:448
+#: ../p2v/server/virt-p2v-server.pl:459
 msgid "No root device found in this operating system image.\n"
 msgstr "Nie odnaleziono urządzenia root w tym obrazie systemu operacyjnego.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:451
+#: ../p2v/server/virt-p2v-server.pl:462
 msgid "Multiboot operating systems are not supported.\n"
 msgstr "Systemy operacyjne multiboot nie są obsługiwane.\n"
 
-#: ../p2v/server/virt-p2v-server.pl:476
+#: ../p2v/server/virt-p2v-server.pl:487
 #, perl-brace-format
 msgid "Received: {command} {args}"
 msgstr "Otrzymano: {command} {args}"
 
-#: ../p2v/server/virt-p2v-server.pl:492
-#, perl-brace-format
-msgid "Error receiving data: {error}\n"
-msgstr "Błąd podczas otrzymywania danych: {error}\n"
+#: ../p2v/server/virt-p2v-server.pl:503
+msgid "Unexpected EOF while receiving data.\n"
+msgstr ""
 
-#: ../p2v/server/virt-p2v-server.pl:503 ../p2v/server/virt-p2v-server.pl:515
-#: ../p2v/server/virt-p2v-server.pl:522
+#: ../p2v/server/virt-p2v-server.pl:514 ../p2v/server/virt-p2v-server.pl:526
+#: ../p2v/server/virt-p2v-server.pl:534
 #, perl-brace-format
 msgid "Sent: {msg}"
 msgstr "Wysłano: {msg}"
 
-#: ../v2v/virt-v2v.pl:388
+#: ../v2v/virt-v2v.pl:389
 msgid "Use -ic or -oc to specify an input or an output connection"
 msgstr "Należy użyć -ic lub -oc, aby podać połączenie wejściowe lub wyjściowe"
 
-#: ../v2v/virt-v2v.pl:410
+#: ../v2v/virt-v2v.pl:411
 msgid "--network may only be specified once"
 msgstr "--network można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:413 ../v2v/virt-v2v.pl:424
+#: ../v2v/virt-v2v.pl:414 ../v2v/virt-v2v.pl:425
 msgid "--network and --bridge are mutually exclusive"
 msgstr "--network i --bridge są wzajemnie wyłączne"
 
-#: ../v2v/virt-v2v.pl:421
+#: ../v2v/virt-v2v.pl:422
 msgid "--bridge may only be specified once"
 msgstr "--bridge można podać tylko raz"
 
-#: ../v2v/virt-v2v.pl:449
+#: ../v2v/virt-v2v.pl:450
 #, perl-brace-format
 msgid "allocation scheme must be {sparse} or {preallocated}"
 msgstr "schemat przydziału musi wynosić {sparse} lub {preallocated}"
 
-#: ../v2v/virt-v2v.pl:464
+#: ../v2v/virt-v2v.pl:465
 msgid "Defined target profiles:"
 msgstr "Określone profile docelowe:"
 
-#: ../v2v/virt-v2v.pl:481
+#: ../v2v/virt-v2v.pl:482
 msgid "vmtype must be either 'desktop' or 'server'."
 msgstr ""
 
-#: ../v2v/virt-v2v.pl:498
+#: ../v2v/virt-v2v.pl:499
 msgid "You must specify an output storage location"
 msgstr "Należy podać położenie wyjściowej pamięci masowej"
 
-#: ../v2v/virt-v2v.pl:512
+#: ../v2v/virt-v2v.pl:513
 #, perl-brace-format
 msgid "{output} is not a valid output method."
 msgstr "{output} nie jest prawidłową metodą wyjścia."
 
-#: ../v2v/virt-v2v.pl:520
+#: ../v2v/virt-v2v.pl:521
 msgid "You must specify a filename"
 msgstr "Należy podać nazwę pliku"
 
-#: ../v2v/virt-v2v.pl:525
+#: ../v2v/virt-v2v.pl:526
 #, perl-brace-format
 msgid "{modulename} only takes a single filename."
 msgstr "{modulename} przyjmuje tylko jedną nazwę pliku."
 
-#: ../v2v/virt-v2v.pl:534
+#: ../v2v/virt-v2v.pl:535
 msgid "You must specify a guest"
 msgstr "Należy podać gościa"
 
-#: ../v2v/virt-v2v.pl:542
+#: ../v2v/virt-v2v.pl:543
 #, perl-brace-format
 msgid "{modulename} only takes a single domain name."
 msgstr "{modulename} przyjmuje tylko jedną nazwę domeny."
 
-#: ../v2v/virt-v2v.pl:548
+#: ../v2v/virt-v2v.pl:549
 #, perl-brace-format
 msgid "{input} is not a valid input method."
 msgstr "{input} nie jest prawidłową metodą wejściową."
 
-#: ../v2v/virt-v2v.pl:559
+#: ../v2v/virt-v2v.pl:560
 #, perl-brace-format
 msgid "Domain {name} already exists on the target."
 msgstr "Domena {name} już istnieje w celu."
 
-#: ../v2v/virt-v2v.pl:572
+#: ../v2v/virt-v2v.pl:573
 msgid "Guest doesn't define any storage devices"
 msgstr "Gość nie określa żadnych urządzeń pamięci masowej"
 
-#: ../v2v/virt-v2v.pl:650
+#: ../v2v/virt-v2v.pl:658
 #, perl-brace-format
 msgid "Received signal {sig}. Exiting."
 msgstr "Odebrano sygnał {sig}. Kończenie działania."
 
-#: ../v2v/virt-v2v.pl:675
+#: ../v2v/virt-v2v.pl:683
 msgid "No root device found in this operating system image."
 msgstr "Nie odnaleziono urządzenia root w tym obrazie sytemu operacyjnego."
 
-#: ../v2v/virt-v2v.pl:685
+#: ../v2v/virt-v2v.pl:693
 msgid ""
 "Dual- or multi-boot operating system detected. Choose the root filesystem\n"
 "that contains the main operating system from the list below:\n"
@@ -1012,12 +1020,12 @@ msgstr ""
 "główny system plików zawierający główny system operacyjny z poniższej "
 "listy:\n"
 
-#: ../v2v/virt-v2v.pl:700
+#: ../v2v/virt-v2v.pl:708
 #, perl-brace-format
 msgid "Enter number between 1 and {i}: "
 msgstr "Proszę podać liczbę między 1 a {i}: "
 
-#: ../v2v/virt-v2v.pl:706
+#: ../v2v/virt-v2v.pl:714
 msgid ""
 "Multi-boot operating systems are not supported by virt-v2v. Use the --root "
 "option to change how virt-v2v handles this."
@@ -1025,13 +1033,16 @@ msgstr ""
 "Systemy operacyjne \"Multiboot\" nie są obsługiwane przez program virt-v2v. "
 "Proszę użyć opcji --root, aby zmienić sposób obsługi."
 
-#: ../v2v/virt-v2v.pl:722 ../v2v/virt-v2v.pl:736
+#: ../v2v/virt-v2v.pl:730 ../v2v/virt-v2v.pl:744
 #, perl-brace-format
 msgid "Root device \"{choice}\" not found. Roots found were: {roots}."
 msgstr ""
 "Nie odnaleziono głównego urządzenia \"{choice}\". Odnaleziono: {roots}."
 
-#: ../v2v/virt-v2v.pl:742
+#: ../v2v/virt-v2v.pl:750
 #, perl-brace-format
 msgid "Unknown --root option \"{choice}\"."
 msgstr "Nieznana opcja --root \"{choice}\"."
+
+#~ msgid "Error receiving data: {error}\n"
+#~ msgstr "Błąd podczas otrzymywania danych: {error}\n"
