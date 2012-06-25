@@ -45,7 +45,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 # Unfortunately, despite really being noarch, we have to make virt-v2v arch
 # dependent to avoid build failures on architectures where libguestfs isn't
 # available.
+%if 0%{?rhel} >= 6
+ExclusiveArch:  x86_64
+%else
 ExclusiveArch:  %{ix86} x86_64
+%endif
 
 # Build system direct requirements
 BuildRequires:  gettext
