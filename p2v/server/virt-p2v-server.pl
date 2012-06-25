@@ -158,6 +158,10 @@ eval {
             eval { $meta = Load($yaml); };
             die('Error parsing metadata: '.$@."\n") if $@;
 
+            # Fixup missing metadata. We do this here to avoid making
+            # unnecessary changes to the client->server metadata.
+            $meta->{src_type} = 'physical';
+
             p2v_return_ok();
         }
 
