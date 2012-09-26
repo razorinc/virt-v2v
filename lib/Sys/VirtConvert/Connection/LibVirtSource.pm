@@ -158,6 +158,37 @@ sub get_volume
         ($name, $format, $size, $usage, $is_sparse, $is_block) =
             parse_libvirt_volinfo($vol);
 
+        # The retrieved format is only meaningful for a subset of pool types.
+        # Check which one we've got.
+        my $pool;
+        eval {
+            # get_storage_pool_by_volume was omitted from Sys::Virt up to and
+            # including version 0.10.0. If it's not available, we use an
+            # internal function instead.
+            if ($vol->can('get_storage_pool_by_volume')) {
+                $pool = $self->{vmm}->get_storage_pool_by_volume($vol);
+            } else {
+                $pool = Sys::Virt::StoragePool::_lookup_by_volume($vol);
+            }
+        };
+        v2vdie __x('Failed to retrieve storage pool for volume {path}: {error}',
+                   path=> $path, error => $@) if $@;
+
+        my $poolxml = $pool->get_xml_description();
+        my $dom = new XML::DOM::Parser->parse($pool->get_xml_description());
+        my ($pooltype) = $dom->findnodes('/pool/@type');
+        if (defined($pooltype)) {
+            $pooltype = $pooltype->getNodeValue();
+
+            $format = 'raw'
+                unless $Sys::VirtConvert::Libvirt::format_pools{$pooltype};
+        } else { # Should be impossible
+            logmsg WARN, __x('Pool XML has no type attribute: {xml}',
+                             xml => $pool->get_xml_description());
+
+            $format = 'raw';
+        }
+
         $transfer = $self->_get_transfer($name, $path, $format,
                                          $is_sparse, $is_block);
     }

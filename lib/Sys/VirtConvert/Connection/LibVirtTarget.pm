@@ -28,6 +28,8 @@ use Sys::VirtConvert::Connection::LibVirt;
 use Sys::VirtConvert::Connection::Volume;
 use Sys::VirtConvert::Util qw(:DEFAULT parse_libvirt_volinfo);
 
+use XML::DOM;
+
 use Locale::TextDomain 'virt-v2v';
 
 @Sys::VirtConvert::Connection::LibVirtTarget::ISA =
@@ -143,7 +145,8 @@ sub create_volume
     push(@cleanup_vols, [$pool, $name]);
 
     my $allocation = $sparse ? 0 : $size;
-    my $vol_xml = "
+
+    my $vol_xml_format = "
         <volume>
             <name>$name</name>
             <capacity>$size</capacity>
@@ -153,6 +156,44 @@ sub create_volume
             </target>
         </volume>
     ";
+
+    my $vol_xml_noformat = "
+        <volume>
+            <name>$name</name>
+            <capacity>$size</capacity>
+            <allocation>$allocation</allocation>
+        </volume>
+    ";
+
+    # Only certain pool types support different file formats. Check the pool
+    # type to determine whether we should create the volume with an explicit
+    # format, or rely on the pool default.
+    my $vol_xml;
+    my $pooldom = new XML::DOM::Parser->parse($pool->get_xml_description());
+    my ($pooltype) = $pooldom->findnodes('/pool/@type');
+    if (defined($pooltype)) {
+        $pooltype = $pooltype->getNodeValue();
+
+        if ($Sys::VirtConvert::Libvirt::format_pools{$pooltype}) {
+            $vol_xml = $vol_xml_format;
+        } else {
+            $vol_xml = $vol_xml_noformat;
+
+            # If the target format type isn't raw, warn the user that they're
+            # not getting what they expected
+            logmsg WARN, __x('Target pool type {pooltype} doesn\'t support '.
+                             'format {format}',
+                             pooltype => $pooltype, format => $format)
+                unless $format eq 'raw';
+
+            $format = 'raw';
+        }
+    } else { # Should be impossible
+        logmsg WARN, __x('Pool XML has no type attribute: {xml}',
+                         xml => $pool->get_xml_description());
+
+        $vol_xml = $vol_xml_noformat;
+    }
 
     my $vol;
     eval {

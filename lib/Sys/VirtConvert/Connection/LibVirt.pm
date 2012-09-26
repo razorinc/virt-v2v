@@ -34,6 +34,18 @@ use Sys::VirtConvert::Util;
 
 use Locale::TextDomain 'virt-v2v';
 
+# As of writing (20/09/2012), libvirt supports 10 pool types. Of these, only th
+# 3 below use the format element of a volume to indicate the on-disk data
+# format. 6 don't support the format element at all, and 1 other, disk,
+# overloads it to mean partition type.
+# All pool types other than the 3 below effectively only support raw.
+our %format_pools = (
+    dir => 1,
+    fs => 1,
+    netfs => 1
+);
+
+
 =pod
 
 =head1 NAME
