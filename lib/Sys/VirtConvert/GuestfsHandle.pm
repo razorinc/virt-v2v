@@ -22,7 +22,7 @@ use warnings;
 
 use Carp;
 
-use Sys::VirtConvert::Util qw(rhev_helper);
+use Sys::VirtConvert::Util qw(rhev_helper v2vdie);
 
 use Locale::TextDomain 'virt-v2v';
 
@@ -93,7 +93,11 @@ sub new
         # Enable networking in the guest
         $g->set_network(1);
 
-        $g->launch();
+        eval {
+            $g->launch();
+        };
+        v2vdie __x('Failed to launch guestfs appliance. Try running again '.
+                   'with LIBGUESTFS_DEBUG=1 for more information') if $@;
     };
 
     # Open the guest seteuid if required for RHEV
