@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2012-06-25 11:37+0100\n"
+"POT-Creation-Date: 2012-09-26 14:50+0100\n"
 "PO-Revision-Date: 2011-10-28 15:46+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Oriya (http://www.transifex.net/projects/p/fedora/team/or/)\n"
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:1162
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:1161
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
@@ -228,40 +228,51 @@ msgstr ""
 msgid "Failed to retrieve storage volume {path}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:179
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:174
+#, fuzzy, perl-brace-format
+msgid "Failed to retrieve storage pool for volume {path}: {error}"
+msgstr "{path} କୁ ଖୋଲିବାରେ ବିଫଳ: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:186
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:192
+#, perl-brace-format
+msgid "Pool XML has no type attribute: {xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:210
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:190
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:221
 msgid "idle"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:192
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:223
 msgid "running"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:194
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:225
 msgid "blocked"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:196
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:227
 msgid "paused"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:198
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:229
 msgid "shutting down"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:200
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:231
 msgid "shut down"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:202
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:233
 msgid "crashed"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:225
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:256
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "{name} ଟି ଗୋଟିଏ ବୈଧ ଅତିଥି ନାମନୁହଁ"
@@ -283,60 +294,65 @@ msgid ""
 "Delete the volume and retry to copy again."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:63
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:75
 #, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:66
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:78
 msgid ""
 "Specifying a password in the connection URI is not supported. It has been "
 "ignored."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:115
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:127
 #, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:89
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:91
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid storage pool."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:161
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:184
+#, perl-brace-format
+msgid "Target pool type {pooltype} doesn't support format {format}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:202
 #, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:396
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:437
 #, perl-brace-format
 msgid "Ignoring removable device {device} with unknown type {type}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:418
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:459
 #, perl-brace-format
 msgid ""
 "Only 4 IDE devices are supported, but this guest has {number}. The guest "
 "will not operate correctly without manual reconfiguration."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:467
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:508
 #, perl-brace-format
 msgid "Automatically cleaning up volume {vol} from pool {pool}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:495
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:536
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:510
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}."
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:516
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:557
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
@@ -737,7 +753,13 @@ msgid ""
 "missing: {list}"
 msgstr ""
 
-#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:173
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:99
+msgid ""
+"Failed to launch guestfs appliance. Try running again with "
+"LIBGUESTFS_DEBUG=1 for more information"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:177
 msgid "libguestfs did not shut down cleanly"
 msgstr ""
 

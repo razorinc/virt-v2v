@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
 "Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
-"POT-Creation-Date: 2012-06-25 11:37+0100\n"
+"POT-Creation-Date: 2012-09-26 14:50+0100\n"
 "PO-Revision-Date: 2011-10-31 19:45+0000\n"
 "Last-Translator: yurchor <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -182,7 +182,7 @@ msgstr "Непідтримувана архітектура: {arch}"
 msgid "Unknown Windows version: {major}.{minor}"
 msgstr "Невідома версія Windows: {major}.{minor}"
 
-#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:1162
+#: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:1161
 #, perl-brace-format
 msgid ""
 "Unknown NIC model {driver} for {dev}. NIC will be {default} when imported."
@@ -263,40 +263,51 @@ msgstr ""
 msgid "Failed to retrieve storage volume {path}: {error}"
 msgstr "Не вдалося отримати {path} на носії для зберігання даних: {error}"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:179
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:174
+#, fuzzy, perl-brace-format
+msgid "Failed to retrieve storage pool for volume {path}: {error}"
+msgstr "Не вдалося отримати {path} на носії для зберігання даних: {error}"
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:186
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:192
+#, perl-brace-format
+msgid "Pool XML has no type attribute: {xml}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:210
 #, perl-brace-format
 msgid "Guest {name} is currently {state}. It must be shut down first."
 msgstr "Гостьова система {name} зараз {state}. Спочатку її треба закрити."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:190
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:221
 msgid "idle"
 msgstr "бездіяльний"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:192
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:223
 msgid "running"
 msgstr "працює"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:194
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:225
 msgid "blocked"
 msgstr "заблоковано"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:196
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:227
 msgid "paused"
 msgstr "призупинено"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:198
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:229
 msgid "shutting down"
 msgstr "закривається"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:200
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:231
 msgid "shut down"
 msgstr "завершення роботи"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:202
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:233
 msgid "crashed"
 msgstr "аварійне завершення"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:225
+#: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:256
 #, perl-brace-format
 msgid "{name} isn't a valid guest name"
 msgstr "Неприпустима назва гостьової системи: {name}"
@@ -320,12 +331,12 @@ msgstr ""
 "На носії даних призначення вже міститься том {name}. Том не буде скопійовано "
 "повторно. Вилучіть поточний том і повторіть спробу копіювання."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:63
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:75
 #, perl-brace-format
 msgid "Unable to parse URI authority: {auth}"
 msgstr "Не вдається розібрати повноваження URI: {auth}"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:66
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:78
 msgid ""
 "Specifying a password in the connection URI is not supported. It has been "
 "ignored."
@@ -333,29 +344,34 @@ msgstr ""
 "Підтримки визначення пароля у адресі з’єднання не передбачено. Пароль буде "
 "проігноровано."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:115
+#: ../lib/Sys/VirtConvert/Connection/LibVirt.pm:127
 #, perl-brace-format
 msgid "Failed to connect to {uri}: {error}"
 msgstr "Не вдається встановити з’єднання з {uri}: {error}"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:89
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:91
 #, perl-brace-format
 msgid "Output pool {poolname} is not a valid storage pool."
 msgstr ""
 "Резервний буфер виведених даних {poolname} не є коректним буфером сховища "
 "даних."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:161
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:184
+#, perl-brace-format
+msgid "Target pool type {pooltype} doesn't support format {format}"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:202
 #, perl-brace-format
 msgid "Failed to create storage volume: {error}"
 msgstr "Не вдається створити локальне сховище даних: {error}"
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:396
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:437
 #, perl-brace-format
 msgid "Ignoring removable device {device} with unknown type {type}."
 msgstr "Портативний пристрій {device} невідомого типу {type} проігноровано."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:418
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:459
 #, perl-brace-format
 msgid ""
 "Only 4 IDE devices are supported, but this guest has {number}. The guest "
@@ -365,26 +381,26 @@ msgstr ""
 "пристроїв {number}. Гостьова система не зможе працювати належним чином без "
 "зміни налаштувань вручну."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:467
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:508
 #, perl-brace-format
 msgid "Automatically cleaning up volume {vol} from pool {pool}."
 msgstr "Автоматичне спорожнення тому {vol} з буфера {pool}."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:495
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:536
 #, perl-brace-format
 msgid "The connected hypervisor does not support a {arch} kvm guest."
 msgstr ""
 "У гіпервізорі, з яким встановлено з’єднання, не передбачено підтримки "
 "гостьових системи {arch} kvm."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:510
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:551
 #, perl-brace-format
 msgid "The connected hypervisor does not support feature {feature}."
 msgstr ""
 "У гіпервізорі, з яким встановлено з’єднання, не передбачено підтримки "
 "можливості {feature}."
 
-#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:516
+#: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:557
 msgid ""
 "The target guest does not support acpi under KVM. ACPI will be disabled."
 msgstr ""
@@ -848,7 +864,13 @@ msgstr ""
 "Встановлення зазнало невдачі, оскільки для нього потрібні файли, на які "
 "посилається файл налаштувань, але яких не виявлено: {list}"
 
-#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:173
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:99
+msgid ""
+"Failed to launch guestfs appliance. Try running again with "
+"LIBGUESTFS_DEBUG=1 for more information"
+msgstr ""
+
+#: ../lib/Sys/VirtConvert/GuestfsHandle.pm:177
 msgid "libguestfs did not shut down cleanly"
 msgstr "libguestfs не вдалося завершити роботу у звичайному режимі"
 
