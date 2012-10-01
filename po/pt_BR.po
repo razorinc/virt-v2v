@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # brian_ch <chalegabrian@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
 "POT-Creation-Date: 2012-09-26 14:50+0100\n"
-"PO-Revision-Date: 2011-10-28 15:46+0000\n"
+"PO-Revision-Date: 2012-09-26 13:55+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
-"Language-Team: Portuguese (Brazilian) <trans-pt_br@lists.fedoraproject.org>\n"
-"Language: pt_BR\n"
+"Language-Team: Portuguese (Brazil) <trans-pt_br@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:100
 #, perl-brace-format
@@ -62,8 +62,7 @@ msgstr "Falha ao criar diretório {dir}: {error}"
 #, perl-brace-format
 msgid ""
 "Failed to create new volume {path} with format {format}. Error was: {error}"
-msgstr ""
-"Falha ao criar novo volume {path} com o formato {format}. O erro foi: {error}"
+msgstr "Falha ao criar novo volume {path} com o formato {format}. O erro foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:106
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:724
@@ -89,8 +88,7 @@ msgstr "RHEV não pode manipular volumes do formato {format}"
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:357
 #, perl-brace-format
 msgid "Unable to move volume from temporary location {tmpdir} to {dir}"
-msgstr ""
-"Não foi possível mover o volume da localização temporária {tmpdir} para {dir}"
+msgstr "Não foi possível mover o volume da localização temporária {tmpdir} para {dir}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:375
 #, perl-brace-format
@@ -111,9 +109,7 @@ msgstr ""
 msgid ""
 "Failed to mount {path}. Command exited with status {status}. Output was: "
 "{output}"
-msgstr ""
-"Falha ao montar {path}. Comando saiu com o status {status}. A saída foi: "
-"{output}"
+msgstr "Falha ao montar {path}. Comando saiu com o status {status}. A saída foi: {output}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:450
 #, perl-brace-format
@@ -143,9 +139,7 @@ msgstr ""
 msgid ""
 "Failed to unmount {path}. Command exited with status {status}. Output was: "
 "{output}"
-msgstr ""
-"Falha ao desmontar {path}. Comando saiu com o status {status}. A saída foi: "
-"{output}"
+msgstr "Falha ao desmontar {path}. Comando saiu com o status {status}. A saída foi: {output}"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:520
 #, perl-brace-format
@@ -215,18 +209,11 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the "
-"volume doesn't exist, or because the volume exists but is not contained in a "
-"storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to "
-"contain the volume. Note that you do not have to re-create or move the "
-"volume itself, only define a pool which contains it. libvirt will "
-"automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection "
-"Details from the application menu. Storage pools are displayed in the "
-"Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
@@ -235,9 +222,9 @@ msgid "Failed to retrieve storage volume {path}: {error}"
 msgstr "Falha ao obter volume de armazenamento {path}: {error}"
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:174
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to retrieve storage pool for volume {path}: {error}"
-msgstr "Falha ao obter volume de armazenamento {path}: {error}"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:186
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:192
@@ -459,9 +446,7 @@ msgstr ""
 msgid ""
 "Authentication is required to connect to {server} and no credentials were "
 "found in .netrc."
-msgstr ""
-"Autenticação é necessária para conectar-se a {server} e nenhuma credencial "
-"foi encontrada em .netrc."
+msgstr "Autenticação é necessária para conectar-se a {server} e nenhuma credencial foi encontrada em .netrc."
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:399
 msgid "virt-v2v cannot write to an ESX connection"
@@ -474,8 +459,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:462
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username}"
+" from .netrc."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:467
@@ -588,8 +573,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:487
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X "
-"may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X"
+" may not function correctly"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:541
@@ -634,30 +619,25 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "Não foi possível abrir /etc/rc.local: {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1020
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "VirtualBox Guest Additions were detected, but uninstallation failed. The "
 "error message was: {error}"
 msgstr ""
-"VMware Tools foi detectado, mas desinstalação falhou. A mensagem de erro "
-"foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1098
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "Failed to install replacement dependencies for {lib}. Package will not be "
 "uninstalled. Error was: {error}"
 msgstr ""
-"Falha ao instalar pacote usando o up2date. Mensagem de erro foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1118
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was: "
-"{error}"
-msgstr ""
-"VMware Tools foi detectado, mas desinstalação falhou. A mensagem de erro "
-"foi: {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was:"
+" {error}"
+msgstr "VMware Tools foi detectado, mas desinstalação falhou. A mensagem de erro foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1142
 #, perl-brace-format
@@ -669,15 +649,12 @@ msgstr ""
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
-msgstr ""
-"Formato não reconhecido para {field} na configuração: {value}. {field} deve "
-"estar no formato [epoch:]version[-release]."
+msgstr "Formato não reconhecido para {field} na configuração: {value}. {field} deve estar no formato [epoch:]version[-release]."
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1386
 #, perl-brace-format
 msgid "Failed to install packages using up2date. Error message was: {error}"
-msgstr ""
-"Falha ao instalar pacote usando o up2date. Mensagem de erro foi: {error}"
+msgstr "Falha ao instalar pacote usando o up2date. Mensagem de erro foi: {error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1449
 #, perl-brace-format
@@ -690,9 +667,7 @@ msgstr "Falha ao instalar pacotes usando o yum. Saída foi: {output}"
 msgid ""
 "Installation failed because the following files referenced in the "
 "configuration file are required, but missing: {list}"
-msgstr ""
-"Instalação falhou porque os seguintes arquivos referenciados no arquivo de "
-"configuração são necessários, mas estão faltando: {list}"
+msgstr "Instalação falhou porque os seguintes arquivos referenciados no arquivo de configuração são necessários, mas estão faltando: {list}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1922
 #, perl-brace-format
@@ -702,8 +677,8 @@ msgstr "Erro executando {command}: {error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2170
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed "
-"after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed"
+" after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2270
@@ -736,10 +711,10 @@ msgstr "Convidado não é uma versão suportada do Windows ({major}:{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest "
-"will be configured with a {block} block storage adapter and a {net} network "
-"adapter, but no drivers will be installed for them. If the {block} driver is "
-"not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest"
+" will be configured with a {block} block storage adapter and a {net} network"
+" adapter, but no drivers will be installed for them. If the {block} driver "
+"is not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -764,14 +739,12 @@ msgid ""
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:460
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "The RHEV Application Provisioning Tool cannot be configured because the "
 "following files referenced in the configuration file are required, but "
 "missing: {list}"
 msgstr ""
-"Instalação falhou porque os seguintes arquivos referenciados no arquivo de "
-"configuração são necessários, mas estão faltando: {list}"
 
 #: ../lib/Sys/VirtConvert/GuestfsHandle.pm:99
 msgid ""

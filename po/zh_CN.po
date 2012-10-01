@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # mdbooth <mbooth@redhat.com>, 2011.
 # Mike Ma <zhtx10@gmail.com>, 2011.
@@ -9,17 +9,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
 "POT-Creation-Date: 2012-09-26 14:50+0100\n"
-"PO-Revision-Date: 2011-10-28 15:46+0000\n"
+"PO-Revision-Date: 2012-09-26 13:55+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
-"Language-Team: Chinese (China) (http://www.transifex.net/projects/p/fedora/"
-"team/zh_CN/)\n"
-"Language: zh_CN\n"
+"Language-Team: Chinese (China) <trans-zh_cn@lists.fedoraproject.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:100
 #, perl-brace-format
@@ -103,9 +102,9 @@ msgid "You must be root to output to RHEV"
 msgstr "您必须拥有 root 权限来输出到 RHEV"
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:430
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Unable to change ownership of {mountdir} to vdsm:kvm"
-msgstr "无法将 {mountdir} 的所有权转为 vdsm:kvm"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/RHEVTarget.pm:441
 #, perl-brace-format
@@ -212,28 +211,12 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the "
-"volume doesn't exist, or because the volume exists but is not contained in a "
-"storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to "
-"contain the volume. Note that you do not have to re-create or move the "
-"volume itself, only define a pool which contains it. libvirt will "
-"automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection "
-"Details from the application menu. Storage pools are displayed in the "
-"Storage tab."
-msgstr ""
-"检索 {path} 的卷信息失败。这可能是由于该卷不存在，或者该卷虽然存在但是不包含"
-"于一个存储池中。\n"
-"\n"
-"在后一种情况中，您必须创建一个包含该卷的适当类型的存储池。注意，您无需再次创"
-"建或者移动该卷本身，只要定义一个包含它的池就可以了。libvirt 将在池创建之后扫"
-"描该池时自动检测该卷。\n"
-"\n"
-"virt-manager 能够创建存储池。从应用程序菜单中选择Edit->Connection Details。存"
-"储池显示在Storage标签下。"
+"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+msgstr "检索 {path} 的卷信息失败。这可能是由于该卷不存在，或者该卷虽然存在但是不包含于一个存储池中。\n\n在后一种情况中，您必须创建一个包含该卷的适当类型的存储池。注意，您无需再次创建或者移动该卷本身，只要定义一个包含它的池就可以了。libvirt 将在池创建之后扫描该池时自动检测该卷。\n\nvirt-manager 能够创建存储池。从应用程序菜单中选择Edit->Connection Details。存储池显示在Storage标签下。"
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
 #, perl-brace-format
@@ -241,9 +224,9 @@ msgid "Failed to retrieve storage volume {path}: {error}"
 msgstr "检索存储卷 {path} 失败：{error}"
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:174
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid "Failed to retrieve storage pool for volume {path}: {error}"
-msgstr "检索存储卷 {path} 失败：{error}"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:186
 #: ../lib/Sys/VirtConvert/Connection/LibVirtTarget.pm:192
@@ -478,8 +461,8 @@ msgstr "无法写入到一个 ESX 连接"
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:462
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username} "
-"from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username}"
+" from .netrc."
 msgstr "连接到 {server} 时发生认证错误。.netrc文件中 {username} 的证书已使用。"
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:467
@@ -540,9 +523,7 @@ msgstr "没有检测到操作系统"
 msgid ""
 "No mapping found for {type} interface {name} in config file. The converted "
 "guest may not start until its network interface is updated."
-msgstr ""
-"配置文件中 {type} 接口 {name} 没有发现映射。网络接口更新之前，转换的访客可能"
-"无法启动。"
+msgstr "配置文件中 {type} 接口 {name} 没有发现映射。网络接口更新之前，转换的访客可能无法启动。"
 
 #: ../lib/Sys/VirtConvert/Config.pm:514
 #, perl-brace-format
@@ -594,8 +575,8 @@ msgstr "不知道如何更新 {device}，其加载了 {module} 模块。"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:487
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X "
-"may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X"
+" may not function correctly"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:541
@@ -632,9 +613,7 @@ msgstr ""
 msgid ""
 "No bootable kernels installed, and no replacement is available.\n"
 "Unable to continue."
-msgstr ""
-"未安装可引导的内核，没有替代者可用。\n"
-"无法继续。"
+msgstr "未安装可引导的内核，没有替代者可用。\n无法继续。"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:967
 #, perl-brace-format
@@ -642,24 +621,24 @@ msgid "Unable to open /etc/rc.local: {error}"
 msgstr "无法打开 /etc/rc.local：{error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1020
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "VirtualBox Guest Additions were detected, but uninstallation failed. The "
 "error message was: {error}"
-msgstr "检测到 VMware Tools，但卸载失败。错误信息为：{error}"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1098
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "Failed to install replacement dependencies for {lib}. Package will not be "
 "uninstalled. Error was: {error}"
-msgstr "使用 up2date 安装包失败。错误消息为：{error}"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1118
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was: "
-"{error}"
+"VMware Tools was detected, but uninstallation failed. The error message was:"
+" {error}"
 msgstr "检测到 VMware Tools，但卸载失败。错误信息为：{error}"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1142
@@ -672,9 +651,7 @@ msgstr "配置中未发现 {name} 功能"
 msgid ""
 "Unrecognised format for {field} in config: {value}. {field} must be in the "
 "format [epoch:]version[-release]."
-msgstr ""
-"配置中 {field} 格式无法识别：{value}。{field} 必须遵循下面格式 [epoch:]"
-"version[-release]。"
+msgstr "配置中 {field} 格式无法识别：{value}。{field} 必须遵循下面格式 [epoch:]version[-release]。"
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1386
 #, perl-brace-format
@@ -702,8 +679,8 @@ msgstr "运行 {command} 错误：{error}"
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2170
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed "
-"after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed"
+" after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2270
@@ -736,10 +713,10 @@ msgstr "访客在这个版本的Windows上不支持 ({major}.{minor})"
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest "
-"will be configured with a {block} block storage adapter and a {net} network "
-"adapter, but no drivers will be installed for them. If the {block} driver is "
-"not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest"
+" will be configured with a {block} block storage adapter and a {net} network"
+" adapter, but no drivers will be installed for them. If the {block} driver "
+"is not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
@@ -764,12 +741,12 @@ msgid ""
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:460
-#, fuzzy, perl-brace-format
+#, perl-brace-format
 msgid ""
 "The RHEV Application Provisioning Tool cannot be configured because the "
 "following files referenced in the configuration file are required, but "
 "missing: {list}"
-msgstr "安装失败，因为配置文件中所引用的下列文件缺失了：{list}"
+msgstr ""
 
 #: ../lib/Sys/VirtConvert/GuestfsHandle.pm:99
 msgid ""
