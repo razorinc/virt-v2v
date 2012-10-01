@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Red Hat Inc.
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Cheng-Chia Tseng <pswo10680@gmail.com>, 2011.
 # Walter Cheuk <wwycheuk@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: virt-v2v\n"
-"Report-Msgid-Bugs-To: http://bugzilla.redhat.com/\n"
-"POT-Creation-Date: 2012-09-26 14:50+0100\n"
+"Report-Msgid-Bugs-To: libguestfs@redhat.com\n"
+"POT-Creation-Date: 2012-10-01 16:57+0100\n"
 "PO-Revision-Date: 2012-09-26 13:55+0000\n"
 "Last-Translator: mdbooth <mbooth@redhat.com>\n"
 "Language-Team: Chinese (Taiwan) <trans-zh_TW@lists.fedoraproject.org>\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../lib/Sys/VirtConvert/Converter.pm:100
@@ -210,11 +210,18 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:138
 #, perl-brace-format
 msgid ""
-"Failed to retrieve volume information for {path}. This could be because the volume doesn't exist, or because the volume exists but is not contained in a storage pool.\n"
+"Failed to retrieve volume information for {path}. This could be because the "
+"volume doesn't exist, or because the volume exists but is not contained in a "
+"storage pool.\n"
 "\n"
-"In the latter case, you must create a storage pool of the correct type to contain the volume. Note that you do not have to re-create or move the volume itself, only define a pool which contains it. libvirt will automatically detect the volume when it scans the pool after creation.\n"
+"In the latter case, you must create a storage pool of the correct type to "
+"contain the volume. Note that you do not have to re-create or move the "
+"volume itself, only define a pool which contains it. libvirt will "
+"automatically detect the volume when it scans the pool after creation.\n"
 "\n"
-"virt-manager is able to create storage pools. Select Edit->Connection Details from the application menu. Storage pools are displayed in the Storage tab."
+"virt-manager is able to create storage pools. Select Edit->Connection "
+"Details from the application menu. Storage pools are displayed in the "
+"Storage tab."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Connection/LibVirtSource.pm:153
@@ -460,8 +467,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:462
 #, perl-brace-format
 msgid ""
-"Authentication error connecting to {server}. Used credentials for {username}"
-" from .netrc."
+"Authentication error connecting to {server}. Used credentials for {username} "
+"from .netrc."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Transfer/ESX.pm:467
@@ -489,7 +496,9 @@ msgstr ""
 msgid ""
 "Failed to create transfer iso. Command output was:\n"
 "{output}"
-msgstr "未能建立 iso. 指令輸出為：\n{output}"
+msgstr ""
+"未能建立 iso. 指令輸出為：\n"
+"{output}"
 
 #: ../lib/Sys/VirtConvert/Config.pm:316
 #, perl-brace-format
@@ -574,8 +583,8 @@ msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:487
 msgid ""
-"Display driver was updated to cirrus, but unable to install cirrus driver. X"
-" may not function correctly"
+"Display driver was updated to cirrus, but unable to install cirrus driver. X "
+"may not function correctly"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:541
@@ -636,8 +645,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1118
 #, perl-brace-format
 msgid ""
-"VMware Tools was detected, but uninstallation failed. The error message was:"
-" {error}"
+"VMware Tools was detected, but uninstallation failed. The error message was: "
+"{error}"
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:1142
@@ -678,8 +687,8 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2170
 #, perl-brace-format
 msgid ""
-"{file} references unknown device {device}. This entry must be manually fixed"
-" after conversion."
+"{file} references unknown device {device}. This entry must be manually fixed "
+"after conversion."
 msgstr ""
 
 #: ../lib/Sys/VirtConvert/Converter/RedHat.pm:2270
@@ -712,10 +721,10 @@ msgstr ""
 #: ../lib/Sys/VirtConvert/Converter/Windows.pm:333
 #, perl-brace-format
 msgid ""
-"There are no virtio drivers available for this version of Windows. The guest"
-" will be configured with a {block} block storage adapter and a {net} network"
-" adapter, but no drivers will be installed for them. If the {block} driver "
-"is not already installed in the guest, it will fail to boot. If the {net} "
+"There are no virtio drivers available for this version of Windows. The guest "
+"will be configured with a {block} block storage adapter and a {net} network "
+"adapter, but no drivers will be installed for them. If the {block} driver is "
+"not already installed in the guest, it will fail to boot. If the {net} "
 "driver is not already installed in the guest, you must install it manually "
 "after conversion."
 msgstr ""
