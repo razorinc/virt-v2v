@@ -273,7 +273,7 @@ my $build = $class->new (
         },
     },
     syntaxcheck_exclude => [ "COPYING", "COPYING.LIB", "README-NLS",
-                             "windows/rhsrvany.exe" ],
+                             "windows/rhsrvany.exe", "po/*.po" ],
     PL_files => [ 'virt-v2v.spec.PL', 'rubygem-virt-p2v.spec.PL' ],
 );
 
