@@ -18,8 +18,8 @@ else
 end
 
 abort "Didn't find either f or fd in struct rb_io_t" unless
-    have_struct_member('struct rb_io_t', 'f', rubyio) ||
-    have_struct_member('struct rb_io_t', 'fd', rubyio)
+    have_struct_member('struct rb_io_t', 'f', ['ruby.h', rubyio]) ||
+    have_struct_member('struct rb_io_t', 'fd', ['ruby.h', rubyio])
 
 have_func('rb_thread_fd_select', 'ruby.h')
 
