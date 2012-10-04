@@ -1,8 +1,8 @@
-# Packaging directory
+# Build artifacts
 /pkg
-
-# Temporary build directory
 /tmp
+/ext/rblibssh2/Makefile
+/ext/rblibssh2/mkmf.log
 
 # Built sources
 *.so
