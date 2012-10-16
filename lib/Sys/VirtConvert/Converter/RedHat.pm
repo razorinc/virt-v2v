@@ -921,6 +921,7 @@ sub _unconfigure_hv
     _unconfigure_xen($g, $desc, \@apps);
     _unconfigure_vbox($g, $desc, \@apps);
     _unconfigure_vmware($g, $desc, \@apps);
+    _unconfigure_citrix($g, $desc, \@apps);
 }
 
 # Unconfigure Xen specific guest modifications
@@ -1123,6 +1124,22 @@ sub _unconfigure_vmware
         eval { $g->aug_load() };
         augeas_error($g, $@) if $@;
     }
+}
+
+sub _unconfigure_citrix
+{
+    my ($g, $desc, $apps) = @_;
+
+    # Look for xe-guest-utilities*
+    my @remove;
+    foreach my $app (@$apps) {
+        my $name = $app->{app_name};
+
+        if($name =~ /^xe-guest-utilities(-.*)?$/) {
+            push(@remove, $name);
+        }
+    }
+    _remove_applications($g, @remove);
 }
 
 sub _install_capability
