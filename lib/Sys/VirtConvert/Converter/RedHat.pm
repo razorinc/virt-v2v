@@ -2146,7 +2146,10 @@ sub _remap_block_devices
         # If a Xen guest has non-PV devices, Xen also simultaneously presents
         # these as xvd devices. i.e. hdX and xvdX both exist and are the same
         # device.
-        if ($meta->{src_type} eq 'xen' && $device =~ /^(?:h|s)d([a-z]+)/) {
+        # This mapping is also useful for P2V conversion of Citrix Xenserver
+        # guests done in HVM mode. Disks are detected as sdX, although the guest
+        # uses xvdX natively.
+        if ($device =~ /^(?:h|s)d([a-z]+)/) {
             $map{'xvd'.$1} = $mapped;
         }
         $map{$device} = $mapped;
