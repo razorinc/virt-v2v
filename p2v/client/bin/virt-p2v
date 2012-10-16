@@ -43,15 +43,6 @@ VirtP2V::UI::Connect.init(ui, converter)
 VirtP2V::UI::Convert.init(ui, converter)
 VirtP2V::UI::Success.init(ui)
 
-# Skip the network configuration screen if there is already an active network
-# connection
-VirtP2V::NetworkDevice.all_devices.each { |device|
-    if device.activated then
-        ui.active_page = 'server_win'
-        break
-    end
-}
-
 ui.show
 ui.main_loop
 
