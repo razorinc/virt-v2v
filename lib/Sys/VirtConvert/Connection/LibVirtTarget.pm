@@ -174,7 +174,7 @@ sub create_volume
     if (defined($pooltype)) {
         $pooltype = $pooltype->getNodeValue();
 
-        if ($Sys::VirtConvert::Libvirt::format_pools{$pooltype}) {
+        if ($Sys::VirtConvert::Connection::LibVirt::format_pools{$pooltype}) {
             $vol_xml = $vol_xml_format;
         } else {
             $vol_xml = $vol_xml_noformat;

@@ -181,7 +181,7 @@ sub get_volume
             $pooltype = $pooltype->getNodeValue();
 
             $format = 'raw'
-                unless $Sys::VirtConvert::Libvirt::format_pools{$pooltype};
+                unless $Sys::VirtConvert::Connection::LibVirt::format_pools{$pooltype};
         } else { # Should be impossible
             logmsg WARN, __x('Pool XML has no type attribute: {xml}',
                              xml => $pool->get_xml_description());
