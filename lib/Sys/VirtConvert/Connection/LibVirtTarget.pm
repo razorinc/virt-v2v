@@ -407,6 +407,7 @@ DOM
         my $driver = _append_elem($diskE, 'driver');
         $driver->setAttribute('name', 'qemu');
         $driver->setAttribute('type', $disk->{dst}->get_format());
+        $driver->setAttribute('cache', 'none');
 
         my $source = _append_elem($diskE, 'source');
         $source->setAttribute($is_block ? 'dev' : 'file',
