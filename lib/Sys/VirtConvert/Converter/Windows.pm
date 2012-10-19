@@ -470,12 +470,8 @@ sub _upload_files
     foreach my $d ('Temp', 'V2V') {
         $path .= '/'.$d;
 
-        eval { $path = $g->case_sensitive_path($path) };
-
-        # case_sensitive_path will fail if the path doesn't exist
-        if ($@) {
-            $g->mkdir($path);
-        }
+        $path = $g->case_sensitive_path($path);
+        $g->mkdir_p($path);
     }
 
     foreach my $file (@fb_files) {
