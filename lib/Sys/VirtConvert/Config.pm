@@ -150,7 +150,7 @@ sub get_transfer_iso
     # Create the transfer iso
     my $eh = Sys::VirtConvert::ExecHelper->run
         ('mkisofs', '-o', $iso->filename(),
-         '-r', '-J',
+         '-r', '-J', '-f',
          '-V', '__virt-v2v_transfer__',
          '-graft-points', keys(%path_args));
     v2vdie __x("Failed to create transfer iso. Command output was:\n{output}",
