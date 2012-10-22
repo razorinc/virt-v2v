@@ -118,14 +118,14 @@ sub convert
     croak("convert called without meta argument") unless defined($meta);
     croak("convert called without options argument") unless defined($options);
 
+    _clean_rpmdb($g);
+
     _init_grub($g, $root, $desc);
     my $grub_conf = $desc->{boot}->{grub_conf};
 
     _init_selinux($g);
     _init_augeas($g, $grub_conf);
     _init_kernels($g, $desc);
-
-    _clean_rpmdb($g);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
