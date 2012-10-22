@@ -368,6 +368,9 @@ sub _configure_kernel_modules
 #
 # If the target doesn't support a serial console, we want to remove all
 # references to it instead.
+#
+# Installing the Citrix Xenserver guest tools automatically unconfigures all
+# virtual consoles except the serial console.
 sub _configure_console
 {
     my ($g, $grub_conf, $remove) = @_;
@@ -1140,6 +1143,52 @@ sub _unconfigure_citrix
         }
     }
     _remove_applications($g, @remove);
+
+    # Installing these guest utilities automatically unconfigures ttys in
+    # /etc/inittab if the system uses it. We need to put them back.
+    if (scalar(@remove) > 0) {
+        eval {
+            my $updated = 0;
+            for my $commentp ($g->aug_match('/files/etc/inittab/#comment')) {
+                my $comment = $g->aug_get($commentp);
+
+                # The entries in question are named 1-6, and will normally be
+                # active in runlevels 2-5. They will be gettys. We could be
+                # extremely prescriptive here, but allow for a reasonable amount
+                # of variation just in case.
+                next unless $comment =~ /^([1-6]):([2-5]+):respawn:(.*)/;
+
+                my $name = $1;
+                my $runlevels = $2;
+                my $process = $3;
+
+                next unless $process =~ /getty/;
+
+                # Create a new entry immediately after the comment
+                $g->aug_insert($commentp, $name, 0);
+                $g->aug_set("/files/etc/inittab/$name/runlevels", $runlevels);
+                $g->aug_set("/files/etc/inittab/$name/action", 'respawn');
+                $g->aug_set("/files/etc/inittab/$name/process", $process);
+
+                # Create a variable to point to the comment node so we can
+                # delete it later. If we deleted it here it would invalidate
+                # subsquent comment paths returned by aug_match.
+                $g->aug_defvar("delete$updated", $commentp);
+
+                $updated++;
+            }
+
+            # Delete all the comments
+            my $i = 0;
+            while ($i < $updated) {
+                $g->aug_rm("\$delete$i");
+                $i++;
+            }
+
+            $g->aug_save();
+        };
+        augeas_error($g, $@) if ($@);
+    }
 }
 
 sub _install_capability
