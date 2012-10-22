@@ -174,8 +174,8 @@ sub get_volume
         $is_sparse = $usage < $size ? 1 : 0;
     }
 
-    my $transfer = new Sys::VirtConvert::Transfer::Local($path, $format,
-                                                         $is_sparse);
+    my $transfer = new Sys::VirtConvert::Transfer::Local($path, $is_block,
+                                                         $format, $is_sparse);
 
     return new Sys::VirtConvert::Connection::Volume($name, $format, $path,
                                                     $size, $usage,
