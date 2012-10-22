@@ -398,9 +398,9 @@ sub _configure_console
 
         if($tty eq "xvc0" || $tty eq "hvc0") {
             if ($remove) {
-                $g->aug_set($augpath, 'ttyS0');
-            } else {
                 $g->aug_rm($augpath);
+            } else {
+                $g->aug_set($augpath, 'ttyS0');
             }
         }
 
