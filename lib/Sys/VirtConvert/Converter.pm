@@ -102,23 +102,10 @@ sub convert
 
     $config->mount_transfer($g);
 
-    # Construct the "$desc" hashref which contains the main features
-    # found by inspection.
-    my %desc;
-
-    $desc{os}               = $g->inspect_get_type($root);
-    $desc{distro}           = $g->inspect_get_distro($root)
-        if $desc{os} eq 'linux';
-    $desc{product_name}     = $g->inspect_get_product_name($root);
-    $desc{major_version}    = $g->inspect_get_major_version($root);
-    $desc{minor_version}    = $g->inspect_get_minor_version($root);
-    $desc{arch}             = $g->inspect_get_arch($root);
-
     # Find a module which can convert the guest and run it
     foreach my $module ($class->modules()) {
-        if($module->can_handle(\%desc)) {
-            $guestcaps = $module->convert($g, $root, $config, \%desc, $meta,
-                                          $options);
+        if($module->can_handle($g, $root)) {
+            $guestcaps = $module->convert($g, $root, $config, $meta, $options);
             last;
         }
     }
