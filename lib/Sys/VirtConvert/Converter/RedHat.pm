@@ -27,8 +27,6 @@ use XML::DOM::XPath;
 
 use Sys::VirtConvert::Util qw(:DEFAULT augeas_error);
 
-use Carp;
-
 =pod
 
 =head1 NAME
@@ -70,7 +68,6 @@ sub can_handle
     my $class = shift;
 
     my $desc = shift;
-    carp("can_handle called without desc argument") unless defined($desc);
 
     return ($desc->{os} eq 'linux' &&
             (_is_rhel_family($desc) || $desc->{distro} eq 'fedora'));
@@ -111,12 +108,6 @@ sub convert
     my $class = shift;
 
     my ($g, $root, $config, $desc, $meta, $options) = @_;
-    croak("convert called without g argument") unless defined($g);
-    croak("convert called without root argument") unless defined($root);
-    croak("convert called without config argument") unless defined($config);
-    croak("convert called without desc argument") unless defined($desc);
-    croak("convert called without meta argument") unless defined($meta);
-    croak("convert called without options argument") unless defined($options);
 
     _clean_rpmdb($g);
 

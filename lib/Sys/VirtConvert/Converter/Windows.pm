@@ -20,7 +20,6 @@ package Sys::VirtConvert::Converter::Windows;
 use strict;
 use warnings;
 
-use Carp qw(carp);
 use File::Spec;
 use File::Temp qw(tempdir);
 use Encode qw(encode decode);
@@ -75,7 +74,6 @@ sub can_handle
     my $class = shift;
 
     my $desc = shift;
-    carp("can_handle called without desc argument") unless defined($desc);
 
     return ($desc->{os} eq 'windows');
 }
@@ -116,10 +114,6 @@ sub convert
     my $class = shift;
 
     my ($g, $root, $config, $desc, undef) = @_;
-    croak("convert called without g argument") unless defined($g);
-    croak("convert called without root argument") unless defined($root);
-    croak("convert called without config argument") unless defined($config);
-    croak("convert called without desc argument") unless defined($desc);
 
     my $tmpdir = tempdir (CLEANUP => 1);
 
