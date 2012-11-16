@@ -359,9 +359,6 @@ sub _configure_kernel_modules
 #
 # If the target doesn't support a serial console, we want to remove all
 # references to it instead.
-#
-# Installing the Citrix Xenserver guest tools automatically unconfigures all
-# virtual consoles except the serial console.
 sub _configure_console
 {
     my ($g, $grub, $remove) = @_;
