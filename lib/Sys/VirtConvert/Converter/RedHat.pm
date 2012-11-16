@@ -1198,14 +1198,8 @@ sub _install_capability
         return 1;
     }
 
-    # List of kernels before the new kernel installation
-    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
-
     my $success = _install_any($kernel, \@install, \@upgrade,
                                $g, $root, $config);
-
-    # Check to see if we installed a new kernel, and check grub if we did
-    _find_new_kernel($g, $grub, @k_before);
 
     return $success;
 }
@@ -1665,128 +1659,26 @@ sub _install_good_kernel
     return undef unless _install_any([$kernel_pkg, $kernel_arch], undef, undef,
                                      $g, $root, $config);
 
-    my $version = _find_new_kernel($g, $grub, @k_before);
-    die("Couldn't determine version of installed kernel")
-        unless (defined($version));
-
-    return $version;
-}
-
-sub _find_new_kernel
-{
-    my $g = shift;
-    my $grub = shift;
-    # Note that subsequent arguments are used below
-
     # Figure out which kernel has just been installed
+    my $version;
     foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
-        if (!grep(/^$k$/, @_)) {
+        if (!grep(/^$k$/, @k_before)) {
             # Check which directory in /lib/modules the kernel rpm creates
             foreach my $file ($g->command_lines (['rpm', '-qlf', $k])) {
                 next unless ($file =~ m{^/lib/modules/([^/]+)$});
 
-                my $version = $1;
-                if ($g->is_dir("/lib/modules/$version")) {
-                    _check_grub($version, $k, $g, $grub);
-                    return $version;
+                if ($g->is_dir("/lib/modules/$1")) {
+                    $version = $1;
+                    last;
                 }
             }
         }
     }
-    return undef;
-}
 
-sub _check_grub
-{
-    my ($version, $kernel, $g, $grub) = @_;
+    die("Couldn't determine version of installed kernel")
+        unless defined($version);
 
-    my $grub_conf = $grub->{grub_conf};
-    my $grub_fs   = $grub->{grub_fs};
-
-    my $prefix      = $grub_fs eq '/boot' ? '' : '/boot';
-
-    # Nothing to do if there's already a grub entry
-    return if eval {
-        foreach my $augpath ($g->aug_match("/files$grub_conf/title/kernel")) {
-            return 1 if ($grub_fs.$g->aug_get($augpath) eq $kernel);
-        }
-
-        return 0
-    };
-    augeas_error($g, $@) if ($@);
-
-    my $initrd = "$prefix/initrd-$version.img";
-    $kernel =~ m{^/boot/(.*)$} or die("kernel in unexpected location: $kernel");
-    my $vmlinuz = "$prefix/$1";
-
-    my $title;
-    # No point in dying if /etc/redhat-release can't be read
-    eval {
-        ($title) = $g->read_lines('/etc/redhat-release');
-    };
-    $title ||= 'Linux';
-
-    # This is how new-kernel-pkg does it
-    $title =~ s/ release.*//;
-    $title .= " ($version)";
-
-    my $default;
-    # Doesn't matter if there's no default
-    eval { $default = $g->aug_get("/files$grub_conf/default"); };
-
-    eval {
-        if (defined($default)) {
-            $g->aug_defvar('template',
-                 "/files$grub_conf/title[".($default + 1).']');
-        }
-
-        # If there's no default, take the first entry with a kernel
-        else {
-            my ($match) = $g->aug_match("/files$grub_conf/title/kernel");
-            die("No template kernel found in grub.") unless defined($match);
-
-            $match =~ s/\/kernel$//;
-            $g->aug_defvar('template', $match);
-        }
-
-        # Add a new title node at the end
-        $g->aug_defnode('new', "/files$grub_conf/title[last()+1]", $title);
-
-        # N.B. Don't change the order of root, kernel and initrd below, or the
-        # guest will not boot.
-
-        # Copy root from the template
-        $g->aug_set('$new/root', $g->aug_get('$template/root'));
-
-        # Set kernel and initrd to the new values
-        $g->aug_set('$new/kernel', $vmlinuz);
-        $g->aug_set('$new/initrd', $initrd);
-
-        # Copy all kernel command-line arguments
-        foreach my $arg ($g->aug_match('$template/kernel/*')) {
-            # kernel arguments don't necessarily have values
-            my $val;
-            eval {
-                $val = $g->aug_get($arg);
-            };
-
-            $arg =~ /([^\/]*)$/;
-            $arg = $1;
-
-            if (defined($val)) {
-                $g->aug_set('$new/kernel/'.$arg, $val);
-            } else {
-                $g->aug_clear('$new/kernel/'.$arg);
-            }
-        }
-
-        my ($new) = $g->aug_match('$new');
-        $new =~ /\[(\d+)\]$/;
-
-        $g->aug_set("/files$grub_conf/default", defined($1) ? $1 - 1 : 0);
-        $g->aug_save();
-    };
-    augeas_error($g, $@) if ($@);
+    return $version;
 }
 
 sub _get_installed
@@ -2125,19 +2017,15 @@ sub _prepare_bootable
     my $grub_fs   = $grub->{grub_fs};
 
     # Find the grub entry for the given kernel
-    my $initrd;
-    my $found = 0;
+    my $grub_initrd;
     eval {
-        my $prefix;
-        if ($grub_fs eq '/boot') {
-            $prefix = '';
-        } else {
-            $prefix = '/boot';
-        }
+        my $prefix = $grub_fs eq '/boot' ? '' : '/boot';
+        my $path = "/boot/vmlinuz-$version";
+        my $grub_path = "$prefix/vmlinux-$version";
 
+        my $grub_index;
         foreach my $kernel ($g->aug_match("/files$grub_conf/title/kernel")) {
-
-            if($g->aug_get($kernel) eq "$prefix/vmlinuz-$version") {
+            if($g->aug_get($kernel) eq $grub_path) {
                 # Ensure it's the default
                 $kernel =~ m{/files$grub_conf/title(?:\[(\d+)\])?/kernel}
                     or die($kernel);
@@ -2149,16 +2037,87 @@ sub _prepare_bootable
                     $aug_index = 1;
                 }
 
-                $g->aug_set("/files$grub_conf/default", $aug_index - 1);
-
                 # Get the initrd for this kernel
-                $initrd =
+                $grub_initrd =
                     $g->aug_get("/files$grub_conf/title[$aug_index]/initrd");
 
-                $found = 1;
+                $grub_index = $aug_index - 1;
                 last;
             }
         }
+
+        # Under certain circumstances, new-kernel-pkg can fail to update grub
+        # when run under libguestfs
+        if (!defined($grub_index)) {
+            $grub_initrd = "$prefix/initrd-$version.img";
+
+            my $title;
+            # No point in dying if /etc/redhat-release can't be read
+            eval {
+                ($title) = $g->read_lines('/etc/redhat-release');
+            };
+            $title ||= 'Linux';
+
+            # This is how new-kernel-pkg does it
+            $title =~ s/ release.*//;
+            $title .= " ($version)";
+
+            my $default;
+            # Doesn't matter if there's no default
+            eval { $default = $g->aug_get("/files$grub_conf/default"); };
+
+            if (defined($default)) {
+                $g->aug_defvar('template',
+                     "/files$grub_conf/title[".($default + 1).']');
+            }
+
+            # If there's no default, take the first entry with a kernel
+            else {
+                my ($match) = $g->aug_match("/files$grub_conf/title/kernel");
+                die("No template kernel found in grub.") unless defined($match);
+
+                $match =~ s/\/kernel$//;
+                $g->aug_defvar('template', $match);
+            }
+
+            # Add a new title node at the end
+            $g->aug_defnode('new', "/files$grub_conf/title[last()+1]", $title);
+
+            # N.B. Don't change the order of root, kernel and initrd below, or the
+            # guest will not boot.
+
+            # Copy root from the template
+            $g->aug_set('$new/root', $g->aug_get('$template/root'));
+
+            # Set kernel and initrd to the new values
+            $g->aug_set('$new/kernel', $grub_path);
+            $g->aug_set('$new/initrd', $grub_initrd);
+
+            # Copy all kernel command-line arguments
+            foreach my $arg ($g->aug_match('$template/kernel/*')) {
+                # kernel arguments don't necessarily have values
+                my $val;
+                eval {
+                    $val = $g->aug_get($arg);
+                };
+
+                $arg =~ /([^\/]*)$/;
+                $arg = $1;
+
+                if (defined($val)) {
+                    $g->aug_set('$new/kernel/'.$arg, $val);
+                } else {
+                    $g->aug_clear('$new/kernel/'.$arg);
+                }
+            }
+
+            my ($new) = $g->aug_match('$new');
+            $new =~ /\[(\d+)\]$/;
+
+            $grub_index = defined($1) ? $1 - 1 : 0;
+        }
+
+        $g->aug_set("/files$grub_conf/default", $grub_index);
 
         $g->aug_save();
     };
@@ -2166,20 +2125,21 @@ sub _prepare_bootable
     # Propagate augeas failure
     augeas_error($g, $@) if ($@);
 
-    if(!defined($initrd)) {
+    if(!defined($grub_initrd)) {
         logmsg WARN, __x('Kernel version {version} '.
                          'doesn\'t have an initrd entry in grub.',
                          version => $version);
     } else {
         # Initrd as returned by grub may be relative to /boot
-        $initrd = $grub_fs.$initrd;
+        $grub_initrd = $grub_fs.$grub_initrd;
 
         # Backup the original initrd
-        $g->mv($initrd, "$initrd.pre-v2v") if ($g->exists($initrd));
+        $g->mv($grub_initrd, "$grub_initrd.pre-v2v")
+            if $g->exists($grub_initrd);
 
         if ($g->exists('/sbin/dracut')) {
             $g->command(['/sbin/dracut', '--add-drivers', join(" ", @modules),
-                         $initrd, $version]);
+                         $grub_initrd, $version]);
         }
 
         elsif ($g->exists('/sbin/mkinitrd')) {
@@ -2219,7 +2179,7 @@ sub _prepare_bootable
             }
 
             $g->sh(join(' ', @env).' /sbin/mkinitrd '.join(' ', @module_args).
-                   " $initrd $version");
+                   " $grub_initrd $version");
         }
 
         else {
