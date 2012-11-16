@@ -22,8 +22,6 @@ use warnings;
 
 use Locale::TextDomain 'virt-v2v';
 
-use XML::DOM;
-use XML::DOM::XPath;
 
 use Sys::VirtConvert::Util qw(:DEFAULT augeas_error);
 
