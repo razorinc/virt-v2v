@@ -644,7 +644,56 @@ sub _configure_kernel
 
     # If none of the installed kernels are appropriate, install a new one
     if(!defined($boot_kernel)) {
-        $boot_kernel = _install_good_kernel($g, $root, $config, $meta, $grub);
+        my ($kernel_pkg, $kernel_arch, undef) =
+           _discover_kernel($g, $root, $grub);
+
+        # If the guest is using a Xen PV kernel, choose an appropriate
+        # normal kernel replacement
+        if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
+            $kernel_pkg = _get_replacement_kernel_name($g, $root,
+                                                       $kernel_arch, $meta);
+
+            # Check there isn't already one installed
+            my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
+            $boot_kernel = $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
+                if defined($kernel);
+        }
+
+        if (!defined($boot_kernel)) {
+            # List of kernels before the new kernel installation
+            my @k_before = $g->glob_expand('/boot/vmlinuz-*');
+
+            if (_install_any([$kernel_pkg, $kernel_arch], undef, undef,
+                             $g, $root, $config))
+            {
+                # Figure out which kernel has just been installed
+                my $version;
+                foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
+                    if (!grep(/^$k$/, @k_before)) {
+                        # Check which directory in /lib/modules the kernel rpm
+                        # creates
+                        foreach my $file
+                                ($g->command_lines (['rpm', '-qlf', $k]))
+                        {
+                            next unless ($file =~ m{^/lib/modules/([^/]+)$});
+
+                            if ($g->is_dir("/lib/modules/$1")) {
+                                $boot_kernel = $1;
+                                last;
+                            }
+                        }
+
+                        last if defined($boot_kernel);
+                    }
+                }
+
+                v2vdie __x('Couldn\'t determine version of installed kernel')
+                    unless defined($boot_kernel);
+            } else {
+                v2vdie __x('Failed to find a {name} package to install',
+                           name => "kernel_pkg.$kernel_arch");
+            }
+        }
     }
 
     # Check we have a bootable kernel.
@@ -1633,52 +1682,6 @@ sub _get_replacement_kernel_name
 
     # For other distros, be conservative and just return 'kernel'
     return 'kernel';
-}
-
-sub _install_good_kernel
-{
-    my ($g, $root, $config, $meta, $grub) = @_;
-
-    my ($kernel_pkg, $kernel_arch, undef) = _discover_kernel($g, $root, $grub);
-
-    # If the guest is using a Xen PV kernel, choose an appropriate
-    # normal kernel replacement
-    if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-        $kernel_pkg = _get_replacement_kernel_name($g, $root,
-                                                   $kernel_arch, $meta);
-
-        # Check there isn't already one installed
-        my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
-        return $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
-            if (defined($kernel));
-    }
-
-    # List of kernels before the new kernel installation
-    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
-
-    return undef unless _install_any([$kernel_pkg, $kernel_arch], undef, undef,
-                                     $g, $root, $config);
-
-    # Figure out which kernel has just been installed
-    my $version;
-    foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
-        if (!grep(/^$k$/, @k_before)) {
-            # Check which directory in /lib/modules the kernel rpm creates
-            foreach my $file ($g->command_lines (['rpm', '-qlf', $k])) {
-                next unless ($file =~ m{^/lib/modules/([^/]+)$});
-
-                if ($g->is_dir("/lib/modules/$1")) {
-                    $version = $1;
-                    last;
-                }
-            }
-        }
-    }
-
-    die("Couldn't determine version of installed kernel")
-        unless defined($version);
-
-    return $version;
 }
 
 sub _get_installed
