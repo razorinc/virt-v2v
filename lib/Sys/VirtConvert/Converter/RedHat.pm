@@ -520,7 +520,7 @@ sub _list_kernels
 
         # Check the kernel exists
         if ($g->exists($kernel)) {
-            push(@kernels, _inspect_linux_kernel($g, $kernel));
+            push(@kernels, $kernel);
         }
 
         else {
@@ -626,8 +626,10 @@ sub _configure_kernel
 
     # Pick first appropriate kernel returned by _list_kernels
     my $boot_kernel;
-    foreach my $kernel (_list_kernels($g, $grub)) {
+    foreach my $path (_list_kernels($g, $grub)) {
+        my $kernel = _inspect_linux_kernel($g, $path);
         my $version = $kernel->{version};
+
         # Skip foreign kernels
         next if _is_hv_kernel($g, $version);
 
@@ -750,7 +752,8 @@ sub _get_os_arch
 
     # Get the arch of the default kernel
     my $kernels = _list_kernels($g, $grub);
-    my $kernel = $kernels->[0];
+    my $path = $kernels->[0];
+    my $kernel = _inspect_linux_kernel($g, $path) if defined($path);
     my $arch = $kernel->{arch} if defined($kernel);
 
     # Use the libguestfs-detected arch if the above failed
@@ -1592,7 +1595,9 @@ sub _discover_kernel
     my $kernel_arch;
     my $kernel_ver;
 
-    foreach my $kernel (_list_kernels($g, $grub)) {
+    foreach my $path (_list_kernels($g, $grub)) {
+        my $kernel = _inspect_linux_kernel($g, $path);
+
         # Check its architecture is known
         $kernel_arch = $kernel->{arch};
         next unless (defined($kernel_arch));
