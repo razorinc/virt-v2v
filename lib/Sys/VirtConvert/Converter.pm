@@ -24,7 +24,7 @@ use Carp;
 
 use Module::Pluggable sub_name => 'modules',
                       search_path => ['Sys::VirtConvert::Converter'],
-                      require => 1;
+                      require => 1, inner => 0;
 
 use Locale::TextDomain 'virt-v2v';
 
