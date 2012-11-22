@@ -298,6 +298,103 @@ sub write
 }
 
 
+# Methods for inspecting and manipulating grub2. Note that we don't actually
+# attempt to use grub2's configuration because it's utterly insane. Instead,
+# we reverse engineer the way the config is automatically generated and use
+# that instead.
+package Sys::VirtConvert::Converter::RedHat::Grub2;
+
+use Sys::VirtConvert::Util;
+use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtConvert::Converter::RedHat::Grub2::ISA =
+    qw(Sys::VirtConvert::Converter::RedHat::Grub);
+
+sub new
+{
+    my $class = shift;
+    my ($g, $root) = @_;
+
+    # Check we have a grub2 configuration
+    die unless $g->exists('/boot/grub2/grub.cfg');
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{g} = $g;
+    $self->{root} = $root;
+
+    return $self;
+}
+
+sub list_kernels
+{
+    my $self = shift;
+    my $g = $self->{g};
+
+    my @kernels;
+
+    # Start by adding the default kernel
+    my $default = $g->command(['grubby', '--default-kernel']);
+    chomp($default);
+    push(@kernels, $default);
+
+    # This is how the grub2 config generator enumerates kernels
+    foreach my $kernel ($g->glob_expand('/boot/kernel-*'),
+                        $g->glob_expand('/boot/vmlinuz-*'),
+                        $g->glob_expand('/vmlinuz-*'))
+    {
+        push(@kernels, $kernel)
+           unless $kernel =~ /\.(?:dpkg-.*|rpmsave|rpmnew)$/;
+    }
+
+    return @kernels;
+}
+
+sub update_console
+{
+    my $self = shift;
+    my ($remove) = @_;
+
+    my $g = $self->{g};
+
+    my $cmdline =
+        eval { $g->aug_get('/files/etc/sysconfig/grub/GRUB_CMDLINE_LINUX') };
+
+    if (defined($cmdline) && $cmdline =~ /\bconsole=(?:x|h)vc0\b/) {
+        if ($remove) {
+            $cmdline =~ s/\bconsole=(?:x|h)vc0\b\s*//g;
+        } else {
+            $cmdline =~ s/\bconsole=(?:x|h)vc0\b/console=ttyS0/g;
+        }
+
+        eval {
+            $g->aug_set('/files/etc/sysconfig/grub/GRUB_CMDLINE_LINUX', $cmdline);
+            $g->aug_save();
+        };
+        augeas_error($g, $@) if ($@);
+
+        # We need to re-generate the grub config if we've updated this file
+        $g->command(['grub2-mkconfig', '-o', '/boot/grub2/grub.cfg']);
+    }
+}
+
+sub write
+{
+    my $self = shift;
+    my ($path) = @_;
+
+    my $g = $self->{g};
+
+    my $default = $g->command(['grubby', '--default-kernel']);
+    chomp($default);
+
+    if ($default ne $path) {
+        $g->command(['grubby', '--set-default', $path]);
+    }
+}
+
+
 package Sys::VirtConvert::Converter::RedHat;
 
 use Sys::VirtConvert::Util qw(:DEFAULT augeas_error);
@@ -389,7 +486,10 @@ sub convert
     _init_selinux($g);
     _init_augeas($g);
 
-    $grub = eval { Sys::VirtConvert::Converter::RedHat::GrubLegacy->new($g, $root) };
+    my $grub;
+    $grub = eval { Sys::VirtConvert::Converter::RedHat::Grub2->new($g, $root) };
+    $grub = eval { Sys::VirtConvert::Converter::RedHat::GrubLegacy->new($g, $root) }
+        unless defined($grub);
     v2vdie __('No grub configuration found') unless defined($grub);
 
     # Un-configure HV specific attributes which don't require a direct
