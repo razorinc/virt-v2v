@@ -823,7 +823,7 @@ sub _configure_kernel
                         # Check which directory in /lib/modules the kernel rpm
                         # creates
                         foreach my $file
-                                ($g->command_lines (['rpm', '-qlf', $k]))
+                                ($g->command_lines(['rpm', '-qlf', $k]))
                         {
                             next unless ($file =~ m{^/lib/modules/([^/]+)$});
 
