@@ -126,10 +126,7 @@ sub list_kernels
     my @paths;
     eval {
         # Get the default kernel from grub if it's set
-        my $default;
-        eval {
-            $default = $g->aug_get("/files$grub_conf/default");
-        };
+        my $default = eval { $g->aug_get("/files$grub_conf/default") };
         # Doesn't matter if get fails
 
         push(@paths, $g->aug_match("/files$grub_conf/title[$default]/kernel"))
@@ -144,10 +141,7 @@ sub list_kernels
         next if $checked{$path};
         $checked{$path} = 1;
 
-        my $kernel;
-        eval {
-            $kernel = $g->aug_get($path);
-        };
+        my $kernel = eval { $g->aug_get($path) };
         augeas_error($g, $@) if ($@);
 
         # Prepend the grub filesystem to the kernel path
@@ -237,20 +231,16 @@ sub write
             my $version = $kernel->{version};
             my $grub_initrd = dirname($path)."/initrd-$version";
 
-            my $title;
             # No point in dying if /etc/redhat-release can't be read
-            eval {
-                ($title) = $g->read_lines('/etc/redhat-release');
-            };
+            my ($title) = eval { $g->read_lines('/etc/redhat-release') };
             $title ||= 'Linux';
 
             # This is how new-kernel-pkg does it
             $title =~ s/ release.*//;
             $title .= " ($version)";
 
-            my $default;
             # Doesn't matter if there's no default
-            eval { $default = $g->aug_get("/files$grub_conf/default"); };
+            my $default = eval { $g->aug_get("/files$grub_conf/default") };
 
             if (defined($default)) {
                 $g->aug_defvar('template',
@@ -282,10 +272,7 @@ sub write
             # Copy all kernel command-line arguments
             foreach my $arg ($g->aug_match('$template/kernel/*')) {
                 # kernel arguments don't necessarily have values
-                my $val;
-                eval {
-                    $val = $g->aug_get($arg);
-                };
+                my $val = eval { $g->aug_get($arg) };
 
                 $arg =~ /([^\/]*)$/;
                 $arg = $1;
@@ -456,9 +443,7 @@ sub _init_augeas
     my ($g) = @_;
 
     # Initialise augeas
-    eval {
-        $g->aug_init("/", 1);
-    };
+    eval { $g->aug_init("/", 1) };
     augeas_error($g, $@) if ($@);
 }
 
@@ -637,9 +622,7 @@ sub _configure_console
 
     $grub->update_console($remove);
 
-    eval {
-        $g->aug_save();
-    };
+    eval { $g->aug_save() };
     augeas_error($g, $@) if ($@);
 }
 
@@ -728,9 +711,8 @@ sub _inspect_linux_kernel
     # If this is a packaged kernel, try to work out the name of the package
     # which installed it. This lets us know what to install to replace it with,
     # e.g. kernel, kernel-smp, kernel-hugemem, kernel-PAE
-    my $package;
-    eval { $package = $g->command(['rpm', '-qf', '--qf',
-                                   '%{NAME}', $path]); };
+    my $package = eval { $g->command(['rpm', '-qf', '--qf',
+                                      '%{NAME}', $path]) };
     $kernel{package} = $package if defined($package);;
 
     # Try to get the kernel version by running file against it
@@ -870,13 +852,10 @@ sub _configure_kernel
         unless defined($boot_kernel);
 
     # Ensure DEFAULTKERNEL is set to boot kernel package name
-    my $kernel_pkg;
     # It's not fatal if this rpm command fails
-    eval {
-        ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
-                                          "/lib/modules/$boot_kernel",
-                                          '--qf', '%{NAME}\n']);
-    };
+    my ($kernel_pkg) =
+        eval { $g->command_lines(['rpm', '-qf', "/lib/modules/$boot_kernel",
+                                         '--qf', '%{NAME}\n']) };
     if (defined($kernel_pkg) && $g->exists('/etc/sysconfig/kernel')) {
         eval {
             foreach my $path ($g->aug_match('/files/etc/sysconfig/kernel'.
@@ -958,10 +937,7 @@ sub _remove_applications
     $g->command(['rpm', '-e', @apps]);
 
     # Make augeas reload in case the removal changed anything
-    eval {
-        $g->aug_load();
-    };
-
+    eval { $g->aug_load() };
     augeas_error($g, $@) if ($@);
 }
 
@@ -969,10 +945,7 @@ sub _get_application_owner
 {
     my ($file, $g) = @_;
 
-    eval {
-        return $g->command(['rpm', '-qf', $file]);
-    };
-    die($@) if($@);
+    return $g->command(['rpm', '-qf', $file]);
 }
 
 sub _unconfigure_hv
@@ -1014,9 +987,7 @@ sub _unconfigure_xen
             next unless($g->is_dir($dir));
 
             # Check it's not owned by an installed application
-            eval {
-                _get_application_owner($dir, $g);
-            };
+            eval { _get_application_owner($dir, $g) };
 
             # Remove it if _get_application_owner didn't find an owner
             if($@) {
@@ -1025,8 +996,7 @@ sub _unconfigure_xen
         }
 
         # rc.local may contain an insmod or modprobe of the xen-vbd driver
-        my @rc_local = ();
-        eval { @rc_local = $g->read_lines('/etc/rc.local') };
+        my @rc_local = eval { $g->read_lines('/etc/rc.local') };
         if ($@) {
             logmsg WARN, __x('Unable to open /etc/rc.local: {error}',
                              error => $@);
@@ -1255,10 +1225,7 @@ sub _install_capability
 {
     my ($name, $g, $root, $config, $meta, $grub) = @_;
 
-    my $cap;
-    eval {
-        $cap = $config->match_capability($g, $root, $name);
-    };
+    my $cap = eval { $config->match_capability($g, $root, $name) };
     if ($@) {
         warn($@);
         return 0;
@@ -1303,11 +1270,8 @@ sub _install_capability
             }
 
             else {
-                my ($kernel_epoch, $kernel_ver, $kernel_release);
-                eval {
-                    ($kernel_epoch, $kernel_ver, $kernel_release) =
-                        _parse_evr($kernel_rpmver);
-                };
+                my ($kernel_epoch, $kernel_ver, $kernel_release) =
+                    eval { _parse_evr($kernel_rpmver) };
                 if ($@) {
                     # Don't die here, just make best effort to do a version
                     # comparison by directly comparing the full strings
@@ -1462,9 +1426,7 @@ sub _install_any
     });
 
     # Make augeas reload to pick up any altered configuration
-    eval {
-        $g->aug_load();
-    };
+    eval { $g->aug_load() };
     augeas_error($g, $@) if ($@);
 
     return $success;
@@ -1561,10 +1523,8 @@ sub _install_yum
             $pkg .= "-$version" if (defined($version));
             $pkg .= "-$release" if (defined($release));
 
-            my @output;
-            eval {
-                @output = $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg");
-            };
+            my @output =
+                eval { $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg") };
             if ($@) {
                 logmsg WARN, __x('Failed to install packages using yum. '.
                                  'Output was: {output}', output => $@);
@@ -1647,10 +1607,7 @@ sub _install_rpms
     $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
 
     # Reload augeas in case the rpm installation changed anything
-    eval {
-        $g->aug_load();
-    };
-
+    eval { $g->aug_load() };
     augeas_error($g, $@) if($@);
 }
 
@@ -1861,11 +1818,7 @@ sub _get_installed
 
     my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
                   $name];
-    my @output;
-    eval {
-        @output = $g->command_lines($rpmcmd);
-    };
-
+    my @output = eval { $g->command_lines($rpmcmd) };
     if ($@) {
         # RPM command returned non-zero. This might be because there was
         # actually an error, or might just be because the package isn't
@@ -2210,16 +2163,12 @@ sub _prepare_bootable
         # We explicitly modprobe ext2 here. This is required by mkinitrd on
         # RHEL 3, and shouldn't hurt on other OSs. We don't care if this
         # fails.
-        eval {
-            $g->modprobe('ext2');
-        };
+        eval { $g->modprobe('ext2') };
 
         # loop is a module in RHEL 5. Try to load it. Doesn't matter for
         # other OSs if it doesn't exist, but RHEL 5 will complain:
         #   All of your loopback devices are in use.
-        eval {
-            $g->modprobe('loop');
-        };
+        eval { $g->modprobe('loop') };
 
         my @env;
 
