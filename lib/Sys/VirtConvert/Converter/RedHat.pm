@@ -499,7 +499,7 @@ sub convert
     # Try to install the virtio capability
     my $virtio = _install_capability('virtio', $g, $root, $config, $meta, $grub);
 
-    # Get an appropriate kernel, and remove non-bootable kernels
+    # Get an appropriate kernel, or install one if none is available
     my $kernel = _configure_kernel($virtio, $g, $root, $config, $meta, $grub);
 
     # Install user custom packages
