@@ -13,6 +13,7 @@ lib/Sys/VirtConvert/Connection/LibVirtTarget.pm
 lib/Sys/VirtConvert/Connection/LibVirtXMLSource.pm
 lib/Sys/VirtConvert/Connection/RHEVTarget.pm
 lib/Sys/VirtConvert/Connection/Source.pm
+lib/Sys/VirtConvert/Connection/VMWareOVASource.pm
 lib/Sys/VirtConvert/Connection/Volume.pm
 lib/Sys/VirtConvert/Converter.pm
 lib/Sys/VirtConvert/Converter/RedHat.pm
