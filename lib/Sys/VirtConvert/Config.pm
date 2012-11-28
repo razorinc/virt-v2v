@@ -44,7 +44,7 @@ Sys::VirtConvert::Config - Manage virt-v2v's configuration file
  $eh = Sys::VirtConvert::Config->new(@config_paths);
 
  my $isopath = $config->get_transfer_iso();
- my ($path, $deps) = $config->match_app($desc, $name, $arch);
+ my ($path, $deps) = $config->match_app($g, $root, $name, $arch);
  my ($name, $type) = $config->map_network($oldname, $oldtype);
 
 =head1 DESCRIPTION
@@ -278,12 +278,12 @@ sub unmount_transfer
 
 sub _get_search
 {
-    my ($desc, $name, $arch) = @_;
+    my ($g, $root, $name, $arch) = @_;
 
-    my $os     = $desc->{os};
-    my $distro = $desc->{distro};
-    my $major  = $desc->{major_version};
-    my $minor  = $desc->{minor_version};
+    my $os     = $g->inspect_get_type($root);
+    my $distro = $g->inspect_get_distro($root);
+    my $major  = $g->inspect_get_major_version($root);
+    my $minor  = $g->inspect_get_minor_version($root);
 
     my $search = "os='$os'";
     $search .= " name='$name'";
@@ -307,9 +307,9 @@ the app's listed dependencies.
 sub match_app
 {
     my $self = shift;
-    my ($desc, $name, $arch) = @_;
+    my ($g, $root, $name, $arch) = @_;
 
-    my $app = $self->_match_element('app', $desc, $name, $arch);
+    my $app = $self->_match_element('app', $g, $root, $name, $arch);
 
     my %app;
     my ($path) = $app->findnodes('path/text()');
@@ -360,9 +360,9 @@ Returns undef if the capability was not found.
 sub match_capability
 {
     my $self = shift;
-    my ($desc, $name, $arch) = @_;
+    my ($g, $root, $name, $arch) = @_;
 
-    my $cap = $self->_match_element('capability', $desc, $name, $arch);
+    my $cap = $self->_match_element('capability', $g, $root, $name, $arch);
 
     my %out;
     foreach my $dep ($cap->findnodes('dep')) {
@@ -398,29 +398,29 @@ sub match_capability
 sub _match_element
 {
     my $self = shift;
-    my ($type, $desc, $name, $arch) = @_;
+    my ($type, $g, $root, $name, $arch) = @_;
 
     v2vdie __x('No config specified. No {type} match for {search}.',
-               type => $type, search => _get_search($desc, $name, $arch))
+               type => $type, search => _get_search($g, $root, $name, $arch))
         if @{$self->{doms}} == 0;
 
     foreach my $dom (@{$self->{doms}}) {
-        my $match = _match_element_dom($dom, $type, $desc, $name, $arch);
+        my $match = _match_element_dom($dom, $type, $g, $root, $name, $arch);
         return $match if defined($match);
     }
 
     v2vdie __x('No {type} in config matches {search}',
-               type => $type, search => _get_search($desc, $name, $arch));
+               type => $type, search => _get_search($g, $root, $name, $arch));
 }
 
 sub _match_element_dom
 {
-    my ($dom, $type, $desc, $name, $arch) = @_;
+    my ($dom, $type, $g, $root, $name, $arch) = @_;
 
-    my $os     = $desc->{os};
-    my $distro = $desc->{distro};
-    my $major  = $desc->{major_version};
-    my $minor  = $desc->{minor_version};
+    my $os     = $g->inspect_get_type($root);
+    my $distro = $g->inspect_get_distro($root);
+    my $major  = $g->inspect_get_major_version($root);
+    my $minor  = $g->inspect_get_minor_version($root);
 
     # Check we've got at least the {os} field from OS detection.
     v2vdie __('Didn\'t detect operating system') unless defined $os;
