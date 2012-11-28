@@ -194,15 +194,11 @@ sub AUTOLOAD
         unless (defined($g));
 
     if (wantarray()) {
-        my @ret = eval {
-            return $g->$methodname(@_);
-        };
+        my @ret = eval { $g->$methodname(@_) };
         croak("$methodname: $@") if ($@);
         return @ret;
     } else {
-        my $ret = eval {
-            return $g->$methodname(@_);
-        };
+        my $ret = eval { $g->$methodname(@_) };
         croak("$methodname: $@") if ($@);
         return $ret;
     }

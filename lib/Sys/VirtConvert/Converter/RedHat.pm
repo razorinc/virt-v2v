@@ -15,19 +15,395 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtConvert::Converter::RedHat;
-
 use strict;
 use warnings;
 
+
+# Functions supported by grubby, and therefore common between gruby legacy and
+# grub2
+package Sys::VirtConvert::Converter::RedHat::Grub;
+
+use Sys::VirtConvert::Util;
 use Locale::TextDomain 'virt-v2v';
 
-use XML::DOM;
-use XML::DOM::XPath;
+sub get_initrd
+{
+    my $self = shift;
+    my ($path) = @_;
+
+    my $g = $self->{g};
+
+    foreach my $line ($g->command_lines(['grubby', '--info', $path])) {
+        return $1 if $line =~ /^initrd=(\S+)/;
+    }
+
+    v2vdie __x('Didn\'t find initrd for kernel {path}', path => $path);
+}
+
+
+# Methods for inspecting and manipulating grub legacy
+package Sys::VirtConvert::Converter::RedHat::GrubLegacy;
+
+use Sys::VirtConvert::Util;
+
+use File::Basename;
+use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtConvert::Converter::RedHat::GrubLegacy::ISA =
+    qw(Sys::VirtConvert::Converter::RedHat::Grub);
+
+sub new
+{
+    my $class = shift;
+    my ($g, $root) = @_;
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{g} = $g;
+    $self->{root} = $root;
+
+    # Look for the grub configuration file
+    foreach my $path ('/boot/grub/menu.lst', '/boot/grub/grub.conf')
+    {
+        if ($g->exists($path)) {
+            $self->{grub_conf} = $path;
+            last;
+        }
+    }
+
+    # We can't continue without a config file
+    die unless defined ($self->{grub_conf});
+
+    # Find the path which needs to be prepended to paths in grub.conf to
+    # make them absolute
+    # Look for the most specific mount point discovered
+
+    # Default to / (no prefix required)
+    $self->{grub_fs} ||= "";
+
+    my %mounts = $g->inspect_get_mountpoints($root);
+    foreach my $path ('/boot/grub', '/boot') {
+        if (exists($mounts{$path})) {
+            $self->{grub_fs} = $path;
+            last;
+        }
+    }
+
+    # Initialise augeas
+    eval {
+        # Check grub_conf is included by the Grub lens
+        my $found = 0;
+        foreach my $incl ($g->aug_match("/augeas/load/Grub/incl")) {
+            if ($g->aug_get($incl) eq $self->{grub_conf}) {
+                $found = 1;
+                last;
+            }
+        }
+
+        # If it wasn't there, add it
+        unless ($found) {
+            $g->aug_set("/augeas/load/Grub/incl[last()+1]", $self->{grub_conf});
+
+            # Make augeas pick up the new configuration
+            $g->aug_load();
+        }
+    };
+    augeas_error($g, $@) if ($@);
+
+    return $self;
+}
+
+sub list_kernels
+{
+    my $self = shift;
+
+    my $g = $self->{g};
+    my $grub_conf = $self->{grub_conf};
+    my $grub_fs = $self->{grub_fs};
+
+    # Look for a kernel, starting with the default
+    my @paths;
+    eval {
+        # Get the default kernel from grub if it's set
+        my $default = eval { $g->aug_get("/files$grub_conf/default") };
+        # Doesn't matter if get fails
+
+        push(@paths, $g->aug_match("/files$grub_conf/title[$default]/kernel"))
+            if defined($default);
+        push(@paths, $g->aug_match("/files$grub_conf/title/kernel"));
+    };
+    augeas_error($g, $@) if ($@);
+
+    my @kernels;
+    my %checked;
+    foreach my $path (@paths) {
+        next if $checked{$path};
+        $checked{$path} = 1;
+
+        my $kernel = eval { $g->aug_get($path) };
+        augeas_error($g, $@) if ($@);
+
+        # Prepend the grub filesystem to the kernel path
+        $kernel = "$grub_fs$kernel" if defined $grub_fs;
+
+        # Check the kernel exists
+        if ($g->exists($kernel)) {
+            push(@kernels, $kernel);
+        }
+
+        else {
+            logmsg WARN, __x('grub refers to {path}, which doesn\'t exist.',
+                             path => $kernel);
+        }
+    }
+
+    return @kernels;
+}
+
+sub update_console
+{
+    my $self = shift;
+    my ($remove) = @_;
+
+    my $g = $self->{g};
+    my $grub_conf = $self->{grub_conf};
+
+    # Update any kernel console lines
+    foreach my $augpath
+        ($g->aug_match("/files$grub_conf/title/kernel/console"))
+    {
+        my $console = $g->aug_get($augpath);
+        if ($console =~ /\b(x|h)vc0\b/) {
+            if ($remove) {
+                $g->aug_rm($augpath);
+            } else {
+                $console =~ s/\b(x|h)vc0\b/ttyS0/g;
+                $g->aug_set($augpath, $console);
+            }
+        }
+
+        if ($remove && $console =~ /\bttyS0\b/) {
+            $g->aug_rm($augpath);
+        }
+    }
+}
+
+sub check
+{
+    my $self = shift;
+    my ($path) = @_;
+
+    my $g = $self->{g};
+    my $grub_conf = $self->{grub_conf};
+    my $grub_fs   = $self->{grub_fs};
+    $path =~ /^$grub_fs(.*)/
+       or v2vdie __x('Kernel {kernel} is not under grub tree {grub}',
+                     kernel => $path, grub => $grub_fs);
+    my $grub_path = $1;
+
+    # Nothing to do if the kernel already has a grub entry
+    return if $g->aug_match("/files$grub_conf/title/kernel[. = '$grub_path']") > 0;
+
+    my $kernel =
+        Sys::VirtConvert::Converter::RedHat::_inspect_linux_kernel($g, $path);
+    my $version = $kernel->{version};
+    my $grub_initrd = dirname($path)."/initrd-$version";
+
+    # No point in dying if /etc/redhat-release can't be read
+    my ($title) = eval { $g->read_lines('/etc/redhat-release') };
+    $title ||= 'Linux';
+
+    # This is how new-kernel-pkg does it
+    $title =~ s/ release.*//;
+    $title .= " ($version)";
+
+    # Doesn't matter if there's no default
+    my $default = eval { $g->aug_get("/files$grub_conf/default") };
+
+    if (defined($default)) {
+        $g->aug_defvar('template',
+             "/files$grub_conf/title[".($default + 1).']');
+    }
+
+    # If there's no default, take the first entry with a kernel
+    else {
+        my ($match) = $g->aug_match("/files$grub_conf/title/kernel");
+        die("No template kernel found in grub.") unless defined($match);
+
+        $match =~ s/\/kernel$//;
+        $g->aug_defvar('template', $match);
+    }
+
+    # Add a new title node at the end
+    $g->aug_defnode('new', "/files$grub_conf/title[last()+1]", $title);
+
+    # N.B. Don't change the order of root, kernel and initrd below, or the
+    # guest will not boot.
+
+    # Copy root from the template
+    $g->aug_set('$new/root', $g->aug_get('$template/root'));
+
+    # Set kernel and initrd to the new values
+    $g->aug_set('$new/kernel', $grub_path);
+    $g->aug_set('$new/initrd', $grub_initrd);
+
+    # Copy all kernel command-line arguments
+    foreach my $arg ($g->aug_match('$template/kernel/*')) {
+        # kernel arguments don't necessarily have values
+        my $val = eval { $g->aug_get($arg) };
+
+        $arg =~ /([^\/]*)$/;
+        $arg = $1;
+
+        if (defined($val)) {
+            $g->aug_set('$new/kernel/'.$arg, $val);
+        } else {
+            $g->aug_clear('$new/kernel/'.$arg);
+        }
+    }
+}
+
+sub write
+{
+    my $self = shift;
+    my ($path) = @_;
+
+    my $g = $self->{g};
+    my $grub_conf = $self->{grub_conf};
+    my $grub_fs   = $self->{grub_fs};
+
+    $path =~ /^$grub_fs(.*)/
+       or v2vdie __x('Kernel {kernel} is not under grub tree {grub}',
+                     kernel => $path, grub => $grub_fs);
+    my $grub_path = $1;
+
+    # Find the grub entry for the given kernel
+    eval {
+        my ($aug_path) =
+            $g->aug_match("/files$grub_conf/title/kernel[. = '$grub_path']");
+
+        v2vdie __x('Didn\'t find grub entry for kernel {kernel}',
+                   kernel => $path)
+            unless defined($aug_path);
+
+        $aug_path =~ m{/files$grub_conf/title(?:\[(\d+)\])?/kernel}
+            or die($aug_path);
+        my $grub_index = defined($1) ? $1 - 1 : 0;
+
+        $g->aug_set("/files$grub_conf/default", $grub_index);
+        $g->aug_save();
+    };
+    augeas_error($g, $@) if ($@);
+}
+
+
+# Methods for inspecting and manipulating grub2. Note that we don't actually
+# attempt to use grub2's configuration because it's utterly insane. Instead,
+# we reverse engineer the way the config is automatically generated and use
+# that instead.
+package Sys::VirtConvert::Converter::RedHat::Grub2;
+
+use Sys::VirtConvert::Util;
+use Locale::TextDomain 'virt-v2v';
+
+@Sys::VirtConvert::Converter::RedHat::Grub2::ISA =
+    qw(Sys::VirtConvert::Converter::RedHat::Grub);
+
+sub new
+{
+    my $class = shift;
+    my ($g, $root) = @_;
+
+    # Check we have a grub2 configuration
+    die unless $g->exists('/boot/grub2/grub.cfg');
+
+    my $self = {};
+    bless($self, $class);
+
+    $self->{g} = $g;
+    $self->{root} = $root;
+
+    return $self;
+}
+
+sub list_kernels
+{
+    my $self = shift;
+    my $g = $self->{g};
+
+    my @kernels;
+
+    # Start by adding the default kernel
+    my $default = $g->command(['grubby', '--default-kernel']);
+    chomp($default);
+    push(@kernels, $default);
+
+    # This is how the grub2 config generator enumerates kernels
+    foreach my $kernel ($g->glob_expand('/boot/kernel-*'),
+                        $g->glob_expand('/boot/vmlinuz-*'),
+                        $g->glob_expand('/vmlinuz-*'))
+    {
+        push(@kernels, $kernel)
+           unless $kernel =~ /\.(?:dpkg-.*|rpmsave|rpmnew)$/;
+    }
+
+    return @kernels;
+}
+
+sub update_console
+{
+    my $self = shift;
+    my ($remove) = @_;
+
+    my $g = $self->{g};
+
+    my $cmdline =
+        eval { $g->aug_get('/files/etc/sysconfig/grub/GRUB_CMDLINE_LINUX') };
+
+    if (defined($cmdline) && $cmdline =~ /\bconsole=(?:x|h)vc0\b/) {
+        if ($remove) {
+            $cmdline =~ s/\bconsole=(?:x|h)vc0\b\s*//g;
+        } else {
+            $cmdline =~ s/\bconsole=(?:x|h)vc0\b/console=ttyS0/g;
+        }
+
+        eval {
+            $g->aug_set('/files/etc/sysconfig/grub/GRUB_CMDLINE_LINUX', $cmdline);
+            $g->aug_save();
+        };
+        augeas_error($g, $@) if ($@);
+
+        # We need to re-generate the grub config if we've updated this file
+        $g->command(['grub2-mkconfig', '-o', '/boot/grub2/grub.cfg']);
+    }
+}
+
+sub check
+{
+    # Nothing required for grub2
+}
+
+sub write
+{
+    my $self = shift;
+    my ($path) = @_;
+
+    my $g = $self->{g};
+
+    my $default = $g->command(['grubby', '--default-kernel']);
+    chomp($default);
+
+    if ($default ne $path) {
+        $g->command(['grubby', '--set-default', $path]);
+    }
+}
+
+
+package Sys::VirtConvert::Converter::RedHat;
 
 use Sys::VirtConvert::Util qw(:DEFAULT augeas_error);
-
-use Carp;
+use Locale::TextDomain 'virt-v2v';
 
 =pod
 
@@ -39,7 +415,7 @@ Sys::VirtConvert::Converter::RedHat - Convert a Red Hat based guest to run on KV
 
  use Sys::VirtConvert::Converter;
 
- Sys::VirtConvert::Converter->convert($g, $meta, $desc);
+ Sys::VirtConvert::Converter->convert($g, $root, $meta);
 
 =head1 DESCRIPTION
 
@@ -53,15 +429,15 @@ Sys::VirtConvert::Converter::RedHat converts a Red Hat based guest to use KVM.
 
 sub _is_rhel_family
 {
-    my ($desc) = @_;
+    my ($g, $root) = @_;
 
-    return $desc->{distro} =~ /^(rhel|centos|scientificlinux|redhat-based)$/;
+    return ($g->inspect_get_type($root) eq 'linux') &&
+           ($g->inspect_get_distro($root) =~ /^(rhel|centos|scientificlinux|redhat-based)$/);
 }
 
-=item Sys::VirtConvert::Converter::RedHat->can_handle(desc)
+=item Sys::VirtConvert::Converter::RedHat->can_handle(g, root)
 
-Return 1 if Sys::VirtConvert::Converter::RedHat can convert the guest described
-by I<desc>, 0 otherwise.
+Return 1 if Sys::VirtConvert::Converter::RedHat can convert the given guest
 
 =cut
 
@@ -69,14 +445,13 @@ sub can_handle
 {
     my $class = shift;
 
-    my $desc = shift;
-    carp("can_handle called without desc argument") unless defined($desc);
+    my ($g, $root) = @_;
 
-    return ($desc->{os} eq 'linux' &&
-            (_is_rhel_family($desc) || $desc->{distro} eq 'fedora'));
+    return ($g->inspect_get_type($root) eq 'linux' &&
+            (_is_rhel_family($g, $root) || $g->inspect_get_distro($root) eq 'fedora'));
 }
 
-=item Sys::VirtConvert::Converter::RedHat->convert(g, root, config, meta, desc)
+=item Sys::VirtConvert::Converter::RedHat->convert(g, root, config, meta, options)
 
 Convert a Red Hat based guest. Assume that can_handle has previously returned 1.
 
@@ -94,13 +469,13 @@ The root device of this operating system.
 
 An initialised Sys::VirtConvert::Config
 
-=item desc
-
-A description of the guest OS (see Sys::VirtConvert::Converter->convert()).
-
 =item meta
 
 Guest metadata.
+
+=item options
+
+A hashref of options which can influence the conversion
 
 =back
 
@@ -110,53 +485,48 @@ sub convert
 {
     my $class = shift;
 
-    my ($g, $root, $config, $desc, $meta, $options) = @_;
-    croak("convert called without g argument") unless defined($g);
-    croak("convert called without root argument") unless defined($root);
-    croak("convert called without config argument") unless defined($config);
-    croak("convert called without desc argument") unless defined($desc);
-    croak("convert called without meta argument") unless defined($meta);
-    croak("convert called without options argument") unless defined($options);
+    my ($g, $root, $config, $meta, $options) = @_;
 
     _clean_rpmdb($g);
-
-    _init_grub($g, $root, $desc);
-    my $grub_conf = $desc->{boot}->{grub_conf};
-
     _init_selinux($g);
-    _init_augeas($g, $grub_conf);
-    _init_kernels($g, $desc);
+    _init_augeas($g);
+
+    my $grub;
+    $grub = eval { Sys::VirtConvert::Converter::RedHat::Grub2->new($g, $root) };
+    $grub = eval { Sys::VirtConvert::Converter::RedHat::GrubLegacy->new($g, $root) }
+        unless defined($grub);
+    v2vdie __('No grub configuration found') unless defined($grub);
 
     # Un-configure HV specific attributes which don't require a direct
     # replacement
-    _unconfigure_hv($g, $root, $desc);
+    _unconfigure_hv($g, $root);
 
     # Try to install the virtio capability
-    my $virtio = _install_capability('virtio', $g, $config, $meta, $desc);
+    my $virtio = _install_capability('virtio', $g, $root, $config, $meta, $grub);
 
-    # Get an appropriate kernel, and remove non-bootable kernels
-    my $kernel = _configure_kernel($virtio, $g, $config, $desc, $meta);
+    # Get an appropriate kernel, or install one if none is available
+    my $kernel = _configure_kernel($virtio, $g, $root, $config, $meta, $grub);
 
     # Install user custom packages
-    if (! _install_capability('user-custom', $g, $config, $meta, $desc)) {
+    if (! _install_capability('user-custom', $g, $root, $config, $meta, $grub)) {
         logmsg WARN, __('Failed to install user-custom packages');
     }
 
     # Configure the rest of the system
     my $remove_serial_console = exists($options->{NO_SERIAL_CONSOLE});
-    _configure_console($g, $grub_conf, $remove_serial_console);
+    _configure_console($g, $grub, $remove_serial_console);
 
-    _configure_display_driver($g, $config, $meta, $desc);
-    _remap_block_devices($meta, $virtio, $g, $desc);
+    _configure_display_driver($g, $root, $config, $meta, $grub);
+    _remap_block_devices($meta, $virtio, $g, $root);
     _configure_kernel_modules($g, $virtio);
-    _configure_boot($kernel, $virtio, $g, $root, $desc);
+    _configure_boot($kernel, $virtio, $g, $root, $grub);
 
     my %guestcaps;
 
     $guestcaps{block} = $virtio == 1 ? 'virtio' : 'ide';
     $guestcaps{net}   = $virtio == 1 ? 'virtio' : 'e1000';
-    $guestcaps{arch}  = _get_os_arch($desc);
-    $guestcaps{acpi}  = _supports_acpi($desc, $guestcaps{arch});
+    $guestcaps{arch}  = _get_os_arch($g, $root, $grub);
+    $guestcaps{acpi}  = _supports_acpi($g, $root, $guestcaps{arch});
 
     return \%guestcaps;
 }
@@ -173,66 +543,12 @@ sub _init_selinux
     $g->touch('/.autorelabel');
 }
 
-sub _init_grub
-{
-    my ($g, $root, $desc) = @_;
-
-    # Find the path which needs to be prepended to paths in grub.conf to
-    # make them absolute
-    # Default to / (no prefix required)
-    my $grub = "";
-
-    # Look for the most specific mount point discovered
-    my %mounts = $g->inspect_get_mountpoints($root);
-    foreach my $path ('/boot/grub', '/boot') {
-        if (exists($mounts{$path})) {
-            $grub = $path;
-            last;
-        }
-    }
-
-    my $grub_conf;
-
-    foreach my $path ('/boot/grub/menu.lst', '/boot/grub/grub.conf')
-    {
-        if ($g->exists($path)) {
-            $grub_conf = $path;
-            last;
-        }
-    }
-
-    $desc->{boot} ||= {};
-    $desc->{boot}->{grub_fs} = $grub;
-    $desc->{boot}->{grub_conf} = $grub_conf;
-}
-
 sub _init_augeas
 {
-    my ($g, $grub_conf) = @_;
+    my ($g) = @_;
 
     # Initialise augeas
-    eval {
-        $g->aug_init("/", 1);
-
-        # Check grub_conf is included by the Grub lens
-        my $found = 0;
-        foreach my $incl ($g->aug_match("/augeas/load/Grub/incl")) {
-            if ($g->aug_get($incl) eq $grub_conf) {
-                $found = 1;
-                last;
-            }
-        }
-
-        # If it wasn't there, add it
-        unless ($found) {
-            $g->aug_set("/augeas/load/Grub/incl[last()+1]", $grub_conf);
-
-            # Make augeas pick up the new configuration
-            $g->aug_load();
-        }
-    };
-
-    # The augeas calls will die() on any error.
+    eval { $g->aug_init("/", 1) };
     augeas_error($g, $@) if ($@);
 }
 
@@ -368,12 +684,9 @@ sub _configure_kernel_modules
 #
 # If the target doesn't support a serial console, we want to remove all
 # references to it instead.
-#
-# Installing the Citrix Xenserver guest tools automatically unconfigures all
-# virtual consoles except the serial console.
 sub _configure_console
 {
-    my ($g, $grub_conf, $remove) = @_;
+    my ($g, $grub, $remove) = @_;
 
     # Look for gettys which use xvc0 or hvc0
     # RHEL 6 doesn't use /etc/inittab, but this doesn't hurt
@@ -412,34 +725,15 @@ sub _configure_console
         }
     }
 
-    # Update any kernel console lines
-    foreach my $augpath
-        ($g->aug_match("/files$grub_conf/title/kernel/console"))
-    {
-        my $console = $g->aug_get($augpath);
-        if ($console =~ /\b(x|h)vc0\b/) {
-            if ($remove) {
-                $g->aug_rm($augpath);
-            } else {
-                $console =~ s/\b(x|h)vc0\b/ttyS0/g;
-                $g->aug_set($augpath, $console);
-            }
-        }
+    $grub->update_console($remove);
 
-        if ($remove && $console =~ /\bttyS0\b/) {
-            $g->aug_rm($augpath);
-        }
-    }
-
-    eval {
-        $g->aug_save();
-    };
+    eval { $g->aug_save() };
     augeas_error($g, $@) if ($@);
 }
 
 sub _configure_display_driver
 {
-    my ($g, $config, $meta, $desc) = @_;
+    my ($g, $root, $config, $meta, $grub) = @_;
 
     # Update the display driver if it exists
     my $updated = 0;
@@ -485,173 +779,10 @@ sub _configure_display_driver
     # is, ensure the cirrus driver is installed.
     if ($updated &&
         ($g->exists('/usr/bin/X') || $g->exists('/usr/bin/X11/X')) &&
-        !_install_capability('cirrus', $g, $config, $meta, $desc))
+        !_install_capability('cirrus', $g, $root, $config, $meta, $grub))
     {
         logmsg WARN, __('Display driver was updated to cirrus, but unable to '.
                         'install cirrus driver. X may not function correctly');
-    }
-}
-
-sub _list_kernels
-{
-    my ($g, $desc) = @_;
-
-    my $grub_conf = $desc->{boot}->{grub_conf};
-
-    # Get the default kernel from grub if it's set
-    my $default;
-    eval {
-        $default = $g->aug_get("/files$grub_conf/default");
-    };
-    # Doesn't matter if get fails
-
-    # Get the grub filesystem
-    my $grub = $desc->{boot}->{grub_fs};
-
-    # Look for a kernel, starting with the default
-    my @paths;
-    eval {
-        push(@paths, $g->aug_match("/files$grub_conf/title[$default]/kernel"))
-            if defined($default);
-        push(@paths, $g->aug_match("/files$grub_conf/title/kernel"));
-    };
-    augeas_error($g, $@) if ($@);
-
-    my @kernels;
-    my %checked;
-    foreach my $path (@paths) {
-        next if ($checked{$path});
-        $checked{$path} = 1;
-
-        my $kernel;
-        eval {
-            $kernel = $g->aug_get($path);
-        };
-        augeas_error($g, $@) if ($@);
-
-        # Prepend the grub filesystem to the kernel path
-        $kernel = "$grub$kernel" if(defined($grub));
-
-        # Check the kernel exists
-        if ($g->exists($kernel)) {
-            # Work out its version number
-            my $kernel_desc = _inspect_linux_kernel($g, $kernel);
-
-            push(@kernels, $kernel_desc->{version});
-        }
-
-        else {
-            logmsg WARN, __x('grub refers to {path}, which doesn\'t exist.',
-                             path => $kernel);
-        }
-    }
-
-    return @kernels;
-}
-
-# Look for how boot (grub) and kernels are configured.
-#
-# The resulting information is stashed in $desc->{boot},
-# $desc->{kernels} and $desc->{initrd_modules}.
-
-sub _init_kernels
-{
-    my ($g, $desc) = @_;
-
-    if ($desc->{os} eq "linux") {
-        # Iterate over entries in grub.conf, populating $desc->{boot}
-        # For every kernel we find, inspect it and add to $desc->{kernels}
-
-        my $grub        = $desc->{boot}->{grub_fs};
-        my $grub_conf   = $desc->{boot}->{grub_conf};
-
-        my @boot_configs;
-
-        # We want
-        #  $desc->{boot}
-        #       ->{configs}
-        #         ->[0]
-        #           ->{title}   = "Fedora (2.6.29.6-213.fc11.i686.PAE)"
-        #           ->{kernel}  = \kernel
-        #           ->{cmdline} = "ro root=/dev/mapper/vg_mbooth-lv_root rhgb"
-        #           ->{initrd}  = \initrd
-        #       ->{default} = \config
-        #       ->{grub_fs} = "/boot"
-
-        my @configs = ();
-        # Get all configurations from grub
-        foreach my $bootable ($g->aug_match("/files$grub_conf/title"))
-        {
-            my %config = ();
-            $config{title} = $g->aug_get($bootable);
-
-            my $grub_kernel;
-            eval { $grub_kernel = $g->aug_get("$bootable/kernel"); };
-            next if $@;
-
-            my $path = "$grub$grub_kernel";
-
-            # Reconstruct the kernel command line
-            my @args = ();
-            foreach my $arg ($g->aug_match("$bootable/kernel/*")) {
-                $arg =~ m{/kernel/([^/]*)$}
-                    or die("Unexpected return from aug_match: $arg");
-
-                my $name = $1;
-                my $value;
-                eval { $value = $g->aug_get($arg); };
-
-                if(defined($value)) {
-                    push(@args, "$name=$value");
-                } else {
-                    push(@args, $name);
-                }
-            }
-            $config{cmdline} = join(' ', @args) if(scalar(@args) > 0);
-
-            my $kernel;
-            if ($g->exists($path)) {
-                $kernel = _inspect_linux_kernel($g, $path);
-            } else {
-                warn __x("grub refers to {path}, which doesn't exist\n",
-                         path => $path);
-            }
-
-            # Check the kernel was recognised
-            next unless defined($kernel);
-
-            # Put this kernel on the top level kernel list
-            $desc->{kernels} ||= [];
-            push(@{$desc->{kernels}}, $kernel);
-
-            $config{kernel} = $kernel;
-
-            # Look for an initrd entry
-            my $initrd;
-            eval {
-                $initrd = $g->aug_get("$bootable/initrd");
-            };
-
-            unless($@) {
-                $config{initrd} =
-                    _inspect_initrd($g, $desc, "$grub$initrd",
-                                    $kernel->{version});
-            } else {
-                warn __x("Grub entry {title} does not specify an ".
-                         "initrd\n", title => $config{title});
-            }
-
-            push(@configs, \%config);
-        }
-
-        # Create the top level boot entry
-        $desc->{boot} ||= {};
-        my $boot = $desc->{boot};
-
-        $boot->{configs} = \@configs;
-
-        # Add the default configuration
-        eval { $boot->{default} = $g->aug_get("/files$grub_conf/default") };
     }
 }
 
@@ -665,35 +796,6 @@ sub _clean_rpmdb
     foreach my $f ($g->glob_expand('/var/lib/rpm/__db.00?')) {
         $g->rm($f);
     }
-}
-
-# Get a listing of device drivers from an initrd
-sub _inspect_initrd
-{
-    my ($g, $desc, $path, $version) = @_;
-
-    my @modules;
-
-    # Disregard old-style compressed ext2 files and only work with
-    # real compressed cpio files, since cpio takes ages to (fail to)
-    # process anything else.
-    if ($g->exists($path) && $g->file($path) =~ /cpio/) {
-        eval {
-            @modules = $g->initrd_list ($path);
-        };
-        unless ($@) {
-            @modules = grep { m{([^/]+)\.(?:ko|o)$} } @modules;
-        } else {
-            warn __x("{filename}: could not read initrd format\n",
-                     filename => "$path");
-        }
-    }
-
-    # Add to the top level initrd_modules entry
-    $desc->{initrd_modules} ||= {};
-    $desc->{initrd_modules}->{$version} = \@modules;
-
-    return \@modules;
 }
 
 # Use various methods to try to work out what Linux kernel we've got.
@@ -714,9 +816,8 @@ sub _inspect_linux_kernel
     # If this is a packaged kernel, try to work out the name of the package
     # which installed it. This lets us know what to install to replace it with,
     # e.g. kernel, kernel-smp, kernel-hugemem, kernel-PAE
-    my $package;
-    eval { $package = $g->command(['rpm', '-qf', '--qf',
-                                   '%{NAME}', $path]); };
+    my $package = eval { $g->command(['rpm', '-qf', '--qf',
+                                      '%{NAME}', $path]) };
     $kernel{package} = $package if defined($package);;
 
     # Try to get the kernel version by running file against it
@@ -774,18 +875,21 @@ sub _inspect_linux_kernel
 
 sub _configure_kernel
 {
-    my ($virtio, $g, $config, $desc, $meta) = @_;
+    my ($virtio, $g, $root, $config, $meta, $grub) = @_;
 
-    # Pick first appropriate kernel returned by _list_kernels
+    # Pick first appropriate kernel returned by list_kernels
     my $boot_kernel;
-    foreach my $kernel (_list_kernels($g, $desc)) {
+    foreach my $path ($grub->list_kernels()) {
+        my $kernel = _inspect_linux_kernel($g, $path);
+        my $version = $kernel->{version};
+
         # Skip foreign kernels
-        next if _is_hv_kernel($g, $kernel);
+        next if _is_hv_kernel($g, $version);
 
         # If we're configuring virtio, check this kernel supports it
-        next if ($virtio && !_supports_virtio($kernel, $g));
+        next if ($virtio && !_supports_virtio($version, $g));
 
-        $boot_kernel = $kernel;
+        $boot_kernel = $version;
         last;
     }
 
@@ -795,7 +899,56 @@ sub _configure_kernel
 
     # If none of the installed kernels are appropriate, install a new one
     if(!defined($boot_kernel)) {
-        $boot_kernel = _install_good_kernel($g, $config, $desc, $meta);
+        my ($kernel_pkg, $kernel_arch, undef) =
+           _discover_kernel($g, $root, $grub);
+
+        # If the guest is using a Xen PV kernel, choose an appropriate
+        # normal kernel replacement
+        if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
+            $kernel_pkg = _get_replacement_kernel_name($g, $root,
+                                                       $kernel_arch, $meta);
+
+            # Check there isn't already one installed
+            my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
+            $boot_kernel = $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
+                if defined($kernel);
+        }
+
+        if (!defined($boot_kernel)) {
+            # List of kernels before the new kernel installation
+            my @k_before = $g->glob_expand('/boot/vmlinuz-*');
+
+            if (_install_any([$kernel_pkg, $kernel_arch], undef, undef,
+                             $g, $root, $config, $grub))
+            {
+                # Figure out which kernel has just been installed
+                my $version;
+                foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
+                    if (!grep(/^$k$/, @k_before)) {
+                        # Check which directory in /lib/modules the kernel rpm
+                        # creates
+                        foreach my $file
+                                ($g->command_lines(['rpm', '-qlf', $k]))
+                        {
+                            next unless ($file =~ m{^/lib/modules/([^/]+)$});
+
+                            if ($g->is_dir("/lib/modules/$1")) {
+                                $boot_kernel = $1;
+                                last;
+                            }
+                        }
+
+                        last if defined($boot_kernel);
+                    }
+                }
+
+                v2vdie __x('Couldn\'t determine version of installed kernel')
+                    unless defined($boot_kernel);
+            } else {
+                v2vdie __x('Failed to find a {name} package to install',
+                           name => "kernel_pkg.$kernel_arch");
+            }
+        }
     }
 
     # Check we have a bootable kernel.
@@ -804,13 +957,10 @@ sub _configure_kernel
         unless defined($boot_kernel);
 
     # Ensure DEFAULTKERNEL is set to boot kernel package name
-    my $kernel_pkg;
     # It's not fatal if this rpm command fails
-    eval {
-        ($kernel_pkg) = $g->command_lines(['rpm', '-qf',
-                                          "/lib/modules/$boot_kernel",
-                                          '--qf', '%{NAME}\n']);
-    };
+    my ($kernel_pkg) =
+        eval { $g->command_lines(['rpm', '-qf', "/lib/modules/$boot_kernel",
+                                         '--qf', '%{NAME}\n']) };
     if (defined($kernel_pkg) && $g->exists('/etc/sysconfig/kernel')) {
         eval {
             foreach my $path ($g->aug_match('/files/etc/sysconfig/kernel'.
@@ -830,40 +980,34 @@ sub _configure_kernel
 
 sub _configure_boot
 {
-    my ($kernel, $virtio, $g, $root, $desc) = @_;
+    my ($kernel, $virtio, $g, $root, $grub) = @_;
 
     if($virtio) {
         # The order of modules here is deliberately the same as the order
         # specified in the postinstall script of kmod-virtio in RHEL3. The
         # reason is that the probing order determines the major number of vdX
         # block devices. If we change it, RHEL 3 KVM guests won't boot.
-        _prepare_bootable($g, $root, $desc, $kernel, "virtio", "virtio_ring",
+        _prepare_bootable($g, $root, $grub, $kernel, "virtio", "virtio_ring",
                                                      "virtio_blk", "virtio_net",
                                                      "virtio_pci");
     } else {
-        _prepare_bootable($g, $root, $desc, $kernel, "sym53c8xx");
+        _prepare_bootable($g, $root, $grub, $kernel, "sym53c8xx");
     }
 }
 
 # Get the target architecture from the default boot kernel
 sub _get_os_arch
 {
-    my ($desc) = @_;
+    my ($g, $root, $grub) = @_;
 
-    my $boot = $desc->{boot};
-    my $default_boot = $boot->{default} if(defined($boot));
-
-    # Pick the default config if one is defined
-    my $config = $boot->{configs}->[$default_boot] if defined($default_boot);
-
-    # Pick the first defined config if there is no default, or it is invalid
-    $config = $boot->{configs}[0] unless defined($config);
-
-    my $arch = $config->{kernel}->{arch}
-        if defined($config) && defined($config->{kernel});
+    # Get the arch of the default kernel
+    my @kernels = $grub->list_kernels();
+    my $path = $kernels[0] if @kernels > 0;
+    my $kernel = _inspect_linux_kernel($g, $path) if defined($path);
+    my $arch = $kernel->{arch} if defined($kernel);
 
     # Use the libguestfs-detected arch if the above failed
-    $arch = $desc->{arch} unless defined($arch);
+    $arch = $g->inspect_get_arch($root) unless defined($arch);
 
     # Default to x86_64 if we still didn't find an architecture
     return 'x86_64' unless defined($arch);
@@ -898,10 +1042,7 @@ sub _remove_applications
     $g->command(['rpm', '-e', @apps]);
 
     # Make augeas reload in case the removal changed anything
-    eval {
-        $g->aug_load();
-    };
-
+    eval { $g->aug_load() };
     augeas_error($g, $@) if ($@);
 }
 
@@ -909,28 +1050,25 @@ sub _get_application_owner
 {
     my ($file, $g) = @_;
 
-    eval {
-        return $g->command(['rpm', '-qf', $file]);
-    };
-    die($@) if($@);
+    return $g->command(['rpm', '-qf', $file]);
 }
 
 sub _unconfigure_hv
 {
-    my ($g, $root, $desc) = @_;
+    my ($g, $root) = @_;
 
     my @apps = $g->inspect_list_applications($root);
 
-    _unconfigure_xen($g, $desc, \@apps);
-    _unconfigure_vbox($g, $desc, \@apps);
-    _unconfigure_vmware($g, $desc, \@apps);
-    _unconfigure_citrix($g, $desc, \@apps);
+    _unconfigure_xen($g, \@apps);
+    _unconfigure_vbox($g, \@apps);
+    _unconfigure_vmware($g, \@apps);
+    _unconfigure_citrix($g, \@apps);
 }
 
 # Unconfigure Xen specific guest modifications
 sub _unconfigure_xen
 {
-    my ($g, $desc, $apps) = @_;
+    my ($g, $apps) = @_;
 
     # Look for kmod-xenpv-*, which can be found on RHEL 3 machines
     my @remove;
@@ -954,9 +1092,7 @@ sub _unconfigure_xen
             next unless($g->is_dir($dir));
 
             # Check it's not owned by an installed application
-            eval {
-                _get_application_owner($dir, $g);
-            };
+            eval { _get_application_owner($dir, $g) };
 
             # Remove it if _get_application_owner didn't find an owner
             if($@) {
@@ -965,8 +1101,7 @@ sub _unconfigure_xen
         }
 
         # rc.local may contain an insmod or modprobe of the xen-vbd driver
-        my @rc_local = ();
-        eval { @rc_local = $g->read_lines('/etc/rc.local') };
+        my @rc_local = eval { $g->read_lines('/etc/rc.local') };
         if ($@) {
             logmsg WARN, __x('Unable to open /etc/rc.local: {error}',
                              error => $@);
@@ -991,7 +1126,7 @@ sub _unconfigure_xen
 # Unconfigure VirtualBox specific guest modifications
 sub _unconfigure_vbox
 {
-    my ($g, $desc, $apps) = @_;
+    my ($g, $apps) = @_;
 
     # Uninstall VirtualBox Guest Additions
     my @remove;
@@ -1035,7 +1170,7 @@ sub _unconfigure_vbox
 # Unconfigure VMware specific guest modifications
 sub _unconfigure_vmware
 {
-    my ($g, $desc, $apps) = @_;
+    my ($g, $apps) = @_;
 
     # Look for any configured vmware yum repos, and disable them
     foreach my $repo ($g->aug_match(
@@ -1131,7 +1266,7 @@ sub _unconfigure_vmware
 
 sub _unconfigure_citrix
 {
-    my ($g, $desc, $apps) = @_;
+    my ($g, $apps) = @_;
 
     # Look for xe-guest-utilities*
     my @remove;
@@ -1193,12 +1328,9 @@ sub _unconfigure_citrix
 
 sub _install_capability
 {
-    my ($name, $g, $config, $meta, $desc) = @_;
+    my ($name, $g, $root, $config, $meta, $grub) = @_;
 
-    my $cap;
-    eval {
-        $cap = $config->match_capability($desc, $name);
-    };
+    my $cap = eval { $config->match_capability($g, $root, $name) };
     if ($@) {
         warn($@);
         return 0;
@@ -1234,7 +1366,7 @@ sub _install_capability
         # Kernels are special
         if ($name eq 'kernel') {
             my ($kernel_pkg, $kernel_arch, $kernel_rpmver) =
-                _discover_kernel($desc);
+                _discover_kernel($g, $root, $grub);
 
             # If we didn't establish a kernel version, assume we have to upgrade
             # it.
@@ -1243,11 +1375,8 @@ sub _install_capability
             }
 
             else {
-                my ($kernel_epoch, $kernel_ver, $kernel_release);
-                eval {
-                    ($kernel_epoch, $kernel_ver, $kernel_release) =
-                        _parse_evr($kernel_rpmver);
-                };
+                my ($kernel_epoch, $kernel_ver, $kernel_release) =
+                    eval { _parse_evr($kernel_rpmver) };
                 if ($@) {
                     # Don't die here, just make best effort to do a version
                     # comparison by directly comparing the full strings
@@ -1265,7 +1394,7 @@ sub _install_capability
                 if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU")
                 {
                     $kernel_pkg =
-                        _get_replacement_kernel_name($kernel_arch, $desc,
+                        _get_replacement_kernel_name($g, $root, $kernel_arch,
                                                      $meta);
 
                     # Check if we've got already got an appropriate kernel
@@ -1356,14 +1485,8 @@ sub _install_capability
         return 1;
     }
 
-    # List of kernels before the new kernel installation
-    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
-
     my $success = _install_any($kernel, \@install, \@upgrade,
-                               $g, $config, $desc);
-
-    # Check to see if we installed a new kernel, and check grub if we did
-    _find_new_kernel($g, $desc, @k_before);
+                               $g, $root, $config, $grub);
 
     return $success;
 }
@@ -1388,7 +1511,10 @@ sub _net_run {
 
 sub _install_any
 {
-    my ($kernel, $install, $upgrade, $g, $config, $desc) = @_;
+    my ($kernel, $install, $upgrade, $g, $root, $config, $grub) = @_;
+
+    # If we're installing a kernel, check which kernels are there first
+    my @k_before = $g->glob_expand('/boot/vmlinuz-*') if defined($kernel);
 
     my $success = 0;
     _net_run($g, sub {
@@ -1401,17 +1527,26 @@ sub _install_any
 
             # Fall back to local config if the above didn't work
             $success = _install_config($kernel, $install, $upgrade,
-                                       $g, $config, $desc)
+                                       $g, $root, $config)
                 unless ($success);
         };
         warn($@) if $@;
     });
 
     # Make augeas reload to pick up any altered configuration
-    eval {
-        $g->aug_load();
-    };
+    eval { $g->aug_load() };
     augeas_error($g, $@) if ($@);
+
+    # Installing a new kernel in RHEL 5 under libguestfs fails to add a grub
+    # entry. Find the kernel we installed and ensure it has a grub entry.
+    if (defined($kernel)) {
+        foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
+            if (!grep(/^$k$/, @k_before)) {
+                $grub->check($k);
+                last;
+            }
+        }
+    }
 
     return $success;
 }
@@ -1507,10 +1642,8 @@ sub _install_yum
             $pkg .= "-$version" if (defined($version));
             $pkg .= "-$release" if (defined($release));
 
-            my @output;
-            eval {
-                @output = $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg");
-            };
+            my @output =
+                eval { $g->sh_lines("LANG=C /usr/bin/yum -y $action $pkg") };
             if ($@) {
                 logmsg WARN, __x('Failed to install packages using yum. '.
                                  'Output was: {output}', output => $@);
@@ -1534,14 +1667,14 @@ sub _install_yum
 
 sub _install_config
 {
-    my ($kernel_naevr, $install, $upgrade, $g, $config, $desc) = @_;
+    my ($kernel_naevr, $install, $upgrade, $g, $root, $config) = @_;
 
     my ($kernel, $user);
     if (defined($kernel_naevr)) {
         my ($kernel_pkg, $kernel_arch) = @$kernel_naevr;
 
         ($kernel, $user) =
-            $config->match_app($desc, $kernel_pkg, $kernel_arch);
+            $config->match_app($g, $root, $kernel_pkg, $kernel_arch);
     } else {
         $user = [];
     }
@@ -1558,8 +1691,8 @@ sub _install_config
         }
     }
 
-    my @user_paths = _get_deppaths($g, $config, $desc,
-                                   \@missing, $desc->{arch}, @$user);
+    my @user_paths = _get_deppaths($g, $root, $config,
+                                   \@missing, $g->inspect_get_arch($root), @$user);
 
     # We can't proceed if there are any files missing
     v2vdie __x('Installation failed because the following '.
@@ -1593,10 +1726,7 @@ sub _install_rpms
     $g->command(['rpm', $upgrade == 1 ? '-U' : '-i', @rpms]);
 
     # Reload augeas in case the rpm installation changed anything
-    eval {
-        $g->aug_load();
-    };
-
+    eval { $g->aug_load() };
     augeas_error($g, $@) if($@);
 }
 
@@ -1604,11 +1734,11 @@ sub _install_rpms
 # apps
 sub _get_deppaths
 {
-    my ($g, $config, $desc, $missing, $arch, @apps) = @_;
+    my ($g, $root, $config, $missing, $arch, @apps) = @_;
 
     my %required;
     foreach my $app (@apps) {
-        my ($path, $deps) = $config->match_app($desc, $app, $arch);
+        my ($path, $deps) = $config->match_app($g, $root, $app, $arch);
 
         my $transfer_path = $config->get_transfer_path($path);
         my $exists = defined($transfer_path) && $g->exists($transfer_path);
@@ -1620,7 +1750,7 @@ sub _get_deppaths
         if (!$exists || !_newer_installed($transfer_path, $g, $config)) {
             $required{$path} = 1;
 
-            foreach my $deppath (_get_deppaths($g, $config, $desc,
+            foreach my $deppath (_get_deppaths($g, $root, $config,
                                                $missing, $arch, @$deps))
             {
                 $required{$deppath} = 1;
@@ -1635,7 +1765,7 @@ sub _get_deppaths
 
             # It's not an error if no i386 package is available
             eval {
-                ($path, $deps) = $config->match_app($desc, $app, 'i386');
+                ($path, $deps) = $config->match_app($g, $root, $app, 'i386');
             };
 
             if (defined($path)) {
@@ -1643,7 +1773,7 @@ sub _get_deppaths
                 if (!defined($transfer_path) || !$g->exists($transfer_path)) {
                     push(@$missing, $path);
 
-                    foreach my $deppath (_get_deppaths($g, $config, $desc,
+                    foreach my $deppath (_get_deppaths($g, $root, $config,
                                                       $missing, 'i386', @$deps))
                     {
                         $required{$deppath} = 1;
@@ -1696,33 +1826,19 @@ sub _get_nevra
     return ($name, $epoch, $version, $release, $arch);
 }
 
-# Inspect the guest description to work out what kernel package is in use
+# Inspect the guest to work out what kernel package is in use
 # Returns ($kernel_pkg, $kernel_arch)
 sub _discover_kernel
 {
-    my ($desc) = @_;
-
-    my $boot = $desc->{boot};
-
-    # Check the default first
-    my @configs;
-    push(@configs, $boot->{default}) if (defined($boot->{default}));
-
-    # Then check the rest. Default will get checked twice. Shouldn't be a
-    # problem, though.
-    push(@configs, (0..$#{$boot->{configs}}));
+    my ($g, $root, $grub) = @_;
 
     # Get a current bootable kernel, preferrably the default
     my $kernel_pkg;
     my $kernel_arch;
     my $kernel_ver;
 
-    foreach my $i (@configs) {
-        my $config = $boot->{configs}->[$i];
-
-        # Check the entry has a kernel
-        my $kernel = $config->{kernel};
-        next unless (defined($kernel));
+    foreach my $path ($grub->list_kernels()) {
+        my $kernel = _inspect_linux_kernel($g, $path);
 
         # Check its architecture is known
         $kernel_arch = $kernel->{arch};
@@ -1742,7 +1858,7 @@ sub _discover_kernel
 
     # Default the kernel architecture to the userspace architecture if it wasn't
     # directly detected
-    $kernel_arch = $desc->{arch} if (!defined($kernel_arch));
+    $kernel_arch = $g->inspect_get_arch($root) unless defined($kernel_arch);
 
     # We haven't supported anything other than i686 for the kernel on 32 bit for
     # a very long time.
@@ -1753,13 +1869,13 @@ sub _discover_kernel
 
 sub _get_replacement_kernel_name
 {
-    my ($arch, $desc, $meta) = @_;
+    my ($g, $root, $arch, $meta) = @_;
 
     # Make an informed choice about a replacement kernel for distros we know
     # about
 
     # RHEL 5
-    if (_is_rhel_family($desc) && $desc->{major_version} eq '5') {
+    if (_is_rhel_family($g, $root) && $g->inspect_get_major_version($root) eq '5') {
         if ($arch eq 'i686') {
             # XXX: This assumes that PAE will be available in the hypervisor.
             # While this is almost certainly true, it's theoretically possible
@@ -1776,7 +1892,7 @@ sub _get_replacement_kernel_name
     }
 
     # RHEL 4
-    elsif (_is_rhel_family($desc) && $desc->{major_version} eq '4') {
+    elsif (_is_rhel_family($g, $root) && $g->inspect_get_major_version($root) eq '4') {
         if ($arch eq 'i686') {
             # If the guest has > 10G RAM, give it a hugemem kernel
             if ($meta->{memory} > 10 * 1024 * 1024 * 1024) {
@@ -1815,163 +1931,13 @@ sub _get_replacement_kernel_name
     return 'kernel';
 }
 
-sub _install_good_kernel
-{
-    my ($g, $config, $desc, $meta) = @_;
-
-    my ($kernel_pkg, $kernel_arch, undef) = _discover_kernel($desc);
-
-    # If the guest is using a Xen PV kernel, choose an appropriate
-    # normal kernel replacement
-    if ($kernel_pkg eq "kernel-xen" || $kernel_pkg eq "kernel-xenU") {
-        $kernel_pkg = _get_replacement_kernel_name($kernel_arch, $desc, $meta);
-
-        # Check there isn't already one installed
-        my ($kernel) = _get_installed("$kernel_pkg.$kernel_arch", $g);
-        return $kernel->[1].'-'.$kernel->[2].'.'.$kernel_arch
-            if (defined($kernel));
-    }
-
-    # List of kernels before the new kernel installation
-    my @k_before = $g->glob_expand('/boot/vmlinuz-*');
-
-    return undef unless _install_any([$kernel_pkg, $kernel_arch], undef, undef,
-                                     $g, $config, $desc);
-
-    my $version = _find_new_kernel($g, $desc, @k_before);
-    die("Couldn't determine version of installed kernel")
-        unless (defined($version));
-
-    return $version;
-}
-
-sub _find_new_kernel
-{
-    my $g = shift;
-    my $desc = shift;
-    # Note that subsequent arguments are used below
-
-    # Figure out which kernel has just been installed
-    foreach my $k ($g->glob_expand('/boot/vmlinuz-*')) {
-        if (!grep(/^$k$/, @_)) {
-            # Check which directory in /lib/modules the kernel rpm creates
-            foreach my $file ($g->command_lines (['rpm', '-qlf', $k])) {
-                next unless ($file =~ m{^/lib/modules/([^/]+)$});
-
-                my $version = $1;
-                if ($g->is_dir("/lib/modules/$version")) {
-                    _check_grub($version, $k, $g, $desc);
-                    return $version;
-                }
-            }
-        }
-    }
-    return undef;
-}
-
-sub _check_grub
-{
-    my ($version, $kernel, $g, $desc) = @_;
-
-    my $grub_conf   = $desc->{boot}->{grub_conf};
-    my $grubfs      = $desc->{boot}->{grub_fs};
-    my $prefix      = $grubfs eq '/boot' ? '' : '/boot';
-
-    # Nothing to do if there's already a grub entry
-    return if eval {
-        foreach my $augpath ($g->aug_match("/files$grub_conf/title/kernel")) {
-            return 1 if ($grubfs.$g->aug_get($augpath) eq $kernel);
-        }
-
-        return 0
-    };
-    augeas_error($g, $@) if ($@);
-
-    my $initrd = "$prefix/initrd-$version.img";
-    $kernel =~ m{^/boot/(.*)$} or die("kernel in unexpected location: $kernel");
-    my $vmlinuz = "$prefix/$1";
-
-    my $title;
-    # No point in dying if /etc/redhat-release can't be read
-    eval {
-        ($title) = $g->read_lines('/etc/redhat-release');
-    };
-    $title ||= 'Linux';
-
-    # This is how new-kernel-pkg does it
-    $title =~ s/ release.*//;
-    $title .= " ($version)";
-
-    my $default;
-    # Doesn't matter if there's no default
-    eval { $default = $g->aug_get("/files$grub_conf/default"); };
-
-    eval {
-        if (defined($default)) {
-            $g->aug_defvar('template',
-                 "/files$grub_conf/title[".($default + 1).']');
-        }
-
-        # If there's no default, take the first entry with a kernel
-        else {
-            my ($match) = $g->aug_match("/files$grub_conf/title/kernel");
-            die("No template kernel found in grub.") unless defined($match);
-
-            $match =~ s/\/kernel$//;
-            $g->aug_defvar('template', $match);
-        }
-
-        # Add a new title node at the end
-        $g->aug_defnode('new', "/files$grub_conf/title[last()+1]", $title);
-
-        # N.B. Don't change the order of root, kernel and initrd below, or the
-        # guest will not boot.
-
-        # Copy root from the template
-        $g->aug_set('$new/root', $g->aug_get('$template/root'));
-
-        # Set kernel and initrd to the new values
-        $g->aug_set('$new/kernel', $vmlinuz);
-        $g->aug_set('$new/initrd', $initrd);
-
-        # Copy all kernel command-line arguments
-        foreach my $arg ($g->aug_match('$template/kernel/*')) {
-            # kernel arguments don't necessarily have values
-            my $val;
-            eval {
-                $val = $g->aug_get($arg);
-            };
-
-            $arg =~ /([^\/]*)$/;
-            $arg = $1;
-
-            if (defined($val)) {
-                $g->aug_set('$new/kernel/'.$arg, $val);
-            } else {
-                $g->aug_clear('$new/kernel/'.$arg);
-            }
-        }
-
-        my ($new) = $g->aug_match('$new');
-        $new =~ /\[(\d+)\]$/;
-
-        $g->aug_set("/files$grub_conf/default", defined($1) ? $1 - 1 : 0);
-        $g->aug_save();
-    };
-    augeas_error($g, $@) if ($@);
-}
-
 sub _get_installed
 {
     my ($name, $g) = @_;
 
     my $rpmcmd = ['rpm', '-q', '--qf', '%{EPOCH} %{VERSION} %{RELEASE}\n',
                   $name];
-    my @output;
-    eval {
-        @output = $g->command_lines($rpmcmd);
-    };
-
+    my @output = eval { $g->command_lines($rpmcmd) };
     if ($@) {
         # RPM command returned non-zero. This might be because there was
         # actually an error, or might just be because the package isn't
@@ -2122,7 +2088,7 @@ sub _rpmvercmp
 
 sub _remap_block_devices
 {
-    my ($meta, $virtio, $g, $desc) = @_;
+    my ($meta, $virtio, $g, $root) = @_;
 
     my @devices = map { $_->{device} } @{$meta->{disks}};
     @devices = sort @devices;
@@ -2141,11 +2107,12 @@ sub _remap_block_devices
 
     # RHEL 2, 3 and 4 didn't use libata
     # RHEL 5 does use libata, but udev rules call IDE devices hdX anyway
-    if (_is_rhel_family($desc)) {
-        if ($desc->{major_version} eq '2' ||
-            $desc->{major_version} eq '3' ||
-            $desc->{major_version} eq '4' ||
-            $desc->{major_version} eq '5')
+    if (_is_rhel_family($g, $root)) {
+        my $major_version = $g->inspect_get_major_version($root);
+        if ($major_version eq '2' ||
+            $major_version eq '3' ||
+            $major_version eq '4' ||
+            $major_version eq '5')
         {
             $libata = 0;
         }
@@ -2290,111 +2257,61 @@ sub _drivecmp
 
 sub _prepare_bootable
 {
-    my ($g, $root, $desc, $version, @modules) = @_;
+    my ($g, $root, $grub, $version, @modules) = @_;
 
-    # Find the grub entry for the given kernel
-    my $initrd;
-    my $found = 0;
-    eval {
-        my $prefix;
-        if ($desc->{boot}->{grub_fs} eq "/boot") {
-            $prefix = '';
-        } else {
-            $prefix = '/boot';
+    my $path = "/boot/vmlinuz-$version";
+    $grub->write($path);
+    my $grub_initrd = $grub->get_initrd($path);
+
+    # Backup the original initrd
+    $g->mv($grub_initrd, "$grub_initrd.pre-v2v")
+    if $g->exists($grub_initrd);
+
+    if ($g->exists('/sbin/dracut')) {
+        $g->command(['/sbin/dracut', '--add-drivers', join(" ", @modules),
+                     $grub_initrd, $version]);
+    }
+
+    elsif ($g->exists('/sbin/mkinitrd')) {
+        # Create a new initrd which probes the required kernel modules
+        my @module_args = ();
+        foreach my $module (@modules) {
+            push(@module_args, "--with=$module");
         }
 
-        my $grub_conf = $desc->{boot}->{grub_conf};
-        foreach my $kernel ($g->aug_match("/files$grub_conf/title/kernel")) {
+        # We explicitly modprobe ext2 here. This is required by mkinitrd on
+        # RHEL 3, and shouldn't hurt on other OSs. We don't care if this
+        # fails.
+        eval { $g->modprobe('ext2') };
 
-            if($g->aug_get($kernel) eq "$prefix/vmlinuz-$version") {
-                # Ensure it's the default
-                $kernel =~ m{/files$grub_conf/title(?:\[(\d+)\])?/kernel}
-                    or die($kernel);
+        # loop is a module in RHEL 5. Try to load it. Doesn't matter for
+        # other OSs if it doesn't exist, but RHEL 5 will complain:
+        #   All of your loopback devices are in use.
+        eval { $g->modprobe('loop') };
 
-                my $aug_index;
-                if(defined($1)) {
-                    $aug_index = $1;
-                } else {
-                    $aug_index = 1;
-                }
+        my @env;
 
-                $g->aug_set("/files$grub_conf/default", $aug_index - 1);
-
-                # Get the initrd for this kernel
-                $initrd =
-                    $g->aug_get("/files$grub_conf/title[$aug_index]/initrd");
-
-                $found = 1;
-                last;
-            }
+        # RHEL 4 mkinitrd determines if the root filesystem is on LVM by
+        # checking if the device name (after following symlinks) starts with
+        # /dev/mapper. However, on recent kernels/udevs, /dev/mapper/foo is
+        # just a symlink to /dev/dm-X. This means that RHEL 4 mkinitrd
+        # running in the appliance fails to detect root on LVM. We check
+        # ourselves if root is on LVM, and frig RHEL 4's mkinitrd if it is
+        # by setting root_lvm=1 in its environment. This overrides an
+        # internal variable in mkinitrd, and is therefore extremely nasty
+        # and applicable only to a particular version of mkinitrd.
+        if (_is_rhel_family($g, $root) &&
+            $g->inspect_get_major_version($root) eq '4')
+        {
+            push(@env, 'root_lvm=1') if ($g->is_lv($root));
         }
 
-        $g->aug_save();
-    };
+        $g->sh(join(' ', @env).' /sbin/mkinitrd '.join(' ', @module_args).
+               " $grub_initrd $version");
+    }
 
-    # Propagate augeas failure
-    augeas_error($g, $@) if ($@);
-
-    if(!defined($initrd)) {
-        logmsg WARN, __x('Kernel version {version} '.
-                         'doesn\'t have an initrd entry in grub.',
-                         version => $version);
-    } else {
-        # Initrd as returned by grub may be relative to /boot
-        $initrd = $desc->{boot}->{grub_fs}.$initrd;
-
-        # Backup the original initrd
-        $g->mv($initrd, "$initrd.pre-v2v") if ($g->exists($initrd));
-
-        if ($g->exists('/sbin/dracut')) {
-            $g->command(['/sbin/dracut', '--add-drivers', join(" ", @modules),
-                         $initrd, $version]);
-        }
-
-        elsif ($g->exists('/sbin/mkinitrd')) {
-            # Create a new initrd which probes the required kernel modules
-            my @module_args = ();
-            foreach my $module (@modules) {
-                push(@module_args, "--with=$module");
-            }
-
-            # We explicitly modprobe ext2 here. This is required by mkinitrd on
-            # RHEL 3, and shouldn't hurt on other OSs. We don't care if this
-            # fails.
-            eval {
-                $g->modprobe('ext2');
-            };
-
-            # loop is a module in RHEL 5. Try to load it. Doesn't matter for
-            # other OSs if it doesn't exist, but RHEL 5 will complain:
-            #   All of your loopback devices are in use.
-            eval {
-                $g->modprobe('loop');
-            };
-
-            my @env;
-
-            # RHEL 4 mkinitrd determines if the root filesystem is on LVM by
-            # checking if the device name (after following symlinks) starts with
-            # /dev/mapper. However, on recent kernels/udevs, /dev/mapper/foo is
-            # just a symlink to /dev/dm-X. This means that RHEL 4 mkinitrd
-            # running in the appliance fails to detect root on LVM. We check
-            # ourselves if root is on LVM, and frig RHEL 4's mkinitrd if it is
-            # by setting root_lvm=1 in its environment. This overrides an
-            # internal variable in mkinitrd, and is therefore extremely nasty
-            # and applicable only to a particular version of mkinitrd.
-            if (_is_rhel_family($desc) && $desc->{major_version} eq '4') {
-                push(@env, 'root_lvm=1') if ($g->is_lv($root));
-            }
-
-            $g->sh(join(' ', @env).' /sbin/mkinitrd '.join(' ', @module_args).
-                   " $initrd $version");
-        }
-
-        else {
-            v2vdie __('Didn\'t find mkinitrd or dracut. Unable to update '.
-                      'initrd.');
-        }
+    else {
+        v2vdie __('Didn\'t find mkinitrd or dracut. Unable to update initrd.');
     }
 
     # Disable kudzu in the guest
@@ -2410,11 +2327,11 @@ sub _prepare_bootable
 # Return 1 if the guest supports ACPI, 0 otherwise
 sub _supports_acpi
 {
-    my ($desc, $arch) = @_;
+    my ($g, $root, $arch) = @_;
 
     # Blacklist configurations which are known to fail
     # RHEL 3, x86_64
-    if (_is_rhel_family($desc) && $desc->{major_version} == 3 &&
+    if (_is_rhel_family($g, $root) && $g->inspect_get_major_version($root) == 3 &&
         $arch eq 'x86_64') {
         return 0;
     }
