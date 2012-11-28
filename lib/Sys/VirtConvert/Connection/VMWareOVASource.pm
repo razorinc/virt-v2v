@@ -72,6 +72,20 @@ sub new
     return $self;
 }
 
+=item get_name
+
+Return the name of the domain.
+
+=cut
+
+sub get_name
+{
+    my $meta = shift->{meta};
+
+    return $meta->{name};
+}
+
+
 sub _uncompress_archive
 {
     my $self = shift;
