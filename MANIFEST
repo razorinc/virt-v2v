@@ -25,6 +25,7 @@ lib/Sys/VirtConvert/Transfer/SSH.pm
 lib/Sys/VirtConvert/Util.pm
 MANIFEST			This list of files
 MANIFEST.SKIP
+META.json
 META.yml
 metadata-format.txt
 p2v/client/bin/virt-p2v
@@ -96,4 +97,3 @@ virt-v2v.spec.PL
 windows/firstboot.bat
 windows/README.txt
 windows/rhsrvany.exe
-META.json
