@@ -219,21 +219,24 @@ sub _verify_manifest
                       path => $mf_path, error => $!);
 
     my %files;
-    while(my $line=<$manifest>) {
-        my ($file,$sha1) = ($line=~/\((.*?)\)=\s(.*?)$/);
-        $files{$file}=$sha1;
+    while(my $line = <$manifest>) {
+        my ($file, $sha1) = ($line=~/SHA1\((.*?)\)=\s*(.*?)\s*$/);
+        $files{$file} = $sha1;
     }
     close($manifest);
 
-    while (my ($file,$checksum) = each(%files)) {
-        my $fh;
-        open($fh, $file);
+    while (my ($file, $sha1_mf) = each(%files)) {
+        open(my $fh, $self->{extractdir}.'/'.$file)
+            or v2vdie __x('Manifest references non-existant file {name}',
+                          name => $file);
+
         my $sha1 = Digest::SHA1->new;
         $sha1->addfile($fh);
+        my $sha1_calc = $sha1->hexdigest;
 
-        unless ($sha1->hexdigest == $checksum) {
-            v2vdie("The checksum on {file} as failed", file=>$file);
-        }
+        v2vdie __x('Checksum of {file} does not match manifest', file => $file)
+            unless ($sha1_calc eq $sha1_mf);
+
         close $fh;
     }
 }
