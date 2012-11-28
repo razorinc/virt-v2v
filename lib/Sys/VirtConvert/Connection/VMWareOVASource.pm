@@ -39,7 +39,7 @@ use Locale::TextDomain 'virt-v2v';
 # Hardware profiles for Hardware Resources in OVF file
 
 our %hw_families = (
-    'Processor'         => 3,
+    'CPU'               => 3,
     'Memory'            => 4,
     'IDE Controller'    => 5,
     'SCSI Controller'   => 6,
@@ -108,7 +108,7 @@ sub _get_meta
 
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
     $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
-    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Cpu}");
+    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{CPU}");
 
     # return vmx-08 that is vmware esxi 5.0
     $meta{src_type} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/System/vssd:VirtualSystemType/text()");
