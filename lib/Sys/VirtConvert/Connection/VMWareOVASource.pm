@@ -93,6 +93,7 @@ sub _get_meta
 sub _parse_dom
 {
     my ($source, $dom) = @_;
+
     my %meta;
 
     my $root=$dom->getDocumentElement();
