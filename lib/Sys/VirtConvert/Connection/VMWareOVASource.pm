@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-package Sys::VirtConvert::Connection::VMWareOVASource
+package Sys::VirtConvert::Connection::VMWareOVASource;
 
 use strict;
 use warnings;
@@ -60,14 +60,17 @@ sub new
 {
   my $class = shift;
   my($filename, $target) = @_;
+
   my $self = {};
   $self->{filename} = $filename;
+
   my $virtual_machine = (split('.',basename($filename),2))[0];
   $self->{path} = ENV{"TEMP_DIR"}.$virtual_machine;
   bless($self, $class);
+
   $self->_uncompress_archive($filename);
   $self->_verify_md5();
-  $self->_get_meta($path); # TBD
+  $self->_get_meta();
   return $self;
 }
 
@@ -77,8 +80,8 @@ sub _uncompress_archive
   my $path = @_;
   my $tmp_directory = $ENV{"TEMP_DIR"};
   my $ae = Archive::Extract(archive => $path);
-  unless(-d $dir){
-    mkdir $dir or die;
+  unless(-d $tmp_directory) {
+    mkdir $tmp_directory or die;
   }
   $ae->extract(to=> $tmp_directory.basename($self->path) );
 
@@ -88,9 +91,11 @@ sub _uncompress_archive
 sub _get_meta
 {
   my $self = shift;
-  my $xml ;
-  open($xml, '<', $self->{path});
-   or v2vdie __x('');
+
+  my $ovf = $self->{path}.'.ovf';
+  my $xml;
+  open($xml, '<', $ovf)
+   or v2vdie __x('Failed to open {ovf} for reading', ovf=>$ovf);
 }
 
 sub _parse_dom
@@ -122,7 +127,7 @@ sub _parse_dom
       my $disk_reference=(split("/", _node_val($disk,"rasd:HostResource/text()")))[-1];
       my $disk_name=_node_val($root,'/Envelope/References/File[contains(@ovf:id,/Envelope/DiskSection/Disk[contains(@ovf:diskId,"'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
       my $path = $ENV{'TEMP_DIR'}.$disk_name;
-      $info{src} $source->get_volume($path);
+      $info{src} = $source->get_volume($path);
 
       push(@{$meta{disks}}, \%info);
     }
@@ -139,8 +144,8 @@ sub _parse_dom
       my $disk_reference=(split("/", _node_val($disk,"rasd:HostResource/text()")))[-1];
       my $disk_name=_node_val($root,'/Envelope/References/File[contains(@ovf:id,/Envelope/DiskSection/Disk[contains(@ovf:diskId,"'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
       my $path = $ENV{'TEMP_DIR'}.$disk_name;
-      $info{src} $source->get_volume($path);
-      $peripherals++;
+      $info{src} = $source->get_volume($path);
+      $ide_peripherals++;
       push(@{$meta{disks}}, \%info);
     }
   }
@@ -151,7 +156,7 @@ sub _parse_dom
     my %info;
     foreach my $removable (_get_resources($root, $ide_controllers->{$ide_controller}, $hw_families{'CD Drive'})) {
       my $cd_number = _node_val($removable, "rasd:AddressOnParent/text()") ;
-      $info{device} = "hd"._numbers_to_letters($cd_number+ide_peripherals);
+      $info{device} = "hd"._numbers_to_letters($cd_number+$ide_peripherals);
       $info{type} = "cdrom";
       $ide_peripherals++;
       push(@{$meta{removables}}, \%info);
@@ -213,24 +218,28 @@ sub _numbers_to_letters
 
 sub _verify_manifest
 {
+  my $self = shift;
+
+  my $mf_path = $self->{path}.$self->{filename}.'.mf';
   my $manifest;
-  open($manifest, '<' $self->{path}.$self->{filename}.'mf');
-   or v2vdie __x('Failed to open {path} {filename}: {}',
-		 path=> $self=>{path}, filename=>$self->{filename}, error=>$!);
+  open($manifest, '<', $mf_path)
+   or v2vdie __x('Failed to open {path} {filename}: {error}',
+         path => $self->{path}, filename=>$self->{filename}, error=>$!);
+
   my %files;
-  while($line=<$manifest>) {
+  while(my $line=<$manifest>) {
     my ($file,$sha1) = ($line=~/\((.*?)\)=\s(.*?)$/);
     $files{$file}=$sha1;
   }
   close($manifest);
 
-  while (($file,$sha1checksum) = each(%files)) {
+  while (my ($file,$checksum) = each(%files)) {
     my $fh;
     open($fh, $file);
     my $sha1 = Digest::SHA1->new;
     $sha1->addfile($fh);
-    unless ($sha1->hexdigest==$sha1checksum){
-     v2vdie("The checksum on {file} as failed", file=>$file); 
+    unless ($sha1->hexdigest==$checksum){
+     v2vdie("The checksum on {file} as failed", file=>$file);
     }
     close $fh;
   }
