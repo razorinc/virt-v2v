@@ -67,7 +67,7 @@ sub new
     bless($self, $class);
 
     $self->_uncompress_archive($filename);
-    $self->_verify_md5();
+    $self->_verify_manifest();
     $self->_get_meta();
     return $self;
 }
