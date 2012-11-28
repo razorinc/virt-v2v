@@ -65,7 +65,6 @@ sub new
     bless($self, $class);
 
     $self->{extractdir} = tempdir(CLEANUP => 1);
-    $self->{name} = (split('.', basename($ova), 2))[0];
 
     $self->_uncompress_archive($ova);
     $self->_verify_manifest();
@@ -86,7 +85,7 @@ sub _get_meta
 {
     my $self = shift;
 
-    my $ovf = $self->{extractdir}.'/'.$self->{name}.'.ovf';
+    my ($ovf) = glob($self->{extractdir}.'/*.ovf');
     open(my $xml, '<', $ovf)
         or v2vdie __x('Failed to open {ovf} for reading', ovf => $ovf);
 }
@@ -213,7 +212,7 @@ sub _verify_manifest
 {
     my $self = shift;
 
-    my $mf_path = $self->{extractdir}.'/'.$self->{name}.'.mf';
+    my ($mf_path) = glob($self->{extractdir}.'/*.mf');
     open(my $manifest, '<', $mf_path)
         or v2vdie __x('Failed to open {path}: {error}',
                       path => $mf_path, error => $!);
