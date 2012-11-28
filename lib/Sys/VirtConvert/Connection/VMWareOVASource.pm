@@ -20,8 +20,8 @@ package Sys::VirtConvert::Connection::VMWareOVASource;
 use strict;
 use warnings;
 
-use File::stat;
-use Sys::Virt;
+use File::Basename;
+use File::Temp qw(tempdir);
 use XML::DOM;
 use XML::DOM::XPath;
 use Archive::Extract;
@@ -59,17 +59,16 @@ $Archive::Extract::PREFER_BIN = 1;
 sub new
 {
     my $class = shift;
-    my($filename, $target) = @_;
+    my($ova, $target) = @_;
 
     my $self = {};
-    $self->{filename} = $filename;
-
-    my $virtual_machine = (split('.',basename($filename),2))[0];
-    $self->{path} = ENV{"TEMP_DIR"}.$virtual_machine;
     bless($self, $class);
 
-    $self->_uncompress_archive($filename);
-    $self->_verify_md5();
+    $self->{extractdir} = tempdir(CLEANUP => 1);
+    $self->{name} = (split('.', basename($ova), 2))[0];
+
+    $self->_uncompress_archive($ova);
+    $self->_verify_manifest();
     $self->_get_meta();
     return $self;
 }
@@ -77,25 +76,19 @@ sub new
 sub _uncompress_archive
 {
     my $self = shift;
-    my $path = @_;
-    my $tmp_directory = $ENV{"TEMP_DIR"};
-    my $ae = Archive::Extract(archive => $path);
-    unless(-d $tmp_directory) {
-        mkdir $tmp_directory or die;
-    }
-    $ae->extract(to=> $tmp_directory.basename($self->path) );
+    my ($ova) = @_;
 
-#    return
+    my $ae = Archive::Extract->new(archive => $ova, type => 'tar');
+    $ae->extract(to => $self->{extractdir});
 }
 
 sub _get_meta
 {
     my $self = shift;
 
-    my $ovf = $self->{path}.'.ovf';
-    my $xml;
-    open($xml, '<', $ovf)
-        or v2vdie __x('Failed to open {ovf} for reading', ovf=>$ovf);
+    my $ovf = $self->{extractdir}.'/'.$self->{name}.'.ovf';
+    open(my $xml, '<', $ovf)
+        or v2vdie __x('Failed to open {ovf} for reading', ovf => $ovf);
 }
 
 sub _parse_dom
@@ -220,12 +213,10 @@ sub _verify_manifest
 {
     my $self = shift;
 
-    my $mf_path = $self->{path}.$self->{filename}.'.mf';
-    my $manifest;
-    open($manifest, '<', $mf_path)
-        or v2vdie __x('Failed to open {path} {filename}: {error}',
-                      path => $self->{path}, filename => $self->{filename},
-                      error => $!);
+    my $mf_path = $self->{extractdir}.'/'.$self->{name}.'.mf';
+    open(my $manifest, '<', $mf_path)
+        or v2vdie __x('Failed to open {path}: {error}',
+                      path => $mf_path, error => $!);
 
     my %files;
     while(my $line=<$manifest>) {
