@@ -33,6 +33,7 @@ use Sys::VirtConvert::Connection::LibVirtSource;
 use Sys::VirtConvert::Connection::LibVirtTarget;
 use Sys::VirtConvert::Connection::LibVirtXMLSource;
 use Sys::VirtConvert::Connection::RHEVTarget;
+use Sys::VirtConvert::Connection::VMWareOVASource;
 use Sys::VirtConvert::GuestfsHandle;
 use Sys::VirtConvert::Util qw(:DEFAULT logmsg_init);
 
@@ -82,6 +83,10 @@ Guest argument is the name of a libvirt domain.
 =item I<libvirtxml>
 
 Guest argument is the path to an XML file containing a libvirt domain.
+
+=item I<ova>
+
+Guest argument is the path to a VMware-exported OVA file.
 
 =back
 
@@ -543,6 +548,20 @@ elsif ($input_method eq "libvirt") {
         logmsg WARN, __x('{modulename} only takes a single domain name.',
                           modulename => 'libvirt');
     }
+}
+
+elsif ($input_method eq 'ova') {
+    my $path = shift(@ARGV) or
+       pod2usage({ -message => __"You must specify a filename",
+                      -exitval => 1 });
+
+    # Warn if we were given more than 1 argument
+    if (scalar(@ARGV) > 0) {
+        logmsg WARN, __x('{modulename} only takes a single filename.',
+                         modulename => 'ova');
+    }
+
+    $source = Sys::VirtConvert::Connection::VMWareOVASource->new($path);
 }
 
 else {
