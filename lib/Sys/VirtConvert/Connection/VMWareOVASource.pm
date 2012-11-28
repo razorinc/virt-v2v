@@ -78,7 +78,7 @@ sub _uncompress_archive
     my $self = shift;
     my ($ova) = @_;
 
-    my $ae = Archive::Extract->new(archive => $ova);
+    my $ae = Archive::Extract->new(archive => $ova, type => 'tar');
     $ae->extract(to => $self->{extractdir});
 }
 
