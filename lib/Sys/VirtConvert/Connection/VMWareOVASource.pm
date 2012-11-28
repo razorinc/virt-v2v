@@ -97,8 +97,8 @@ sub _parse_dom
     my %meta;
 
     my $root=$dom->getDocumentElement();
-    $meta{name} = _node_val($root,'/Envelope/VirtualSystem/Name/text()');
-    $meta{memory} = _node_val($root,"/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
+    $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
+    $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
     $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Cpu}");
 
     # return vmx-08 that is vmware esxi 5.0
@@ -114,11 +114,11 @@ sub _parse_dom
 
     for my $scsi_controller (sort keys %$scsi_controllers) {
         my %info;
-        foreach my $disk (_get_resources($root,$scsi_controllers->{$scsi_controller}, $hw_families{'Disk Drive'})){
-            my $hd_number = _node_val($disk,"rasd:AddressOnParent/text()") ;
+        foreach my $disk (_get_resources($root, $scsi_controllers->{$scsi_controller}, $hw_families{'Disk Drive'})){
+            my $hd_number = _node_val($disk, "rasd:AddressOnParent/text()") ;
             $info{device} = "sd".numbers_to_letters($hd_number); #transformation from numbers to letters
-            my $disk_reference=(split("/", _node_val($disk,"rasd:HostResource/text()")))[-1];
-            my $disk_name=_node_val($root,'/Envelope/References/File[contains(@ovf:id,/Envelope/DiskSection/Disk[contains(@ovf:diskId,"'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
+            my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
+            my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
             my $path = $ENV{'TEMP_DIR'}.$disk_name;
             $info{src} = $source->get_volume($path);
 
@@ -132,10 +132,10 @@ sub _parse_dom
     for my $ide_controller (sort keys %$ide_controllers) {
         my %info;
         foreach my $disk (_get_resources($root, $ide_controllers->{$ide_controller}, $hw_families{'Disk Drive'})) {
-            my $hd_number = _node_val($disk,"rasd:AddressOnParent/text()") ;
+            my $hd_number = _node_val($disk, "rasd:AddressOnParent/text()") ;
             $info{device} = "sd".numbers_to_letters($hd_number); #transformation from numbers to letters
-            my $disk_reference=(split("/", _node_val($disk,"rasd:HostResource/text()")))[-1];
-            my $disk_name=_node_val($root,'/Envelope/References/File[contains(@ovf:id,/Envelope/DiskSection/Disk[contains(@ovf:diskId,"'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
+            my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
+            my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
             my $path = $ENV{'TEMP_DIR'}.$disk_name;
             $info{src} = $source->get_volume($path);
             $ide_peripherals++;
@@ -158,7 +158,7 @@ sub _parse_dom
 
     $meta{nics} = [];
 
-    foreach my $nic (_collect_controllers($root,$hw_families{'Ethernet'} ) ) {
+    foreach my $nic (_collect_controllers($root, $hw_families{'Ethernet'} ) ) {
         my %info;
 
         $info{mac} = ""; # it's assigned automatically by the hypervisor
@@ -172,16 +172,15 @@ sub _parse_dom
 
 sub _collect_controllers
 {
-    my ($root,$kind) = @_;
+    my ($root, $kind) = @_;
 
     my %controllers;
 
-    foreach my $controller ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $kind ] ")) {
-        $controllers{_node_val($controller, 'rasd:Address/text()')}=_node_val($controller, 'rasd:InstanceID/text()');
+    foreach my $controller ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $kind]")) {
+        $controllers{_node_val($controller, 'rasd:Address/text()')} = _node_val($controller, 'rasd:InstanceID/text()');
     }
 
     return \%controllers;
-
 }
 
 sub _get_resources
