@@ -100,17 +100,12 @@ sub _get_meta
     my $self = shift;
 
     my ($ovf) = glob($self->{extractdir}.'/*.ovf');
-    open(my $xml, '<', $ovf)
+    my $dom = new XML::DOM::Parser->parsefile($ovf)
         or v2vdie __x('Failed to open {ovf} for reading', ovf => $ovf);
-}
-
-sub _parse_dom
-{
-    my ($source, $dom) = @_;
+    my $root = $dom->getDocumentElement();
 
     my %meta;
 
-    my $root=$dom->getDocumentElement();
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
     $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
     $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Cpu}");
@@ -134,7 +129,7 @@ sub _parse_dom
             my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
             my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
             my $path = $ENV{'TEMP_DIR'}.$disk_name;
-            $info{src} = $source->get_volume($path);
+            $info{src} = $self->get_volume($path);
 
             push(@{$meta{disks}}, \%info);
         }
@@ -151,7 +146,7 @@ sub _parse_dom
             my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
             my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
             my $path = $ENV{'TEMP_DIR'}.$disk_name;
-            $info{src} = $source->get_volume($path);
+            $info{src} = $self->get_volume($path);
             $ide_peripherals++;
             push(@{$meta{disks}}, \%info);
         }
