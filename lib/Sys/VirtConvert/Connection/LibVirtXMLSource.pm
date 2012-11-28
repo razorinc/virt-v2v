@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use File::stat;
-use Sys::Virt;
 use XML::DOM;
 use XML::DOM::XPath;
 
