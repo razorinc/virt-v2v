@@ -55,8 +55,7 @@ I<path>.
 sub new
 {
     my $class = shift;
-
-    my ($path, $target) = @_;
+    my ($path) = @_;
 
     my $self = {};
     $self->{path} = $path;
