@@ -105,6 +105,7 @@ sub _get_meta
     my $root = $dom->getDocumentElement();
 
     my %meta;
+    $self->{meta} = \%meta;
 
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
     $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
