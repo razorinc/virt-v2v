@@ -187,7 +187,11 @@ sub _collect_controllers
     my %controllers;
 
     foreach my $controller ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $kind]")) {
-        $controllers{_node_val($controller, 'rasd:Address/text()')} = _node_val($controller, 'rasd:InstanceID/text()');
+        my $address = _node_val($controller, 'rasd:Address/text()');
+        my $instanceID = _node_val($controller, 'rasd:InstanceID/text()');
+        $address ||= '0'; # Item doesn't have rasd:Address if there's only 1
+
+        $controllers{$address} = $instanceID;
     }
 
     return \%controllers;
