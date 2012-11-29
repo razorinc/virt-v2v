@@ -108,7 +108,17 @@ sub _get_meta
     $self->{meta} = \%meta;
 
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
-    $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
+    my ($memory) = $root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{Memory}]");
+    if (defined($memory)) {
+        my $units = _node_val($memory, 'rasd:AllocationUnits/text()');
+        $units =~ /^byte \* 2\^(\d+)$/ or die "Unexpected memory units: $units";
+        $units = 2 ** $1;
+        $memory = _node_val($memory, 'rasd:VirtualQuantity/text()') * $units;
+    } else {
+        $memory = 1 * 1024 * 1024 * 1024; # Shouldn't happen, but default to 1GB RAM
+    }
+    $meta{memory} = $memory;
+
     $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{CPU}");
 
     # return vmx-08 that is vmware esxi 5.0
