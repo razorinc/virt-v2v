@@ -119,7 +119,8 @@ sub _get_meta
     }
     $meta{memory} = $memory;
 
-    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{CPU}");
+    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{CPU}]/VirtualQuantity");
+    $meta{cpus} ||= 1; # Shouldn't happen, but default to 1 CPU
 
     # return vmx-08 that is vmware esxi 5.0
     $meta{src_type} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/System/vssd:VirtualSystemType/text()");
