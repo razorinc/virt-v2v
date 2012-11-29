@@ -168,16 +168,14 @@ sub _get_meta
 
     $meta{nics} = [];
 
-    foreach my $nic (_collect_controllers($root, $hw_families{'Ethernet'} ) ) {
+    foreach my $nic ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{Ethernet}]")) {
         my %info;
 
-        $info{mac} = ""; # it's assigned automatically by the hypervisor
-        $info{vnet} = "";    # not clear how to get it from the ovf
-        $info{vnet_type} = ""; #not clear how to get it from the ovf
+        $info{mac} = undef; # it's assigned automatically by the hypervisor
+        $info{vnet} = _node_val($nic, 'rasd:Connection/text()');    # not clear how to get it from the ovf
+        $info{vnet_type} = _node_val($nic, 'rasd:ResourceSubType/text()');
         push(@{$meta{nics}}, \%info);
     }
-
-
 }
 
 sub _collect_controllers
