@@ -36,6 +36,18 @@ use Locale::TextDomain 'virt-v2v';
 @Sys::VirtConvert::Connection::VMWareOVASource::ISA =
     qw(Sys::VirtConvert::Connection::Source);
 
+=pod
+
+=head1 NAME
+
+Sys::VirtConvert::Connection::VMWareOVASource - Read from a VMware OVA file
+
+=head1 METHODS
+
+=over
+
+=cut
+
 # Hardware profiles for Hardware Resources in OVF file
 
 our %hw_families = (
@@ -54,6 +66,13 @@ our %hw_families = (
 # Support for uncompressing big files
 
 $Archive::Extract::PREFER_BIN = 1;
+
+=item new(path)
+
+Create a new VMWareOVASource connection. I<path> must be the path to an OVA
+file.
+
+=cut
 
 
 sub new
@@ -304,5 +323,23 @@ sub _get_volume
                                                     $is_sparse, $is_block,
                                                     $transfer);
 }
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Red Hat Inc.
+
+=head1 LICENSE
+
+Please see the file COPYING.LIB for the full license.
+
+=head1 SEE ALSO
+
+L<Sys::VirtConvert::Connection::Source(3pm)>,
+L<virt-v2v(1)>,
+L<http://libguestfs.org/>.
+
+=cut
 
 1;
