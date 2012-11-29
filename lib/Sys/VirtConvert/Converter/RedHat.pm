@@ -337,7 +337,7 @@ sub list_kernels
     # Start by adding the default kernel
     my $default = $g->command(['grubby', '--default-kernel']);
     chomp($default);
-    push(@kernels, $default);
+    push(@kernels, $default) if length($default) > 0;
 
     # This is how the grub2 config generator enumerates kernels
     foreach my $kernel ($g->glob_expand('/boot/kernel-*'),
