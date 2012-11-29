@@ -105,6 +105,7 @@ sub _get_meta
     my $root = $dom->getDocumentElement();
 
     my %meta;
+    $self->{meta} = \%meta;
 
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
     $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
@@ -167,16 +168,14 @@ sub _get_meta
 
     $meta{nics} = [];
 
-    foreach my $nic (_collect_controllers($root, $hw_families{'Ethernet'} ) ) {
+    foreach my $nic ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{Ethernet}]")) {
         my %info;
 
-        $info{mac} = ""; # it's assigned automatically by the hypervisor
-        $info{vnet} = "";    # not clear how to get it from the ovf
-        $info{vnet_type} = ""; #not clear how to get it from the ovf
+        $info{mac} = undef; # it's assigned automatically by the hypervisor
+        $info{vnet} = _node_val($nic, 'rasd:Connection/text()');    # not clear how to get it from the ovf
+        $info{vnet_type} = _node_val($nic, 'rasd:ResourceSubType/text()');
         push(@{$meta{nics}}, \%info);
     }
-
-
 }
 
 sub _collect_controllers
@@ -186,7 +185,11 @@ sub _collect_controllers
     my %controllers;
 
     foreach my $controller ($root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $kind]")) {
-        $controllers{_node_val($controller, 'rasd:Address/text()')} = _node_val($controller, 'rasd:InstanceID/text()');
+        my $address = _node_val($controller, 'rasd:Address/text()');
+        my $instanceID = _node_val($controller, 'rasd:InstanceID/text()');
+        $address ||= '0'; # Item doesn't have rasd:Address if there's only 1
+
+        $controllers{$address} = $instanceID;
     }
 
     return \%controllers;
