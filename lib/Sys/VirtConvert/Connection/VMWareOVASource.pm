@@ -108,8 +108,19 @@ sub _get_meta
     $self->{meta} = \%meta;
 
     $meta{name} = _node_val($root, '/Envelope/VirtualSystem/Name/text()');
-    $meta{memory} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{Memory}");
-    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item/VirtualQuantity[../rasd:ResourceType = $hw_families{CPU}");
+    my ($memory) = $root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{Memory}]");
+    if (defined($memory)) {
+        my $units = _node_val($memory, 'rasd:AllocationUnits/text()');
+        $units =~ /^byte \* 2\^(\d+)$/ or die "Unexpected memory units: $units";
+        $units = 2 ** $1;
+        $memory = _node_val($memory, 'rasd:VirtualQuantity/text()') * $units;
+    } else {
+        $memory = 1 * 1024 * 1024 * 1024; # Shouldn't happen, but default to 1GB RAM
+    }
+    $meta{memory} = $memory;
+
+    $meta{cpus} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:ResourceType = $hw_families{CPU}]/VirtualQuantity");
+    $meta{cpus} ||= 1; # Shouldn't happen, but default to 1 CPU
 
     # return vmx-08 that is vmware esxi 5.0
     $meta{src_type} = _node_val($root, "/Envelope/VirtualSystem/VirtualHardwareSection/System/vssd:VirtualSystemType/text()");
@@ -117,52 +128,47 @@ sub _get_meta
     $meta{features} = []; # TBD: not sure how to gather them from OVF yet
 
     $meta{disks} = [];
+    $meta{removables} = [];
 
     #iterate on scsi controllers Id
 
     my $scsi_controllers = _collect_controllers($root, $hw_families{'SCSI Controller'});
-
+    my $scsi_letter = 'a';
     for my $scsi_controller (sort keys %$scsi_controllers) {
-        my %info;
-        foreach my $disk (_get_resources($root, $scsi_controllers->{$scsi_controller}, $hw_families{'Disk Drive'})){
-            my $hd_number = _node_val($disk, "rasd:AddressOnParent/text()") ;
-            $info{device} = "sd".numbers_to_letters($hd_number); #transformation from numbers to letters
-            my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
-            my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
-            my $path = $ENV{'TEMP_DIR'}.$disk_name;
-            $info{src} = $self->get_volume($path);
+        foreach my $disk (_get_resources($root, $scsi_controllers->{$scsi_controller})) {
+            my %info;
+            $info{device} = 'sd'.$scsi_letter++;
 
-            push(@{$meta{disks}}, \%info);
+            my $resource_type = _node_val($disk, 'rasd:ResourceType/text()');
+            if ($resource_type eq $hw_families{'Disk Drive'}) {
+                $info{src} = $self->_get_volume($root, $disk);
+                push(@{$meta{disks}}, \%info);
+            }
+
+            elsif ($resource_type eq $hw_families{'CD Drive'}) {
+                $info{type} = 'cdrom';
+                push(@{$meta{removables}}, \%info);
+            }
         }
-
     }
 
-    my $ide_peripherals = 0;
     my $ide_controllers = _collect_controllers($root, $hw_families{'IDE Controller'});
+    my $ide_letter = 'a';
     for my $ide_controller (sort keys %$ide_controllers) {
-        my %info;
         foreach my $disk (_get_resources($root, $ide_controllers->{$ide_controller}, $hw_families{'Disk Drive'})) {
-            my $hd_number = _node_val($disk, "rasd:AddressOnParent/text()") ;
-            $info{device} = "sd".numbers_to_letters($hd_number); #transformation from numbers to letters
-            my $disk_reference=(split("/", _node_val($disk, "rasd:HostResource/text()")))[-1];
-            my $disk_name=_node_val($root, '/Envelope/References/File[contains(@ovf:id, /Envelope/DiskSection/Disk[contains(@ovf:diskId, "'.$disk_reference.'")]/@ovf:fileRef )]/@ovf:href');
-            my $path = $ENV{'TEMP_DIR'}.$disk_name;
-            $info{src} = $self->get_volume($path);
-            $ide_peripherals++;
-            push(@{$meta{disks}}, \%info);
-        }
-    }
+            my %info;
+            $info{device} = 'hd'.$ide_letter++;
 
-    $meta{removables} = [];
+            my $resource_type = _node_val($disk, 'rasd:ResourceType/text()');
+            if ($resource_type eq $hw_families{'Disk Drive'}) {
+                $info{src} = $self->_get_volume($root, $disk);
+                push(@{$meta{disks}}, \%info);
+            }
 
-    for my $ide_controller (sort keys %$ide_controllers) {
-        my %info;
-        foreach my $removable (_get_resources($root, $ide_controllers->{$ide_controller}, $hw_families{'CD Drive'})) {
-            my $cd_number = _node_val($removable, "rasd:AddressOnParent/text()") ;
-            $info{device} = "hd"._numbers_to_letters($cd_number+$ide_peripherals);
-            $info{type} = "cdrom";
-            $ide_peripherals++;
-            push(@{$meta{removables}}, \%info);
+            elsif ($resource_type eq $hw_families{'CD Drive'}) {
+                $info{type} = 'cdrom';
+                push(@{$meta{removables}}, \%info);
+            }
         }
     }
 
@@ -197,8 +203,9 @@ sub _collect_controllers
 
 sub _get_resources
 {
-    my ($root, $parent, $kind) = @_;
-    return $root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:Parent = $parent and rasdResourceType = $kind");
+    my ($root, $parent) = @_;
+    return sort {_node_val($a, 'rasd:AddressOnParent/text()') <=> _node_val($b, 'rasd:AddressOnParent/text()')}
+                $root->findnodes("/Envelope/VirtualSystem/VirtualHardwareSection/Item[rasd:Parent = $parent");
 }
 
 sub _node_val
@@ -250,6 +257,52 @@ sub _verify_manifest
 
         close $fh;
     }
+}
+
+sub _get_volume
+{
+    my $self = shift;
+    my ($root, $item) = @_;
+
+    my $host_resource = _node_val($item, 'rasd:HostResource/text()');
+    $host_resource =~ m{^ovf:/disk/(.*)} or die "Unexpected host_resource: $host_resource";
+    my $disk_name = $1;
+
+    my ($disk) = $root->findnodes("/Envelope/DiskSection/Disk[\@ovf:diskId = '$disk_name']");
+    die "No Disk section for $disk_name" unless defined($disk);
+    my $fileRef = _node_val($disk, '@ovf:fileRef');
+    die "No fileRef for Disk $disk_name" unless defined($fileRef);
+
+    my ($file) = $root->findnodes("/Envelope/References/File[\@ovf:id = '$fileRef']");
+    die "No File section for fileRef $fileRef" unless defined($file);
+
+    my $name = _node_val($file, '@ovf:href');
+    die "No href for file $fileRef" unless defined($name);
+
+    my $path = $self->{extractdir}."/$name";
+
+    die __x("Guest disk image {path} is not readable.\n", path => $path)
+        unless (-r $path);
+
+    my $format = 'vmdk';
+    my $usage = _node_val($disk, '@ovf:populatedSize');
+
+    my $units = _node_val($disk, '@ovf:capacityAllocationUnits');
+    $units =~ /^byte \* 2\^(\d+)$/
+        or die "Unexpected ovf:capacityAllocationUnits: $units";
+    $units = 2 ** $1;
+    my $size = _node_val($disk, '@ovf:capacity') * $units;
+
+    my $is_block = 0;
+    my $is_sparse = $size > $usage ? 1 : 0;
+
+    my $transfer = new Sys::VirtConvert::Transfer::Local($path, $is_block,
+                                                         $format, $is_sparse);
+
+    return new Sys::VirtConvert::Connection::Volume($name, $format, $path,
+                                                    $size, $usage,
+                                                    $is_sparse, $is_block,
+                                                    $transfer);
 }
 
 1;
