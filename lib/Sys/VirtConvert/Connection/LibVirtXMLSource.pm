@@ -1,5 +1,5 @@
 # Sys::VirtConvert::Connection::LibVirtXMLSource
-# Copyright (C) 2009-2011 Red Hat Inc.
+# Copyright (C) 2009-2012 Red Hat Inc.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ use Locale::TextDomain 'virt-v2v';
 
 =head1 NAME
 
-Sys::VirtConvert::Connection::Source::LibVirtXMLSource - Read domain XML from a
+Sys::VirtConvert::Connection::LibVirtXMLSource - Read domain XML from a
 file
 
 =head1 METHODS
@@ -185,7 +185,7 @@ sub get_volume
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Red Hat Inc.
+Copyright (C) 2009-2012 Red Hat Inc.
 
 =head1 LICENSE
 
@@ -193,7 +193,7 @@ Please see the file COPYING.LIB for the full license.
 
 =head1 SEE ALSO
 
-L<Sys::VirtConvert::Connection::Source(3pm>,
+L<Sys::VirtConvert::Connection::Source(3pm)>,
 L<virt-v2v(1)>,
 L<http://libguestfs.org/>.
 
